@@ -1,0 +1,382 @@
+#!/bin/bash
+#
+# This script probes a system for properties useful for OSG-XD,
+# OSG-Direct and OSG-Connect users. To be able to support both
+# integration with GlideinWMS and HTCondor startd cron, argv1 is used
+# to determine what mode we are in. If argv1 points to a glidein_config
+# file, GlideinWMS mode is assumed. If argv1 is "NONE", HTCondor startd
+# cron mode is assumed.
+#
+# More information:
+#    http://www.uscms.org/SoftwareComputing/Grid/WMS/glideinWMS/doc.prd/factory/custom_scripts.html
+#    http://research.cs.wisc.edu/htcondor/manual/v8.2/4_4Hooks.html
+#
+# Example HTCondor startd cron entry:
+#
+# STARTD_CRON_JOBLIST = $(STARTD_CRON_JOBLIST) osgvo
+# STARTD_CRON_osgvo_EXECUTABLE = /opt/osgvo/osgvo-node-advertise
+# STARTD_CRON_osgvo_PERIOD = 30m
+# STARTD_CRON_osgvo_MODE = periodic
+# STARTD_CRON_osgvo_RECONFIG = true
+# STARTD_CRON_osgvo_KILL = true
+# STARTD_CRON_osgvo_ARGS = NONE
+
+glidein_config="$1"
+
+function info {
+    if [ "$glidein_config" != "NONE" ]; then
+        echo "INFO  " $@
+    else
+        echo "INFO  " $@ 1>&2
+    fi
+}
+
+function warn {
+    if [ "$glidein_config" != "NONE" ]; then
+        echo "WARN  " $@
+    else
+        echo "WARN  " $@ 1>&2
+    fi
+}
+
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line $key "$value"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+    else
+        if [ "$atype" = "S" ]; then
+            echo "$key = \"$value\""
+        else
+            echo "$key = $value"
+        fi
+    fi
+}
+
+
+if [ "x$glidein_config" = "x" ]; then
+    glidein_config="NONE"
+    info "No arguments provided - assuming HTCondor startd cron mode"
+else
+    info "Arguments to the script: $@"
+fi
+
+info "This is a setup script for the OSG-FLOCK frontend."
+info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
+
+if [ "$glidein_config" != "NONE" ]; then
+    ###########################################################
+    # import advertise and add_condor_vars_line functions
+    add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+    source $add_config_line_source
+
+    condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+fi
+
+
+###########################################################
+# attributes below this line
+
+# operating system
+OS_NAME=`(lsb_release -i | sed 's/.*:[ \t]*//') 2>/dev/null`
+OS_VERSION=`(lsb_release -r | sed 's/.*:[ \t]*//' | sed 's/\..*//') 2>/dev/null`
+
+if [ "X$OS_NAME" != "X" ]; then
+
+    if (echo $OS_NAME | grep -E -i 'redhat|cent|scientific|rocks') >/dev/null 2>&1; then
+        OS_NAME="RHEL"
+    fi
+fi
+
+if [ "X$OS_NAME" = "X" ]; then
+    OS_NAME="Unknown"
+fi
+if [ "X$OS_VERSION" = "X" ]; then
+    OS_VERSION="Unknown"
+fi
+advertise OSGVO_OS_NAME "$OS_NAME" "S"
+advertise OSGVO_OS_VERSION "$OS_VERSION" "S"
+advertise OSGVO_OS_STRING "$OS_NAME $OS_VERSION" "S"
+
+# cpu info
+CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
+advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
+
+# available disk space
+OSGVO_PILOT_DF=`df -kP . | awk '{if (NR==2) print $4}'`
+advertise OSGVO_PILOT_DF "$OSGVO_PILOT_DF" "I"
+
+
+##################
+# squid
+
+HAS_SQUID="False"
+export OSG_SQUID_LOCATION=${OSG_SQUID_LOCATION:-UNAVAILABLE}
+if [ "$OSG_SQUID_LOCATION" != UNAVAILABLE ]; then
+    HAS_SQUID="True"
+fi
+advertise HAS_SQUID "$HAS_SQUID" "C"
+
+
+##################
+# cms software
+
+info "Checking for CMS software..."
+OSGVO_CMSSW_Path=""
+if [ -r "$OSG_APP/cmssoft/cms/cmsset_default.sh" ]
+then
+    OSGVO_CMSSW_Path="$OSG_APP/cmssoft/cms/"
+elif [ -r $VO_CMS_SW_DIR/cmsset_default.sh ]
+then
+    OSGVO_CMSSW_Path="$VO_CMS_SW_DIR/"
+fi
+if [ "x$OSGVO_CMSSW_Path" != "x" ]
+then
+    advertise OSGVO_CMSSW_Path "$OSGVO_CMSSW_Path" "S"
+fi
+
+OSGVO_CMSSW_Revision=""
+if [ "x$OSGVO_CMSSW_Path" != "x" -a -r "$OSGVO_CMSSW_Path/etc/cms-common/revision" ]
+then
+    OSGVO_CMSSW_Revision=$(head -c 10 "$OSGVO_CMSSW_Path/etc/cms-common/revision")
+fi
+if [ "x$OSGVO_CMSSW_Revision" != "x" ]
+then
+    advertise OSGVO_CMSSW_Revision "$OSGVO_CMSSW_Revision - $OSGVO_CMSSW_Path/etc/cms-common/revision" "S"
+fi
+
+
+##################
+# tcsh test
+
+info "Attempting to determine if tcsh is available and works..."
+cat >csh.test <<EOF
+#!/bin/tcsh -x
+/bin/true
+EOF
+chmod 755 csh.test
+HAS_TCSH="False"
+if ./csh.test >/dev/null 2>&1; then
+    HAS_TCSH="True"
+
+    # special case for SMU
+    HNAME=`hostname -f`
+    if [ "X$HNAME" = "Xcwnode10.hpc.smu.edu" ]; then
+        HAS_TCSH="False"
+    fi
+fi
+advertise HAS_TCSH "$HAS_TCSH" "C"
+rm -f csh.test
+
+
+##################
+# htpc core count
+
+info "Counting cores for HTPC jobs"
+group=`awk '/^GLIDECLIENT_Group /{print $2}' $glidein_config`
+if (echo $group | grep -i htpc) >/dev/null 2>&1; then
+    resource_name=`awk '/^GLIDEIN_ResourceName /{print $2}' $glidein_config`
+    core_count=`cat /proc/cpuinfo | grep ^processor | wc -l`
+    if [ "x$resource_name" = "xTusker" ]; then
+        core_count="8"
+    fi
+    advertise HTPC_CORES "$core_count"
+    add_condor_vars_line HTPC_CORES "I" "-" "+" "Y" "Y" "+"
+fi
+
+
+##################
+# cvmfs filesystem availability
+
+info "Checking for CVMFS availability and attributes..."
+for FS in \
+   oasis.opensciencegrid.org \
+   icecube.opensciencegrid.org \
+   atlas.cern.ch \
+   cms.cern.ch \
+; do
+    FS_CONV=`echo "$FS" | sed 's/\./_/g'`
+    FS_ATTR="HAS_CVMFS_$FS_CONV"
+    RESULT="False"
+    if [ -e /cvmfs/$FS/. ]; then
+        RESULT="True"
+        # add the revision
+        REV_ATTR="CVMFS_${FS_CONV}_REVISION"
+        REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+        if [ "x$REV_VAL" != "x" ]; then
+            # make sure it is an integer
+            if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                advertise $REV_ATTR "$REV_VAL" "I"
+            fi
+        fi
+    fi
+    advertise $FS_ATTR "$RESULT" "C"
+done
+
+# update timestamp?
+TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
+TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
+if [ "x$TS_VAL" != "x" ]; then
+    # make sure it is an integer
+    if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
+        advertise $TS_ATTR "$TS_VAL" "I"
+    fi
+fi
+
+info "Checking for PALMS availability..."
+RESULT="False"
+if (. /cvmfs/oasis.opensciencegrid.org/osg/palms/setup) >/dev/null 2>&1; then
+    RESULT="True"
+fi
+advertise HAS_CVMFS_PALMS "$RESULT" "C"
+
+
+##################
+# Java
+
+HAS_JAVA="False"
+if java -Xmx100m -version >/dev/null 2>&1; then
+    HAS_JAVA="True"
+fi
+advertise HAS_JAVA "$HAS_JAVA" "C"
+
+
+##################
+# timeout
+
+HAS_TIMEOUT="False"
+if /usr/bin/timeout --version >/dev/null 2>&1; then
+    HAS_TIMEOUT="True"
+fi
+advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
+
+
+##################
+# some basic libs
+for LIB in \
+    /usr/lib64/libgfortran.so.3 \
+    /usr/lib64/libglib-2.0.so \
+    /lib64/libglib-2.0.so.0 \
+    /usr/lib64/libgsl.so.0 \
+    /usr/lib64/libgslcblas.so.0 \
+; do
+    ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/-]/_/g'`
+    HAS_LIB="False"
+    if [ -e $LIB ]; then
+        HAS_LIB="True"
+    fi
+    advertise $ATTR "$HAS_LIB" "C"
+done
+
+if (rpm -qa | egrep 'glib2-2\.28') >/dev/null 2>&1; then
+    advertise HAS_GLIB2_228 "True" "C"
+fi
+
+
+##################
+# R
+
+HAS_R="False"
+if R --version >/dev/null 2>&1; then
+    HAS_R="True"
+    R_VERSION=`(R --version 2>&1 | head -n1 | sed 's/"//g') 2>/dev/null`
+    if [ "x$R_VERSION" != "x" ]; then
+        advertise R_VERSION "$R_VERSION" "S"
+    fi
+fi
+advertise HAS_R "$HAS_R" "C"
+
+
+##################
+# python/numpy/scipy
+
+info "Checking for Python availability..."
+if python --version >/dev/null 2>&1; then
+    PYTHON_VERSION=`python --version 2>&1 | sed 's/Python //'`
+    if [ "x$PYTHON_VERSION" != "x" ]; then
+        advertise PYTHON_VERSION "$PYTHON_VERSION" "S"
+    fi
+fi
+
+info "Checking for numpy/scipy availability..."
+cat >py.check <<EOF
+from numpy import array
+from os.path import exists
+from random import seed, shuffle
+from scipy.stats import chisquare
+from sys import argv
+EOF
+
+Has_Numpy_Scipy="False"
+if python py.check >/dev/null 2>&1; then
+    Has_Numpy_Scipy="True"
+fi
+advertise HAS_NUMPY "$Has_Numpy_Scipy" "C"
+rm -f py.check
+
+
+##################
+# Blast
+
+info "Checking for blast availability..."
+
+APP_BASE=$OSG_APP/`whoami`/ncbi-blast-2.2.28+
+DATA_BASE=$OSG_DATA/`whoami`/blastdb
+
+HAS_BLAST="False"
+if [ -e "$APP_BASE/bin/blastp" -a -e "$DATA_BASE/nr.00.phr" ]; then
+
+    # let's do a specific test to make sure things work
+    export BLASTDB=$OSG_DATA/`whoami`/blastdb
+    export PATH=$APP_BASE/bin:$PATH
+    #echo ">test query" > test.fasta
+    #echo "ACGTCCGAGACGCGAGCAGCGAGCAGCAGAGCGACGAGCAGCGACGA" >> test.fasta
+    #if (blastp -db nr -query test.fasta) >/dev/null; then
+        HAS_BLAST="True"
+
+        # we also want to put the dirs in the environment
+        advertise BLAST_INSTALL_DIR "$APP_BASE"
+        add_condor_vars_line BLAST_INSTALL_DIR "S" "-" "+" "Y" "Y" "+"
+
+        advertise BLAST_DB_DIR "$DATA_BASE"
+        add_condor_vars_line BLAST_DB_DIR "S" "-" "+" "Y" "Y" "+"
+    #fi
+fi
+advertise HAS_BLAST "$HAS_BLAST" "C"
+
+
+##################
+# PHSW (Matt Snowball)
+
+info "Checking for PHSW availability..."
+
+PHSW_RESULT="True"
+PHSWDIR=/cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw
+
+if ! (source $PHSWDIR/bin/set_grid_env.sh && grid-proxy-init -version && voms-proxy-init -version) 1>&2 ; then
+    PHSW_RESULT="False"
+fi
+
+(source $PHSWDIR/bin/set_grid_env.sh && globus-url-copy -version) 1>&2
+RC=$?
+if [ "x$RC" != "x0" -a "x$RC" != "x1" ]; then
+    PHSW_RESULT="False"
+fi
+
+if ! (source $PHSWDIR/bin/set_grid_env.sh && root.exe -l -b -q) 1>&2 ; then
+    PHSW_RESULT="False"
+fi
+
+advertise HAS_PHSW "$PHSW_RESULT" "C"
+
+
+##################
+info "All done - time to do some real work!"
+
