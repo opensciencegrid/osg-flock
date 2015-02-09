@@ -1,0 +1,138 @@
+#!/bin/bash
+#
+# This script runs a OSG VO benchmark,
+# To be able to support both integration with GlideinWMS and HTCondor
+# startd cron, argv1 is used to determine what mode we are in. If
+# argv1 points to a glidein_config file, GlideinWMS mode is assumed.
+# If argv1 is "NONE", HTCondor startd cron mode is assumed.
+#
+# More information:
+#    http://www.uscms.org/SoftwareComputing/Grid/WMS/glideinWMS/doc.prd/factory/custom_scripts.html
+#    http://research.cs.wisc.edu/htcondor/manual/v8.2/4_4Hooks.html
+#
+# Example HTCondor startd cron entry:
+#
+# STARTD_CRON_JOBLIST = $(STARTD_CRON_JOBLIST) osgvo
+# STARTD_CRON_osgvo_EXECUTABLE = /opt/osgvo/osgvobench
+# STARTD_CRON_osgvo_PERIOD = 30m
+# STARTD_CRON_osgvo_MODE = periodic
+# STARTD_CRON_osgvo_RECONFIG = true
+# STARTD_CRON_osgvo_KILL = true
+# STARTD_CRON_osgvo_ARGS = NONE
+
+# how often to run the benchmark
+RUN_PERCENT=25
+
+START_DIR="$PWD"
+
+glidein_config="$1"
+
+function info {
+    if [ "$glidein_config" != "NONE" ]; then
+        echo "INFO  " $@
+    else
+        echo "INFO  " $@ 1>&2
+    fi
+}
+
+function warn {
+    if [ "$glidein_config" != "NONE" ]; then
+        echo "WARN  " $@
+    else
+        echo "WARN  " $@ 1>&2
+    fi
+}
+
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line $key "$value"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+    else
+        if [ "$atype" = "S" ]; then
+            echo "$key = \"$value\""
+        else
+            echo "$key = $value"
+        fi
+    fi
+}
+
+
+function failure {
+    REASON="$1"
+    info "Failure: $REASON"
+    advertise OSGVO_BENCH_COMMENT "$REASON" "S"
+    advertise OSGVO_BENCH_STATUS "Failed" "S"
+
+    rm -rf osgvobench.tar.gz osgvobench
+    exit 0
+}
+
+
+if [ "x$glidein_config" = "x" ]; then
+    glidein_config="NONE"
+    info "No arguments provided - assuming HTCondor startd cron mode"
+else
+    info "Arguments to the script: $@"
+fi
+
+info "This is a benchmark script for the OSG-FLOCK frontend."
+info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
+
+if [ "$glidein_config" != "NONE" ]; then
+    ###########################################################
+    # import advertise and add_condor_vars_line functions
+    add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+    source $add_config_line_source
+
+    condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+fi
+
+
+###########################################################
+
+# we only want to run the benchmark every N startsups
+let "RVALUE = $RANDOM % 100 + 2"
+if [ $RVALUE -gt $RUN_PERCENT ]; then
+    info "Skipping benchmarking this time"
+    advertise OSGVO_BENCH_STATUS "Skipped" "S"
+    exit 0
+fi
+
+if [ ! -e /usr/bin/wget ]; then
+    failure "wget not found"
+fi
+
+info "Running benchmarks - please wait..."
+
+if ! (wget -nv -O osgvobench.tar.gz http://xd-login.opensciencegrid.org/scratch/rynge/osgvobench.tar.gz && tar xzf osgvobench.tar.gz) >/dev/null 2>&1; then
+    failure "Unable to download/untar the tests"
+fi
+
+SCORE=`cd osgvobench && ./run`
+RC=$?
+if [ "x$RC" != "x0" ]; then
+    failure "benchmark script failed with exit code $RC"
+fi
+if [ "x$SCORE" == "x" ]; then
+    failure "benchmark script did not output anything"
+fi
+if [[ $SCORE =~ ^-?[0-9]+$ ]]; then
+    info "Benchmark successful. Score: $SCORE"
+    advertise OSGVO_BENCH_SCORE "$SCORE" "I"
+    advertise OSGVO_BENCH_STATUS "Ok" "S"
+else
+    failure "$SCORE is not an integer"
+fi
+
+rm -rf osgvobench.tar.gz osgvobench
+
+exit 0
+

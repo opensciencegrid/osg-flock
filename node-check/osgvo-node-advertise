@@ -261,13 +261,14 @@ advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 ##################
 # some basic libs
 for LIB in \
+    /usr/lib64/libstdc++.so.6 \
     /usr/lib64/libgfortran.so.3 \
     /usr/lib64/libglib-2.0.so \
     /lib64/libglib-2.0.so.0 \
     /usr/lib64/libgsl.so.0 \
     /usr/lib64/libgslcblas.so.0 \
 ; do
-    ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/-]/_/g'`
+    ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/\+\-]/_/g'`
     HAS_LIB="False"
     if [ -e $LIB ]; then
         HAS_LIB="True"
