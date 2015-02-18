@@ -21,7 +21,7 @@
 # STARTD_CRON_osgvo_ARGS = NONE
 
 # how often to run the benchmark
-RUN_PERCENT=25
+RUN_PERCENT=5
 
 START_DIR="$PWD"
 

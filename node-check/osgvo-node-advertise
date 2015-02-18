@@ -187,8 +187,7 @@ if (echo $group | grep -i htpc) >/dev/null 2>&1; then
     if [ "x$resource_name" = "xTusker" ]; then
         core_count="8"
     fi
-    advertise HTPC_CORES "$core_count"
-    add_condor_vars_line HTPC_CORES "I" "-" "+" "Y" "Y" "+"
+    advertise HTPC_CORES "$core_count" "I"
 fi
 
 
@@ -343,11 +342,9 @@ if [ -e "$APP_BASE/bin/blastp" -a -e "$DATA_BASE/nr.00.phr" ]; then
         HAS_BLAST="True"
 
         # we also want to put the dirs in the environment
-        advertise BLAST_INSTALL_DIR "$APP_BASE"
-        add_condor_vars_line BLAST_INSTALL_DIR "S" "-" "+" "Y" "Y" "+"
+        advertise BLAST_INSTALL_DIR "$APP_BASE" "S"
 
-        advertise BLAST_DB_DIR "$DATA_BASE"
-        add_condor_vars_line BLAST_DB_DIR "S" "-" "+" "Y" "Y" "+"
+        advertise BLAST_DB_DIR "$DATA_BASE" "S"
     #fi
 fi
 advertise HAS_BLAST "$HAS_BLAST" "C"
