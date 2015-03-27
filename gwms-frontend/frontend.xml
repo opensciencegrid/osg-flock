@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config>
-      <idle_vms_total curb="1000" max="1200"/>
-      <idle_vms_total_global curb="1300" max="1500"/>
-      <running_glideins_total curb="29000" max="30000"/>
-      <running_glideins_total_global curb="29000" max="30000"/>
+      <idle_vms_total curb="800" max="1000"/>
+      <idle_vms_total_global curb="800" max="1000"/>
+      <running_glideins_total curb="35000" max="40000"/>
+      <running_glideins_total_global curb="35000" max="40000"/>
    </config>
    <log_retention>
       <process_logs>
@@ -195,7 +195,7 @@
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
          </attrs>
          <files>
-            <file absfname="/opt/glideinwms/git/job-wrappers/2g-memlimit.sh" after_entry="True" const="True" executable="False" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/2g-memlimit.sh" after_entry="True" const="True" executable="False" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -382,34 +382,19 @@
       <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=osg-flock.grid.iu.edu" group="default" node="osg-flock.grid.iu.edu:9700-9999" secondary="True"/>
    </collectors>
    <files>
-      <file absfname="/opt/glideinwms/helpers/node-validation" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/glideinwms/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/glideinwms/git/node-check/osgvo-bench" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-bench" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/glideinwms/helpers/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/glideinwms/parrot_glidein_wrapper/parrot.tgz" after_entry="True" after_group="False" const="True" executable="False" untar="True" wrapper="False">
-         <untar_options absdir_outattr="GLIDEIN_PARROT" cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/glideinwms/parrot_glidein_wrapper/parrot_cfg" after_entry="True" after_group="False" const="True" executable="False" relfname="parrot_cfg" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/glideinwms/parrot_glidein_wrapper/parrot_setup" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/glideinwms/parrot_glidein_wrapper/cms_siteconf.tgz" after_entry="True" after_group="False" const="True" executable="False" untar="True" wrapper="False">
-         <untar_options absdir_outattr="GLIDEIN_CMS_SITECONF" cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/glideinwms/parrot_glidein_wrapper/parrot_cms_setup" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/glideinwms/git/job-wrappers/user-job-wrapper.sh" after_entry="True" after_group="False" const="True" executable="False" untar="False" wrapper="True">
+      <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" after_entry="True" after_group="False" const="True" executable="False" untar="False" wrapper="True">
          <untar_options cond_attr="TRUE"/>
       </file>
    </files>
