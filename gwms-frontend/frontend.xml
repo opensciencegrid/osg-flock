@@ -125,6 +125,8 @@
             <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" const="True" executable="True" wrapper="False" untar="False" />
+            <file absfname="/opt/git/plugins/stashcp_plugin" const="True" executable="False" wrapper="False" untar="False" />
          </files>
       </group>
       <group name="itbfactory" enabled="False">
