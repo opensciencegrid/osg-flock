@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#DEBUGFILE=/tmp/stash_debug.$PPID
-
-if [ $1 == "-classad" ]; then
+if [ "x$1" = "x-classad" ]; then
    echo "PluginVersion = \"0.1\""
    echo "PluginType = \"FileTransfer\""
    echo "SupportedMethods = \"stash\""

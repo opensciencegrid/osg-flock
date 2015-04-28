@@ -51,7 +51,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="604800"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="36000"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="83"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="84"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
    <groups>
@@ -165,7 +165,7 @@
       </group>
       <group name="main" enabled="True">
          <config>
-            <idle_glideins_per_entry max="100" reserve="5"/>
+            <idle_glideins_per_entry max="50" reserve="5"/>
             <idle_vms_per_entry curb="20" max="50"/>
             <idle_vms_total curb="200" max="500"/>
             <processing_workers matchmakers="3"/>
@@ -202,7 +202,7 @@
       </group>
       <group name="main_fnal_nocerts" enabled="True">
          <config>
-            <idle_glideins_per_entry max="100" reserve="5"/>
+            <idle_glideins_per_entry max="50" reserve="5"/>
             <idle_vms_per_entry curb="20" max="50"/>
             <idle_vms_total curb="200" max="500"/>
             <processing_workers matchmakers="3"/>
@@ -237,7 +237,7 @@
       </group>
       <group name="main_multicore" enabled="True">
          <config>
-            <idle_glideins_per_entry max="50" reserve="5"/>
+            <idle_glideins_per_entry max="30" reserve="5"/>
             <idle_vms_per_entry curb="20" max="50"/>
             <idle_vms_total curb="200" max="500"/>
             <processing_workers matchmakers="3"/>
@@ -272,7 +272,7 @@
       </group>
       <group name="main_with_certs" enabled="True">
          <config>
-            <idle_glideins_per_entry max="100" reserve="5"/>
+            <idle_glideins_per_entry max="50" reserve="5"/>
             <idle_vms_per_entry curb="20" max="50"/>
             <idle_vms_total curb="200" max="500"/>
             <processing_workers matchmakers="3"/>
