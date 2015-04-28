@@ -51,7 +51,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="604800"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="36000"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="87"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="88"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
    <groups>
@@ -388,14 +388,13 @@
       <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" wrapper="False" untar="False" />
       <file absfname="/opt/git/node-check/osgvo-bench" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" wrapper="False" untar="False" />
-      <file absfname="/opt/git/plugins/stashcp_plugin" const="True" after_entry="True" after_group="False" executable="False" wrapper="False" untar="False" />
       <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" after_entry="True" after_group="False" const="True" executable="False" untar="False" wrapper="True">
          <untar_options cond_attr="TRUE"/>
       </file>

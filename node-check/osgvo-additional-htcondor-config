@@ -15,8 +15,26 @@ condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}
 
 # stashcp - only use if oasis is available
 if [ -e /cvmfs/oasis.opensciencegrid.org/. ]; then
-    # make a copy of the file as we need to apply a chmod
-    cp client/stashcp_plugin.* stashcp_plugin
+    cat >stashcp_plugin <<EOF
+#!/bin/bash
+
+if [ "x\$1" = "x-classad" ]; then
+   echo "PluginVersion = \"0.1\""
+   echo "PluginType = \"FileTransfer\""
+   echo "SupportedMethods = \"stash\""
+
+   exit 0
+fi
+
+FULLSRC=\$1
+LOC=\$2
+SRC=\$(echo \$FULLSRC | cut -d':' -f2-)
+. /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash
+module load stashcp/2.1
+module load xrootd
+stashcp -r -s \$SRC -l \$LOC > /dev/null 2>&1
+
+EOF
     chmod 755 stashcp_plugin
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$PWD/stashcp_plugin"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
