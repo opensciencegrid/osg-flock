@@ -15,8 +15,10 @@ condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}
 
 # stashcp - only use if oasis is available
 if [ -e /cvmfs/oasis.opensciencegrid.org/. ]; then
-    chmod 755 client/stashcp_plugin
-    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$PWD/client/stashcp_plugin"
+    # make a copy of the file as we need to apply a chmod
+    cp client/stashcp_plugin.* stashcp_plugin
+    chmod 755 stashcp_plugin
+    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$PWD/stashcp_plugin"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 fi
 
