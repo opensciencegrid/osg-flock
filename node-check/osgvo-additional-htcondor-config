@@ -30,7 +30,7 @@ FULLSRC=\$1
 LOC=\$2
 SRC=\$(echo \$FULLSRC | cut -d':' -f2-)
 . /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash
-module load stashcp/2.1
+module load stashcp
 module load xrootd
 stashcp -r -s \$SRC -l \$LOC > /dev/null 2>&1
 
