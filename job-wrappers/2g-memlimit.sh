@@ -7,8 +7,7 @@
 ##  added by rynge 12/2/13
 ##
 
-ulimit -d 2000000 2>/dev/null || /bin/true
+ulimit -d 1900000 2>/dev/null || /bin/true
 
-# testing this - not sure if it works as intended
-ulimit -v 3000000 2>/dev/null || /bin/true
+ulimit -v 1900000 2>/dev/null || /bin/true
 
