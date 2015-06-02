@@ -229,6 +229,15 @@ if [ "x$TS_VAL" != "x" ]; then
     fi
 fi
 
+# modules
+RESULT="False"
+if [ -e /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash ]; then
+    if (. /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash && module avail) >/dev/null 2>&1; then
+        RESULT="True"
+    fi
+fi
+advertise HAS_MODULES "$RESULT" "C"
+
 info "Checking for PALMS availability..."
 RESULT="False"
 if (. /cvmfs/oasis.opensciencegrid.org/osg/palms/setup) >/dev/null 2>&1; then
