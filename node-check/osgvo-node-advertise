@@ -212,11 +212,11 @@ for FS in \
         if [ "x$REV_VAL" != "x" ]; then
             # make sure it is an integer
             if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                advertise $FS_ATTR "$RESULT" "C"
                 advertise $REV_ATTR "$REV_VAL" "I"
             fi
         fi
     fi
-    advertise $FS_ATTR "$RESULT" "C"
 done
 
 # update timestamp?
