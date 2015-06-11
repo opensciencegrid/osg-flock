@@ -381,7 +381,7 @@
    </groups>
    <collectors>
       <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=osg-flock.grid.iu.edu" group="default" node="osg-flock.grid.iu.edu:9618" secondary="False"/>
-      <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=osg-flock.grid.iu.edu" group="default" node="osg-flock.grid.iu.edu:9700-9999" secondary="True"/>
+      <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=osg-flock.grid.iu.edu" group="default" node="osg-flock.grid.iu.edu:9700-9899" secondary="True"/>
    </collectors>
    <files>
        <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
