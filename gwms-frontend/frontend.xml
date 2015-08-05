@@ -175,7 +175,7 @@
             <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr="True" start_expr="TARGET.RequestMemory &gt; 10000">
-            <factory query_expr='stringListMember("OSGVOBigMem",Glidein_Supported_VOs) &amp;&amp; (GLIDEIN_ResourceName =?= "Tusker")'>
+            <factory query_expr='stringListMember("OSGVOBigMem",Glidein_Supported_VOs) &amp;&amp; (EntryName =?= "CMSHTPC_T3_US_Omaha_tusker_bigmem")'>
                <match_attrs>
                </match_attrs>
                <collectors>
