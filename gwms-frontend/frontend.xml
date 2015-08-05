@@ -165,6 +165,40 @@
          <files>
          </files>
       </group>
+      <group name="largemem" enabled="True">
+         <config>
+            <idle_glideins_per_entry max="10" reserve="5"/>
+            <idle_vms_per_entry curb="2" max="5"/>
+            <idle_vms_total curb="30" max="50"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="10" relative_to_queue="1.15"/>
+            <running_glideins_total curb="10" max="20"/>
+         </config>
+         <match match_expr="True" start_expr="TARGET.RequestMemory &gt; 10000">
+            <factory query_expr='stringListMember("OSGVOBigMem",Glidein_Supported_VOs) &amp;&amp; (GLIDEIN_ResourceName =?= "Tusker")'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="(TARGET.RequestMemory &gt; 10000)">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+         </attrs>
+         <files>
+         </files>
+      </group>
       <group name="main" enabled="True">
          <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
