@@ -66,14 +66,14 @@
             <running_glideins_per_entry max="1000" relative_to_queue="1.15"/>
             <running_glideins_total curb="900" max="1000"/>
          </config>
-         <match match_expr="True" start_expr="TARGET.RequiresGPU">
+         <match match_expr="True" start_expr="TARGET.request_gpus">
             <factory query_expr='stringListMember("OSGVOGPU", Glidein_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(RequiresGPU =?= TRUE) &amp;&amp; (JOB_Is_Monitor =!= TRUE)">
+            <job query_expr="(request_gpus > 0) &amp;&amp; (JOB_Is_Monitor =!= TRUE)">
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -209,14 +209,14 @@
             <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(RequiresGPU)'>
+         <match match_expr="True" start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(request_gpus) || request_gpus =?= 0)'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (GLIDEIN_ResourceName =!= "Crane") &amp;&amp; (GLIDEIN_ResourceName =!= "Tusker")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequGPUU)">
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus)">
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -246,14 +246,14 @@
             <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequiresGPU) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
+         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "False") &amp;&amp; (GLIDEIN_REQUIRE_GLEXEC_USE =?= "False") &amp;&amp; ( (GLIDEIN_ResourceName =?= "FNAL_FERMIGRID") || (GLIDEIN_ResourceName =?= "USCMS-FNAL-WC1") )'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequiresGPU) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
+            <job query_expr='isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -281,14 +281,14 @@
             <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequiresGPU)'>
+         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus)'>
             <factory query_expr='(stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequiresGPU)">
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus)">
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -316,14 +316,14 @@
             <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequiresGPU) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
+         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "True")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequiresGPU) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
+            <job query_expr='isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(DESIRED_Resources) &amp;&amp; isUndefined(DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(request_gpus) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
                <match_attrs>
                </match_attrs>
                <schedds>
