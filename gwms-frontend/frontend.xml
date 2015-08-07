@@ -66,14 +66,14 @@
             <running_glideins_per_entry max="1000" relative_to_queue="1.15"/>
             <running_glideins_total curb="900" max="1000"/>
          </config>
-         <match match_expr="True" start_expr="TARGET.request_gpus">
+         <match match_expr="True" start_expr="TARGET.request_gpus &gt; 0">
             <factory query_expr='stringListMember("OSGVOGPU", Glidein_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(request_gpus > 0) &amp;&amp; (JOB_Is_Monitor =!= TRUE)">
+            <job query_expr="(request_gpus &gt; 0) &amp;&amp; (JOB_Is_Monitor =!= TRUE)">
                <match_attrs>
                </match_attrs>
                <schedds>
