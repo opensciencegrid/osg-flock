@@ -12,7 +12,18 @@ condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}
 
 ###########################################################
 
+###########################################################
+# gpus - only for the GPU group
 
+if [ "$glidein_config" != "NONE" ]; then
+    group=`grep '^GLIDECLIENT_Group ' $glidein_config | awk '{print $2}'`
+    if [ "x$group" = "xgpu" ]; then
+        wget -nv http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
+        chmod 755 condor_gpu_discovery
+    fi
+fi
+
+###########################################################
 # stashcp - only use if oasis is available
 if [ -e /cvmfs/oasis.opensciencegrid.org/. ]; then
     cat >stashcp_plugin <<EOF
