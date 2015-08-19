@@ -73,7 +73,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(RequestGPUs &gt; 0) &amp;&amp; (JOB_Is_Monitor =!= TRUE)">
+            <job query_expr="RequestGPUs &gt; 0">
                <match_attrs>
                </match_attrs>
                <schedds>
