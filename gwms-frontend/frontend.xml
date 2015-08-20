@@ -2,8 +2,8 @@
    <config>
       <idle_vms_total curb="800" max="1000"/>
       <idle_vms_total_global curb="800" max="1000"/>
-      <running_glideins_total curb="35000" max="40000"/>
-      <running_glideins_total_global curb="35000" max="40000"/>
+      <running_glideins_total curb="57000" max="60000"/>
+      <running_glideins_total_global curb="57000" max="60000"/>
    </config>
    <log_retention>
       <process_logs>
@@ -204,11 +204,11 @@
       <group name="main" enabled="True">
          <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
-            <idle_vms_per_entry curb="20" max="50"/>
-            <idle_vms_total curb="200" max="500"/>
+            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
-            <running_glideins_total curb="35000" max="40000"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
+            <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs =?= 0)'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (GLIDEIN_ResourceName =!= "Crane") &amp;&amp; (GLIDEIN_ResourceName =!= "Tusker")'>
@@ -241,11 +241,11 @@
       <group name="main_fnal_nocerts" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="20" max="50"/>
-            <idle_vms_total curb="200" max="500"/>
+            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
-            <running_glideins_total curb="35000" max="40000"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
+            <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "False") &amp;&amp; (GLIDEIN_REQUIRE_GLEXEC_USE =?= "False") &amp;&amp; ( (GLIDEIN_ResourceName =?= "FNAL_FERMIGRID") || (GLIDEIN_ResourceName =?= "USCMS-FNAL-WC1") )'>
@@ -276,11 +276,11 @@
       <group name="main_multicore" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="20" max="50"/>
-            <idle_vms_total curb="200" max="500"/>
+            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
-            <running_glideins_total curb="35000" max="40000"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
+            <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs)'>
             <factory query_expr='(stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
