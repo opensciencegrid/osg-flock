@@ -3,7 +3,7 @@
       <idle_vms_total curb="800" max="1000"/>
       <idle_vms_total_global curb="800" max="1000"/>
       <running_glideins_total curb="57000" max="60000"/>
-      <running_glideins_total_global curb="0" max="0"/>
+      <running_glideins_total_global curb="57000" max="60000"/>
    </config>
    <log_retention>
       <process_logs>
