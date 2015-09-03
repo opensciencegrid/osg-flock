@@ -21,6 +21,8 @@ if [ "$glidein_config" != "NONE" ]; then
         wget -nv http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
         chmod 755 condor_gpu_discovery
     fi
+    add_config_line SLOT_TYPE_1 "cpus=\$(GLIDEIN_CPUS), gpus=1"
+    add_condor_vars_line SLOT_TYPE_1 "C" "-" "+" "N" "N" "-"
 fi
 
 ###########################################################
