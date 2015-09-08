@@ -9,5 +9,6 @@
 
 ulimit -d 1900000 2>/dev/null || /bin/true
 
-ulimit -v 1900000 2>/dev/null || /bin/true
+# tihs does not work with Java programs
+#ulimit -v 1900000 2>/dev/null || /bin/true
 
