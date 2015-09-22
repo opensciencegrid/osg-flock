@@ -203,7 +203,7 @@
          <files>
          </files>
       </group>
-      <group name="largemem" enabled="False">
+      <group name="largemem" enabled="True">
          <config>
             <idle_glideins_per_entry max="10" reserve="5"/>
             <idle_vms_per_entry curb="2" max="5"/>
@@ -238,7 +238,7 @@
          <files>
          </files>
       </group>
-      <group name="main" enabled="False">
+      <group name="main" enabled="True">
          <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="400" max="500"/>
@@ -275,7 +275,7 @@
             </file>
          </files>
       </group>
-      <group name="main_fnal_nocerts" enabled="False">
+      <group name="main_fnal_nocerts" enabled="True">
          <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="400" max="500"/>
@@ -310,7 +310,7 @@
          <files>
          </files>
       </group>
-      <group name="main_multicore" enabled="False">
+      <group name="main_multicore" enabled="True">
          <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="400" max="500"/>
@@ -345,7 +345,7 @@
          <files>
          </files>
       </group>
-      <group name="main_with_certs" enabled="False">
+      <group name="main_with_certs" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
             <idle_vms_per_entry curb="20" max="50"/>
@@ -379,7 +379,7 @@
          <files>
          </files>
       </group>
-      <group name="targeted_htpc_resources" enabled="False">
+      <group name="targeted_htpc_resources" enabled="True">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="5" max="10"/>
@@ -415,7 +415,7 @@
          <files>
          </files>
       </group>
-      <group name="targeted_resources" enabled="False">
+      <group name="targeted_resources" enabled="True">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="5" max="10"/>
