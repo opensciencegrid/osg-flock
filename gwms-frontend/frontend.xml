@@ -133,10 +133,10 @@
        <group name="sleep" enabled="True">
 	 <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
-            <idle_vms_per_entry curb="5" max="10"/>
+            <idle_vms_per_entry curb="50" max="100"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="100" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="10000" relative_to_queue="1.15"/>
             <running_glideins_total curb="20000" max="50000"/>
          </config>
 	 <match match_expr='glidein["attrs"]["FactoryType"]=="sleeper" and job.get("SleepSlot",False)' start_expr='(TARGET.SleepSlot =?= True &amp;&amp; FactoryType=?="sleeper")'>
