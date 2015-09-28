@@ -130,8 +130,8 @@
          <files>
          </files>
       </group>
-       <group name="sleep" enabled="True">
-	 <config>
+      <group name="sleep" enabled="True">
+         <config>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="50" max="100"/>
             <idle_vms_total curb="200" max="1000"/>
@@ -139,10 +139,10 @@
             <running_glideins_per_entry max="10000" relative_to_queue="1.15"/>
             <running_glideins_total curb="20000" max="50000"/>
          </config>
-	 <match match_expr='glidein["attrs"]["FactoryType"]=="sleeper" and job.get("SleepSlot",False)' start_expr='(TARGET.SleepSlot =?= True &amp;&amp; FactoryType=?="sleeper")'>
+         <match match_expr='glidein["attrs"]["FactoryType"]=="sleeper" and job.get("SleepSlot",False)' start_expr='(TARGET.SleepSlot =?= True &amp;&amp; FactoryType=?="sleeper")'>
             <factory query_expr='FactoryType=?="sleeper"'>
                <match_attrs>
-		 <match_attr name="FactoryType" type="string"/>
+                   <match_attr name="FactoryType" type="string"/>
                </match_attrs>
                <collectors>
                   <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=cabinet-10-10-4.t2.ucsd.edu" factory_identity="gfactory@cabinet-10-10-4.t2.ucsd.edu" my_identity="feosgflock@cabinet-10-10-4.t2.ucsd.edu" node="cabinet-10-10-4.t2.ucsd.edu"/>
@@ -150,11 +150,11 @@
             </factory>
             <job query_expr="(SleepSlot=!=undefined &amp;&amp; SleepSlot =?= True)">
                <match_attrs>
-		 <match_attr name="SleepSlot" type="bool"/>
+                   <match_attr name="SleepSlot" type="bool"/>
                </match_attrs>
                <schedds>
-		 <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-001.t2.ucsd.edu" fullname="test-001.t2.ucsd.edu"/>
-		 <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-004.t2.ucsd.edu" fullname="test-004.t2.ucsd.edu"/>
+                   <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-001.t2.ucsd.edu" fullname="test-001.t2.ucsd.edu"/>
+                   <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-004.t2.ucsd.edu" fullname="test-004.t2.ucsd.edu"/>
                </schedds>
             </job>
          </match>
@@ -163,7 +163,7 @@
             </credentials>
          </security>
          <attrs>
-	 </attrs>
+         </attrs>
          <files>
          </files>
       </group>
