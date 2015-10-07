@@ -319,7 +319,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='(UpdatesTotal >= 2 || TARGET.RequestCpus >= 2) &amp;&amp; (( PartitionableSlot =?= true ) || (My.TotalSlotCpus == TARGET.RequestCpus)) &amp;&amp;(TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs)'>
+         <match match_expr="True" start_expr='(UpdatesTotal >= 1 || TARGET.RequestCpus >= 2) &amp;&amp;(TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs)'>
             <factory query_expr='(stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                </match_attrs>
