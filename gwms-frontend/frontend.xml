@@ -5,6 +5,10 @@
       <running_glideins_total curb="57000" max="60000"/>
       <running_glideins_total_global curb="57000" max="60000"/>
    </config>
+   <high_availability check_interval="300" enabled="False">
+      <ha_frontends>
+      </ha_frontends>
+   </high_availability>
    <log_retention>
       <process_logs>
          <process_log backup_count="5" compression="" extension="info" max_days="7.0" max_mbytes="100.0" min_days="3.0" msg_types="INFO"/>
@@ -16,8 +20,8 @@
          <match_attrs>
          </match_attrs>
          <collectors>
-             <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=glidein.grid.iu.edu" comment="Indiana factory" factory_identity="gfactory@glidein.grid.iu.edu" my_identity="feosgflock@glidein.grid.iu.edu" node="glidein.grid.iu.edu"/>
-             <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=gfactory-1.t2.ucsd.edu" comment="San Diego factory" factory_identity="gfactory@gfactory-1.t2.ucsd.edu" my_identity="feosgflock@gfactory-1.t2.ucsd.edu" node="gfactory-1.t2.ucsd.edu"/>
+            <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=glidein.grid.iu.edu" comment="Indiana factory" factory_identity="gfactory@glidein.grid.iu.edu" my_identity="feosgflock@glidein.grid.iu.edu" node="glidein.grid.iu.edu"/>
+            <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=gfactory-1.t2.ucsd.edu" comment="San Diego factory" factory_identity="gfactory@gfactory-1.t2.ucsd.edu" my_identity="feosgflock@gfactory-1.t2.ucsd.edu" node="gfactory-1.t2.ucsd.edu"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
@@ -33,7 +37,7 @@
             <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q5@xd-login.opensciencegrid.org"/>
             <schedd DN="/O=OSGVO/OU=OSGVO Flocking/CN=host/glide.bakerlab.org" fullname="glide.bakerlab.org"/>
             <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/>
-            <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="login02.osgconnect.net"/>
+            <!-- schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="login02.osgconnect.net"/ -->
             <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=duke-login.osgconnect.net" fullname="duke-login.osgconnect.net"/>
          </schedds>
       </job>
@@ -130,43 +134,6 @@
          <files>
          </files>
       </group>
-      <group name="sleep" enabled="True">
-         <config>
-            <idle_glideins_per_entry max="100" reserve="5"/>
-            <idle_vms_per_entry curb="50" max="100"/>
-            <idle_vms_total curb="200" max="1000"/>
-            <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10000" relative_to_queue="1.15"/>
-            <running_glideins_total curb="20000" max="50000"/>
-         </config>
-         <match match_expr='glidein["attrs"]["FactoryType"]=="sleeper" and job.get("SleepSlot",False)' start_expr='(TARGET.SleepSlot =?= True &amp;&amp; FactoryType=?="sleeper")'>
-            <factory query_expr='FactoryType=?="sleeper"'>
-               <match_attrs>
-                   <match_attr name="FactoryType" type="string"/>
-               </match_attrs>
-               <collectors>
-                  <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=cabinet-10-10-4.t2.ucsd.edu" factory_identity="gfactory@cabinet-10-10-4.t2.ucsd.edu" my_identity="feosgflock@cabinet-10-10-4.t2.ucsd.edu" node="cabinet-10-10-4.t2.ucsd.edu"/>
-               </collectors>
-            </factory>
-            <job query_expr="(SleepSlot=!=undefined &amp;&amp; SleepSlot =?= True)">
-               <match_attrs>
-                   <match_attr name="SleepSlot" type="bool"/>
-               </match_attrs>
-               <schedds>
-                   <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-001.t2.ucsd.edu" fullname="test-001.t2.ucsd.edu"/>
-                   <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-004.t2.ucsd.edu" fullname="test-004.t2.ucsd.edu"/>
-               </schedds>
-            </job>
-         </match>
-         <security>
-            <credentials>
-            </credentials>
-         </security>
-         <attrs>
-         </attrs>
-         <files>
-         </files>
-      </group>
       <group name="itbfactory" enabled="False">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
@@ -247,7 +214,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs =?= 0)'>
+         <match match_expr="True" start_expr="(TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs =?= 0)">
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (GLIDEIN_ResourceName =!= "Crane") &amp;&amp; (GLIDEIN_ResourceName =!= "Tusker") &amp;&amp; (GLIDEIN_ResourceName =!= "AGLT2")'>
                <match_attrs>
                </match_attrs>
@@ -270,7 +237,7 @@
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
          </attrs>
          <files>
-            <file absfname="/opt/git/job-wrappers/2g-memlimit.sh" after_entry="True" const="True" executable="False" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/2g-memlimit.sh" after_entry="True" const="True" executable="False" period="0" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -284,7 +251,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='(MonitorSelfAge >= 300 || TARGET.RequestCpus >= 2) &amp;&amp; (( PartitionableSlot =?= true ) || (My.TotalSlotCpus == TARGET.RequestCpus)) &amp;&amp; (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
+         <match match_expr="True" start_expr='(MonitorSelfAge &gt;= 300 || TARGET.RequestCpus &gt;= 2) &amp;&amp; (( PartitionableSlot =?= true ) || (My.TotalSlotCpus == TARGET.RequestCpus)) &amp;&amp; (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "False") &amp;&amp; (GLIDEIN_REQUIRE_GLEXEC_USE =?= "False") &amp;&amp; ( (GLIDEIN_ResourceName =?= "FNAL_FERMIGRID") || (GLIDEIN_ResourceName =?= "USCMS-FNAL-WC1") )'>
                <match_attrs>
                </match_attrs>
@@ -319,8 +286,8 @@
             <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs)'>
-            <factory query_expr='(stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
+         <match match_expr="True" start_expr="(TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs)">
+            <factory query_expr='(stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (GLIDEIN_ResourceName =!= "Hyak")'>
                <match_attrs>
                </match_attrs>
                <collectors>
@@ -340,6 +307,7 @@
          <attrs>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
@@ -375,6 +343,43 @@
          <attrs>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="OPTIONAL"/>
+         </attrs>
+         <files>
+         </files>
+      </group>
+      <group name="sleep" enabled="True">
+         <config>
+            <idle_glideins_per_entry max="100" reserve="5"/>
+            <idle_vms_per_entry curb="50" max="100"/>
+            <idle_vms_total curb="200" max="1000"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="10000" relative_to_queue="1.15"/>
+            <running_glideins_total curb="20000" max="50000"/>
+         </config>
+         <match match_expr='glidein["attrs"]["FactoryType"]=="sleeper" and job.get("SleepSlot",False)' start_expr='(TARGET.SleepSlot =?= True &amp;&amp; FactoryType=?="sleeper")'>
+            <factory query_expr='FactoryType=?="sleeper"'>
+               <match_attrs>
+                  <match_attr name="FactoryType" type="string"/>
+               </match_attrs>
+               <collectors>
+                  <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=cabinet-10-10-4.t2.ucsd.edu" factory_identity="gfactory@cabinet-10-10-4.t2.ucsd.edu" my_identity="feosgflock@cabinet-10-10-4.t2.ucsd.edu" node="cabinet-10-10-4.t2.ucsd.edu"/>
+               </collectors>
+            </factory>
+            <job query_expr="(SleepSlot=!=undefined &amp;&amp; SleepSlot =?= True)">
+               <match_attrs>
+                  <match_attr name="SleepSlot" type="bool"/>
+               </match_attrs>
+               <schedds>
+                  <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-001.t2.ucsd.edu" fullname="test-001.t2.ucsd.edu"/>
+                  <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-004.t2.ucsd.edu" fullname="test-004.t2.ucsd.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+            </credentials>
+         </security>
+         <attrs>
          </attrs>
          <files>
          </files>
@@ -452,27 +457,30 @@
          </files>
       </group>
    </groups>
+   <ccbs>
+   </ccbs>
    <collectors>
       <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=osg-flock.grid.iu.edu" group="default" node="osg-flock.grid.iu.edu:9618" secondary="False"/>
       <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=osg-flock.grid.iu.edu" group="default" node="osg-flock.grid.iu.edu:9700-9899" secondary="True"/>
    </collectors>
    <files>
-       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" wrapper="False" untar="False" />
-      <file absfname="/opt/git/node-check/osgvo-bench" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-bench" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" after_entry="True" after_group="False" const="True" executable="False" untar="False" wrapper="True">
+      <file absfname="/opt/git/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" after_entry="True" after_group="False" const="True" executable="False" period="0" untar="False" wrapper="True">
          <untar_options cond_attr="TRUE"/>
       </file>
    </files>
 </frontend>
-
