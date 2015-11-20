@@ -106,7 +106,8 @@
             <running_glideins_total curb="45" max="50"/>
          </config>
          <match match_expr="True" start_expr="(TARGET.ITB_Sites =?= True)">
-            <factory query_expr='(stringListMember("OSGVO_ITB", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (EntryName == "OSG_US_Hyak_osg_gramce")'>
+             <!-- factory query_expr='(stringListMember("OSGVO_ITB", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (EntryName == "OSG_US_Hyak_osg_gramce")' -->
+            <factory query_expr='(stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs))'>
                <match_attrs>
                </match_attrs>
                <collectors>
