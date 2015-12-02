@@ -1,7 +1,7 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config>
-      <idle_vms_total curb="800" max="1000"/>
-      <idle_vms_total_global curb="800" max="1000"/>
+      <idle_vms_total curb="2000" max="2500"/>
+      <idle_vms_total_global curb="2000" max="2500"/>
       <running_glideins_total curb="57000" max="60000"/>
       <running_glideins_total_global curb="57000" max="60000"/>
    </config>
