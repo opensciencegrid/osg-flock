@@ -105,7 +105,7 @@
             <running_glideins_total curb="45" max="50"/>
          </config>
          <match match_expr="True" start_expr="(TARGET.ITB_Sites =?= True)">
-            <factory query_expr='GLIDEIN_Factory == "ITBGOC" &amp;&amp; (stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs))'>
+            <factory query_expr='GLIDEIN_Factory == "ITBGOC" &amp;&amp; (stringListMember("OSGVO_ITB", GLIDEIN_Supported_VOs))'>
                <match_attrs>
                </match_attrs>
                <collectors>
@@ -125,13 +125,15 @@
          </security>
          <attrs>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
             <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/itb.sh" after_entry="True" const="True" executable="False" period="0" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
          </files>
       </group>
       <group name="itbfactory" enabled="False">
