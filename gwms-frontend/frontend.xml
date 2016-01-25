@@ -68,7 +68,7 @@
             <idle_vms_per_entry curb="20" max="50"/>
             <idle_vms_total curb="20" max="50"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="1000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="1000" relative_to_queue="5.0"/>
             <running_glideins_total curb="900" max="1000"/>
          </config>
          <match match_expr="True" start_expr="TARGET.RequestGPUs &gt; 0">
@@ -103,7 +103,7 @@
             <idle_vms_per_entry curb="5" max="10"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="100" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="100" relative_to_queue="5.0"/>
             <running_glideins_total curb="45" max="50"/>
          </config>
          <match match_expr="True" start_expr="(TARGET.ITB_Sites =?= True)">
@@ -144,7 +144,7 @@
             <idle_vms_per_entry curb="5" max="10"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="100" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="100" relative_to_queue="5.0"/>
             <running_glideins_total curb="1" max="2"/>
          </config>
          <match match_expr="True" start_expr="(TARGET.ITB_Factory =?= True)">
@@ -180,7 +180,7 @@
             <idle_vms_per_entry curb="2" max="5"/>
             <idle_vms_total curb="30" max="50"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="10" relative_to_queue="5.0"/>
             <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr="True" start_expr="TARGET.RequestMemory &gt; 10000">
@@ -215,7 +215,7 @@
             <idle_vms_per_entry curb="400" max="500"/>
             <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr="(TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs =?= 0)">
@@ -252,7 +252,7 @@
             <idle_vms_per_entry curb="400" max="500"/>
             <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='(MonitorSelfAge &gt;= 300 || TARGET.RequestCpus &gt;= 2) &amp;&amp; (( PartitionableSlot =?= true ) || (My.TotalSlotCpus == TARGET.RequestCpus)) &amp;&amp; (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
@@ -287,7 +287,7 @@
             <idle_vms_per_entry curb="400" max="500"/>
             <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="60000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr="(TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs)">
@@ -322,7 +322,7 @@
             <idle_vms_per_entry curb="20" max="50"/>
             <idle_vms_total curb="200" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="40000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="40000" relative_to_queue="5.0"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; isUndefined(RequestGPUs) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
@@ -356,7 +356,7 @@
             <idle_vms_per_entry curb="50" max="100"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="10000" relative_to_queue="5.0"/>
             <running_glideins_total curb="20000" max="50000"/>
          </config>
          <match match_expr='glidein["attrs"]["FactoryType"]=="sleeper" and job.get("SleepSlot",False)' start_expr='(TARGET.SleepSlot =?= True &amp;&amp; FactoryType=?="sleeper")'>
@@ -393,7 +393,7 @@
             <idle_vms_per_entry curb="5" max="10"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="1000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="1000" relative_to_queue="5.0"/>
             <running_glideins_total curb="900" max="1000"/>
          </config>
          <match match_expr='glidein["attrs"]["GLIDEIN_ResourceName"] in job.get("DESIRED_HTPC_Resources", "").split(",")' start_expr="(stringListMember(GLIDEIN_ResourceName, TARGET.DESIRED_HTPC_Resources) =?= true) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True)">
@@ -429,7 +429,7 @@
             <idle_vms_per_entry curb="5" max="10"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="5000" relative_to_queue="1.15"/>
+            <running_glideins_per_entry max="5000" relative_to_queue="5.0"/>
             <running_glideins_total curb="9000" max="10000"/>
          </config>
          <match match_expr='glidein["attrs"]["GLIDEIN_ResourceName"] in job.get("DESIRED_Resources", "").split(",")' start_expr="(stringListMember(GLIDEIN_ResourceName, TARGET.DESIRED_Resources) =?= true) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True)">
