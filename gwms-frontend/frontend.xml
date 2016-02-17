@@ -183,7 +183,7 @@
             <running_glideins_per_entry max="10" relative_to_queue="5.0"/>
             <running_glideins_total curb="10" max="20"/>
          </config>
-         <match match_expr="True" start_expr="TARGET.RequestMemory &gt; 10000">
+         <match match_expr="True" start_expr="!isUndefined(TARGET.ProjectName) &amp;&amp; TARGET.RequestMemory &gt; 10000">
             <factory query_expr='stringListMember("OSGVOBigMem",Glidein_Supported_VOs) &amp;&amp; (EntryName =?= "CMSHTPC_T3_US_Omaha_tusker_bigmem")'>
                <match_attrs>
                </match_attrs>
@@ -218,7 +218,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr="(TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+         <match match_expr="True" start_expr="!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (GLIDEIN_ResourceName =!= "Crane") &amp;&amp; (GLIDEIN_ResourceName =!= "Tusker") &amp;&amp; (GLIDEIN_ResourceName =!= "Purdue-Hadoop")'>
                <match_attrs>
                </match_attrs>
@@ -255,7 +255,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='(MonitorSelfAge &gt;= 300 || TARGET.RequestCpus &gt;= 2 || TARGET.RequestMemory &gt;= 2500) &amp;&amp; (( PartitionableSlot =?= true ) || (My.TotalSlotCpus == TARGET.RequestCpus)) &amp;&amp; (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
+         <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (MonitorSelfAge &gt;= 300 || TARGET.RequestCpus &gt;= 2 || TARGET.RequestMemory &gt;= 2500) &amp;&amp; (( PartitionableSlot =?= true ) || (My.TotalSlotCpus == TARGET.RequestCpus)) &amp;&amp; (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("osg-xsede.grid.iu.edu", User))'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "False") &amp;&amp; (GLIDEIN_REQUIRE_GLEXEC_USE =?= "False") &amp;&amp; ( (GLIDEIN_ResourceName =?= "FNAL_FERMIGRID") || (GLIDEIN_ResourceName =?= "USCMS-FNAL-WC1") )'>
                <match_attrs>
                </match_attrs>
@@ -290,7 +290,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr="(MonitorSelfAge &gt;= 300 || TARGET.RequestCpus &gt;= 2 || TARGET.RequestMemory &gt;= 2500) &amp;&amp; (TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+         <match match_expr="True" start_expr="!isUndefined(TARGET.ProjectName) &amp;&amp; (MonitorSelfAge &gt;= 300 || TARGET.RequestCpus &gt;= 2 || TARGET.RequestMemory &gt;= 2500) &amp;&amp; (TARGET.SleepSlot =!= True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
             <factory query_expr='(stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                </match_attrs>
@@ -325,7 +325,7 @@
             <running_glideins_per_entry max="40000" relative_to_queue="5.0"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
+         <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(TARGET.DESIRED_Resources) &amp;&amp; isUndefined(TARGET.DESIRED_HTPC_Resources) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
             <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "True")'>
                <match_attrs>
                </match_attrs>
@@ -383,42 +383,6 @@
             </credentials>
          </security>
          <attrs>
-         </attrs>
-         <files>
-         </files>
-      </group>
-      <group name="targeted_htpc_resources" enabled="True">
-         <config>
-            <idle_glideins_per_entry max="20" reserve="5"/>
-            <idle_vms_per_entry curb="5" max="10"/>
-            <idle_vms_total curb="200" max="1000"/>
-            <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="1000" relative_to_queue="5.0"/>
-            <running_glideins_total curb="900" max="1000"/>
-         </config>
-         <match match_expr='glidein["attrs"]["GLIDEIN_ResourceName"] in job.get("DESIRED_HTPC_Resources", "").split(",")' start_expr="(stringListMember(GLIDEIN_ResourceName, TARGET.DESIRED_HTPC_Resources) =?= true) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True)">
-            <factory query_expr='(stringListMember("OSGVOHTPC", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True")'>
-               <match_attrs>
-                  <match_attr name="GLIDEIN_ResourceName" type="string"/>
-               </match_attrs>
-               <collectors>
-               </collectors>
-            </factory>
-            <job query_expr="DESIRED_HTPC_Resources =!= UNDEFINED">
-               <match_attrs>
-                  <match_attr name="DESIRED_HTPC_Resources" type="string"/>
-               </match_attrs>
-               <schedds>
-               </schedds>
-            </job>
-         </match>
-         <security>
-            <credentials>
-            </credentials>
-         </security>
-         <attrs>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
          </attrs>
          <files>
          </files>
