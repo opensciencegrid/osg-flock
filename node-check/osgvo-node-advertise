@@ -268,6 +268,16 @@ advertise HAS_JAVA "$HAS_JAVA" "C"
 
 
 ##################
+# xrdcp
+
+HAS_XRDCP="False"
+if xrdcp --version >/dev/null 2>&1; then
+    HAS_XRDCP="True"
+fi
+advertise HAS_XRDCP "$HAS_XRDCP" "C"
+
+
+##################
 # timeout
 
 HAS_TIMEOUT="False"
