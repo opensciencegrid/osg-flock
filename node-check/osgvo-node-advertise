@@ -211,6 +211,7 @@ for FS in \
    icecube.opensciencegrid.org \
    atlas.cern.ch \
    cms.cern.ch \
+   ams.cern.ch \
 ; do
     FS_CONV=`echo "$FS" | sed 's/\./_/g'`
     FS_ATTR="HAS_CVMFS_$FS_CONV"
