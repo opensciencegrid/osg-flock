@@ -62,6 +62,41 @@
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
    <groups>
+      <group name="ams" enabled="True">
+         <config>
+            <idle_glideins_per_entry max="100" reserve="5"/>
+            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_total curb="400" max="500"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
+            <running_glideins_total curb="57000" max="60000"/>
+         </config>
+         <match match_expr="True" start_expr='!isUndefined(ProjectName) &amp;&amp; (Owner == "bshan")'>
+            <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName == "UCSDT2")'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='!isUndefined(ProjectName) &amp;&amp; (Owner == "bshan")'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                   <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=ce04.cmsaf.mit.edu" fullname="ce04.cmsaf.mit.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+              <credential absfname="/tmp/x509up_u496.ams" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+         </attrs>
+         <files>
+         </files>
+      </group>
       <group name="gpu" enabled="True">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
