@@ -269,6 +269,16 @@ advertise HAS_JAVA "$HAS_JAVA" "C"
 
 
 ##################
+# guc
+
+GUC_PATH=`which globus-url-copy 2>/dev/null`
+if [ "X$GUC_PATH" = "X" ]; then
+    GUC_PATH="NA"
+fi
+advertise GUC_PATH "$GUC_PATH" "S"
+
+
+##################
 # xrdcp
 
 HAS_XRDCP="False"
