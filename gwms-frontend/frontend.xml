@@ -72,10 +72,11 @@
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='!isUndefined(ProjectName) &amp;&amp; (Owner == "bshan")'>
-            <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName == "UCSDT2")'>
+            <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_ITB", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName == "UCSDT2")'>
                <match_attrs>
                </match_attrs>
                <collectors>
+                  <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
                </collectors>
             </factory>
             <job query_expr='!isUndefined(ProjectName) &amp;&amp; (Owner == "bshan")'>
