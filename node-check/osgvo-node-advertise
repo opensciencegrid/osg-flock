@@ -208,6 +208,7 @@ fi
 info "Checking for CVMFS availability and attributes..."
 for FS in \
    oasis.opensciencegrid.org \
+   stash.osgstorage.org \
    icecube.opensciencegrid.org \
    atlas.cern.ch \
    cms.cern.ch \
