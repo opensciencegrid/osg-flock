@@ -33,7 +33,6 @@ StashCache=(`grep ^WantsStashCache $_CONDOR_JOB_AD`)
 PosixStashCache=(`grep ^WantsPosixStashCache $_CONDOR_JOB_AD`)
  
 function setup_stashcp {
-  module load xrootd
   module load stashcp
  
   # Determine XRootD plugin directory.
