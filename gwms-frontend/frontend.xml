@@ -471,6 +471,9 @@
       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <file absfname="/opt/git/node-check/crl-check" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
       <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>

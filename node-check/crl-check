@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+# checks a set of standard OSG CRLs for validity
+
+from __future__ import division
+
+import os
+import sys
+import subprocess
+import re
+import datetime
+import time
+
+cert_hashes = ["62c4a178", "70d35895"]
+
+for c_hash in cert_hashes:
+    c_path = "/etc/grid-security/certificates/" + c_hash + ".r0"
+    if os.path.exists(c_path):
+        # be a little bit extra careful with error handling here - we only
+        # want the test to fail if there is actually a CRL expiration and 
+        # not if anything else fails
+        diff = 0
+        try:
+            cmd = "openssl crl -in " + c_path + " -nextupdate -noout"
+            next_update = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
+            next_update = next_update.strip()
+            next_update = re.sub(".*=", "", next_update)
+            print("Next update for CRL " + c_hash + ".r0 is " + next_update)
+            # example: Apr 22 17:00:00 2016 GMT
+            dt = datetime.datetime.strptime(next_update, "%b %d %H:%M:%S %Y %Z")
+            # epoch calculations in Python 2.6 makes me sad
+            td = dt - datetime.datetime(1970,1,1)
+            secs = (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6 
+            diff = time.time() - secs
+        except:
+            pass
+        # make sure the CRL is valid for a while
+        if diff > 1*60*60:
+            print("ERROR: CRL is expired, or about to expire!")
+            sys.exit(1)
+
+sys.exit(0)
+
