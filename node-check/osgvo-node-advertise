@@ -163,32 +163,14 @@ cat >csh.test <<EOF
 EOF
 chmod 755 csh.test
 HAS_TCSH="False"
-if ./csh.test >/dev/null 2>&1; then
-    HAS_TCSH="True"
-
-    # special case for SMU
-    HNAME=`hostname -f`
-    if [ "X$HNAME" = "Xcwnode10.hpc.smu.edu" ]; then
-        HAS_TCSH="False"
+if [ -e /bin/tcsh ]; then
+    if ./csh.test >/dev/null 2>&1; then
+        HAS_TCSH="True"
     fi
 fi
 advertise HAS_TCSH "$HAS_TCSH" "C"
 rm -f csh.test
 
-
-##################
-# htpc core count
-
-info "Counting cores for HTPC jobs"
-group=`awk '/^GLIDECLIENT_Group /{print $2}' $glidein_config`
-if (echo $group | grep -i htpc) >/dev/null 2>&1; then
-    resource_name=`awk '/^GLIDEIN_ResourceName /{print $2}' $glidein_config`
-    core_count=`cat /proc/cpuinfo | grep ^processor | wc -l`
-    if [ "x$resource_name" = "xTusker" ]; then
-        core_count="8"
-    fi
-    advertise HTPC_CORES "$core_count" "I"
-fi
 
 
 ##################
@@ -239,13 +221,6 @@ if [ -e /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash ]; t
     fi
 fi
 advertise HAS_MODULES "$RESULT" "C"
-
-info "Checking for PALMS availability..."
-RESULT="False"
-if (. /cvmfs/oasis.opensciencegrid.org/osg/palms/setup) >/dev/null 2>&1; then
-    RESULT="True"
-fi
-advertise HAS_CVMFS_PALMS "$RESULT" "C"
 
 
 ##################
