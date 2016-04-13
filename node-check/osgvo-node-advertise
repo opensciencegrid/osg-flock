@@ -114,6 +114,30 @@ OSGVO_PILOT_DF=`df -kP . | awk '{if (NR==2) print $4}'`
 advertise OSGVO_PILOT_DF "$OSGVO_PILOT_DF" "I"
 
 
+###########################################################
+# gpus - only for the GPU group
+
+group="gpu"
+if [ "$glidein_config" != "NONE" ]; then
+    group=`grep '^GLIDECLIENT_Group ' $glidein_config | awk '{print $2}'`
+fi
+if [ "x$group" = "xgpu" ]; then
+    wget -nv -O condor_gpu_discovery http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
+    chmod 755 condor_gpu_discovery
+    ./condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
+    while read line; do
+        key=`echo "$line" | sed 's/=.*//'`
+        value=`echo "$line" | sed 's/.*=//'`
+        if (echo "$value" | grep '"') >/dev/null 2>&1; then
+            value=`echo "$value" | sed 's/"//g'`
+            advertise "$key" "$value" "S"
+        else
+            advertise "$key" "$value" "C"
+        fi
+    done <gpu.ad
+fi
+
+
 ##################
 # squid
 
