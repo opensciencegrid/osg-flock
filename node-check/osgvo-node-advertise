@@ -135,6 +135,12 @@ if [ "x$group" = "xgpu" ]; then
             advertise "$key" "$value" "C"
         fi
     done <gpu.ad
+
+    # and some extra nvida attributes
+    nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
+    if [ "x$nvidia_version" != "x" ]; then
+        advertise NV_DRIVER "$nvidia_version" "C"
+    fi
 fi
 
 
