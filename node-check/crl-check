@@ -11,7 +11,7 @@ import re
 import datetime
 import time
 
-cert_hashes = ["62c4a178", "70d35895"]
+cert_hashes = ["62c4a178", "70d35895", "82c2b224"]
 
 for c_hash in cert_hashes:
     c_path = "/etc/grid-security/certificates/" + c_hash + ".r0"
