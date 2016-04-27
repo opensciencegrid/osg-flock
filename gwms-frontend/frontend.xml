@@ -218,8 +218,8 @@
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (MY.GLIDEIN_ResourceName =!= "UConn-OSG" || regexp("xd-login.opensciencegrid.org", User))'>
-            <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
+         <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (MY.GLIDEIN_ResourceName =!= "UConn-OSG" || regexp("xd-login.opensciencegrid.org", TARGET.User))'>
+            <factory query_expr='(stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought")'>
                <match_attrs>
                </match_attrs>
                <collectors>
