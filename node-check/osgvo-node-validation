@@ -24,11 +24,11 @@ my_info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 my_info "Checking disk space - 1 GB free is required"
 disk_required=1000000
 free=`df -kP . | awk '{if (NR==2) print $4}'`
+my_info "   ...  $free_gb GB space available"
 if [ "x$free" == "x" -o $free -lt $disk_required ]; then
     my_error "The workdir does not have enough available diskspace"
 fi
 free_gb=$(($free / 1024 / 1024))
-my_info "   There is $free_gb GB space available"
 
 my_info "Checking the environment..."
 
