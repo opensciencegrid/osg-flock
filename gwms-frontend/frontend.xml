@@ -219,7 +219,7 @@
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "HCC_US_UConn_gluskap") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought")'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "HCC_US_UConn_gluskap") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms")'>
                <match_attrs>
                </match_attrs>
                <collectors>
@@ -254,7 +254,7 @@
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus > 1)'>
-             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; !isUndefined(GLIDEIN_CPUS) &amp;&amp; (GLIDEIN_CPUS == "auto" || int(GLIDEIN_CPUS) > 1) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "HCC_US_UConn_gluskap") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought")'>
+             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; !isUndefined(GLIDEIN_CPUS) &amp;&amp; (GLIDEIN_CPUS == "auto" || int(GLIDEIN_CPUS) > 1) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "HCC_US_UConn_gluskap") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms")'>
                <match_attrs>
                </match_attrs>
                <collectors>
