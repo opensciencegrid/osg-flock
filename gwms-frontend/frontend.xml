@@ -244,6 +244,41 @@
          <files>
          </files>
       </group>
+      <group name="main_multicore_only" enabled="True">
+         <config>
+            <idle_glideins_per_entry max="100" reserve="5"/>
+            <idle_vms_per_entry curb="200" max="500"/>
+            <idle_vms_total curb="200" max="500"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
+            <running_glideins_total curb="57000" max="60000"/>
+         </config>
+         <match match_expr="True" start_expr='!isUndefined(TARGET.ProjectName) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus > 1)'>
+             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; !isUndefined(GLIDEIN_CPUS) &amp;&amp; (GLIDEIN_CPUS == "auto" || int(GLIDEIN_CPUS) > 1) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "HCC_US_UConn_gluskap") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms") &amp;&amp; (EntryName =!= "CMS_T3_US_NotreDame_deepthought")'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus > 1)">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+         </files>
+      </group>
       <group name="main_fnal_nocerts" enabled="True">
          <config>
             <idle_glideins_per_entry max="200" reserve="5"/>
