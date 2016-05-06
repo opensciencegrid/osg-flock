@@ -15,6 +15,8 @@ cert_hashes = ["62c4a178", "70d35895", "82c2b224"]
 
 for c_hash in cert_hashes:
     c_path = "/etc/grid-security/certificates/" + c_hash + ".r0"
+    if 'X509_CERT_DIR' in os.environ:
+        c_path = os.environ['X509_CERT_DIR'] + "/" + c_hash + ".r0"
     if os.path.exists(c_path):
         # be a little bit extra careful with error handling here - we only
         # want the test to fail if there is actually a CRL expiration and 
