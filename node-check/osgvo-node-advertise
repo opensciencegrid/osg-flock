@@ -24,19 +24,11 @@
 glidein_config="$1"
 
 function info {
-    if [ "$glidein_config" != "NONE" ]; then
-        echo "INFO  " $@
-    else
-        echo "INFO  " $@ 1>&2
-    fi
+    echo "INFO  " $@ 1>&2
 }
 
 function warn {
-    if [ "$glidein_config" != "NONE" ]; then
-        echo "WARN  " $@
-    else
-        echo "WARN  " $@ 1>&2
-    fi
+    echo "WARN  " $@ 1>&2
 }
 
 function advertise {
@@ -51,12 +43,12 @@ function advertise {
     if [ "$glidein_config" != "NONE" ]; then
         add_config_line $key "$value"
         add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
     else
-        if [ "$atype" = "S" ]; then
-            echo "$key = \"$value\""
-        else
-            echo "$key = $value"
-        fi
+        echo "$key = $value"
     fi
 }
 
