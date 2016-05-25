@@ -215,7 +215,18 @@ for FS in \
         # add the revision
         REV_ATTR="CVMFS_${FS_CONV}_REVISION"
         REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
-        if [ "x$REV_VAL" != "x" ]; then
+        if [ "x$FS" = "xstash.osgstorage.org" ]; then
+            # stash.osgstorage.org needs extra checks
+            if cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
+                # make sure it is an integer
+                if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                    advertise $FS_ATTR "$RESULT" "C"
+                    advertise $REV_ATTR "$REV_VAL" "I"
+                fi
+            else
+                RESULT="False"
+            fi
+        elif [ "x$REV_VAL" != "x" ]; then
             # make sure it is an integer
             if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
                 advertise $FS_ATTR "$RESULT" "C"
