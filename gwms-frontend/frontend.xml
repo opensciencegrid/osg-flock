@@ -74,7 +74,7 @@
              (isUndefined(WantsStashCvmfs) ||
                !WantsStashCvmfs ||
                isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
-               isUndefined(SUBMITTER_stash_osgstorage_org_REVISION))) ||
+               isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
                GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
              ">
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOGPU", Glidein_Supported_VOs)'>
@@ -228,7 +228,7 @@
              (isUndefined(WantsStashCvmfs) ||
                !WantsStashCvmfs ||
                isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
-               isUndefined(SUBMITTER_stash_osgstorage_org_REVISION))) ||
+               isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
                GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
              '>
             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (EntryName =!= "HCC_US_UConn_gluskap") &amp;&amp; (EntryName =!= "CMS_T2_US_Purdue_hadoop_condce") &amp;&amp; (EntryName =!= "CMS_T3_US_UCD_cms")'>
