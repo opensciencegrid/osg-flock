@@ -63,6 +63,21 @@ fi
 
 #############################################################################
 #
+#  Load user specified modules
+#
+
+LoadModules=`grep ^LoadModules ad.txt`
+
+if [ "X$LoadModules" != "X" ]; then
+    ModuleList=`echo $LoadModules | sed 's/^LoadModules = //i' | sed 's/"//g'`
+    for Module in $ModuleList; do
+        module load $Module
+    done
+fi
+
+
+#############################################################################
+#
 #  Trace callback
 #
 
