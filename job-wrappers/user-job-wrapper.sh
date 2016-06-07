@@ -66,7 +66,7 @@ fi
 #  Load user specified modules
 #
 
-LoadModules=`grep ^LoadModules ad.txt`
+LoadModules=`grep ^LoadModules $_CONDOR_JOB_AD 2>/dev/null`
 
 if [ "X$LoadModules" != "X" ]; then
     ModuleList=`echo $LoadModules | sed 's/^LoadModules = //i' | sed 's/"//g'`
