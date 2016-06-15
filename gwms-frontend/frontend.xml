@@ -16,6 +16,7 @@
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='
+             (GLIDEIN_ResourceName =!= "GridUNESP_CENTRAL" || regexp("xd-login.opensciencegrid.org", User)) &amp;&amp;
              (isUndefined(WantsStashCvmfs) ||
                !WantsStashCvmfs ||
                isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
@@ -62,7 +63,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="14400"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="102"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="103"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="$(STARTD_JOB_ATTRS),x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
