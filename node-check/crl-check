@@ -11,19 +11,24 @@ import re
 import datetime
 import time
 
-cert_hashes = ["62c4a178", "70d35895", "82c2b224"]
+cert_hashes = ["70d35895"]
 
 for c_hash in cert_hashes:
-    c_path = "/etc/grid-security/certificates/" + c_hash + ".r0"
+    cert_path = "/etc/grid-security/certificates/" + c_hash + ".0"
+    crl_path = "/etc/grid-security/certificates/" + c_hash + ".r0"
     if 'X509_CERT_DIR' in os.environ:
-        c_path = os.environ['X509_CERT_DIR'] + "/" + c_hash + ".r0"
-    if os.path.exists(c_path):
+        cert_path = os.environ['X509_CERT_DIR'] + "/" + c_hash + ".0"
+        crl_path = os.environ['X509_CERT_DIR'] + "/" + c_hash + ".r0"
+    if not os.path.exists(cert_path):
+        print("ERROR: Missing required CA certificate: %s" %(cert_path))
+        sys.exit(1)
+    if os.path.exists(crl_path):
         # be a little bit extra careful with error handling here - we only
         # want the test to fail if there is actually a CRL expiration and 
         # not if anything else fails
         diff = 0
         try:
-            cmd = "openssl crl -in " + c_path + " -nextupdate -noout"
+            cmd = "openssl crl -in " + crl_path + " -nextupdate -noout"
             next_update = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
             next_update = next_update.strip()
             next_update = re.sub(".*=", "", next_update)
