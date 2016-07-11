@@ -17,7 +17,6 @@
    </log_retention>
    <match match_expr="True" start_expr='
              (GLIDEIN_ResourceName =!= "GridUNESP_CENTRAL" || regexp("xd-login.opensciencegrid.org", User)) &amp;&amp;
-             (GLIDEIN_Site =!= "UUCHPC" || Owner == "rynge" || Owner == "dweitzel") &amp;&amp;
              (isUndefined(WantsStashCvmfs) ||
                !WantsStashCvmfs ||
                isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
