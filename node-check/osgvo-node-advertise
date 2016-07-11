@@ -218,9 +218,9 @@ for FS in \
         if [ "x$FS" = "xstash.osgstorage.org" ]; then
             # stash.osgstorage.org needs extra checks
             if cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
+                advertise $FS_ATTR "$RESULT" "C"
                 # make sure it is an integer
                 if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
-                    advertise $FS_ATTR "$RESULT" "C"
                     advertise $REV_ATTR "$REV_VAL" "I"
                 fi
             else
@@ -232,6 +232,10 @@ for FS in \
                 advertise $FS_ATTR "$RESULT" "C"
                 advertise $REV_ATTR "$REV_VAL" "I"
             fi
+        else
+            # unable to determine revision - this is common on sites which re-export CVMFS
+            # via for example NFS locally. Advertise availability.
+            advertise $FS_ATTR "$RESULT" "C"
         fi
     fi
 done
