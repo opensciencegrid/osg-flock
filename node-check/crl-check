@@ -11,16 +11,41 @@ import re
 import datetime
 import time
 
+from os.path import expanduser
+
 cert_hashes = ["70d35895"]
 
+def try_home_install(c_hash):
+    """
+    Try to install the required certs into $HOME/.globus/certificates
+    It might be too late for this glidein, but might help the following
+    glideins
+    """
+    home_path = expanduser("~")
+    if not os.path.exists(home_path + "/.globus/certificates"):
+        os.makedirs(home_path + "/.globus/certificates")
+    if not os.path.exists(home_path + "/.globus/certificates/" + c_hash + ".0"):
+        print("Attempting install into " + home_path + "/.globus/certificates/")
+        cmd = "cd " + home_path + "/.globus/certificates" + \
+              " && wget -nv -O cacerts.tar.gz http://osg-flock.grid.iu.edu/cacerts.tar.gz" + \
+              " && tar xzf cacerts.tar.gz" + \
+              " && rm -f cacerts.tar.gz *.r0"
+        subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
+
+
 for c_hash in cert_hashes:
+    home_path = expanduser("~")
     cert_path = "/etc/grid-security/certificates/" + c_hash + ".0"
     crl_path = "/etc/grid-security/certificates/" + c_hash + ".r0"
     if 'X509_CERT_DIR' in os.environ:
         cert_path = os.environ['X509_CERT_DIR'] + "/" + c_hash + ".0"
         crl_path = os.environ['X509_CERT_DIR'] + "/" + c_hash + ".r0"
+    elif os.path.exists(home_path + "/.globus/certificates"):
+        cert_path = home_path + "/.globus/certificates/" + c_hash + ".0"
+        crl_path = home_path + "/.globus/certificates/" + c_hash + ".r0"
     if not os.path.exists(cert_path):
         print("ERROR: Missing required CA certificate: %s" %(cert_path))
+        try_home_install(c_hash)
         sys.exit(1)
     if os.path.exists(crl_path):
         # be a little bit extra careful with error handling here - we only
@@ -44,6 +69,7 @@ for c_hash in cert_hashes:
         # make sure the CRL is valid for a while
         if diff > 1*60*60:
             print("ERROR: CRL is expired, or about to expire!")
+            try_home_install(c_hash)
             sys.exit(1)
 
 sys.exit(0)
