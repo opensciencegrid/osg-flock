@@ -17,6 +17,7 @@
    </log_retention>
    <match match_expr="True" start_expr='
              !isUndefined(TARGET.ProjectName) &amp;&amp;
+             (MY.OSGVO_OS_STRING == "RHEL 6" || Owner == "rynge" || Owner == "donkri") &amp;&amp;
              (GLIDEIN_ResourceName =!= "GridUNESP_CENTRAL" || regexp("xd-login.opensciencegrid.org", User)) &amp;&amp;
              (isUndefined(WantsStashCvmfs) ||
                !WantsStashCvmfs ||
