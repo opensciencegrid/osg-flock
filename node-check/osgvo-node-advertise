@@ -357,10 +357,15 @@ for LIB in \
     /usr/lib64/libgsl.so.0 \
     /usr/lib64/libstdc++.so.6 \
     /usr/lib64/libgtk-x11-2.0.so.0 \
+    /usr/lib64/libXm.so.4 \
     /usr/lib64/libXt.so.6 \
+    /usr/lib64/libXmu.so.6 \
+    /usr/lib64/libXdmcp.so.6 \
     /usr/lib64/libgmp.so.3 \
     /usr/lib64/libgslcblas.so.0 \
     /usr/lib64/libgsl.so.0 \
+    /usr/lib64/atlas/libatlas.so.3 \
+    /usr/lib64/atlas/liblapack.so.3 \
 ; do
     ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/\+\-]/_/g'`
     HAS_LIB="False"
