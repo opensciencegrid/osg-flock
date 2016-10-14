@@ -299,6 +299,16 @@ advertise HAS_JAVA "$HAS_JAVA" "C"
 
 
 ##################
+# zip
+
+HAS_ZIP="False"
+if [ -e /usr/bin/zip ]; then
+    HAS_ZIP="True"
+fi
+advertise HAS_ZIP "$HAS_ZIP" "C"
+
+
+##################
 # scp
 
 HAS_SCP="False"
