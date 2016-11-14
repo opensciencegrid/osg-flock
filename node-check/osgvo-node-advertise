@@ -198,6 +198,29 @@ fi
 
 
 ##################
+# singularity
+# advertise availability and version
+
+info "Checking for singularity..."
+HAS_SINGULARITY="False"
+SINGULARITY_VERSION=`singularity --version 2>/dev/null`
+if [ "x$SINGULARITY_VERSION" != "x" ]; then
+    HAS_SINGULARITY="True"
+else
+    # some sites requires us to do a module load first - not sure if we always want to do that
+    SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
+    if [ "x$SINGULARITY_VERSION" != "x" ]; then
+        HAS_SINGULARITY="True"
+    fi
+fi
+if [ "x$SINGULARITY_VERSION" = "x" ]; then
+    SINGULARITY_VERSION="N/A"
+fi
+advertise HAS_SINGULARITY "$HAS_SINGULARITY" "C"
+advertise SINGULARITY_VERSION "$SINGULARITY_VERSION" "S"
+
+
+##################
 # tcsh test
 
 info "Attempting to determine if tcsh is available and works..."
