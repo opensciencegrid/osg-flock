@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# singularity is a module on some sites
+module load singularity >/dev/null 2>&1 || /bin/true
+
 # make sure the job can access certain information via the environment, for example ProjectName
 export OSGVO_PROJECT_NAME=`(grep -i '^ProjectName' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
 export OSGVO_SUBMITTER=`(grep -i '^User ' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
