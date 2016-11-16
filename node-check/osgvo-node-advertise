@@ -248,6 +248,7 @@ for FS in \
    oasis.opensciencegrid.org \
    stash.osgstorage.org \
    icecube.opensciencegrid.org \
+   xenon.opensciencegrid.org \
    atlas.cern.ch \
    cms.cern.ch \
    ams.cern.ch \
