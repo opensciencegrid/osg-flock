@@ -16,7 +16,7 @@
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='
-             !isUndefined(TARGET.ProjectName) &amp;&amp;
+             (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
              (MY.OSGVO_OS_STRING == "RHEL 6" || !isUndefined(WantsRHEL7) || Owner == "rynge" || Owner == "donkri" || Owner == "yx5") &amp;&amp;
              (GLIDEIN_Site =!= "NotreDame" || TARGET.ProjectName == "SPLINTER" || TARGET.ProjectName == "TG-IBN130001" || TARGET.ProjectName == "Duke-QGP" || TARGET.Owner == "dschultz") &amp;&amp;
              (GLIDEIN_Site =!= "CancerComputer" || TARGET.ProjectName == "SPLINTER") &amp;&amp;
