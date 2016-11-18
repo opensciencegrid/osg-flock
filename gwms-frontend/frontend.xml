@@ -31,7 +31,6 @@
          <match_attrs>
          </match_attrs>
          <collectors>
-            <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=glidein.grid.iu.edu" comment="Indiana factory" factory_identity="gfactory@glidein.grid.iu.edu" my_identity="feosgflock@glidein.grid.iu.edu" node="glidein.grid.iu.edu"/>
             <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein.grid.iu.edu" comment="Indiana factory" factory_identity="gfactory@glidein.grid.iu.edu" my_identity="feosgflock@glidein.grid.iu.edu" node="glidein.grid.iu.edu"/>
             <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=gfactory-1.t2.ucsd.edu" comment="San Diego factory" factory_identity="gfactory@gfactory-1.t2.ucsd.edu" my_identity="feosgflock@gfactory-1.t2.ucsd.edu" node="gfactory-1.t2.ucsd.edu"/>
          </collectors>
@@ -166,7 +165,7 @@
                <match_attrs>
                </match_attrs>
                <collectors>
-                  <collector DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=glidein-int.grid.iu.edu" factory_identity="gfactory@glidein-int.grid.iu.edu" my_identity="feosgitb@glidein-int.grid.iu.edu" node="glidein-int.grid.iu.edu"/>
+                   <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-int.grid.iu.edu" factory_identity="gfactory@glidein-int.grid.iu.edu" my_identity="feosgitb@glidein-int.grid.iu.edu" node="glidein-int.grid.iu.edu"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Factory =?= True)">
