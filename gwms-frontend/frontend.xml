@@ -449,7 +449,7 @@
       <file absfname="/opt/git/node-check/crl-check" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" period="900" untar="False" wrapper="False">
+      <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" period="900" prefix="NOPREFIX" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" untar="False" wrapper="False">
