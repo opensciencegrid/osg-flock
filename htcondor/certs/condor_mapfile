@@ -4,7 +4,7 @@ GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=g
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=pilot\/osg\-flock\.grid\.iu\.edu$" pilot
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=glideinwms\/osg\-xsede\.grid\.iu\.edu$" osg_xsede
 GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=xd\-login\.opensciencegrid\.org$" osg_xsede
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=xd\-login\.opensciencegrid\.org$" xd_login
+GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=osg\-vo\.isi\.edu$" isi
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=workflow\.isi\.edu$" flocking_workflow
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=submit1\.bioinformatics\.vt\.edu$" flocking_vt
 GSI "^\/DC\=org\/DC\=doegrids\/OU\=Services\/CN\=gw68\.quarry\.iu\.teragrid\.org$" flocking_saga

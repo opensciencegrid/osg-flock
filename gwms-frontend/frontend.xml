@@ -45,6 +45,7 @@
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q3@xd-login.opensciencegrid.org"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q4@xd-login.opensciencegrid.org"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q5@xd-login.opensciencegrid.org"/>
+            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=osg-vo.isi.edu" fullname="osg-vo.isi.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu.grid.iu.edu" fullname="csiu.grid.iu.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu" fullname="SUBMIT.MIT.EDU"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/>
