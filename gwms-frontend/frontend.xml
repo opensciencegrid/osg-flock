@@ -15,7 +15,7 @@
          <process_log backup_count="5" compression="" extension="err" max_days="7.0" max_mbytes="100.0" min_days="3.0" msg_types="ERR,WARN,EXCEPTION"/>
       </process_logs>
    </log_retention>
-   <match match_expr="True" start_expr='
+   <match match_expr="True" start_expr='(TARGET.Owner == "rsv") || (
              (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
              (MY.OSGVO_OS_STRING == "RHEL 6" || !isUndefined(WantsRHEL7) || Owner == "rynge" || Owner == "donkri" || Owner == "yx5" || Owner == "dschultz") &amp;&amp;
              (GLIDEIN_Site =!= "NotreDame" || TARGET.ProjectName == "SPLINTER" || TARGET.ProjectName == "TG-IBN130001" || TARGET.ProjectName == "Duke-QGP" || TARGET.Owner == "dschultz") &amp;&amp;
@@ -26,7 +26,7 @@
                isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
                isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
                GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
-             '>
+             )'>
       <factory query_expr="True">
          <match_attrs>
          </match_attrs>
@@ -47,7 +47,7 @@
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q5@xd-login.opensciencegrid.org"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=osg-vo.isi.edu" fullname="osg-vo.isi.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu.grid.iu.edu" fullname="csiu.grid.iu.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu" fullname="SUBMIT.MIT.EDU"/>
+            <!-- schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu" fullname="SUBMIT.MIT.EDU"/ -->
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/>
             <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="login02.osgconnect.net"/>
             <!-- schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="BXIE@login01.osgconnect.net"/ -->
