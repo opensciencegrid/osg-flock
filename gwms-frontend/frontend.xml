@@ -70,7 +70,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="121"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="122"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="$(STARTD_JOB_ATTRS),x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -234,7 +234,7 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
-                            (MY.MonitorSelfAge &gt; 180 || isUndefined(MY.PartitionableSlot) || MY.PartitionableSlot == False || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
+                            (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
                             (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1") &amp;&amp; (GLIDEIN_ResourceName =!= "HOSTED_STANFORD")'>
@@ -273,7 +273,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus > 1)'>
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus &gt; 1)'>
              <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; !isUndefined(GLIDEIN_CPUS) &amp;&amp; (int(GLIDEIN_CPUS) > 1) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -281,7 +281,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="isUndefined(DESIRED_Sites) &amp;&amp; isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus > 1)">
+            <job query_expr="isUndefined(DESIRED_Sites) &amp;&amp; isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus &gt; 1)">
                <match_attrs>
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
@@ -312,7 +312,7 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; 
-                            (MY.MonitorSelfAge &gt; 180 || isUndefined(MY.PartitionableSlot) || MY.PartitionableSlot == False || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
+                            (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
                             isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; 
                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; 
