@@ -395,7 +395,7 @@
                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
                             (TARGET.Owner == "rsv" || TARGET.Owner == "rynge")'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; !stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; !stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True")'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; !stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; !stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_TrustDomain == "grid") &amp;&amp; (GLIDEIN_Supported_VOs =!= "VIRGO")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
