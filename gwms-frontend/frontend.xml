@@ -227,7 +227,7 @@
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
             <idle_vms_per_entry curb="400" max="500"/>
-            <idle_vms_total curb="400" max="500"/>
+            <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
@@ -267,8 +267,8 @@
       <group name="main_multicore_only" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="200" max="500"/>
-            <idle_vms_total curb="200" max="500"/>
+            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
@@ -305,7 +305,7 @@
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
             <idle_vms_per_entry curb="400" max="500"/>
-            <idle_vms_total curb="400" max="500"/>
+            <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
@@ -347,8 +347,8 @@
       <group name="main_with_certs" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="20" max="50"/>
-            <idle_vms_total curb="200" max="500"/>
+            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="40000" relative_to_queue="5.0"/>
             <running_glideins_total curb="35000" max="40000"/>
