@@ -389,7 +389,7 @@
             <running_glideins_per_entry max="1" relative_to_queue="1.0"/>
             <running_glideins_total curb="1000" max="1000"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+         <match match_expr='glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")'
                 start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                             (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
