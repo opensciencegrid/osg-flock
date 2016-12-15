@@ -401,6 +401,7 @@ for LIB in \
     /usr/lib64/libicuuc.so.42 \
     /usr/lib64/atlas/libatlas.so.3 \
     /usr/lib64/atlas/liblapack.so.3 \
+    /usr/lib64/atlas/libptf77blas.so.3 \
 ; do
     ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/\+\-]/_/g'`
     HAS_LIB="False"
