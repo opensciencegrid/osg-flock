@@ -48,8 +48,8 @@
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=osg-vo.isi.edu" fullname="osg-vo.isi.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu.grid.iu.edu" fullname="csiu.grid.iu.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu" fullname="SUBMIT.MIT.EDU"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/>
-            <schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="login02.osgconnect.net"/>
+            <!-- schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/ -->
+            <!-- schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="login02.osgconnect.net"/ -->
             <!-- schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="BXIE@login01.osgconnect.net"/ -->
             <!-- schedd DN="/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=duke-login.osgconnect.net" fullname="duke-login.osgconnect.net"/ -->
          </schedds>
