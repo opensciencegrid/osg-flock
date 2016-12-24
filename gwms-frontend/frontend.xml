@@ -234,6 +234,7 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                            (GLIDEIN_Site =!= "CancerComputer" || TARGET.ProjectName == "SPLINTER") &amp;&amp;
                             (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
                             (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
