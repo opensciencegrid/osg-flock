@@ -15,7 +15,7 @@
          <process_log backup_count="5" compression="" extension="err" max_days="7.0" max_mbytes="100.0" min_days="3.0" msg_types="ERR,WARN,EXCEPTION"/>
       </process_logs>
    </log_retention>
-   <match match_expr="True" start_expr='(TARGET.Owner == "rsv") || (
+   <match match_expr="True" start_expr='((TARGET.Owner == "rsv") || (
              (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
              (MY.OSGVO_OS_STRING == "RHEL 6" || !isUndefined(WantsRHEL7) || Owner == "rynge" || Owner == "donkri" || Owner == "yx5" || Owner == "dschultz") &amp;&amp;
              (GLIDEIN_Site =!= "NotreDame" || TARGET.ProjectName == "SPLINTER" || TARGET.ProjectName == "TG-IBN130001" || TARGET.ProjectName == "Duke-QGP" || TARGET.Owner == "dschultz") &amp;&amp;
@@ -26,7 +26,7 @@
                isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
                isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
                GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
-             )'>
+             ))'>
       <factory query_expr="True">
          <match_attrs>
          </match_attrs>
@@ -84,7 +84,7 @@
             <running_glideins_per_entry max="1000" relative_to_queue="5.0"/>
             <running_glideins_total curb="900" max="1000"/>
          </config>
-         <match match_expr="True" start_expr="isUndefined(TARGET.DESIRED_Sites) &amp;&amp; TARGET.RequestGPUs &gt; 0">
+         <match match_expr="True" start_expr="(isUndefined(TARGET.DESIRED_Sites) &amp;&amp; TARGET.RequestGPUs &gt; 0)">
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOGPU", Glidein_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
@@ -197,7 +197,7 @@
             <running_glideins_per_entry max="10" relative_to_queue="5.0"/>
             <running_glideins_total curb="10" max="20"/>
          </config>
-         <match match_expr="True" start_expr="isUndefined(TARGET.DESIRED_Sites) &amp;&amp; TARGET.RequestMemory &gt; 10000">
+         <match match_expr="True" start_expr="(isUndefined(TARGET.DESIRED_Sites) &amp;&amp; TARGET.RequestMemory &gt; 10000)">
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOBigMem",Glidein_Supported_VOs) &amp;&amp; (EntryName =?= "CMSHTPC_T3_US_Omaha_tusker_bigmem")'>
                <match_attrs>
                </match_attrs>
@@ -233,11 +233,11 @@
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
-                start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                             (GLIDEIN_Site =!= "CancerComputer" || TARGET.ProjectName == "SPLINTER") &amp;&amp;
                             (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
-                            (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+                            (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -274,7 +274,7 @@
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
             <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus &gt; 1)'>
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (RequestCpus &gt; 1))'>
              <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; !isUndefined(GLIDEIN_CPUS) &amp;&amp; (int(GLIDEIN_CPUS) > 1) &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -312,12 +312,12 @@
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
-                start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; 
+                start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; 
                             (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
                             isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; 
                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; 
-                            isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("csiu.grid.iu.edu", User) || regexp("osgconnect.net", User) || regexp("uchicago.edu", User))'>
+                            isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("csiu.grid.iu.edu", User) || regexp("osgconnect.net", User) || regexp("uchicago.edu", User)))'>
             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "False") &amp;&amp; (GLIDEIN_REQUIRE_GLEXEC_USE =?= "False") &amp;&amp; ( (GLIDEIN_ResourceName =?= "FNAL_FERMIGRID") || (GLIDEIN_ResourceName =?= "GPGrid") || (GLIDEIN_ResourceName =?= "USCMS-FNAL-WC1") )'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -354,7 +354,7 @@
             <running_glideins_per_entry max="40000" relative_to_queue="5.0"/>
             <running_glideins_total curb="35000" max="40000"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime))'>
             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "True")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -391,11 +391,11 @@
             <running_glideins_total curb="1000" max="1000"/>
          </config>
          <match match_expr='glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")'
-                start_expr='((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                             (MY.PartitionableSlot =!= True || MY.MonitorSelfAge &gt; 120 || MY.TotalSlotCpus == 1 || TARGET.RequestCpus &gt; 1) &amp;&amp;
                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; 
                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
-                            (TARGET.Owner == "rsv" || TARGET.Owner == "rynge")'>
+                            (TARGET.Owner == "rsv" || TARGET.Owner == "rynge"))'>
                <factory query_expr='FactoryType == "production" &amp;&amp; !stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; !stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs) &amp;&amp; !stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_TrustDomain == "grid") &amp;&amp; (GLIDEIN_Supported_VOs =!= "VIRGO")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
