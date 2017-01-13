@@ -14,8 +14,8 @@ if [ -e ../../main/condor/libexec ]; then
 fi
 
 # load modules, if available
-if [ -e /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash ]; then
-    . /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash 
+if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+    . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
 fi
 
 
