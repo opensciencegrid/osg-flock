@@ -17,6 +17,7 @@ GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=duk
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=training\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=fsurf\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.ci\-connect\.uchicago\.edu$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.xenon\.ci\-connect\.net$" flocking_osgconnect
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.umich\.ci\-connect\.net$" flocking_osgconnect
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.cms\.ci\-connect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=amundsen\.grid\.uchicago\.edu$" flocking_spt
