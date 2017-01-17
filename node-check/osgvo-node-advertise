@@ -300,10 +300,10 @@ fi
 RESULT="False"
 # extra check to make sure we can read a file
 if cat /cvmfs/oasis.opensciencegrid.org/osg/README.txt >/dev/null 2>&1; then
-    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash ]; then
-        if (. /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash && module avail) >/dev/null 2>&1; then
+    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+        if (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail) >/dev/null 2>&1; then
             # also make sure module avail is not throwing a stack trace
-            if ! (. /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
+            if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
                 RESULT="True"
             fi
         fi
