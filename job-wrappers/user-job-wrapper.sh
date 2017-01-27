@@ -26,6 +26,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
 
     # "save" some setting from the condor ads - we need these even if we get re-execed
     # inside singularity in which the paths in those env vars are wrong
+    export HAS_SINGULARITY=(`grep ^HAS_SINGULARITY $_CONDOR_MACHINE_AD`)
     export SINGULARITY_PATH=`(grep -i '^SINGULARITY_PATH' $_CONDOR_MACHINE_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
     export StashCache=(`grep ^WantsStashCache $_CONDOR_JOB_AD`)
     export PosixStashCache=(`grep ^WantsPosixStashCache $_CONDOR_JOB_AD`)
@@ -36,7 +37,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     #
     #  Singularity
     #
-    if [ "x$SINGULARITY_PATH" != "x" ]; then
+    if [ "x${HAS_SINGULARITY[2]}" == 'xtrue' -a "x$SINGULARITY_PATH" != "x" ]; then
 
         # TODO: support user supplied images
 
