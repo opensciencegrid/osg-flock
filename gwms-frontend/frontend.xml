@@ -16,6 +16,8 @@
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='((TARGET.Owner == "rsv") || (
+             (Owner == "rynge") &amp;&amp;
+             (isUndefined(MY.HAS_SINGULARITY) || Owner == "rynge") &amp;&amp;
              (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
              (MY.OSGVO_OS_STRING == "RHEL 6" || !isUndefined(WantsRHEL7) || Owner == "rynge" || Owner == "donkri" || Owner == "yx5" || Owner == "dschultz") &amp;&amp;
              (GLIDEIN_Site =!= "NotreDame" || TARGET.ProjectName == "SPLINTER" || TARGET.ProjectName == "TG-IBN130001" || TARGET.ProjectName == "Duke-QGP" || TARGET.Owner == "dschultz") &amp;&amp;
@@ -65,12 +67,12 @@
    <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="http://osg-flock.grid.iu.edu/vofrontend/stage"/>
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
-      <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="8.4.6"/>
+      <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="8.4.2"/>
       <attr name="GLIDECLIENT_Rank" glidein_publish="False" job_publish="False" parameter="True" type="string" value="1"/>
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="125"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="126"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="$(STARTD_JOB_ATTRS),x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -191,7 +193,7 @@
       <group name="largemem" enabled="True">
          <config>
             <idle_glideins_per_entry max="10" reserve="5"/>
-            <idle_vms_per_entry curb="2" max="5"/>
+            <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="30" max="50"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="10" relative_to_queue="5.0"/>
@@ -226,7 +228,7 @@
       <group name="main" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
@@ -268,7 +270,7 @@
       <group name="main_multicore_only" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
@@ -305,7 +307,7 @@
       <group name="main_fnal_nocerts" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
@@ -348,7 +350,7 @@
       <group name="main_with_certs" enabled="True">
          <config>
             <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="400" max="500"/>
+            <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="40000" relative_to_queue="5.0"/>
