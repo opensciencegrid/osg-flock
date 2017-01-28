@@ -146,13 +146,13 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     if [ "x$SINGULARITY_VERSION" != "x" ]; then
         HAS_SINGULARITY="True"
         SINGULARITY_PATH=`which singularity`
-    #else
-    #    # some sites requires us to do a module load first - not sure if we always want to do that
-    #    SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
-    #    if [ "x$SINGULARITY_VERSION" != "x" ]; then
-    #        HAS_SINGULARITY="True"
-    #        SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
-    #    fi
+    else
+        # some sites requires us to do a module load first - not sure if we always want to do that
+        SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
+        if [ "x$SINGULARITY_VERSION" != "x" ]; then
+            HAS_SINGULARITY="True"
+            SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
+        fi
     fi
 
     if [ "x$HAS_SINGULARITY" = "xTrue" -a "x$SINGULARITY_VERSION" != "x" -a "x$SINGULARITY_PATH" != "x" ]; then
