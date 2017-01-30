@@ -166,8 +166,9 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
         # let "inside" script know we are re-execing
         export SINGULARITY_REEXEC=1
-        info "exec $SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $@"
-        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ "$@"
+        SCRIPT=`basename $0`
+        info "exec $SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ /srv/$SCRIPT $1"
+        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ /srv/$SCRIPT $1
     fi
 else
     info "Already running inside singularity"
