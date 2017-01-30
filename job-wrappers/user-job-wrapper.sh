@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -v
-
 if [ "x$SINGULARITY_REEXEC" = "x" ]; then
 
     # singularity is a module on some sites
@@ -47,8 +45,16 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+)/.*;\1;"`
         export SING_INSIDE_EXEC_DIR=`echo "$PWD" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
 
+        # build a new command line, with updated paths
+        CMD=""
+        for VAR in "$@"; do
+            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+            CMD="$CMD $VAR"
+        done
+
         export SINGULARITY_REEXEC=1
-        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd $SING_INSIDE_EXEC_DIR --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $@
+        echo "$SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd $SING_INSIDE_EXEC_DIR --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD" >&2
+        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd $SING_INSIDE_EXEC_DIR --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD
     fi
 
 else
