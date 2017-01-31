@@ -150,9 +150,6 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
-            <file absfname="/opt/git/job-wrappers/itb.sh" after_entry="True" const="True" executable="False" period="0" untar="False" wrapper="True">
-               <untar_options cond_attr="TRUE"/>
-            </file>
          </files>
       </group>
       <group name="itb" enabled="True">
