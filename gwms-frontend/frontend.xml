@@ -16,7 +16,7 @@
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='((TARGET.Owner == "rsv") || (
-             (isUndefined(MY.HAS_SINGULARITY) || HAS_SINGULARITY == False || Owner == "rynge") &amp;&amp;
+             (isUndefined(MY.HAS_SINGULARITY) || HAS_SINGULARITY == False || TARGET.ProjectName == "OSG-Staff") &amp;&amp;
              (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
              (MY.OSGVO_OS_STRING == "RHEL 6" || !isUndefined(WantsRHEL7) || Owner == "rynge" || Owner == "donkri" || Owner == "yx5" || Owner == "dschultz") &amp;&amp;
              (GLIDEIN_Site =!= "NotreDame" || TARGET.ProjectName == "SPLINTER" || TARGET.ProjectName == "TG-IBN130001" || TARGET.ProjectName == "Duke-QGP" || TARGET.Owner == "dschultz") &amp;&amp;
@@ -71,7 +71,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="135"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="136"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="$(STARTD_JOB_ATTRS),x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
