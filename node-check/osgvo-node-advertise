@@ -24,19 +24,11 @@
 glidein_config="$1"
 
 function info {
-    if [ "$glidein_config" != "NONE" ]; then
-        echo "INFO  " $@
-    else
-        echo "INFO  " $@ 1>&2
-    fi
+    echo "INFO  " $@ 1>&2
 }
 
 function warn {
-    if [ "$glidein_config" != "NONE" ]; then
-        echo "WARN  " $@
-    else
-        echo "WARN  " $@ 1>&2
-    fi
+    echo "WARN  " $@ 1>&2
 }
 
 function advertise {
@@ -51,12 +43,12 @@ function advertise {
     if [ "$glidein_config" != "NONE" ]; then
         add_config_line $key "$value"
         add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
     else
-        if [ "$atype" = "S" ]; then
-            echo "$key = \"$value\""
-        else
-            echo "$key = $value"
-        fi
+        echo "$key = $value"
     fi
 }
 
@@ -84,23 +76,155 @@ fi
 ###########################################################
 # attributes below this line
 
-# operating system
-OS_NAME=`(lsb_release -i | sed 's/.*:[ \t]*//') 2>/dev/null`
-OS_VERSION=`(lsb_release -r | sed 's/.*:[ \t]*//' | sed 's/\..*//') 2>/dev/null`
+##################
+# cvmfs filesystem availability this has to come before singularity checks
 
-if [ "X$OS_NAME" != "X" ]; then
-
-    if (echo $OS_NAME | grep -E -i 'redhat|cent|scientific|rocks') >/dev/null 2>&1; then
-        OS_NAME="RHEL"
+if [ "x$SINGULARITY_REEXEC" = "x" ]; then
+    info "Checking for CVMFS availability and attributes..."
+    for FS in \
+       oasis.opensciencegrid.org \
+       stash.osgstorage.org \
+       icecube.opensciencegrid.org \
+       xenon.opensciencegrid.org \
+       atlas.cern.ch \
+       cms.cern.ch \
+       ams.cern.ch \
+    ; do
+        FS_CONV=`echo "$FS" | sed 's/\./_/g'`
+        FS_ATTR="HAS_CVMFS_$FS_CONV"
+        RESULT="False"
+        if [ -e /cvmfs/$FS/. ]; then
+            RESULT="True"
+            # add the revision
+            REV_ATTR="CVMFS_${FS_CONV}_REVISION"
+            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            if [ "x$FS" = "xstash.osgstorage.org" ]; then
+                # stash.osgstorage.org needs extra checks
+                if cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
+                    advertise $FS_ATTR "$RESULT" "C"
+                    # make sure it is an integer
+                    if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                        advertise $REV_ATTR "$REV_VAL" "I"
+                    fi
+                else
+                    RESULT="False"
+                fi
+            elif [ "x$REV_VAL" != "x" ]; then
+                # make sure it is an integer
+                if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                    advertise $FS_ATTR "$RESULT" "C"
+                    advertise $REV_ATTR "$REV_VAL" "I"
+                fi
+            else
+                # unable to determine revision - this is common on sites which re-export CVMFS
+                # via for example NFS locally. Advertise availability.
+                advertise $FS_ATTR "$RESULT" "C"
+            fi
+        fi
+    done
+    
+    # update timestamp?
+    TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
+    TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
+    if [ "x$TS_VAL" != "x" ]; then
+        # make sure it is an integer
+        if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
+            advertise $TS_ATTR "$TS_VAL" "I"
+        fi
     fi
+
+fi # SINGULARITY_REEXEC
+
+##################
+# singularity
+# advertise availability and version
+
+if [ "x$SINGULARITY_REEXEC" = "x" ]; then
+    info "Checking for singularity..."
+    HAS_SINGULARITY="False"
+    SINGULARITY_VERSION=`singularity --version 2>/dev/null`
+    if [ "x$SINGULARITY_VERSION" != "x" ]; then
+        HAS_SINGULARITY="True"
+        SINGULARITY_PATH=`which singularity`
+    else
+        # some sites requires us to do a module load first - not sure if we always want to do that
+        SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
+        if [ "x$SINGULARITY_VERSION" != "x" ]; then
+            HAS_SINGULARITY="True"
+            SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
+        fi
+    fi
+
+    if [ "x$HAS_SINGULARITY" = "xTrue" -a "x$SINGULARITY_VERSION" != "x" -a "x$SINGULARITY_PATH" != "x" ]; then
+        advertise SINGULARITY_VERSION "$SINGULARITY_VERSION" "S"
+        advertise SINGULARITY_PATH "$SINGULARITY_PATH" "S"
+    fi
+    advertise HAS_SINGULARITY "$HAS_SINGULARITY" "C"
+    
+    # if we have singularity, we should re-exec this script within the default
+    # container so that we can advertise that environment
+    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+        # We want to map the full glidein dir to /srv inside the container. This is so 
+        # that we can rewrite env vars pointing to somewhere inside that dir (for
+        # example, X509_USER_PROXY)
+        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+)/.*;\1;"`
+
+        # build a new command line, with updated paths
+        CMD=""
+        for VAR in $0 "$@"; do
+            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+            CMD="$CMD $VAR"
+        done
+
+        # let "inside" script know we are re-execing
+        export SINGULARITY_REEXEC=1
+        info "$SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD"
+        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD
+    fi
+else
+    info "Already running inside singularity"
+    advertise SINGULARITY_OSGVO_IMAGE "True" "C"
 fi
 
-if [ "X$OS_NAME" = "X" ]; then
+# operating system
+
+# /etc/issue works most of the time, but there are exceptions
+OS_NAME=`cat /etc/issue | head -n1 | awk '{print $1;}' | tr '[:lower:]' '[:upper:]'`
+
+if [ "X$OS_NAME" = "xUBUNTU" ]; then
+    OS_VERSION=`cat /etc/issue | head -n1 | awk '{print $2;}'`
+elif [ -e /etc/debian_version ]; then
+    OS_NAME="DEBIAN"
+    OS_VERSION=`cat /etc/debian_version`
+elif [ "X$OS_NAME" = "xFEDORA" ]; then
+    OS_VERSION=`cat /etc/issue | head -n1 | awk '{print $3;}'`
+elif [ -e /etc/redhat-release ]; then
+    OS_NAME="RHEL"
+    OS_VERSION=`cat /etc/redhat-release | grep -o -E ' [0-9]+.[0-9]+'`
+elif [ -e /etc/rocks-release ]; then
+    OS_NAME="RHEL"
+    OS_VERSION=`cat /etc/rocks-release | grep -o -E ' [0-9]+.[0-9]+'`
+elif [ -e /etc/SuSE-release ]; then
+    OS_NAME="SUSE"
+    OS_VERSION=`cat /etc/SuSE-release | grep VERSION | grep -o -E ' [0-9]+'`
+fi
+
+# remove spaces/tabs in the version
+OS_VERSION=`echo $OS_VERSION | sed 's/[ \t]//g'`
+
+# remove / in the version
+OS_VERSION=`echo $OS_VERSION | sed 's/\//_/g'`
+
+# we only want major version numbers
+OS_VERSION=`echo $OS_VERSION | sed 's/[\.-].*//'`
+
+if [ "x$OS_NAME" = "x" ]; then
     OS_NAME="Unknown"
 fi
-if [ "X$OS_VERSION" = "X" ]; then
+if [ "x$OS_VERSION" = "x" ]; then
     OS_VERSION="Unknown"
 fi
+
 advertise OSGVO_OS_NAME "$OS_NAME" "S"
 advertise OSGVO_OS_VERSION "$OS_VERSION" "S"
 advertise OSGVO_OS_STRING "$OS_NAME $OS_VERSION" "S"
@@ -114,16 +238,35 @@ OSGVO_PILOT_DF=`df -kP . | awk '{if (NR==2) print $4}'`
 advertise OSGVO_PILOT_DF "$OSGVO_PILOT_DF" "I"
 
 
-##################
-# GPUs
-# if we are part of the GPU group
+###########################################################
+# gpus - only for the GPU group
 
+group="gpu"
 if [ "$glidein_config" != "NONE" ]; then
     group=`grep '^GLIDECLIENT_Group ' $glidein_config | awk '{print $2}'`
-    if [ "x$group" = "xgpu" ]; then
-        advertise "GPUs" "1" "I"
+fi
+if [ "x$group" = "xgpu" ]; then
+    wget -nv -O condor_gpu_discovery http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
+    chmod 755 condor_gpu_discovery
+    ./condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
+    while read line; do
+        key=`echo "$line" | sed 's/=.*//'`
+        value=`echo "$line" | sed 's/.*=//'`
+        if (echo "$value" | grep '"') >/dev/null 2>&1; then
+            value=`echo "$value" | sed 's/"//g'`
+            advertise "$key" "$value" "S"
+        else
+            advertise "$key" "$value" "C"
+        fi
+    done <gpu.ad
+
+    # and some extra nvida attributes
+    nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
+    if [ "x$nvidia_version" != "x" ]; then
+        advertise NV_DRIVER "$nvidia_version" "C"
     fi
 fi
+
 
 ##################
 # squid
@@ -174,87 +317,30 @@ cat >csh.test <<EOF
 EOF
 chmod 755 csh.test
 HAS_TCSH="False"
-if ./csh.test >/dev/null 2>&1; then
-    HAS_TCSH="True"
-
-    # special case for SMU
-    HNAME=`hostname -f`
-    if [ "X$HNAME" = "Xcwnode10.hpc.smu.edu" ]; then
-        HAS_TCSH="False"
+if [ -e /bin/tcsh ]; then
+    if ./csh.test >/dev/null 2>&1; then
+        HAS_TCSH="True"
     fi
 fi
 advertise HAS_TCSH "$HAS_TCSH" "C"
 rm -f csh.test
 
 
-##################
-# htpc core count
-
-info "Counting cores for HTPC jobs"
-group=`awk '/^GLIDECLIENT_Group /{print $2}' $glidein_config`
-if (echo $group | grep -i htpc) >/dev/null 2>&1; then
-    resource_name=`awk '/^GLIDEIN_ResourceName /{print $2}' $glidein_config`
-    core_count=`cat /proc/cpuinfo | grep ^processor | wc -l`
-    if [ "x$resource_name" = "xTusker" ]; then
-        core_count="8"
-    fi
-    advertise HTPC_CORES "$core_count" "I"
-fi
-
-
-##################
-# cvmfs filesystem availability
-
-info "Checking for CVMFS availability and attributes..."
-for FS in \
-   oasis.opensciencegrid.org \
-   icecube.opensciencegrid.org \
-   atlas.cern.ch \
-   cms.cern.ch \
-; do
-    FS_CONV=`echo "$FS" | sed 's/\./_/g'`
-    FS_ATTR="HAS_CVMFS_$FS_CONV"
-    RESULT="False"
-    if [ -e /cvmfs/$FS/. ]; then
-        RESULT="True"
-        # add the revision
-        REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-        REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
-        if [ "x$REV_VAL" != "x" ]; then
-            # make sure it is an integer
-            if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
-                advertise $FS_ATTR "$RESULT" "C"
-                advertise $REV_ATTR "$REV_VAL" "I"
-            fi
-        fi
-    fi
-done
-
-# update timestamp?
-TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
-TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
-if [ "x$TS_VAL" != "x" ]; then
-    # make sure it is an integer
-    if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
-        advertise $TS_ATTR "$TS_VAL" "I"
-    fi
-fi
 
 # modules
 RESULT="False"
-if [ -e /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash ]; then
-    if (. /cvmfs/oasis.opensciencegrid.org/osg/modules/lmod/current/init/bash && module avail) >/dev/null 2>&1; then
-        RESULT="True"
+# extra check to make sure we can read a file
+if cat /cvmfs/oasis.opensciencegrid.org/osg/README.txt >/dev/null 2>&1; then
+    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+        if (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail) >/dev/null 2>&1; then
+            # also make sure module avail is not throwing a stack trace
+            if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
+                RESULT="True"
+            fi
+        fi
     fi
 fi
 advertise HAS_MODULES "$RESULT" "C"
-
-info "Checking for PALMS availability..."
-RESULT="False"
-if (. /cvmfs/oasis.opensciencegrid.org/osg/palms/setup) >/dev/null 2>&1; then
-    RESULT="True"
-fi
-advertise HAS_CVMFS_PALMS "$RESULT" "C"
 
 
 ##################
@@ -265,6 +351,54 @@ if java -Xmx100m -version >/dev/null 2>&1; then
     HAS_JAVA="True"
 fi
 advertise HAS_JAVA "$HAS_JAVA" "C"
+
+
+##################
+# zip
+
+HAS_ZIP="False"
+if [ -e /usr/bin/zip ]; then
+    HAS_ZIP="True"
+fi
+advertise HAS_ZIP "$HAS_ZIP" "C"
+
+
+##################
+# scp
+
+HAS_SCP="False"
+if [ -e /usr/bin/scp ]; then
+    HAS_SCP="True"
+fi
+advertise HAS_SCP "$HAS_SCP" "C"
+
+
+##################
+# guc
+
+GUC_PATH=`which globus-url-copy 2>/dev/null`
+if [ "X$GUC_PATH" = "X" ]; then
+    GUC_PATH="NA"
+fi
+advertise GUC_PATH "$GUC_PATH" "S"
+
+# does it work?
+if [ "X$GUC_PATH" != "X" ]; then
+    GUC_VERIFIED="False"
+    if globus-url-copy -notpt gsiftp://xd-login.opensciencegrid.org/etc/hosts file:///dev/null >/dev/null; then
+        GUC_VERIFIED="True"
+    fi
+    advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
+fi
+
+##################
+# xrdcp
+
+HAS_XRDCP="False"
+if xrdcp --version >/dev/null 2>&1; then
+    HAS_XRDCP="True"
+fi
+advertise HAS_XRDCP "$HAS_XRDCP" "C"
 
 
 ##################
@@ -287,6 +421,19 @@ for LIB in \
     /usr/lib64/libgslcblas.so.0 \
     /usr/lib64/libgsl.so.0 \
     /usr/lib64/libstdc++.so.6 \
+    /usr/lib64/libgtk-x11-2.0.so.0 \
+    /usr/lib64/libXm.so.4 \
+    /usr/lib64/libXt.so.6 \
+    /usr/lib64/libXmu.so.6 \
+    /usr/lib64/libXdmcp.so.6 \
+    /usr/lib64/libgmp.so.3 \
+    /usr/lib64/libgslcblas.so.0 \
+    /usr/lib64/libgsl.so.0 \
+    /usr/lib64/libicuuc.so.42 \
+    /usr/lib64/atlas/libatlas.so.3 \
+    /usr/lib64/atlas/liblapack.so.3 \
+    /usr/lib64/atlas/libptf77blas.so.3 \
+    /usr/lib64/libtk8.5.so \
 ; do
     ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/\+\-]/_/g'`
     HAS_LIB="False"
@@ -344,6 +491,12 @@ rm -f py.check
 
 
 ##################
+# matlab
+
+advertise MATLAB_COMPATIBLE "HAS_MODULES && HAS_FILE_usr_lib64_libXt_so_6" "C"
+
+
+##################
 # Blast
 
 info "Checking for blast availability..."
@@ -379,17 +532,22 @@ info "Checking for PHSW availability..."
 PHSW_RESULT="True"
 PHSWDIR=/cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw
 
-if ! (source $PHSWDIR/bin/set_grid_env.sh && grid-proxy-init -version && voms-proxy-init -version) 1>&2 ; then
-    PHSW_RESULT="False"
-fi
+if [ -e /cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw/bin/set_grid_env.sh ]; then
 
-(source $PHSWDIR/bin/set_grid_env.sh && globus-url-copy -version) 1>&2
-RC=$?
-if [ "x$RC" != "x0" -a "x$RC" != "x1" ]; then
-    PHSW_RESULT="False"
-fi
-
-if ! (source $PHSWDIR/bin/set_grid_env.sh && root.exe -l -b -q) 1>&2 ; then
+    if ! (source $PHSWDIR/bin/set_grid_env.sh && grid-proxy-init -version && voms-proxy-init -version) 1>&2 ; then
+        PHSW_RESULT="False"
+    fi
+    
+    (source $PHSWDIR/bin/set_grid_env.sh && globus-url-copy -version) 1>&2
+    RC=$?
+    if [ "x$RC" != "x0" -a "x$RC" != "x1" ]; then
+        PHSW_RESULT="False"
+    fi
+    
+    if ! (source $PHSWDIR/bin/set_grid_env.sh && root.exe -l -b -q) 1>&2 ; then
+        PHSW_RESULT="False"
+    fi
+else
     PHSW_RESULT="False"
 fi
 
