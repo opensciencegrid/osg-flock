@@ -1,9 +1,6 @@
 #!/bin/bash
 
 if [ "x$SINGULARITY_REEXEC" = "x" ]; then
-
-    # singularity is a module on some sites
-    module load singularity >/dev/null 2>&1 || /bin/true
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
         export _CONDOR_JOB_AD="NONE"
@@ -13,29 +10,54 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     # make sure the job can access certain information via the environment, for example ProjectName
-    export OSGVO_PROJECT_NAME=`(grep -i '^ProjectName' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
+    export OSGVO_PROJECT_NAME=`(grep -i '^ProjectName ' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
     export OSGVO_SUBMITTER=`(grep -i '^User ' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
     
-    # prepend HTCondor libexec dir so that we can call chirp
-    if [ -e ../../main/condor/libexec ]; then
-        DER=`(cd ../../main/condor/libexec; pwd)`
-        export PATH=$DER:$PATH
-    fi
-
     # "save" some setting from the condor ads - we need these even if we get re-execed
     # inside singularity in which the paths in those env vars are wrong
-    export HAS_SINGULARITY=(`grep ^HAS_SINGULARITY $_CONDOR_MACHINE_AD`)
+    # Seems like arrays do not survive the singularity transformation, so set them
+    # explicity
+
+    DATA=(`grep -i ^HAS_SINGULARITY $_CONDOR_MACHINE_AD`)
+    if [[ "x${DATA[2]}" == 'xtrue' ]]; then
+        HAS_SINGULARITY="1"
+    else
+        HAS_SINGULARITY="0"
+    fi
+    export HAS_SINGULARITY
+
     export SINGULARITY_PATH=`(grep -i '^SINGULARITY_PATH' $_CONDOR_MACHINE_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
-    export StashCache=(`grep ^WantsStashCache $_CONDOR_JOB_AD`)
-    export PosixStashCache=(`grep ^WantsPosixStashCache $_CONDOR_JOB_AD`)
-    export LoadModules=(`grep ^LoadModules $_CONDOR_JOB_AD`)
+
+    export DATA=(`grep -i ^WantsStashCache $_CONDOR_JOB_AD`)
+    if [[ "${DATA[2]}" == 'true' || "${DATA[2]}" == '1' ]]; then
+        STASHCACHE="1"
+    else
+        STASHCACHE="0"
+    fi
+    export STASHCACHE
+
+    export DATA=(`grep -i ^WantsPosixStashCache $_CONDOR_JOB_AD`)
+    if [[ "${DATA[2]}" == 'true' || "${DATA[2]}" == '1' ]]; then
+        POSIXSTASHCACHE="1"
+    else
+        POSIXSTASHCACHE="0"
+    fi
+    export POSIXSTASHCACHE
+
+    export DATA=(`grep -i ^LoadModules $_CONDOR_JOB_AD`)
+    if [[ "${DATA[2]}" == 'true' || "${DATA[2]}" == '1' ]]; then
+        LoadModules="1"
+    else
+        LoadModules="0"
+    fi
+    export LoadModules
 
 
     #############################################################################
     #
     #  Singularity
     #
-    if [ "x${HAS_SINGULARITY[2]}" == 'xtrue' -a "x$SINGULARITY_PATH" != "x" ]; then
+    if [ "x$HAS_SINGULARITY" = 'x1' -a "x$SINGULARITY_PATH" != "x" ]; then
 
         # TODO: support user supplied images
 
@@ -47,13 +69,12 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
 
         # build a new command line, with updated paths
         CMD=""
-        for VAR in "$@"; do
+        for VAR in $0 "$@"; do
             VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
             CMD="$CMD $VAR"
         done
 
         export SINGULARITY_REEXEC=1
-        echo "$SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd $SING_INSIDE_EXEC_DIR --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD" >&2
         exec $SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd $SING_INSIDE_EXEC_DIR --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD
     fi
 
@@ -75,6 +96,12 @@ fi
 #
 #  modules and env 
 #
+
+# prepend HTCondor libexec dir so that we can call chirp
+if [ -e ../../main/condor/libexec ]; then
+    DER=`(cd ../../main/condor/libexec; pwd)`
+    export PATH=$DER:$PATH
+fi
 
 # load modules, if available
 if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
@@ -106,7 +133,7 @@ function setup_stashcp {
 }
  
 # Check for PosixStashCache first
-if [[ ${PosixStashCache[2]} == 'true' || "${PosixStashcache[2]}" == '1' ]]; then
+if [ "x$POSIXSTASHCACHE" = "x1" ]; then
   setup_stashcp
  
   # Add the LD_PRELOAD hook
@@ -118,9 +145,8 @@ if [[ ${PosixStashCache[2]} == 'true' || "${PosixStashcache[2]}" == '1' ]]; then
   # Currently this points _ONLY_ to the OSG Connect source server
   export XROOTD_VMP=$(stashcp --closest | cut -d'/' -f3):/stash=/
  
-elif [[ "${StashCache[2]}" == 'true' || "${StashCache[2]}" == '1' ]]; then
+elif [ "x$STASHCACHE" = 'x1' ]; then
   setup_stashcp
- 
 fi
 
 

@@ -164,11 +164,22 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     # if we have singularity, we should re-exec this script within the default
     # container so that we can advertise that environment
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+        # We want to map the full glidein dir to /srv inside the container. This is so 
+        # that we can rewrite env vars pointing to somewhere inside that dir (for
+        # example, X509_USER_PROXY)
+        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+)/.*;\1;"`
+
+        # build a new command line, with updated paths
+        CMD=""
+        for VAR in $0 "$@"; do
+            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+            CMD="$CMD $VAR"
+        done
+
         # let "inside" script know we are re-execing
         export SINGULARITY_REEXEC=1
-        SCRIPT=`basename $0`
-        info "exec $SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ /srv/$SCRIPT $1"
-        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ /srv/$SCRIPT $1
+        info "$SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD"
+        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD
     fi
 else
     info "Already running inside singularity"
