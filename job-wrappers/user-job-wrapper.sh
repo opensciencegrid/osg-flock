@@ -1,5 +1,29 @@
 #!/bin/bash
 
+
+function getPropBool
+{
+    # $1 the file (for example, $_CONDOR_JOB_AD or $_CONDOR_MACHINE_AD)
+    # $2 the key
+    # return is "1" for true, "0" for false/unspecified
+    val=`(grep -i "^$2 " $1 | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
+    # convert variations of true to 1
+    if (echo "x$val" | grep -i true) >/dev/null 2>&1; then
+        val="1"
+    fi
+    if [ "x$val" = "x" ]; then
+        val="0"
+    fi
+    echo $val
+    # return value accordingly, but backwards (true=>0, false=>1)
+    if [ "$val" = "1" ];  then
+        return 0
+    else:
+        return 1
+    fi
+}
+
+
 if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
@@ -18,39 +42,17 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     # Seems like arrays do not survive the singularity transformation, so set them
     # explicity
 
-    DATA=(`grep -i ^HAS_SINGULARITY $_CONDOR_MACHINE_AD`)
-    if [[ "x${DATA[2]}" == 'xtrue' ]]; then
-        HAS_SINGULARITY="1"
-    else
-        HAS_SINGULARITY="0"
-    fi
-    export HAS_SINGULARITY
+    export HAS_SINGULARITY=$(getPropBool $_CONDOR_MACHINE_AD HAS_SINGULARITY)
 
     export SINGULARITY_PATH=`(grep -i '^SINGULARITY_PATH' $_CONDOR_MACHINE_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
 
-    export DATA=(`grep -i ^WantsStashCache $_CONDOR_JOB_AD`)
-    if [[ "${DATA[2]}" == 'true' || "${DATA[2]}" == '1' ]]; then
-        STASHCACHE="1"
-    else
-        STASHCACHE="0"
-    fi
-    export STASHCACHE
+    export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache)
 
-    export DATA=(`grep -i ^WantsPosixStashCache $_CONDOR_JOB_AD`)
-    if [[ "${DATA[2]}" == 'true' || "${DATA[2]}" == '1' ]]; then
-        POSIXSTASHCACHE="1"
-    else
-        POSIXSTASHCACHE="0"
-    fi
-    export POSIXSTASHCACHE
+    export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache)
 
-    export DATA=(`grep -i ^LoadModules $_CONDOR_JOB_AD`)
-    if [[ "${DATA[2]}" == 'true' || "${DATA[2]}" == '1' ]]; then
-        LoadModules="1"
-    else
-        LoadModules="0"
-    fi
-    export LoadModules
+    export LoadModules=`grep -i ^LoadModules $_CONDOR_JOB_AD 2>/dev/null`
+
+    export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA)
 
 
     #############################################################################
@@ -104,7 +106,11 @@ if [ -e ../../main/condor/libexec ]; then
 fi
 
 # load modules, if available
-if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+if [ "x$LMOD_BETA" = "x1" ]; then
+    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
+        . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
+    fi
+elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
     . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
 fi
 
