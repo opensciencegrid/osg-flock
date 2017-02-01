@@ -5,7 +5,8 @@ function getPropBool
 {
     # $1 the file (for example, $_CONDOR_JOB_AD or $_CONDOR_MACHINE_AD)
     # $2 the key
-    # return is "1" for true, "0" for false/unspecified
+    # echo "1" for true, "0" for false/unspecified
+    # return 0 for true, 1 for false/unspecified
     val=`(grep -i "^$2 " $1 | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
     # convert variations of true to 1
     if (echo "x$val" | grep -i true) >/dev/null 2>&1; then
@@ -18,9 +19,19 @@ function getPropBool
     # return value accordingly, but backwards (true=>0, false=>1)
     if [ "$val" = "1" ];  then
         return 0
-    else:
+    else
         return 1
     fi
+}
+
+
+function getPropStr
+{
+    # $1 the file (for example, $_CONDOR_JOB_AD or $_CONDOR_MACHINE_AD)
+    # $2 the key
+    # echo the value
+    val=`(grep -i "^$2 " $1 | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
+    echo $val
 }
 
 
@@ -34,8 +45,8 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     # make sure the job can access certain information via the environment, for example ProjectName
-    export OSGVO_PROJECT_NAME=`(grep -i '^ProjectName ' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
-    export OSGVO_SUBMITTER=`(grep -i '^User ' $_CONDOR_JOB_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
+    export OSGVO_PROJECT_NAME=$(getPropStr $_CONDOR_JOB_AD ProjectName)
+    export OSGVO_SUBMITTER=$(getPropStr $_CONDOR_JOB_AD User)
     
     # "save" some setting from the condor ads - we need these even if we get re-execed
     # inside singularity in which the paths in those env vars are wrong
@@ -43,14 +54,22 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     # explicity
 
     export HAS_SINGULARITY=$(getPropBool $_CONDOR_MACHINE_AD HAS_SINGULARITY)
-
-    export SINGULARITY_PATH=`(grep -i '^SINGULARITY_PATH' $_CONDOR_MACHINE_AD | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
+    export OSG_SINGULARITY_PATH=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_PATH)
+    export OSG_SINGULARITY_IMAGE=$(getPropStr $_CONDOR_JOB_AD SingularityImage)
+    export OSG_SINGULARITY_AUTOLOAD=$(getPropStr $_CONDOR_JOB_AD SingularityAutoLoad)
+    if [ "x$OSG_SINGULARITY_AUTOLOAD" = "x" ]; then
+        # default for autoload is true
+        export OSG_SINGULARITY_AUTOLOAD=1
+    else
+        export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad)
+    fi
+    export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS)
 
     export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache)
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache)
 
-    export LoadModules=`grep -i ^LoadModules $_CONDOR_JOB_AD 2>/dev/null`
+    export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA)
 
@@ -59,9 +78,20 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
     #
     #  Singularity
     #
-    if [ "x$HAS_SINGULARITY" = 'x1' -a "x$SINGULARITY_PATH" != "x" ]; then
+    if [ "x$HAS_SINGULARITY" = "x1" -a "x$OSG_SINGULARITY_AUTOLOAD" = "x1" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
 
-        # TODO: support user supplied images
+        # If  image is not provided, load the default one
+        # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
+        if [ "x$OSG_SINGULARITY_IMAGE" = "x" ]; then
+            # Default
+            export OSG_SINGULARITY_IMAGE="/cvmfs/cernvm-prod.cern.ch/cvm3/"
+            export OSG_SINGULARITY_BIND_CVMFS=1
+        fi
+        
+        OSG_SINGULARITY_EXTRA_OPTS=""
+        if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
+        fi
 
         # We want to map the full glidein dir to /srv inside the container. This is so 
         # that we can rewrite env vars pointing to somewhere inside that dir (for
@@ -77,7 +107,14 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         done
 
         export SINGULARITY_REEXEC=1
-        exec $SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd $SING_INSIDE_EXEC_DIR --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD
+        exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
+                                   --bind $SING_OUTSIDE_BASE_DIR:/srv \
+                                   --pwd $SING_INSIDE_EXEC_DIR \
+                                   --scratch /var/tmp \
+                                   --scratch /tmp \
+                                   --containall \
+                                   $OSG_SINGULARITY_IMAGE \
+                                   $CMD
     fi
 
 else
@@ -107,6 +144,7 @@ fi
 
 # load modules, if available
 if [ "x$LMOD_BETA" = "x1" ]; then
+    # used for testing the new el6/el7 modules 
     if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
         . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
     fi
