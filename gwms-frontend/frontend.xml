@@ -70,7 +70,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="140"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="141"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="$(STARTD_JOB_ATTRS),x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -78,7 +78,7 @@
       <group name="gpu" enabled="True">
          <config>
             <idle_glideins_per_entry max="1" reserve="1"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="1" max="1"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1000" relative_to_queue="5.0"/>
@@ -114,7 +114,7 @@
       <group name="comet-xenon1t" enabled="True">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="100" relative_to_queue="5.0"/>
@@ -154,7 +154,7 @@
       <group name="itb" enabled="True">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="100" relative_to_queue="5.0"/>
@@ -195,7 +195,7 @@
       <group name="itbfactory" enabled="False">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="100" relative_to_queue="5.0"/>
@@ -231,7 +231,7 @@
       <group name="largemem" enabled="True">
          <config>
             <idle_glideins_per_entry max="10" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="30" max="50"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="10" relative_to_queue="5.0"/>
@@ -265,8 +265,8 @@
       </group>
       <group name="main" enabled="True">
          <config>
-            <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
@@ -307,8 +307,8 @@
       </group>
       <group name="main_multicore_only" enabled="True">
          <config>
-            <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
@@ -344,8 +344,8 @@
       </group>
       <group name="main_fnal_nocerts" enabled="True">
          <config>
-            <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" relative_to_queue="5.0"/>
@@ -387,8 +387,8 @@
       </group>
       <group name="main_with_certs" enabled="True">
          <config>
-            <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="40000" relative_to_queue="5.0"/>
@@ -424,7 +424,7 @@
       <group name="no_osg_vo_support" enabled="True">
          <config>
             <idle_glideins_per_entry max="1" reserve="1"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1" relative_to_queue="1.0"/>
@@ -465,8 +465,8 @@
       </group>
       <group name="sleep" enabled="True">
          <config>
-            <idle_glideins_per_entry max="50" reserve="5"/>
-            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="10000" relative_to_queue="5.0"/>
