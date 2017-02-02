@@ -155,6 +155,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
 
+    # for now, we will only advertise singularity on nodes which can access cvmfs
+    if [ ! -e /cvmfs/cernvm-prod.cern.ch/cvm3 ]; then
+        HAS_SINGULARITY="False"
+    fi
+
     if [ "x$HAS_SINGULARITY" = "xTrue" -a "x$OSG_SINGULARITY_VERSION" != "x" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
         advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
         advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
