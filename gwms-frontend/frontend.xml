@@ -111,6 +111,46 @@
          <files>
          </files>
       </group>
+      <group name="comet-xenon1t" enabled="True">
+         <config>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="18" max="20"/>
+            <idle_vms_total curb="200" max="1000"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="100" relative_to_queue="5.0"/>
+            <running_glideins_total curb="45" max="50"/>
+         </config>
+         <match match_expr="True" start_expr='(TARGET.projectName=?="xenon1t"'>
+            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=?="Comet"'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+                  <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="xenon1t")'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+		 <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.xenon.ci-connect.net" fullname="login.xenon.ci-connect.net"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+	      <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" project_id="csd428" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
+            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+         </files>
+      </group>
       <group name="itb" enabled="True">
          <config>
             <idle_glideins_per_entry max="20" reserve="5"/>
