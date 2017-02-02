@@ -122,7 +122,9 @@ else
     unset TMP
     unset TEMP
     unset X509_CERT_DIR
-    for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD ; do
+    for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
+               _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
+               OSG_WN_TMP ; do
         eval val="\$$key"
         val=`echo "$val" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
         eval $key=$val
