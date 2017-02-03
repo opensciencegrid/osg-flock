@@ -230,9 +230,16 @@ if [ "x$OS_VERSION" = "x" ]; then
     OS_VERSION="Unknown"
 fi
 
+# kernel
+OS_KERNEL=`uname -r`
+if [ "x$OS_KERNEL" = "x" ]; then
+    OS_KERNEL="Unknown"
+fi
+
 advertise OSGVO_OS_NAME "$OS_NAME" "S"
 advertise OSGVO_OS_VERSION "$OS_VERSION" "S"
 advertise OSGVO_OS_STRING "$OS_NAME $OS_VERSION" "S"
+advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 
 # cpu info
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
