@@ -96,13 +96,13 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         # We want to map the full glidein dir to /srv inside the container. This is so 
         # that we can rewrite env vars pointing to somewhere inside that dir (for
         # example, X509_USER_PROXY)
-        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+)/.*;\1;"`
-        export SING_INSIDE_EXEC_DIR=`echo "$PWD" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+/execute/dir_[0-9.a-zA-Z]+).*;\1;"`
+        export SING_INSIDE_EXEC_DIR=`echo "$PWD" | sed -E "s;.*/glide_[a-zA-Z0-9]+/execute/dir_[0-9.a-zA-Z]+(.*);/srv/\1;"`
 
         # build a new command line, with updated paths
         CMD=""
         for VAR in $0 "$@"; do
-            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/execute/dir_[0-9.a-zA-Z]+(.*);/srv/\1;"`
             CMD="$CMD $VAR"
         done
 
@@ -126,7 +126,7 @@ else
                _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
                OSG_WN_TMP ; do
         eval val="\$$key"
-        val=`echo "$val" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+        val=`echo "$val" | sed -E "s;.*/glide_[a-zA-Z0-9]+/execute/dir_[0-9.a-zA-Z]+(.*);/srv/\1;"`
         eval $key=$val
     done
 fi 
