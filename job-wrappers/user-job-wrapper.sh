@@ -93,28 +93,31 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
         fi
 
-        # We want to map the full glidein dir to /srv inside the container. This is so 
-        # that we can rewrite env vars pointing to somewhere inside that dir (for
-        # example, X509_USER_PROXY)
-        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+)/.*;\1;"`
-        export SING_INSIDE_EXEC_DIR=`echo "$PWD" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+        # We want to pind $PWD to /srv within the container - however, in order
+        # to do that, we have to make sure everything we need is in $PWD, most
+        # notably the user-job-wrapper.sh (this script!)
+        cp $0 .osgvo-user-job-wrapper.sh
+
+        # Remember what the outside pwd dir is so that we can rewrite env vars
+        # pointing to omewhere inside that dir (for example, X509_USER_PROXY)
+        export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
 
         # build a new command line, with updated paths
         CMD=""
-        for VAR in $0 "$@"; do
-            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+        for VAR in "$@"; do
+            VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;"`
             CMD="$CMD $VAR"
         done
 
         export SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
-                                   --bind $SING_OUTSIDE_BASE_DIR:/srv \
-                                   --pwd $SING_INSIDE_EXEC_DIR \
+                                   --bind $PWD:/srv \
+                                   --pwd /srv \
                                    --scratch /var/tmp \
                                    --scratch /tmp \
                                    --containall \
                                    $OSG_SINGULARITY_IMAGE \
-                                   $CMD
+                                   /srv/.osgvo-user-job-wrapper.sh $CMD
     fi
 
 else
@@ -126,7 +129,7 @@ else
                _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
                OSG_WN_TMP ; do
         eval val="\$$key"
-        val=`echo "$val" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+        val=`echo "$val" | sed -E "s;$OSG_SINGULARITY_OUTSIDE_PWD(.*);/srv\1;"`
         eval $key=$val
     done
 fi 
@@ -214,10 +217,18 @@ fi
 #  Trace callback
 #
 
-if [ ! -e ../../trace-callback ]; then
-    (wget -nv -O ../../trace-callback http://obelix.isi.edu/osg/agent/trace-callback && chmod 755 ../../trace-callback) >/dev/null 2>&1 || /bin/true
+if [ ! -e .trace-callback ]; then
+    (wget -nv -O .trace-callback http://obelix.isi.edu/osg/agent/trace-callback && chmod 755 .trace-callback) >/dev/null 2>&1 || /bin/true
 fi
-../../trace-callback start >/dev/null 2>&1 || /bin/true
+./.trace-callback start >/dev/null 2>&1 || /bin/true
+
+
+#############################################################################
+#
+#  Cleanup
+#
+
+rm -f .trace-callback .osgvo-user-job-wrapper.sh >/dev/null 2>&1 || true
 
 
 #############################################################################
