@@ -132,6 +132,17 @@ else
         val=`echo "$val" | sed -E "s;$OSG_SINGULARITY_OUTSIDE_PWD(.*);/srv\1;"`
         eval $key=$val
     done
+
+    # If X509_USER_PROXY and friends are not set by the job, we might see the
+    # glidein one - in that case, just unset the env var
+    for key in X509_USER_PROXY X509_USER_CERT ; do
+        eval val="\$$key"
+        if [ "x$val" != "x" ]; then
+            if [ ! -e "$Xval" ]; then
+                eval $key=""
+            fi
+        fi
+    done
 fi 
 
 
