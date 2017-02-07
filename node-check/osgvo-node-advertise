@@ -355,7 +355,7 @@ fi
 
 info "Attempting to determine if tcsh is available and works..."
 cat >csh.test <<EOF
-#!/bin/tcsh -x -f
+#!/bin/tcsh -f
 /bin/true
 EOF
 chmod 755 csh.test
