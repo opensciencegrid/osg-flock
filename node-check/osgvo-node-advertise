@@ -142,16 +142,16 @@ fi # OSG_SINGULARITY_REEXEC
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for singularity..."
     HAS_SINGULARITY="False"
-    OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
+    export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
         HAS_SINGULARITY="True"
-        OSG_SINGULARITY_PATH=`which singularity`
+        export OSG_SINGULARITY_PATH=`which singularity`
     else
         # some sites requires us to do a module load first - not sure if we always want to do that
-        OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
+        export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
         if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
             HAS_SINGULARITY="True"
-            OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
+            export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
         fi
     fi
 
@@ -160,11 +160,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
 
-    if [ "x$HAS_SINGULARITY" = "xTrue" -a "x$OSG_SINGULARITY_VERSION" != "x" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
-        advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
-        advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
-    fi
-    
     # if we have singularity, we should re-exec this script within the default
     # container so that we can advertise that environment
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
@@ -192,15 +187,18 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                                       /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD \
         ; then
             # singularity worked - exit here as the rest script ran inside the container
-            advertise HAS_SINGULARITY "True" "C"
             exit $?
-        else
-            # singularity failed, advertise accordingly
-            advertise HAS_SINGULARITY "False" "C"
         fi
     fi
+    
+    # if we get here, singularity is not availalbe or not working
+    advertise HAS_SINGULARITY "False" "C"
 else
     info "Already running inside singularity"
+    # delay the advertisement until here to make sure singularity actually works
+    advertise HAS_SINGULARITY "True" "C"
+    advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
+    advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     advertise OSG_SINGULARITY_OSGVO_IMAGE "True" "C"
 fi
 
