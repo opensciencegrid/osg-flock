@@ -138,7 +138,7 @@ else
     for key in X509_USER_PROXY X509_USER_CERT X509_USER_KEY ; do
         eval val="\$$key"
         if [ "x$val" != "x" ]; then
-            if [ ! -e "$Xval" ]; then
+            if [ ! -e "$val" ]; then
                 eval unset $key >/dev/null 2>&1 || true
             fi
         fi
