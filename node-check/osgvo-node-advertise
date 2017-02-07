@@ -66,10 +66,13 @@ info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
-    add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
-    source $add_config_line_source
+    # are we inside singularity?
+    if [ "x$add_config_line_source" = "x" ]; then
+        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    fi
 
-    condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    source $add_config_line_source
 fi
 
 
@@ -166,12 +169,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # We want to map the full glidein dir to /srv inside the container. This is so 
         # that we can rewrite env vars pointing to somewhere inside that dir (for
         # example, X509_USER_PROXY)
-        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+)/.*;\1;"`
+        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+).*;\1;"`
 
         # build a new command line, with updated paths
         CMD=""
         for VAR in $0 "$@"; do
-            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+/(.*);/srv/\1;"`
+            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
             CMD="$CMD $VAR"
         done
 
@@ -191,7 +194,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     
-    # if we get here, singularity is not availalbe or not working
+    # if we get here, singularity is not available or not working
     advertise HAS_SINGULARITY "False" "C"
 else
     info "Already running inside singularity"
@@ -200,6 +203,15 @@ else
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
     advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     advertise OSG_SINGULARITY_OSGVO_IMAGE "True" "C"
+   
+    # fix up the env
+    for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
+               _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
+               add_config_line_source condor_vars_file ; do
+        eval val="\$$key"
+        val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
+        eval $key=$val
+    done
 fi
 
 # operating system
@@ -255,10 +267,6 @@ advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 # cpu info
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
 advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
-
-# available disk space
-OSGVO_PILOT_DF=`df -kP . | awk '{if (NR==2) print $4}'`
-advertise OSGVO_PILOT_DF "$OSGVO_PILOT_DF" "I"
 
 
 ###########################################################
