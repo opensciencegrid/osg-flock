@@ -164,7 +164,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
         advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     fi
-    advertise HAS_SINGULARITY "$HAS_SINGULARITY" "C"
     
     # if we have singularity, we should re-exec this script within the default
     # container so that we can advertise that environment
@@ -184,7 +183,21 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
         info "$OSG_SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD"
-        exec $OSG_SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD
+        if $OSG_SINGULARITY_PATH exec --bind /cvmfs \
+                                      --bind $SING_OUTSIDE_BASE_DIR:/srv \
+                                      --pwd /srv \
+                                      --scratch /var/tmp \
+                                      --scratch /tmp \
+                                      --containall \
+                                      /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD \
+        ; then
+            # singularity worked - exit here as the rest script ran inside the container
+            advertise HAS_SINGULARITY "True" "C"
+            exit $?
+        else
+            # singularity failed, advertise accordingly
+            advertise HAS_SINGULARITY "False" "C"
+        fi
     fi
 else
     info "Already running inside singularity"
