@@ -55,6 +55,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
 
     export HAS_SINGULARITY=$(getPropBool $_CONDOR_MACHINE_AD HAS_SINGULARITY)
     export OSG_SINGULARITY_PATH=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_PATH)
+    export OSG_SINGULARITY_IMAGE_DEFAULT=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_IMAGE_DEFAULT)
     export OSG_SINGULARITY_IMAGE=$(getPropStr $_CONDOR_JOB_AD SingularityImage)
     export OSG_SINGULARITY_AUTOLOAD=$(getPropStr $_CONDOR_JOB_AD SingularityAutoLoad)
     if [ "x$OSG_SINGULARITY_AUTOLOAD" = "x" ]; then
@@ -84,7 +85,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
         if [ "x$OSG_SINGULARITY_IMAGE" = "x" ]; then
             # Default
-            export OSG_SINGULARITY_IMAGE="/cvmfs/cernvm-prod.cern.ch/cvm3/"
+            export OSG_SINGULARITY_IMAGE="$OSG_SINGULARITY_IMAGE_DEFAULT"
             export OSG_SINGULARITY_BIND_CVMFS=1
         fi
         
@@ -116,7 +117,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
                                    --scratch /var/tmp \
                                    --scratch /tmp \
                                    --containall \
-                                   $OSG_SINGULARITY_IMAGE \
+                                   "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh $CMD
     fi
 
@@ -143,6 +144,12 @@ else
             fi
         fi
     done
+
+    # Some java programs have seen problems with the timezone in our containers.
+    # If not already set, provide a default TZ
+    if [ "x$TZ" = "x" ]; then
+        export TZ="UTC"
+    fi
 fi 
 
 

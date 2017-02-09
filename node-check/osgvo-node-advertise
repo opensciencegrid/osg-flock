@@ -85,13 +85,14 @@ fi
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for CVMFS availability and attributes..."
     for FS in \
-       oasis.opensciencegrid.org \
-       stash.osgstorage.org \
-       icecube.opensciencegrid.org \
-       xenon.opensciencegrid.org \
+       ams.cern.ch \
        atlas.cern.ch \
        cms.cern.ch \
-       ams.cern.ch \
+       icecube.opensciencegrid.org \
+       oasis.opensciencegrid.org \
+       singularity.opensciencegrid.org \
+       stash.osgstorage.org \
+       xenon.opensciencegrid.org \
     ; do
         FS_CONV=`echo "$FS" | sed 's/\./_/g'`
         FS_ATTR="HAS_CVMFS_$FS_CONV"
@@ -158,8 +159,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
 
+    # default image for this glidein
+    export OSG_SINGULARITY_IMAGE_DEFAULT="/cvmfs/singularity.opensciencegrid.org/rynge/osgvo:el6"
+
     # for now, we will only advertise singularity on nodes which can access cvmfs
-    if [ ! -e /cvmfs/cernvm-prod.cern.ch/cvm3 ]; then
+    if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
         HAS_SINGULARITY="False"
     fi
 
@@ -180,14 +184,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD"
+        info "$OSG_SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
         if $OSG_SINGULARITY_PATH exec --bind /cvmfs \
                                       --bind $SING_OUTSIDE_BASE_DIR:/srv \
                                       --pwd /srv \
                                       --scratch /var/tmp \
                                       --scratch /tmp \
                                       --containall \
-                                      /cvmfs/cernvm-prod.cern.ch/cvm3/ $CMD \
+                                      "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+                                      $CMD \
         ; then
             # singularity worked - exit here as the rest script ran inside the container
             exit $?
@@ -202,7 +207,7 @@ else
     advertise HAS_SINGULARITY "True" "C"
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
     advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
-    advertise OSG_SINGULARITY_OSGVO_IMAGE "True" "C"
+    advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
    
     # fix up the env
     for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
