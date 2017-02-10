@@ -145,6 +145,17 @@ fi # OSG_SINGULARITY_REEXEC
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for singularity..."
+
+    # some known singularity locations
+    for LOCATION in \
+        /util/opt/singularity/2.2/gcc/4.4/bin \
+    ; do
+        if [ -e "$LOCATION" ]; then
+            info " ... prepending $LOCATION to PATH"
+            export PATH="$LOCATION:$PATH"
+        fi
+    done
+
     HAS_SINGULARITY="False"
     export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
