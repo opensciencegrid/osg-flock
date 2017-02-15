@@ -148,11 +148,14 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     # some known singularity locations
     for LOCATION in \
+        /util/opt/singularity/2.2.1/gcc/4.4/bin \
         /util/opt/singularity/2.2/gcc/4.4/bin \
+        /uufs/chpc.utah.edu/sys/installdir/singularity/std/bin \
     ; do
         if [ -e "$LOCATION" ]; then
             info " ... prepending $LOCATION to PATH"
             export PATH="$LOCATION:$PATH"
+            break
         fi
     done
 
