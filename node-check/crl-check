@@ -45,7 +45,7 @@ for c_hash in cert_hashes:
         crl_path = home_path + "/.globus/certificates/" + c_hash + ".r0"
     if not os.path.exists(cert_path):
         print("ERROR: Missing required CA certificate: %s" %(cert_path))
-        try_home_install(c_hash)
+        #try_home_install(c_hash)
         sys.exit(1)
     if os.path.exists(crl_path):
         # be a little bit extra careful with error handling here - we only
@@ -57,7 +57,8 @@ for c_hash in cert_hashes:
             next_update = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
             next_update = next_update.strip()
             next_update = re.sub(".*=", "", next_update)
-            print("Next update for CRL " + c_hash + ".r0 is " + next_update)
+            print("Next update for CRL " + c_hash + ".r0 is " + next_update + \
+                  " (full path: " + crl_path + ")")
             # example: Apr 22 17:00:00 2016 GMT
             dt = datetime.datetime.strptime(next_update, "%b %d %H:%M:%S %Y %Z")
             # epoch calculations in Python 2.6 makes me sad
@@ -69,7 +70,7 @@ for c_hash in cert_hashes:
         # make sure the CRL is valid for a while
         if diff > 1*60*60:
             print("ERROR: CRL is expired, or about to expire!")
-            try_home_install(c_hash)
+            #try_home_install(c_hash)
             sys.exit(1)
 
 sys.exit(0)
