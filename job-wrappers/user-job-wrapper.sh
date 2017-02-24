@@ -110,7 +110,9 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         # build a new command line, with updated paths
         CMD=""
         for VAR in "$@"; do
-            VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;"`
+            # two seds to make sure we catch variations of the iwd,
+            # including symlinked ones
+            VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;" | sed -E "s;.*/execute/dir_[0-9a-zA-Z]*(.*);/srv\1;"`
             CMD="$CMD $VAR"
         done
 
