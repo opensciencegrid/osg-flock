@@ -151,6 +151,11 @@ else
         fi
     done
 
+    # override some OSG specific variables
+    if [ "x$OSG_WN_TMP" != "x" ]; then
+        export OSG_WN_TMP=/tmp
+    fi
+
     # Some java programs have seen problems with the timezone in our containers.
     # If not already set, provide a default TZ
     if [ "x$TZ" = "x" ]; then
