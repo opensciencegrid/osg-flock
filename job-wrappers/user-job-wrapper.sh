@@ -101,7 +101,11 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
 
         # Remember what the outside pwd dir is so that we can rewrite env vars
         # pointing to omewhere inside that dir (for example, X509_USER_PROXY)
-        export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
+        if [ "x$_CONDOR_JOB_IWD" != "x" ]; then
+            export OSG_SINGULARITY_OUTSIDE_PWD="$_CONDOR_JOB_IWD"
+        else
+            export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
+        fi
 
         # build a new command line, with updated paths
         CMD=""
