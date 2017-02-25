@@ -62,6 +62,7 @@ fi
 
 info "This is a setup script for the OSG-FLOCK frontend."
 info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
+info "Running in directory $PWD"
 
 if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
@@ -226,6 +227,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
             CMD="$CMD $VAR"
         done
+    
+        # workaround for user nobody with HOME=/
+        EXTRA_ARGS=""
+        if [ "x$USER" = "xnobody" -a "x$HOME" = "x/" ]; then
+            EXTRA_ARGS=" --home $SING_OUTSIDE_BASE_DIR:/srv"
+        fi
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
