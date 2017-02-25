@@ -181,13 +181,23 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
 
+    # workaround for user nobody with HOME=/
+    if [ "x$USER" = "x" ]; then
+        export USER=`whoami 2>/dev/null`
+    fi
+    EXTRA_ARGS=""
+    if [ "x$USER" = "xnobody" -a "x$HOME" = "x/" ]; then
+        EXTRA_ARGS=" --home $PWD:/srv"
+    fi
+
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
     # in the execing, like:
     # ERROR  : Could not identify basedir for home directory path: /
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind /cvmfs --bind $PWD:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
-        if ! ($OSG_SINGULARITY_PATH exec --bind /cvmfs \
+        info "$OSG_SINGULARITY_PATH exec $EXTRA_ARGS --bind /cvmfs --bind $PWD:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+        if ! ($OSG_SINGULARITY_PATH exec $EXTRA_ARGS \
+                                         --bind /cvmfs \
                                          --bind $PWD:/srv \
                                          --pwd /srv \
                                          --scratch /var/tmp \
@@ -219,8 +229,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
-        if $OSG_SINGULARITY_PATH exec --bind /cvmfs \
+        info "$OSG_SINGULARITY_PATH exec $EXTRA_ARGS --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+        if $OSG_SINGULARITY_PATH exec $EXTRA_ARGS \
+                                      --bind /cvmfs \
                                       --bind $SING_OUTSIDE_BASE_DIR:/srv \
                                       --pwd /srv \
                                       --scratch /var/tmp \

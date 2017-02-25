@@ -90,6 +90,16 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
+    
+        # workaround for user nobody with HOME=/
+        if [ "x$USER" = "x" ]; then
+            export USER=`whoami 2>/dev/null`
+        fi
+        if [ "x$USER" = "xnobody" -a "x$HOME" = "x/" ]; then
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv"
+        fi
+
+        # cvmfs access inside container (default, but optional)
         if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
         fi
