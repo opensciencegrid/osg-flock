@@ -187,7 +187,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         export USER=`whoami 2>/dev/null`
     fi
     EXTRA_ARGS=""
-    if [ "x$USER" = "xnobody" -a "x$HOME" = "x/" ]; then
+    if [ "x$USER" = "xnobody" ]; then
         EXTRA_ARGS=" --home $PWD:/srv"
     fi
 
@@ -230,7 +230,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
         # workaround for user nobody with HOME=/
         EXTRA_ARGS=""
-        if [ "x$USER" = "xnobody" -a "x$HOME" = "x/" ]; then
+        if [ "x$USER" = "xnobody" ]; then
             EXTRA_ARGS=" --home $SING_OUTSIDE_BASE_DIR:/srv"
         fi
 

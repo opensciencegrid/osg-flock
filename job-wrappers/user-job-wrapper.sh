@@ -95,7 +95,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         if [ "x$USER" = "x" ]; then
             export USER=`whoami 2>/dev/null`
         fi
-        if [ "x$USER" = "xnobody" -a "x$HOME" = "x/" ]; then
+        if [ "x$USER" = "xnobody" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv"
         fi
 
