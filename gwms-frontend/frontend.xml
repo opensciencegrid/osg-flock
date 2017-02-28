@@ -1,4 +1,4 @@
-<frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
+1<frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
     <config>
       <idle_vms_total curb="2000" max="2500"/>
       <idle_vms_total_global curb="2000" max="2500"/>
@@ -23,9 +23,9 @@
              (GLIDEIN_ResourceName =!= "GridUNESP_CENTRAL" || regexp("xd-login.opensciencegrid.org", User)) &amp;&amp;
              (isUndefined(WantsStashCvmfs) ||
                !WantsStashCvmfs ||
-               isUndefined(GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION) ||
+               isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
                isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
-               GLIDEIN_PS_CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
+               CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
              ))'>
       <factory query_expr="True">
          <match_attrs>
@@ -70,7 +70,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="28800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="170"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="171"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="$(STARTD_JOB_ATTRS),x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
