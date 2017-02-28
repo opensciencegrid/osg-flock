@@ -87,6 +87,12 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
             # Default
             export OSG_SINGULARITY_IMAGE="$OSG_SINGULARITY_IMAGE_DEFAULT"
             export OSG_SINGULARITY_BIND_CVMFS=1
+
+            # also some extra debugging and make sure CVMFS has not fallen over
+            if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
+                echo "warning: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
+                echo "         $OSG_SITE_NAME" `hostname -f` 1>&2
+            fi
         fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
