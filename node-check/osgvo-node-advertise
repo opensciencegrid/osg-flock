@@ -171,7 +171,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
             HAS_SINGULARITY="True"
             export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
+        else
+            info "Unable to find singularity in PATH=$PATH"
         fi
+    fi
+    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+        info "Singularity binary appears present and claims to be version $OSG_SINGULARITY_VERSION"
     fi
 
     # default image for this glidein
@@ -179,6 +184,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     # for now, we will only advertise singularity on nodes which can access cvmfs
     if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
+        info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
         HAS_SINGULARITY="False"
     fi
 
@@ -209,6 +215,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                                          | grep "Hello World") 1>&2 \
         ; then
             # singularity simple exec failed - we are done
+            info "Simple singularity exec inside $OSG_SINGULARITY_IMAGE_DEFAULT failed."
             HAS_SINGULARITY="False"
         fi
     fi
