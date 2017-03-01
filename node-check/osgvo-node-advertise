@@ -188,14 +188,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
 
-    # workaround for user nobody with HOME=/
-    if [ "x$USER" = "x" ]; then
-        export USER=`whoami 2>/dev/null`
-    fi
-    EXTRA_ARGS=""
-    if [ "x$USER" = "xnobody" ]; then
-        EXTRA_ARGS=" --home $PWD:/srv"
-    fi
+    # Make sure $HOME isn't shared 
+    EXTRA_ARGS=" --home $PWD:/srv"
 
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
@@ -234,12 +228,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
             CMD="$CMD $VAR"
         done
-    
-        # workaround for user nobody with HOME=/
-        EXTRA_ARGS=""
-        if [ "x$USER" = "xnobody" ]; then
-            EXTRA_ARGS=" --home $SING_OUTSIDE_BASE_DIR:/srv"
-        fi
+   
+        # Make sure $HOME isn't shared 
+        EXTRA_ARGS="--home $SING_OUTSIDE_BASE_DIR:/srv"
+
+        # Update the location of the advertise script:
+        add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
+        condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1

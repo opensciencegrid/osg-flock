@@ -96,21 +96,16 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
-    
-        # workaround for user nobody with HOME=/
-        if [ "x$USER" = "x" ]; then
-            export USER=`whoami 2>/dev/null`
-        fi
-        if [ "x$USER" = "xnobody" ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv"
-        fi
+   
+        # Make sure $HOME exists and isn't shared 
+        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv"
 
         # cvmfs access inside container (default, but optional)
         if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
         fi
 
-        # We want to pind $PWD to /srv within the container - however, in order
+        # We want to bind $PWD to /srv within the container - however, in order
         # to do that, we have to make sure everything we need is in $PWD, most
         # notably the user-job-wrapper.sh (this script!)
         cp $0 .osgvo-user-job-wrapper.sh
