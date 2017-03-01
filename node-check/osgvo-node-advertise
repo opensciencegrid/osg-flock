@@ -127,6 +127,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
         fi
     done
+
+    if [ -e /cvmfs ]; then
+        advertise OSG_NODE_VALIDATED "HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org" "C"
+    else
+        advertise OSG_NODE_VALIDATED "True" "C"
+    fi
     
     # update timestamp?
     TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
