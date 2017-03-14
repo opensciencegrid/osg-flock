@@ -637,32 +637,32 @@ advertise HAS_BLAST "$HAS_BLAST" "C"
 
 ##################
 # PHSW (Matt Snowball)
-
-info "Checking for PHSW availability..."
-
-PHSW_RESULT="True"
-PHSWDIR=/cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw
-
-if [ -e /cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw/bin/set_grid_env.sh ]; then
-
-    if ! (source $PHSWDIR/bin/set_grid_env.sh && grid-proxy-init -version && voms-proxy-init -version) 1>&2 ; then
-        PHSW_RESULT="False"
-    fi
-    
-    (source $PHSWDIR/bin/set_grid_env.sh && globus-url-copy -version) 1>&2
-    RC=$?
-    if [ "x$RC" != "x0" -a "x$RC" != "x1" ]; then
-        PHSW_RESULT="False"
-    fi
-    
-    if ! (source $PHSWDIR/bin/set_grid_env.sh && root.exe -l -b -q) 1>&2 ; then
-        PHSW_RESULT="False"
-    fi
-else
-    PHSW_RESULT="False"
-fi
-
-advertise HAS_PHSW "$PHSW_RESULT" "C"
+#
+#info "Checking for PHSW availability..."
+#
+#PHSW_RESULT="True"
+#PHSWDIR=/cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw
+#
+#if [ -e /cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw/bin/set_grid_env.sh ]; then
+#
+#    if ! (source $PHSWDIR/bin/set_grid_env.sh && grid-proxy-init -version && voms-proxy-init -version) 1>&2 ; then
+#        PHSW_RESULT="False"
+#    fi
+#    
+#    (source $PHSWDIR/bin/set_grid_env.sh && globus-url-copy -version) 1>&2
+#    RC=$?
+#    if [ "x$RC" != "x0" -a "x$RC" != "x1" ]; then
+#        PHSW_RESULT="False"
+#    fi
+#    
+#    if ! (source $PHSWDIR/bin/set_grid_env.sh && root.exe -l -b -q) 1>&2 ; then
+#        PHSW_RESULT="False"
+#    fi
+#else
+#    PHSW_RESULT="False"
+#fi
+#
+#advertise HAS_PHSW "$PHSW_RESULT" "C"
 
 
 ##################
