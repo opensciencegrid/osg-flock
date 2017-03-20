@@ -92,6 +92,8 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
             if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
                 echo "warning: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
                 echo "         $OSG_SITE_NAME" `hostname -f` 1>&2
+                touch ../../.stop-glidein.stamp >/dev/null 2>&1
+                sleep 20m
             fi
         fi
         
