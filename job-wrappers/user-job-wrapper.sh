@@ -93,15 +93,12 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
                 echo "warning: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
                 echo "         $OSG_SITE_NAME" `hostname -f` 1>&2
                 touch ../../.stop-glidein.stamp >/dev/null 2>&1
-                sleep 20m
+                sleep 10m
             fi
         fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
    
-        # Make sure $HOME exists and isn't shared 
-        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv"
-
         # cvmfs access inside container (default, but optional)
         if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
@@ -131,7 +128,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
 
         export SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
-                                   --bind $PWD:/srv \
+                                   --home $PWD:/srv \
                                    --pwd /srv \
                                    --scratch /var/tmp \
                                    --scratch /tmp \

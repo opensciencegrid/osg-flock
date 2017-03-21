@@ -52,7 +52,7 @@ function advertise {
     fi
 }
 
-if [ "x$OSG_SINGULARITY_REEXEC" != "x" ]; then
+if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
     info "Running in directory $PWD"
@@ -79,6 +79,13 @@ if [ "$glidein_config" != "NONE" ]; then
     source $add_config_line_source
 fi
 
+###########################################################
+# We have two env variables which can be added to in this
+# script to provide an expression for the START expression
+# and a general warnings string which gets published in the
+# ad. These are env variables until the end.
+export GLIDEIN_VALIDATION_EXPR="True"
+export GLIDEIN_VALIDATION_WARNINGS=""
 
 ###########################################################
 # attributes below this line
@@ -131,12 +138,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     done
 
+    # if it looks like we have CVMFS, make sure the START expression knows that
     if [ -e /cvmfs ]; then
-        advertise OSG_NODE_VALIDATED "HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org" "C"
-    else
-        advertise OSG_NODE_VALIDATED "True" "C"
+        export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
     fi
-    
+
     # update timestamp?
     TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
     TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
@@ -197,18 +203,14 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
 
-    # Make sure $HOME isn't shared 
-    EXTRA_ARGS=" --home $PWD:/srv"
-
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
     # in the execing, like:
     # ERROR  : Could not identify basedir for home directory path: /
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec $EXTRA_ARGS --bind /cvmfs --bind $PWD:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
-        if ! ($OSG_SINGULARITY_PATH exec $EXTRA_ARGS \
+        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+        if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
                                          --bind /cvmfs \
-                                         --bind $PWD:/srv \
                                          --pwd /srv \
                                          --scratch /var/tmp \
                                          --scratch /tmp \
@@ -237,9 +239,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
             CMD="$CMD $VAR"
         done
-   
-        # Make sure $HOME isn't shared 
-        EXTRA_ARGS="--home $SING_OUTSIDE_BASE_DIR:/srv"
 
         # Update the location of the advertise script:
         add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
@@ -247,10 +246,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec $EXTRA_ARGS --bind /cvmfs --bind $SING_OUTSIDE_BASE_DIR:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
-        if $OSG_SINGULARITY_PATH exec $EXTRA_ARGS \
+        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv --bind /cvmfs --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+        if $OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv \
                                       --bind /cvmfs \
-                                      --bind $SING_OUTSIDE_BASE_DIR:/srv \
                                       --pwd /srv \
                                       --scratch /var/tmp \
                                       --scratch /tmp \
@@ -663,6 +661,18 @@ advertise HAS_BLAST "$HAS_BLAST" "C"
 #fi
 #
 #advertise HAS_PHSW "$PHSW_RESULT" "C"
+
+##################
+# mostly done - update START validation expressions and warnings attribute
+if [ -e .stop-glidein.stamp -o -e ../.stop-glidein.stamp ]; then
+    advertise OSG_NODE_VALIDATED "False" "C"
+    advertise OSG_NODE_WARNINGS "Node is shutting down due to stop-glidein file" "S"
+else
+    advertise OSG_NODE_VALIDATED "$GLIDEIN_VALIDATION_EXPR" "C"
+    if [ "x$GLIDEIN_VALIDATION_WARNINGS" != "x" ]; then
+        advertise OSG_NODE_WARNINGS "$GLIDEIN_VALIDATION_WARNINGS" "S"
+    fi
+fi
 
 
 ##################
