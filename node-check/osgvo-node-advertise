@@ -70,7 +70,6 @@ fi
 if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
-    # are we inside singularity?
     if [ "x$add_config_line_source" = "x" ]; then
         export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
         export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
@@ -240,10 +239,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             CMD="$CMD $VAR"
         done
 
-        # Update the location of the advertise script:
-        add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-        condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
         info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv --bind /cvmfs --pwd /srv --scratch /var/tmp --scratch /tmp --containall $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
@@ -263,7 +258,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     # if we get here, singularity is not available or not working
     advertise HAS_SINGULARITY "False" "C"
+
 else
+
     # delay the advertisement until here to make sure singularity actually works
     advertise HAS_SINGULARITY "True" "C"
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
@@ -278,6 +275,11 @@ else
         val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
         eval $key=$val
     done
+        
+    export add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
+    export condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
+    info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+
 fi
 
 # operating system
