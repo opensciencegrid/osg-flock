@@ -122,7 +122,7 @@
             <running_glideins_total curb="450" max="500"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.projectName=?="xenon1t")'>
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO_XENON1T", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVO_XENON1T", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
