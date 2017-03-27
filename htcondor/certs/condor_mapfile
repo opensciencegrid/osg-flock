@@ -25,6 +25,7 @@ GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=tes
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-004\.t2\.ucsd\.edu" t004
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu\.grid\.iu\.edu$" flocking_iu
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=lsst\-glidein\.rcac\.purdue\.edu$" flocking_lsst
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=schedd\/gluex\.phys\.uconn\.edu$" flocking_gluex
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scosg16\.jlab\.org$" flocking_jlab
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=People\/CN\=Mats\ Rynge\ 45.*" cloud_isi
 GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" flocking_donkri
