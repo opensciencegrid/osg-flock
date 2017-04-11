@@ -101,7 +101,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        icecube.opensciencegrid.org \
        oasis.opensciencegrid.org \
        singularity.opensciencegrid.org \
+       spt.opensciencegrid.org \
        stash.osgstorage.org \
+       veritas.opensciencegrid.org \
        xenon.opensciencegrid.org \
     ; do
         FS_CONV=`echo "$FS" | sed 's/\./_/g'`
