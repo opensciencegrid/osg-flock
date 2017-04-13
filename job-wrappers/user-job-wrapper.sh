@@ -96,6 +96,17 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
                 sleep 10m
             fi
         fi
+
+        # for /cvmfs based directory images, expand the path without symlinks so that
+        # the job can stay within the same image for the full duration
+        if echo "$OSG_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
+            if cd $OSG_SINGULARITY_IMAGE >/dev/null 2>&1; then
+                NEW_IMAGE_PATH=`(cd $OSG_SINGULARITY_IMAGE && pwd -P) 2>/dev/null`
+                if [ "x$NEW_IMAGE_PATH" != "x" ]; then
+                    OSG_SINGULARITY_IMAGE="$NEW_IMAGE_PATH"
+                fi
+            fi
+        fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
    
