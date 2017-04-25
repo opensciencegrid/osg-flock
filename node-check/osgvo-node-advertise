@@ -238,6 +238,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # example, X509_USER_PROXY)
         export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+).*;\1;"`
 
+        # Make a copy of the user proxy - sometimes this lives outside the glidein dir
+        if [ "x$X509_USER_PROXY" != "x" -a -e "$X509_USER_PROXY" ]; then
+            info "Making a copy of the provided X509_USER_PROXY=$X509_USER_PROXY"
+            cp $X509_USER_PROXY $SING_OUTSIDE_BASE_DIR/x509-pilot-proxy
+            export X509_USER_PROXY=/srv/x509-pilot-proxy
+        fi
+
         # build a new command line, with updated paths
         CMD=""
         for VAR in $0 "$@"; do
