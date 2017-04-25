@@ -67,7 +67,7 @@ else
     info "Arguments to the script: $@"
 fi
 
-if [ "$glidein_config" != "NONE" ]; then
+if [ "$glidein_config" != "NONE" -a "x$SOURCED_ADD_CONFIG_LINE" = "x" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
     if [ "x$add_config_line_source" = "x" ]; then
@@ -75,7 +75,11 @@ if [ "$glidein_config" != "NONE" ]; then
         export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
     fi
 
+    info "Sourcing $add_config_line_source"
     source $add_config_line_source
+
+    # make sure we don't source a second time inside the container
+    export SOURCED_ADD_CONFIG_LINE=1
 fi
 
 ###########################################################
