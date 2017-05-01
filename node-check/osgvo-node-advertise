@@ -105,6 +105,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        icecube.opensciencegrid.org \
        oasis.opensciencegrid.org \
        singularity.opensciencegrid.org \
+       snoplus.egi.eu \
        spt.opensciencegrid.org \
        stash.osgstorage.org \
        veritas.opensciencegrid.org \
