@@ -119,18 +119,23 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             # add the revision
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
             REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+
+            # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
-                # stash.osgstorage.org needs extra checks
-                if cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
-                    advertise $FS_ATTR "$RESULT" "C"
-                    # make sure it is an integer
-                    if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
-                        advertise $REV_ATTR "$REV_VAL" "I"
-                    fi
-                else
-                    RESULT="False"
+                if ! cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
+                    REV_VAL=""
                 fi
-            elif [ "x$REV_VAL" != "x" ]; then
+            fi
+            
+            # veritas.opensciencegrid.org
+            if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
+                if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+            fi
+
+            # now we are ready to advertise
+            if [ "x$REV_VAL" != "x" ]; then
                 # make sure it is an integer
                 if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
                     advertise $FS_ATTR "$RESULT" "C"
