@@ -78,9 +78,9 @@
    <groups>
       <group name="comet-BIO170028" enabled="True">
          <config>
-            <idle_glideins_per_entry max="1" reserve="1"/>
-            <idle_vms_per_entry curb="1" max="1"/>
-            <idle_vms_total curb="200" max="1000"/>
+            <idle_glideins_per_entry max="10" reserve="5"/>
+            <idle_vms_per_entry curb="45" max="50"/>
+            <idle_vms_total curb="80" max="100"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" min="0" relative_to_queue="10.0"/>
             <running_glideins_total curb="57000" max="60000"/>
