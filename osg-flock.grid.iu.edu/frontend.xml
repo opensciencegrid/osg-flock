@@ -71,7 +71,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="28800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="200"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="201"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -83,9 +83,9 @@
             <idle_vms_total curb="80" max="100"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" min="0" relative_to_queue="10.0"/>
-            <running_glideins_total curb="0" max="0"/>
+            <running_glideins_total curb="57000" max="60000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.projectName=?="macsSwigmodels")'>
+         <match match_expr="True" start_expr='(TARGET.projectName=?="macsSwigmodels") &amp;&amp; (TARGET.WantsComet =?= True)'>
             <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=?="Comet"'>
                <match_attrs>
                </match_attrs>
@@ -93,7 +93,7 @@
                   <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="macsSwigmodels")'>
+            <job query_expr='(projectName=?="macsSwigmodels") &amp;&amp; (TARGET.WantsComet =?= True)'>
                <match_attrs>
                </match_attrs>
                <schedds>
