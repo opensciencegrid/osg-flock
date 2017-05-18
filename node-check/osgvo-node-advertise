@@ -515,7 +515,7 @@ advertise GUC_PATH "$GUC_PATH" "S"
 # does it work?
 if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
-    if globus-url-copy -notpt gsiftp://xd-login.opensciencegrid.org/etc/hosts file:///dev/null >/dev/null; then
+    if globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null; then
         GUC_VERIFIED="True"
     fi
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
