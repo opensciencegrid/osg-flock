@@ -10,7 +10,7 @@ GSI "^\/DC\=org\/DC\=incommon\/C\=US\/postalCode\=78711\/ST\=TX\/L\=Austin\/stre
 GSI "^\/DC\=org\/DC\=incommon\/C\=US\/postalCode\=78711\/ST\=TX\/L\=Austin\/street\=1\ University\ Station\/O\=The\ University\ of\ Texas\ at\ Austin\/OU\=TACC\ \-\ Texas\ Advanced\ Computing\ Center\/CN\=iplant\-condor\-iu\.tacc\.utexas\.edu$" flocking_iplant
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login01\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login02\.osgconnect\.net$" flocking_osgconnect
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=duke-login\.osgconnect\.net$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=duke-login\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=training\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=fsurf\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.ci\-connect\.uchicago\.edu$" flocking_osgconnect

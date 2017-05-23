@@ -125,6 +125,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 if ! cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
                     REV_VAL=""
                 fi
+                if ! cat /cvmfs/stash.osgstorage.org/user/eharstad/public/blast_database/nt.fa.nsq >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
             fi
             
             # veritas.opensciencegrid.org
@@ -300,6 +303,19 @@ else
     info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
 
 fi
+
+#############################################################################
+#
+# At this point Singularity tests are done, and we can concentrate on 
+# regular systems test. Some tests are too heavy-weight to run every
+# 5 minutes. Such test can drop a file named .osgvo.test-results.NNNNNNN
+# in cwd. These files will be cleaned up after 30 minutes and allow the
+# test to rerun then again.
+#
+
+# clean up old ones
+find . -maxdepth 1 -name .osgvo.test-results.\* -mmin +30 -exec rm {} \;
+
 
 # operating system
 
@@ -515,8 +531,13 @@ advertise GUC_PATH "$GUC_PATH" "S"
 # does it work?
 if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
-    if globus-url-copy -notpt gsiftp://xd-login.opensciencegrid.org/etc/hosts file:///dev/null >/dev/null; then
+    if [ -e .osgvo.test-results.guc ]; then
         GUC_VERIFIED="True"
+    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null; then
+        GUC_VERIFIED="True"
+        touch .osgvo.test-results.guc
+    else
+        rm -f .osgvo.test-results.guc
     fi
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
