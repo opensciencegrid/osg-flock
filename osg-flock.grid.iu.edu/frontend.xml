@@ -71,7 +71,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="28800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="203"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="204"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -113,6 +113,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="comet-xenon1t" enabled="True">
@@ -153,6 +154,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="gpu" enabled="True">
@@ -189,6 +191,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="itb" enabled="True">
@@ -227,9 +230,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
-            <file absfname="/opt/git/job-wrappers/itb.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
-               <untar_options cond_attr="TRUE"/>
-            </file>
+            <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="itbfactory" enabled="False">
@@ -266,6 +267,7 @@
             <attr name="Is_ITB_Factory" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="largemem" enabled="True">
@@ -301,6 +303,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="main" enabled="True">
@@ -343,6 +346,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="main_fnal_nocerts" enabled="True">
@@ -386,6 +390,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="main_with_certs" enabled="True">
@@ -422,6 +427,7 @@
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="OPTIONAL"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="no_osg_vo_support" enabled="True">
@@ -459,6 +465,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="sleep" enabled="True">
@@ -496,6 +503,7 @@
          <attrs>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
       <group name="xenon1t" enabled="True">
@@ -532,6 +540,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
          </files>
       </group>
    </groups>
@@ -558,9 +567,6 @@
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" after_entry="True" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
          <untar_options cond_attr="TRUE"/>
       </file>
    </files>
