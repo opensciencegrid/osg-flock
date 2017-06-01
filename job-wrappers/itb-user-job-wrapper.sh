@@ -129,28 +129,18 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # build a new command line, with updated paths
-        CMD=""
-        FIRST=1
+        CMD="()"
         for VAR in "$@"; do
             # Two seds to make sure we catch variations of the iwd,
             # including symlinked ones. The leading space is to prevent
             # echo to interpret dashes.
             VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;" | sed -E "s;.*/execute/dir_[0-9a-zA-Z]*(.*);/srv\1;" | sed -E "s;^ ;;"`
 
-            # Do not quote the first argument (the real command) - it 
-            # seems to confuse Singularity
-            if [ $FIRST = 1 ]; then
-                CMD="$VAR"
-                FIRST=0
-            else
-                # Quote the arguments to make sure arguments with spaces
-                # are correctly passed to the job executable
-                CMD="$CMD \"$VAR\""
-            fi
+            CMD+=("$VAR")
         done
 
         export SINGULARITY_REEXEC=1
-        echo "Exec: $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall \"$OSG_SINGULARITY_IMAGE\" /srv/.osgvo-user-job-wrapper.sh $CMD"
+        echo "Exec: $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall \"$OSG_SINGULARITY_IMAGE\" /srv/.osgvo-user-job-wrapper.sh" "${CMD[@]}"
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
                                    --pwd /srv \
@@ -158,7 +148,8 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
                                    --scratch /tmp \
                                    --containall \
                                    "$OSG_SINGULARITY_IMAGE" \
-                                   /srv/.osgvo-user-job-wrapper.sh $CMD
+                                   /srv/.osgvo-user-job-wrapper.sh \
+                                   "${CMD[@]}"
     fi
 
 else
