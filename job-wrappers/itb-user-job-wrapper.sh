@@ -129,7 +129,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # build a new command line, with updated paths
-        CMD="()"
+        CMD=()
         for VAR in "$@"; do
             # Two seds to make sure we catch variations of the iwd,
             # including symlinked ones. The leading space is to prevent
