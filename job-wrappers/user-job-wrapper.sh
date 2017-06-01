@@ -35,7 +35,7 @@ function getPropStr
 }
 
 
-if [ "x$SINGULARITY_REEXEC" = "x" ]; then
+if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
         export _CONDOR_JOB_AD="NONE"
@@ -129,23 +129,25 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # build a new command line, with updated paths
-        CMD=""
+        CMD=()
         for VAR in "$@"; do
-            # two seds to make sure we catch variations of the iwd,
-            # including symlinked ones
-            VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;" | sed -E "s;.*/execute/dir_[0-9a-zA-Z]*(.*);/srv\1;"`
-            CMD="$CMD $VAR"
+            # Two seds to make sure we catch variations of the iwd,
+            # including symlinked ones. The leading space is to prevent
+            # echo to interpret dashes.
+            VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;" | sed -E "s;.*/execute/dir_[0-9a-zA-Z]*(.*);/srv\1;" | sed -E "s;^ ;;"`
+            CMD+=("$VAR")
         done
 
-        export SINGULARITY_REEXEC=1
+        export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
                                    --pwd /srv \
                                    --scratch /var/tmp \
                                    --scratch /tmp \
-                                   --containall \
+                                   --contain --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
-                                   /srv/.osgvo-user-job-wrapper.sh $CMD
+                                   /srv/.osgvo-user-job-wrapper.sh \
+                                   "${CMD[@]}"
     fi
 
 else

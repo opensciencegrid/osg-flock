@@ -35,7 +35,7 @@ function getPropStr
 }
 
 
-if [ "x$SINGULARITY_REEXEC" = "x" ]; then
+if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
         export _CONDOR_JOB_AD="NONE"
@@ -138,7 +138,7 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
             CMD+=("$VAR")
         done
 
-        export SINGULARITY_REEXEC=1
+        export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
                                    --pwd /srv \
