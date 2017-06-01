@@ -135,18 +135,16 @@ if [ "x$SINGULARITY_REEXEC" = "x" ]; then
             # including symlinked ones. The leading space is to prevent
             # echo to interpret dashes.
             VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;" | sed -E "s;.*/execute/dir_[0-9a-zA-Z]*(.*);/srv\1;" | sed -E "s;^ ;;"`
-
             CMD+=("$VAR")
         done
 
         export SINGULARITY_REEXEC=1
-        echo "Exec: $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS --home $PWD:/srv --pwd /srv --scratch /var/tmp --scratch /tmp --containall \"$OSG_SINGULARITY_IMAGE\" /srv/.osgvo-user-job-wrapper.sh" "${CMD[@]}"
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
                                    --pwd /srv \
                                    --scratch /var/tmp \
                                    --scratch /tmp \
-                                   --containall \
+                                   --contain --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
                                    "${CMD[@]}"
