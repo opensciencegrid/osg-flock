@@ -209,7 +209,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     # default image for this glidein
-    export OSG_SINGULARITY_IMAGE_DEFAULT="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo:el6"
+    export OSG_SINGULARITY_IMAGE_DEFAULT="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
 
     # for now, we will only advertise singularity on nodes which can access cvmfs
     if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
