@@ -208,6 +208,21 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         info "Singularity binary appears present and claims to be version $OSG_SINGULARITY_VERSION"
     fi
 
+
+    # NEW STYLE - default image for this glidein
+    if [ ! -e .osgvo-default-singularity-image ]; then
+        let "rand = $RANDOM % 100 + 1"
+        if [ $rand -le 3 ]; then
+            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7:latest" >.osgvo-default-singularity-image
+        else
+            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest" >.osgvo-default-singularity-image
+        fi
+    fi
+    OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+    info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
+    advertise TEST_OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
+    advertise TEST_PWD "$PWD" "S"
+
     # default image for this glidein
     export OSG_SINGULARITY_IMAGE_DEFAULT="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
 
