@@ -13,6 +13,7 @@
       <process_logs>
          <process_log backup_count="5" compression="" extension="info" max_days="7.0" max_mbytes="100.0" min_days="3.0" msg_types="INFO"/>
          <process_log backup_count="5" compression="" extension="err" max_days="7.0" max_mbytes="100.0" min_days="3.0" msg_types="ERR,WARN,EXCEPTION"/>
+         <process_log backup_count="1" compression="" extension="dbg" max_days="7.0" max_mbytes="100.0" min_days="1.0" msg_types="DEBUG"/>
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='((TARGET.Owner == "rsv") || (
@@ -70,7 +71,6 @@
    <monitor_footer display_txt="" href_link=""/>
    <security classad_proxy="/tmp/x509up_u496.factory" proxy_DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glideinwms/osg-flock.grid.iu.edu" proxy_selection_plugin="ProxyAll" security_name="OSG_Flock" sym_key="aes_256_cbc">
       <credentials>
-         <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
       </credentials>
    </security>
    <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="http://osg-flock.grid.iu.edu/vofrontend/stage"/>
@@ -81,7 +81,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="28800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="224"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="225"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -192,6 +192,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -230,6 +231,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -309,6 +311,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -345,6 +348,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -388,6 +392,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -432,6 +437,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -470,6 +476,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -507,6 +514,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -548,6 +556,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -620,6 +629,7 @@
          </match>
          <security>
             <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
