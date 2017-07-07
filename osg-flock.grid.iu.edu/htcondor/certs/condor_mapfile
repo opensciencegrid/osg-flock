@@ -13,6 +13,7 @@ GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=log
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login02\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=duke-login\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=training\.osgconnect\.net$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=user-training\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=fsurf\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.ci\-connect\.uchicago\.edu$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.xenon\.ci\-connect\.net$" flocking_osgconnect
