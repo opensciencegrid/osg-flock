@@ -65,6 +65,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad)
     fi
     export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS)
+    
+    export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs)
 
     export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache)
 
@@ -113,6 +115,17 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # cvmfs access inside container (default, but optional)
         if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
+        fi
+        
+        # GPUs - bind outside GPU library directory to inside /host-libs
+        if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then
+            HOST_LIBS=""
+            if [ -e "/usr/lib64/nvidia" ]; then
+                HOST_LIBS=/usr/lib64/nvidia
+            fi
+            if [ "x$HOST_LIBS" != "x" ]; then
+                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
+            fi
         fi
 
         # We want to bind $PWD to /srv within the container - however, in order
