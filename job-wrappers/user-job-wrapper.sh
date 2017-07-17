@@ -5,15 +5,20 @@ function getPropBool
 {
     # $1 the file (for example, $_CONDOR_JOB_AD or $_CONDOR_MACHINE_AD)
     # $2 the key
+    # $3 is the default value if unset
     # echo "1" for true, "0" for false/unspecified
     # return 0 for true, 1 for false/unspecified
+    default=$3
+    if [ "x$default" = "x" ]; then
+        default=0
+    fi
     val=`(grep -i "^$2 " $1 | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
     # convert variations of true to 1
     if (echo "x$val" | grep -i true) >/dev/null 2>&1; then
         val="1"
     fi
     if [ "x$val" = "x" ]; then
-        val="0"
+        val="$default"
     fi
     echo $val
     # return value accordingly, but backwards (true=>0, false=>1)
@@ -29,8 +34,12 @@ function getPropStr
 {
     # $1 the file (for example, $_CONDOR_JOB_AD or $_CONDOR_MACHINE_AD)
     # $2 the key
-    # echo the value
+    # $3 default value if unset
+    default="$3"
     val=`(grep -i "^$2 " $1 | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
+    if [ "x$val" = "x" ]; then
+        val="$default"
+    fi
     echo $val
 }
 
@@ -53,29 +62,23 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     # Seems like arrays do not survive the singularity transformation, so set them
     # explicity
 
-    export HAS_SINGULARITY=$(getPropBool $_CONDOR_MACHINE_AD HAS_SINGULARITY)
+    export HAS_SINGULARITY=$(getPropBool $_CONDOR_MACHINE_AD HAS_SINGULARITY 0)
     export OSG_SINGULARITY_PATH=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_PATH)
     export OSG_SINGULARITY_IMAGE_DEFAULT=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_IMAGE_DEFAULT)
     export OSG_SINGULARITY_IMAGE=$(getPropStr $_CONDOR_JOB_AD SingularityImage)
-    export OSG_SINGULARITY_AUTOLOAD=$(getPropStr $_CONDOR_JOB_AD SingularityAutoLoad)
-    if [ "x$OSG_SINGULARITY_AUTOLOAD" = "x" ]; then
-        # default for autoload is true
-        export OSG_SINGULARITY_AUTOLOAD=1
-    else
-        export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad)
-    fi
-    export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS)
-    
-    export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs)
+    export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad 1)
+    export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS 1)
+    export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs 1)
 
-    export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache)
+    export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
 
-    export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache)
+    export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
     export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
-    export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA)
-
+    export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
+    
+    export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
     #############################################################################
     #
@@ -118,13 +121,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
         
         # GPUs - bind outside GPU library directory to inside /host-libs
-        if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then
-            HOST_LIBS=""
-            if [ -e "/usr/lib64/nvidia" ]; then
-                HOST_LIBS=/usr/lib64/nvidia
-            fi
-            if [ "x$HOST_LIBS" != "x" ]; then
-                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
+        if [ $OSG_MACHINE_GPUS -gt 0 ]; then
+            if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then
+                HOST_LIBS=""
+                if [ -e "/usr/lib64/nvidia" ]; then
+                    HOST_LIBS=/usr/lib64/nvidia
+                fi
+                if [ "x$HOST_LIBS" != "x" ]; then
+                    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
+                fi
             fi
         fi
 
@@ -151,6 +156,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             CMD+=("$VAR")
         done
 
+        echo "Image: $OSG_SINGULARITY_IMAGE" 1>&2
+        echo "Extra opts: $OSG_SINGULARITY_EXTRA_OPTS" 1>&2
         export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \

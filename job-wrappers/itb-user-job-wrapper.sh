@@ -35,10 +35,7 @@ function getPropStr
     # $1 the file (for example, $_CONDOR_JOB_AD or $_CONDOR_MACHINE_AD)
     # $2 the key
     # $3 default value if unset
-    default=$3
-    if [ "x$default" = "x" ]; then
-        default=0
-    fi
+    default="$3"
     val=`(grep -i "^$2 " $1 | cut -d= -f2 | sed "s/[\"' \t\n\r]//g") 2>/dev/null`
     if [ "x$val" = "x" ]; then
         val="$default"
@@ -81,7 +78,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
     
-    export MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
+    export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
     #############################################################################
     #
@@ -124,7 +121,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
         
         # GPUs - bind outside GPU library directory to inside /host-libs
-        if [ $MACHINE_GPUS -gt 0 ]; then
+        if [ $OSG_MACHINE_GPUS -gt 0 ]; then
             if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then
                 HOST_LIBS=""
                 if [ -e "/usr/lib64/nvidia" ]; then
@@ -159,6 +156,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             CMD+=("$VAR")
         done
 
+        echo "Image: $OSG_SINGULARITY_IMAGE" 1>&2
+        echo "Extra opts: $OSG_SINGULARITY_EXTRA_OPTS" 1>&2
         export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
