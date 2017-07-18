@@ -252,15 +252,15 @@
       <group name="itb-gpu" enabled="True">
          <config>
             <idle_glideins_lifetime max="3600"/>
-            <idle_glideins_per_entry max="5" reserve="1"/>
-            <idle_vms_per_entry curb="4" max="5"/>
+            <idle_glideins_per_entry max="10" reserve="5"/>
+            <idle_vms_per_entry curb="9" max="10"/>
             <idle_vms_total curb="200" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="10" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="45" max="50"/>
          </config>
          <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs)  &amp;&amp; GLIDEIN_Site=!="Comet"'>
+            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs)  &amp;&amp; GLIDEIN_Site =?= "UCSD"'>
                <match_attrs>
                </match_attrs>
                <collectors>
