@@ -1,33 +1,36 @@
 # DO NOT EDIT LOCAL COPY - This file is maintained in osg-flock git repository
-GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=osg\-flock\.grid\.iu\.edu$" condor
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=glideinwms\/osg\-flock\.grid\.iu\.edu$" frontend
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=pilot\/osg\-flock\.grid\.iu\.edu$" pilot
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=glideinwms\/osg\-xsede\.grid\.iu\.edu$" osg_xsede
+GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=osg\-flock\.grid\.iu\.edu$" condor
+GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=glideinwms\/osg\-flock\.grid\.iu\.edu$" frontend
+GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=pilot\/osg\-flock\.grid\.iu\.edu$" pilot
+GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=pilot\/xe1t\-gwms\.mwt2\.org$" pilot_xenon1t
 GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=xd\-login\.opensciencegrid\.org$" osg_xsede
 GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=osg\-vo\.isi\.edu$" isi
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=workflow\.isi\.edu$" flocking_workflow
+GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=workflow\.isi\.edu$" flocking_workflow
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=submit1\.bioinformatics\.vt\.edu$" flocking_vt
-GSI "^\/DC\=org\/DC\=doegrids\/OU\=Services\/CN\=gw68\.quarry\.iu\.teragrid\.org$" flocking_saga
 GSI "^\/DC\=org\/DC\=incommon\/C\=US\/postalCode\=78711\/ST\=TX\/L\=Austin\/street\=1\ University\ Station\/O\=The\ University\ of\ Texas\ at\ Austin\/OU\=TACC\ \-\ Texas\ Advanced\ Computing\ Center\/CN\=iplant\-condor\.tacc\.utexas\.edu$" flocking_iplant
 GSI "^\/DC\=org\/DC\=incommon\/C\=US\/postalCode\=78711\/ST\=TX\/L\=Austin\/street\=1\ University\ Station\/O\=The\ University\ of\ Texas\ at\ Austin\/OU\=TACC\ \-\ Texas\ Advanced\ Computing\ Center\/CN\=iplant\-condor\-iu\.tacc\.utexas\.edu$" flocking_iplant
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login01\.osgconnect\.net$" flocking_osgconnect
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=login02\.osgconnect\.net$" flocking_osgconnect
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=login03\.osgconnect\.net$" flocking_osgconnect
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=duke-login\.osgconnect\.net$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login02\.osgconnect\.net$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=duke-login\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=training\.osgconnect\.net$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=user-training\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=fsurf\.osgconnect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.ci\-connect\.uchicago\.edu$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.xenon\.ci\-connect\.net$" flocking_osgconnect
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.umich\.ci\-connect\.net$" flocking_osgconnect
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.cms\.ci\-connect\.net$" flocking_osgconnect
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.cms\.ci\-connect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=amundsen\.grid\.uchicago\.edu$" flocking_spt
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scott\.grid\.uchicago\.edu$" flocking_spt
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=submit\.mit\.edu$" flocking_mit
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=otsgrid\.iit\.edu$" flocking_iit
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=glide\.bakerlab\.org$" flocking_bakerlab
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=People\/CN\=Mats\ Rynge\ 45$" cloud_isi
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-001\.t2\.ucsd\.edu" t001
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-004\.t2\.ucsd\.edu" t004
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu\.grid\.iu\.edu$" flocking_iu
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=lsst\-glidein\.rcac\.purdue\.edu$" flocking_lsst
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=schedd\/gluex\.phys\.uconn\.edu$" flocking_gluex
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scosg16\.jlab\.org$" flocking_jlab
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=proof\-of\-concept\.scidas\.renci\.org$" flocking_renci
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=People\/CN\=Mats\ Rynge\ 45.*" rynge
+GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" flocking_donkri
 GSI (.*) anonymous
 FS (.*) \1
