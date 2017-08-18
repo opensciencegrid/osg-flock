@@ -196,10 +196,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
 
-    # NEW STYLE - default image for this glidein
+    # default image for this glidein - us a distribution between different OSes
     if [ ! -e .osgvo-default-singularity-image ]; then
         let "rand = $RANDOM % 100 + 1"
-        if [ $rand -le 3 ]; then
+        if [ $rand -le 10 ]; then
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7:latest" >.osgvo-default-singularity-image
         else
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest" >.osgvo-default-singularity-image
@@ -207,11 +207,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
     OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
     info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
-    advertise TEST_OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
-    advertise TEST_PWD "$PWD" "S"
-
-    # default image for this glidein
-    export OSG_SINGULARITY_IMAGE_DEFAULT="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
 
     # for now, we will only advertise singularity on nodes which can access cvmfs
     if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
