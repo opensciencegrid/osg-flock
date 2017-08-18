@@ -205,7 +205,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest" >.osgvo-default-singularity-image
         fi
     fi
-    OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
     info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
 
     # for now, we will only advertise singularity on nodes which can access cvmfs
