@@ -387,6 +387,21 @@ advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
 advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 
+# if we are in Singularity, override HTCondor's OsSys* vars with the
+# default container details
+if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
+    # RHEL is CentOS in HTCondor
+    if [ "x$OS_NAME" = "xRHEL" ]; then
+        OS_NAME="CentOS"
+    fi
+    advertise OpSysLongName "Singularity Container - $OS_NAME $OS_VERSION" "S"
+    advertise OpSysAndVer "${OS_NAME}${OS_VERSION}" "S"
+    advertise OpSysName "$OS_NAME" "S"
+    advertise OpSysShortName "$OS_NAME" "S"
+    advertise OpSysMajorVer "$OS_VERSION" "I"
+    advertise OpSysVer "${OS_VERSION}00" "I"
+fi
+
 
 ###########################################################
 # gpus - only for the GPU group
