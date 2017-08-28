@@ -391,14 +391,18 @@ advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 ###########################################################
 # gpus - only for the GPU group
 
-group="nothing"
-if [ "$glidein_config" != "NONE" ]; then
-    group=`grep '^GLIDECLIENT_Group ' $glidein_config | awk '{print $2}'`
-fi
-if [[ $group =~ "gpu" ]]; then
-    wget -nv -O condor_gpu_discovery http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
-    chmod 755 condor_gpu_discovery
+if [ -e /usr/libexec/condor/condor_gpu_discovery ]; then
+    # singularity image or HTCondor site - use the provided gpu tool
+    /usr/libexec/condor/condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
+else
+    if [ !-e condor_gpu_discovery ]; then
+        wget -nv -O condor_gpu_discovery http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
+        chmod 755 condor_gpu_discovery
+    fi
     ./condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
+fi
+
+if [ -s gpu.ad ]; then
     while read line; do
         key=`echo "$line" | sed 's/=.*//'`
         value=`echo "$line" | sed 's/.*=//'`
@@ -416,7 +420,6 @@ if [[ $group =~ "gpu" ]]; then
         advertise NV_DRIVER "$nvidia_version" "C"
     fi
 fi
-
 
 ##################
 # stash
