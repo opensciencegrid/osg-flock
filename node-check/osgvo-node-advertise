@@ -170,7 +170,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
 
-
     ###########################################################
     # gpus - detect this outside Singularity
     
@@ -179,7 +178,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
           ./main/condor/libexec/condor_gpu_discovery \
           ../main/condor/libexec/condor_gpu_discovery \
     ; do
-        if [ -e /usr/libexec/condor/condor_gpu_discovery ]; then
+        if [ -e "$LOCATION" ]; then
             $LOCATION -properties -extra | grep -v DetectedGPUs >gpu.ad
             break
         fi
