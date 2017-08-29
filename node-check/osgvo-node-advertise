@@ -91,12 +91,15 @@ export GLIDEIN_VALIDATION_EXPR="True"
 export GLIDEIN_VALIDATION_WARNINGS=""
 
 ###########################################################
-# attributes below this line
-
-##################
-# cvmfs filesystem availability this has to come before singularity checks
+#
+#  some of the following checks has to take place outside
+#  singularity, some inside. First the set we need outside:
+#
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
+
+    ##################
+    # cvmfs filesystem availability
     info "Checking for CVMFS availability and attributes..."
     for FS in \
        ams.cern.ch \
@@ -165,6 +168,42 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
             advertise $TS_ATTR "$TS_VAL" "I"
         fi
+    fi
+
+
+    ###########################################################
+    # gpus - detect this outside Singularity
+    
+    for LOCATION in \
+          /usr/libexec/condor/condor_gpu_discovery \
+          ./main/condor/libexec/condor_gpu_discovery \
+          ../main/condor/libexec/condor_gpu_discovery \
+    ; do
+        if [ -e /usr/libexec/condor/condor_gpu_discovery ]; then
+            $LOCATION -properties -extra | grep -v DetectedGPUs >gpu.ad
+            break
+        fi
+    done
+    
+    if [ -s gpu.ad ]; then
+        while read line; do
+            key=`echo "$line" | sed 's/=.*//'`
+            value=`echo "$line" | sed 's/.*=//'`
+            if (echo "$value" | grep '"') >/dev/null 2>&1; then
+                value=`echo "$value" | sed 's/"//g'`
+                advertise "$key" "$value" "S"
+            else
+                advertise "$key" "$value" "C"
+            fi
+        done <gpu.ad
+    
+        # and some extra nvidia attributes
+        nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
+        if [ "x$nvidia_version" != "x" ]; then
+            advertise NV_DRIVER "$nvidia_version" "C"
+        fi
+    else
+        advertise "GPUDetection" "No GPUs detected" "S"
     fi
 
 fi # OSG_SINGULARITY_REEXEC
@@ -402,41 +441,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
     advertise OpSysVer "${OS_VERSION}00" "I"
 fi
 
-
-###########################################################
-# gpus - only for the GPU group
-
-for LOCATION in \
-      /usr/libexec/condor/condor_gpu_discovery \
-      ./main/condor/libexec/condor_gpu_discovery \
-      ../main/condor/libexec/condor_gpu_discovery \
-; do
-    if [ -e /usr/libexec/condor/condor_gpu_discovery ]; then
-        $LOCATION -properties -extra | grep -v DetectedGPUs >gpu.ad
-        break
-    fi
-done
-
-if [ -s gpu.ad ]; then
-    while read line; do
-        key=`echo "$line" | sed 's/=.*//'`
-        value=`echo "$line" | sed 's/.*=//'`
-        if (echo "$value" | grep '"') >/dev/null 2>&1; then
-            value=`echo "$value" | sed 's/"//g'`
-            advertise "$key" "$value" "S"
-        else
-            advertise "$key" "$value" "C"
-        fi
-    done <gpu.ad
-
-    # and some extra nvidia attributes
-    nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
-    if [ "x$nvidia_version" != "x" ]; then
-        advertise NV_DRIVER "$nvidia_version" "C"
-    fi
-else
-    advertise "GPUDetection" "No GPUs detected" "S"
-fi
 
 ##################
 # stash
