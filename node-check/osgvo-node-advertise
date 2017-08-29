@@ -406,16 +406,16 @@ fi
 ###########################################################
 # gpus - only for the GPU group
 
-if [ -e /usr/libexec/condor/condor_gpu_discovery ]; then
-    # singularity image or HTCondor site - use the provided gpu tool
-    /usr/libexec/condor/condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
-else
-    if [ !-e condor_gpu_discovery ]; then
-        wget -nv -O condor_gpu_discovery http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
-        chmod 755 condor_gpu_discovery
+for LOCATION in \
+      /usr/libexec/condor/condor_gpu_discovery \
+      ./main/condor/libexec/condor_gpu_discovery \
+      ../main/condor/libexec/condor_gpu_discovery \
+; do
+    if [ -e /usr/libexec/condor/condor_gpu_discovery ]; then
+        $LOCATION -properties -extra >gpu.ad
+        break
     fi
-    ./condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
-fi
+done
 
 if [ -s gpu.ad ]; then
     while read line; do
@@ -429,7 +429,7 @@ if [ -s gpu.ad ]; then
         fi
     done <gpu.ad
 
-    # and some extra nvida attributes
+    # and some extra nvidia attributes
     nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
     if [ "x$nvidia_version" != "x" ]; then
         advertise NV_DRIVER "$nvidia_version" "C"
