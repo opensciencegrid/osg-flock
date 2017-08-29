@@ -406,6 +406,9 @@ fi
 ###########################################################
 # gpus - only for the GPU group
 
+# debugging
+/usr/libexec/condor/condor_gpu_discovery -properties -extra >/tmp/osgvo-gpu-debugging.txt 2>&1
+
 for LOCATION in \
       /usr/libexec/condor/condor_gpu_discovery \
       ./main/condor/libexec/condor_gpu_discovery \
