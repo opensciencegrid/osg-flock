@@ -102,6 +102,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
         fi
 
+        # put a human readable version of the image in the env before
+        # expanding it - useful for monitoring
+        export OSG_SINGULARITY_IMAGE_HUMAN="$OSG_SINGULARITY_IMAGE"
+
         # for /cvmfs based directory images, expand the path without symlinks so that
         # the job can stay within the same image for the full duration
         if echo "$OSG_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
