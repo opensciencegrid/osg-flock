@@ -41,7 +41,7 @@ function advertise {
     atype="$3"
 
     if [ "$glidein_config" != "NONE" ]; then
-        add_config_line $key "$value"
+        add_config_line_safe $key "$value"
         add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
     fi
 
@@ -50,6 +50,18 @@ function advertise {
     else
         echo "$key = $value"
     fi
+}
+
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat glidein_config | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
 }
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
@@ -236,6 +248,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     # default image for this glidein - us a distribution between different OSes
     # this can be controlled a parameter in the frontend config: OSG_SINGULARITY_EL7_PERCENT
+    export OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
     if [ "x$OSG_SINGULARITY_EL7_PERCENT" = "x" ]; then
         # default if not specified in the config
         export OSG_SINGULARITY_EL7_PERCENT=50
