@@ -60,7 +60,7 @@ function get_glidein_config_value {
         CF="$PWD/glidein_config"
     fi
     KEY="$1"
-    VALUE=`(cat glidein_config | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
 }
 

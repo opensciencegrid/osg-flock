@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -e
+
+# get the glidein configuration file name
+# must use glidein_config, it is used as global variable
+glidein_config=$1
+
+# import add_config_line function
+add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+source $add_config_line_source
+
+####################
+# SciTokens configuration
+
+# First, get the current directory, and create a credentials directory
+credentials_dir=`pwd`/creds
+mkdir $credentials_dir
+
+# Set all the configs
+# The monitor periodically looks at a directory to convert the "uberticket"
+# to the SciToken
+cred_mon=`pwd`/condor_credmon
+curl -o $cred_mon http://osg-flock.grid.iu.edu/gwms-extras/condor_credmon
+chmod +x $cred_mon
+
+# SEC_CREDENTIAL_MONITOR = /usr/bin/condor_credmon
+add_config_line_safe SEC_CREDENTIAL_MONITOR "$cred_mon"
+add_condor_vars_line SEC_CREDENTIAL_MONITOR "C" "-" "+" "N" "N" "-"
+
+# SEC_CREDENTIAL_MONITOR_LOG = /etc/batch_credds/credmon.log
+add_config_line_safe SEC_CREDENTIAL_MONITOR_LOG "${credentials_dir}/credmon.log"
+add_condor_vars_line SEC_CREDENTIAL_MONITOR_LOG "C" "-" "+" "N" "N" "-"
+
+# SEC_CREDENTIAL_DIRECTORY = /etc/batch_credds
+add_config_line_safe SEC_CREDENTIAL_DIRECTORY "${credentials_dir}"
+add_condor_vars_line SEC_CREDENTIAL_DIRECTORY "C" "-" "+" "N" "N" "-"
+
+# The first argement should the directory to monitor
+# SEC_CREDENTIAL_MONITOR_ARGS = $(SEC_CREDENTIAL_DIRECTORY)
+add_config_line_safe SEC_CREDENTIAL_MONITOR_ARGS "${credentials_dir}"
+add_condor_vars_line SEC_CREDENTIAL_MONITOR_ARGS "C" "-" "+" "N" "N" "-"
+
+# DAEMON_LIST = MASTER, SHARED_PORT, SCHEDD, COLLECTOR, NEGOTIATOR, credD, SEC_CREDENTIAL_MONITOR 
+add_config_line_safe DAEMON_LIST "MASTER, SHARED_PORT, STARTD, SEC_CREDENTIAL_MONITOR"
+add_condor_vars_line DAEMON_LIST "C" "-" "+" "N" "N" "-"
+
