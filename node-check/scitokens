@@ -1,13 +1,12 @@
 #!/bin/bash
 
-set -e
-
 # get the glidein configuration file name
 # must use glidein_config, it is used as global variable
 glidein_config=$1
 
 # import add_config_line function
 add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 source $add_config_line_source
 
 ####################
@@ -15,7 +14,7 @@ source $add_config_line_source
 
 # First, get the current directory, and create a credentials directory
 credentials_dir=`pwd`/creds
-mkdir $credentials_dir
+mkdir -p $credentials_dir
 
 # Set all the configs
 # The monitor periodically looks at a directory to convert the "uberticket"
