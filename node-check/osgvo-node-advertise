@@ -235,9 +235,14 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
 
     # default image for this glidein - us a distribution between different OSes
+    # this can be controlled a parameter in the frontend config: OSG_SINGULARITY_EL7_PERCENT
+    if [ "x$OSG_SINGULARITY_EL7_PERCENT" = "x" ]; then
+        # default if not specified in the config
+        export OSG_SINGULARITY_EL7_PERCENT=50
+    fi
     if [ ! -e .osgvo-default-singularity-image ]; then
         let "rand = $RANDOM % 100 + 1"
-        if [ $rand -le 10 ]; then
+        if [ $rand -le $OSG_SINGULARITY_EL7_PERCENT ]; then
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7:latest" >.osgvo-default-singularity-image
         else
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest" >.osgvo-default-singularity-image
@@ -342,6 +347,8 @@ else
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
     advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
+    # for debugging - remove later
+    advertise OSG_SINGULARITY_EL7_PERCENT "$OSG_SINGULARITY_EL7_PERCENT" "C"
    
     # fix up the env
     for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
