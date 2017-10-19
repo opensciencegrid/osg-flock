@@ -79,7 +79,7 @@ else
     info "Arguments to the script: $@"
 fi
 
-if [ "$glidein_config" != "NONE" -a "x$SOURCED_ADD_CONFIG_LINE" = "x" ]; then
+if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
     if [ "x$add_config_line_source" = "x" ]; then
@@ -87,11 +87,12 @@ if [ "$glidein_config" != "NONE" -a "x$SOURCED_ADD_CONFIG_LINE" = "x" ]; then
         export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
     fi
 
+    # full path is problematic as sometimes we are inside a container - however, looks like
+    # the file is always named "add_config_line.source", so use that
+    add_config_line_source=$PWD/add_config_line.source
+
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
-
-    # make sure we don't source a second time inside the container
-    export SOURCED_ADD_CONFIG_LINE=1
 fi
 
 ###########################################################
@@ -356,6 +357,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
 else
 
+    if [ "x$add_config_line_source" != "x" ]; then
+        export add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
+        export condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
+        info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+    fi
+
     # delay the advertisement until here to make sure singularity actually works
     advertise HAS_SINGULARITY "True" "C"
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
@@ -372,10 +379,6 @@ else
         val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
         eval $key=$val
     done
-        
-    export add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-    export condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-    info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
 
 fi
 
