@@ -135,6 +135,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                     OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
                 fi
             fi
+        else
+            # if not using gpus, we can limit the image more
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain"
         fi
 
         # We want to bind $PWD to /srv within the container - however, in order
@@ -166,7 +169,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                                    --pwd /srv \
                                    --scratch /var/tmp \
                                    --scratch /tmp \
-                                   --contain --ipc --pid \
+                                   --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
                                    "${CMD[@]}"
