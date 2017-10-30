@@ -83,7 +83,7 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="261"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="262"/>
       <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="20"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
@@ -91,7 +91,7 @@
    <groups>
       <group name="comet-BIO170028" enabled="False">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="40" reserve="5"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="80" max="100"/>
@@ -132,7 +132,7 @@
       </group>
       <group name="comet-xenon1t" enabled="False">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="200" max="1000"/>
@@ -174,7 +174,7 @@
       </group>
       <group name="gpu" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="1" max="1"/>
@@ -378,7 +378,7 @@
       </group>
       <group name="largemem" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="10" reserve="5"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="30" max="50"/>
@@ -416,7 +416,7 @@
       </group>
       <group name="main" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="1900" max="2000"/>
@@ -461,7 +461,7 @@
       </group>
       <group name="main_fnal_nocerts" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="1900" max="2000"/>
@@ -507,7 +507,7 @@
       </group>
       <group name="main_with_certs" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="30" reserve="5"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="900" max="1000"/>
@@ -546,7 +546,7 @@
       </group>
       <group name="no_osg_vo_support" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="400" max="500"/>
@@ -586,7 +586,7 @@
       </group>
       <group name="sleep" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="200" max="1000"/>
@@ -626,7 +626,7 @@
       </group>
       <group name="xenon1t" enabled="True" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="15" max="20"/>
             <idle_vms_total curb="150" max="200"/>
@@ -669,7 +669,7 @@
       </group>
       <group name="xenon1t-osgvo" enabled="True">
          <config>
-            <idle_glideins_lifetime max="345600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="15" max="20"/>
             <idle_vms_total curb="150" max="200"/>
