@@ -604,15 +604,16 @@ fi
 advertise GUC_PATH "$GUC_PATH" "S"
 
 # does it work?
+# this is a one-shot test
 if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
     if [ -e .osgvo.test-results.guc ]; then
+        GUC_VERIFIED=`cat .osgvo.test-results.guc`
+    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://osg-vo.isi.edu/etc/hosts file:///dev/null >/dev/null; then
         GUC_VERIFIED="True"
-    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null; then
-        GUC_VERIFIED="True"
-        touch .osgvo.test-results.guc
+        echo "True" > .osgvo.test-results.guc
     else
-        rm -f .osgvo.test-results.guc
+        echo "False" > .osgvo.test-results.guc
     fi
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi

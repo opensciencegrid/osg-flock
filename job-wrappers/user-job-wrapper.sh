@@ -295,7 +295,7 @@ fi
 #
 
 if [ ! -e .trace-callback ]; then
-    (wget -nv -O .trace-callback http://obelix.isi.edu/osg/agent/trace-callback && chmod 755 .trace-callback) >/dev/null 2>&1 || /bin/true
+    (wget -nv -O .trace-callback http://osg-vo.isi.edu/osg/agent/trace-callback && chmod 755 .trace-callback) >/dev/null 2>&1 || /bin/true
 fi
 ./.trace-callback start >/dev/null 2>&1 || /bin/true
 
