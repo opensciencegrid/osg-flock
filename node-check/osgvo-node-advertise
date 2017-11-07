@@ -72,6 +72,12 @@ else
     info "Now running inside a singularity container"
 fi
 
+# some sites do not have PATH set
+if [ "x$PATH" = "x" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin"
+    warn "PATH is empty, setting it to $PATH"
+fi
+
 if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
     info "No arguments provided - assuming HTCondor startd cron mode"
@@ -232,7 +238,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
         HAS_SINGULARITY="True"
-        export OSG_SINGULARITY_PATH=`which singularity`
+        export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
     else
         # some sites requires us to do a module load first - not sure if we always want to do that
         export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
@@ -244,7 +250,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "Singularity binary appears present and claims to be version $OSG_SINGULARITY_VERSION"
+        # one last check - make sure we could determine the path to singularity
+        if [ "x$OSG_SINGULARITY_PATH" = "x" ]; then
+            warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
+            HAS_SINGULARITY="False"
+        else
+            info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
+        fi
     fi
 
 
