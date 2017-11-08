@@ -64,23 +64,33 @@ function get_glidein_config_value {
     echo "$VALUE"
 }
 
+function singularityfy_path {
+    ORIG="$1"
+    # Are we replacing a gwms path? If so, use the safer expression which
+    if (echo "$ORIG" | grep "glidein_") >/dev/null 2>&1; then
+        echo "$ORIG" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"
+    else
+        echo "$ORIG" | sed -E "s;$PWD;/srv;"
+    fi
+}
+
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
     info "Running in directory $PWD"
+ 
+    # some sites do not have PATH set
+    if [ "x$PATH" = "x" ]; then
+        export PATH="/usr/local/bin:/usr/bin:/bin"
+        my_warn "PATH is empty, setting it to $PATH"
+    fi
+    info "PATH is set to $PATH"
+
+    info "The following aliases are set:"
+    alias 1>&2 || true
 else
     info "Now running inside a singularity container"
 fi
-
-# some sites do not have PATH set
-if [ "x$PATH" = "x" ]; then
-    export PATH="/usr/local/bin:/usr/bin:/bin"
-    my_warn "PATH is empty, setting it to $PATH"
-fi
-info "PATH is set to $PATH"
-
-info "The following aliases are set:"
-alias 1>&2 || true
 
 if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
@@ -345,10 +355,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # build a new command line, with updated paths
-        CMD=""
-        for VAR in $0 "$@"; do
-            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-            CMD="$CMD $VAR"
+        CMD=`singularityfy_path $0`
+        # if $0 does not contain a full path, prepend /srv
+        if ! (echo $0 | grep "^/") >/dev/null 2>&1; then
+            CMD="/srv/$0"
+        fi
+        for VAR in "$@"; do
+            CMD="$CMD "`singularityfy_path $VAR`
         done
 
         # let "inside" script know we are re-execing
@@ -374,8 +387,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 else
 
     if [ "x$add_config_line_source" != "x" ]; then
-        export add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-        export condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
+        export add_config_line_source=`singularityfy_path "$add_config_line_source"`
+        export condor_vars_file=`singularityfy_path "$condor_vars_file"`
         info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
     fi
 
