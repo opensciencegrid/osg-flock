@@ -640,7 +640,7 @@ fi
 ## squid enviroment variable
 WGET_PATH=`which wget 2>/dev/null`
 
-if ["XWGET_PATH" ="X" ]; then
+if [ "XWGET_PATH" = "X" ]; then
     WGET_PATH="NA"
 fi
 advertise WGET_PATH "$WGET_PATH" "S"
