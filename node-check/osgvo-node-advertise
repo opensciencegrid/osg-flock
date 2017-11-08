@@ -27,7 +27,7 @@ function info {
     echo "INFO  " $@ 1>&2
 }
 
-function warn {
+function my_warn {
     echo "WARN  " $@ 1>&2
 }
 
@@ -75,8 +75,12 @@ fi
 # some sites do not have PATH set
 if [ "x$PATH" = "x" ]; then
     export PATH="/usr/local/bin:/usr/bin:/bin"
-    warn "PATH is empty, setting it to $PATH"
+    my_warn "PATH is empty, setting it to $PATH"
 fi
+info "PATH is set to $PATH"
+
+info "The following aliases are set:"
+alias 1>&2 || true
 
 if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
@@ -252,7 +256,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
         # one last check - make sure we could determine the path to singularity
         if [ "x$OSG_SINGULARITY_PATH" = "x" ]; then
-            warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
+            my_warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
             HAS_SINGULARITY="False"
         else
             info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
@@ -320,7 +324,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                                          | grep OSG_SINGULARITY_IMAGE_DEFAULT) 1>&2 \
         ; then
             # singularity env fail - we are done
-            warn "Singularity is not inheriting the outside environment"
+            my_warn "Singularity is not inheriting the outside environment"
             HAS_SINGULARITY="False"
         fi
     fi
