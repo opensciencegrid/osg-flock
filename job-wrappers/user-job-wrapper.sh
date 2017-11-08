@@ -102,6 +102,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
         fi
 
+        # put a human readable version of the image in the env before
+        # expanding it - useful for monitoring
+        export OSG_SINGULARITY_IMAGE_HUMAN="$OSG_SINGULARITY_IMAGE"
+
         # for /cvmfs based directory images, expand the path without symlinks so that
         # the job can stay within the same image for the full duration
         if echo "$OSG_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
@@ -131,6 +135,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                     OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
                 fi
             fi
+        else
+            # if not using gpus, we can limit the image more
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain"
         fi
 
         # We want to bind $PWD to /srv within the container - however, in order
@@ -162,7 +169,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                                    --pwd /srv \
                                    --scratch /var/tmp \
                                    --scratch /tmp \
-                                   --contain --ipc --pid \
+                                   --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
                                    "${CMD[@]}"
@@ -288,7 +295,7 @@ fi
 #
 
 if [ ! -e .trace-callback ]; then
-    (wget -nv -O .trace-callback http://obelix.isi.edu/osg/agent/trace-callback && chmod 755 .trace-callback) >/dev/null 2>&1 || /bin/true
+    (wget -nv -O .trace-callback http://osg-vo.isi.edu/osg/agent/trace-callback && chmod 755 .trace-callback) >/dev/null 2>&1 || /bin/true
 fi
 ./.trace-callback start >/dev/null 2>&1 || /bin/true
 

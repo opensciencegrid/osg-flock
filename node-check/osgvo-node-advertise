@@ -27,7 +27,7 @@ function info {
     echo "INFO  " $@ 1>&2
 }
 
-function warn {
+function my_warn {
     echo "WARN  " $@ 1>&2
 }
 
@@ -41,7 +41,7 @@ function advertise {
     atype="$3"
 
     if [ "$glidein_config" != "NONE" ]; then
-        add_config_line $key "$value"
+        add_config_line_safe $key "$value"
         add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
     fi
 
@@ -52,10 +52,42 @@ function advertise {
     fi
 }
 
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
+function singularityfy_path {
+    ORIG="$1"
+    # Are we replacing a gwms path? If so, use the safer expression which
+    if (echo "$ORIG" | grep "glidein_") >/dev/null 2>&1; then
+        echo "$ORIG" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"
+    else
+        echo "$ORIG" | sed -E "s;$PWD;/srv;"
+    fi
+}
+
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
     info "Running in directory $PWD"
+ 
+    # some sites do not have PATH set
+    if [ "x$PATH" = "x" ]; then
+        export PATH="/usr/local/bin:/usr/bin:/bin"
+        my_warn "PATH is empty, setting it to $PATH"
+    fi
+    info "PATH is set to $PATH"
+
+    info "The following aliases are set:"
+    alias 1>&2 || true
 else
     info "Now running inside a singularity container"
 fi
@@ -67,7 +99,7 @@ else
     info "Arguments to the script: $@"
 fi
 
-if [ "$glidein_config" != "NONE" -a "x$SOURCED_ADD_CONFIG_LINE" = "x" ]; then
+if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
     if [ "x$add_config_line_source" = "x" ]; then
@@ -75,11 +107,12 @@ if [ "$glidein_config" != "NONE" -a "x$SOURCED_ADD_CONFIG_LINE" = "x" ]; then
         export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
     fi
 
+    # full path is problematic as sometimes we are inside a container - however, looks like
+    # the file is always named "add_config_line.source", so use that
+    add_config_line_source=$PWD/add_config_line.source
+
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
-
-    # make sure we don't source a second time inside the container
-    export SOURCED_ADD_CONFIG_LINE=1
 fi
 
 ###########################################################
@@ -91,12 +124,15 @@ export GLIDEIN_VALIDATION_EXPR="True"
 export GLIDEIN_VALIDATION_WARNINGS=""
 
 ###########################################################
-# attributes below this line
-
-##################
-# cvmfs filesystem availability this has to come before singularity checks
+#
+#  some of the following checks has to take place outside
+#  singularity, some inside. First the set we need outside:
+#
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
+
+    ##################
+    # cvmfs filesystem availability
     info "Checking for CVMFS availability and attributes..."
     for FS in \
        ams.cern.ch \
@@ -110,6 +146,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        stash.osgstorage.org \
        veritas.opensciencegrid.org \
        xenon.opensciencegrid.org \
+       nexo.opensciencegrid.org \
     ; do
         FS_CONV=`echo "$FS" | sed 's/\./_/g'`
         FS_ATTR="HAS_CVMFS_$FS_CONV"
@@ -167,6 +204,41 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
 
+    ###########################################################
+    # gpus - detect this outside Singularity
+    
+    for LOCATION in \
+          /usr/libexec/condor/condor_gpu_discovery \
+          ./main/condor/libexec/condor_gpu_discovery \
+          ../main/condor/libexec/condor_gpu_discovery \
+    ; do
+        if [ -e "$LOCATION" ]; then
+            $LOCATION -properties -extra | grep -v DetectedGPUs >gpu.ad
+            break
+        fi
+    done
+    
+    if [ -s gpu.ad ]; then
+        while read line; do
+            key=`echo "$line" | sed 's/=.*//'`
+            value=`echo "$line" | sed 's/.*=//'`
+            if (echo "$value" | grep '"') >/dev/null 2>&1; then
+                value=`echo "$value" | sed 's/"//g'`
+                advertise "$key" "$value" "S"
+            else
+                advertise "$key" "$value" "C"
+            fi
+        done <gpu.ad
+    
+        # and some extra nvidia attributes
+        nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
+        if [ "x$nvidia_version" != "x" ]; then
+            advertise NV_DRIVER "$nvidia_version" "C"
+        fi
+    else
+        advertise "GPUDetection" "No GPUs detected" "S"
+    fi
+
 fi # OSG_SINGULARITY_REEXEC
 
 ##################
@@ -180,7 +252,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
         HAS_SINGULARITY="True"
-        export OSG_SINGULARITY_PATH=`which singularity`
+        export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
     else
         # some sites requires us to do a module load first - not sure if we always want to do that
         export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
@@ -192,26 +264,33 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "Singularity binary appears present and claims to be version $OSG_SINGULARITY_VERSION"
+        # one last check - make sure we could determine the path to singularity
+        if [ "x$OSG_SINGULARITY_PATH" = "x" ]; then
+            my_warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
+            HAS_SINGULARITY="False"
+        else
+            info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
+        fi
     fi
 
 
-    # NEW STYLE - default image for this glidein
+    # default image for this glidein - us a distribution between different OSes
+    # this can be controlled a parameter in the frontend config: OSG_SINGULARITY_EL7_PERCENT
+    export OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
+    if [ "x$OSG_SINGULARITY_EL7_PERCENT" = "x" ]; then
+        # default if not specified in the config
+        export OSG_SINGULARITY_EL7_PERCENT=50
+    fi
     if [ ! -e .osgvo-default-singularity-image ]; then
         let "rand = $RANDOM % 100 + 1"
-        if [ $rand -le 3 ]; then
+        if [ $rand -le $OSG_SINGULARITY_EL7_PERCENT ]; then
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7:latest" >.osgvo-default-singularity-image
         else
             echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest" >.osgvo-default-singularity-image
         fi
     fi
-    OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
     info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
-    advertise TEST_OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
-    advertise TEST_PWD "$PWD" "S"
-
-    # default image for this glidein
-    export OSG_SINGULARITY_IMAGE_DEFAULT="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
 
     # for now, we will only advertise singularity on nodes which can access cvmfs
     if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
@@ -255,7 +334,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                                          | grep OSG_SINGULARITY_IMAGE_DEFAULT) 1>&2 \
         ; then
             # singularity env fail - we are done
-            warn "Singularity is not inheriting the outside environment"
+            my_warn "Singularity is not inheriting the outside environment"
             HAS_SINGULARITY="False"
         fi
     fi
@@ -276,10 +355,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # build a new command line, with updated paths
-        CMD=""
-        for VAR in $0 "$@"; do
-            VAR=`echo " $VAR" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-            CMD="$CMD $VAR"
+        CMD=`singularityfy_path $0`
+        # if $0 does not contain a full path, prepend /srv
+        if ! (echo $0 | grep "^/") >/dev/null 2>&1; then
+            CMD="/srv/$0"
+        fi
+        for VAR in "$@"; do
+            CMD="$CMD "`singularityfy_path $VAR`
         done
 
         # let "inside" script know we are re-execing
@@ -304,11 +386,19 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
 else
 
+    if [ "x$add_config_line_source" != "x" ]; then
+        export add_config_line_source=`singularityfy_path "$add_config_line_source"`
+        export condor_vars_file=`singularityfy_path "$condor_vars_file"`
+        info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+    fi
+
     # delay the advertisement until here to make sure singularity actually works
     advertise HAS_SINGULARITY "True" "C"
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
     advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
+    # for debugging - remove later
+    advertise OSG_SINGULARITY_EL7_PERCENT "$OSG_SINGULARITY_EL7_PERCENT" "C"
    
     # fix up the env
     for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
@@ -318,10 +408,6 @@ else
         val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
         eval $key=$val
     done
-        
-    export add_config_line_source=`echo "$add_config_line_source" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-    export condor_vars_file=`echo "$condor_vars_file" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"`
-    info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
 
 fi
 
@@ -392,34 +478,19 @@ advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
 advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 
-
-###########################################################
-# gpus - only for the GPU group
-
-group="nothing"
-if [ "$glidein_config" != "NONE" ]; then
-    group=`grep '^GLIDECLIENT_Group ' $glidein_config | awk '{print $2}'`
-fi
-if [[ $group =~ "gpu" ]]; then
-    wget -nv -O condor_gpu_discovery http://osg-flock.grid.iu.edu/gwms-extras/condor_gpu_discovery
-    chmod 755 condor_gpu_discovery
-    ./condor_gpu_discovery -properties -extra | grep -v DetectedGPUs >gpu.ad
-    while read line; do
-        key=`echo "$line" | sed 's/=.*//'`
-        value=`echo "$line" | sed 's/.*=//'`
-        if (echo "$value" | grep '"') >/dev/null 2>&1; then
-            value=`echo "$value" | sed 's/"//g'`
-            advertise "$key" "$value" "S"
-        else
-            advertise "$key" "$value" "C"
-        fi
-    done <gpu.ad
-
-    # and some extra nvida attributes
-    nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
-    if [ "x$nvidia_version" != "x" ]; then
-        advertise NV_DRIVER "$nvidia_version" "C"
+# if we are in Singularity, override HTCondor's OsSys* vars with the
+# default container details
+if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
+    # RHEL is CentOS in HTCondor
+    if [ "x$OS_NAME" = "xRHEL" ]; then
+        OS_NAME="CentOS"
     fi
+    advertise OpSysLongName "Singularity Container - $OS_NAME $OS_VERSION" "S"
+    advertise OpSysAndVer "${OS_NAME}${OS_VERSION}" "S"
+    advertise OpSysName "$OS_NAME" "S"
+    advertise OpSysShortName "$OS_NAME" "S"
+    advertise OpSysMajorVer "$OS_VERSION" "I"
+    advertise OpSysVer "${OS_VERSION}00" "I"
 fi
 
 
@@ -550,15 +621,16 @@ fi
 advertise GUC_PATH "$GUC_PATH" "S"
 
 # does it work?
+# this is a one-shot test
 if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
     if [ -e .osgvo.test-results.guc ]; then
+        GUC_VERIFIED=`cat .osgvo.test-results.guc`
+    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://osg-vo.isi.edu/etc/hosts file:///dev/null >/dev/null; then
         GUC_VERIFIED="True"
-    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null; then
-        GUC_VERIFIED="True"
-        touch .osgvo.test-results.guc
+        echo "True" > .osgvo.test-results.guc
     else
-        rm -f .osgvo.test-results.guc
+        echo "False" > .osgvo.test-results.guc
     fi
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
