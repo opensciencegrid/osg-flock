@@ -67,7 +67,7 @@ function get_glidein_config_value {
 function singularityfy_path {
     ORIG="$1"
     # Are we replacing a gwms path? If so, use the safer expression which
-    if (echo "$ORIG" | grep "glidein_") >/dev/null 2>&1; then
+    if (echo "$ORIG" | grep "glide_") >/dev/null 2>&1; then
         echo "$ORIG" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"
     else
         echo "$ORIG" | sed -E "s;$PWD;/srv;"
