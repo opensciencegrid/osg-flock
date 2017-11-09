@@ -655,7 +655,7 @@ if [ "X$WGET_PATH" != "X" ]; then
     else
 	info "Seting up http_proxy enviroment variable"
 	info "VALUE of OSG_SQUID_LOCATION: $OSG_SQUID_LOCATION"
-	env http_proxy=$OSG_SQUID_LOCATION wget -qdO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
+	env http_proxy=$OSG_SQUID_LOCATION wget -qO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
 	if [ $? == 0 -a "X$OSG_SQUID_LOCATION" != "X" ]; then
 	     info "testing proxy succeed"
 	     info "setting up http_proxy to OSG_SQUID_LOCATION"
