@@ -626,7 +626,7 @@ if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
     if [ -e .osgvo.test-results.guc ]; then
         GUC_VERIFIED=`cat .osgvo.test-results.guc`
-    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://osg-vo.isi.edu/etc/hosts file:///dev/null >/dev/null; then
+    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null; then
         GUC_VERIFIED="True"
         echo "True" > .osgvo.test-results.guc
     else
