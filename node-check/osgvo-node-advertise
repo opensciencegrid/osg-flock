@@ -635,6 +635,44 @@ if [ "X$GUC_PATH" != "X" ]; then
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
 
+
+#############################
+## squid enviroment variable
+WGET_PATH=`which wget 2>/dev/null`
+
+if [ "XWGET_PATH" = "X" ]; then
+    WGET_PATH="NA"
+fi
+advertise WGET_PATH "$WGET_PATH" "S"
+
+#does it work?
+# this is a one-shot test
+
+if [ "X$WGET_PATH" != "X" ]; then
+    SQUID_VERIFIED="False"
+    if [ -e .osgvo.test-results.squid ]; then
+	SQUID_VERIFIED=`cat .osgvo.test-results.squid`
+    else
+	info "Seting up http_proxy enviroment variable"
+	info "VALUE of OSG_SQUID_LOCATION: $OSG_SQUID_LOCATION"
+	env http_proxy=$OSG_SQUID_LOCATION wget -qO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
+	if [ $? == 0 -a "X$OSG_SQUID_LOCATION" != "X" ]; then
+	     info "testing proxy succeed"
+	     info "setting up http_proxy to OSG_SQUID_LOCATION"
+	     advertise "http_proxy" $OSG_SQUID_LOCATION "S"
+	     SQUID_VERIFIED="true"
+	     echo "True" > .osgvo.test-results.squid
+	else
+	    info "testing proxy failed leaving http_proxy untouched"
+	    echo "False" > .osgvo.test-results.squid
+	fi	
+    fi
+    advertise SQUID_VERIFIED "$SQUID_VERIFIED" "C"
+fi
+
+
+
+
 ##################
 # xrdcp
 
