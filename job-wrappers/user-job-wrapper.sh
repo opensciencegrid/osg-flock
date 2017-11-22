@@ -134,6 +134,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 if [ "x$HOST_LIBS" != "x" ]; then
                     OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
                 fi
+                if [ -e /etc/OpenCL/vendors ]; then
+                    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /etc/OpenCL/vendors:/etc/OpenCL/vendors"
+                fi
             fi
         else
             # if not using gpus, we can limit the image more
