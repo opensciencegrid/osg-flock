@@ -21,6 +21,12 @@ function my_error
 my_info "This is an OSG-FLOCK node validation script."
 my_info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 
+my_info "CWD is $PWD"
+
+if ! (cd $PWD && ls) >/dev/null; then
+    my_error "PWD points to a non-existent directory"
+fi
+
 my_info "Checking disk space - 1 GB free is required"
 disk_required=1000000
 free=`df -kP . | awk '{if (NR==2) print $4}'`
@@ -33,7 +39,7 @@ fi
 my_info "Checking the environment..."
 
 my_info "   checking PATH ($PATH)"
-if ! (env | grep ^PATH | grep /usr/bin) >/dev/null 2>&1; then
+if ! (echo "$PATH" | grep /usr/bin) >/dev/null 2>&1; then
     my_warn "The PATH does not have /usr/bin"
 fi
 

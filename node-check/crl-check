@@ -43,10 +43,13 @@ for c_hash in cert_hashes:
     elif os.path.exists(home_path + "/.globus/certificates"):
         cert_path = home_path + "/.globus/certificates/" + c_hash + ".0"
         crl_path = home_path + "/.globus/certificates/" + c_hash + ".r0"
+
+    print("Checking CA certificate " + cert_path)
     if not os.path.exists(cert_path):
         print("ERROR: Missing required CA certificate: %s" %(cert_path))
         #try_home_install(c_hash)
         sys.exit(1)
+
     if os.path.exists(crl_path):
         # be a little bit extra careful with error handling here - we only
         # want the test to fail if there is actually a CRL expiration and 

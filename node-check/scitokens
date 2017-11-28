@@ -41,6 +41,11 @@ add_config_line_safe SEC_CREDENTIAL_MONITOR_ARGS "${credentials_dir}"
 add_condor_vars_line SEC_CREDENTIAL_MONITOR_ARGS "C" "-" "+" "N" "N" "-"
 
 # DAEMON_LIST = MASTER, SHARED_PORT, SCHEDD, COLLECTOR, NEGOTIATOR, credD, SEC_CREDENTIAL_MONITOR 
-add_config_line_safe DAEMON_LIST "MASTER, SHARED_PORT, STARTD, SEC_CREDENTIAL_MONITOR"
+add_config_line_safe DAEMON_LIST "MASTER, STARTD, SEC_CREDENTIAL_MONITOR"
 add_condor_vars_line DAEMON_LIST "C" "-" "+" "N" "N" "-"
+
+# Also disable shared port - we don't want it on the glideins
+add_config_line_safe USE_SHARED_PORT "False"
+add_condor_vars_line USE_SHARED_PORT "C" "-" "+" "N" "N" "-"
+
 
