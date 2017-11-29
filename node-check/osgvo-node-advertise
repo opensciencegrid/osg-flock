@@ -613,6 +613,12 @@ if [ -e /usr/bin/zip ]; then
 fi
 advertise HAS_ZIP "$HAS_ZIP" "C"
 
+HAS_UNZIP="False"
+if [ -e /usr/bin/unzip ]; then
+    HAS_UNZIP="True"
+fi
+advertise HAS_UNZIP "$HAS_UNZIP" "C"
+
 
 ##################
 # scp
