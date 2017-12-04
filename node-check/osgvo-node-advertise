@@ -190,9 +190,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     done
 
     # if it looks like we have CVMFS, make sure the START expression knows that
-    if [ -e /cvmfs ]; then
-        export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
-    fi
+    #if [ -e /cvmfs ]; then
+    #    export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
+    #fi
 
     # update timestamp?
     TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
