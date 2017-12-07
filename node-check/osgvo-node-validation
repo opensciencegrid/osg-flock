@@ -28,7 +28,7 @@ if ! (cd $PWD && ls) >/dev/null; then
 fi
 
 my_info "Checking disk space - 1 GB free is required"
-disk_required=1000000
+disk_required=3000000
 free=`df -kP . | awk '{if (NR==2) print $4}'`
 free_gb=$(($free / 1024 / 1024))
 my_info "   ...  $free_gb GB space available"
