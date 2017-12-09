@@ -116,6 +116,14 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 fi
             fi
         fi
+    
+        # set up the env to make sure Singularity uses the glidein dir for session data
+        if [ "x$OSG_WN_TMP" = "x" ]; then
+            export OSG_WN_TMP="$PWD/tmp"
+            mkdir -p $OSG_WN_TMP
+        fi
+        export SINGULARITY_SCRATCHDIR=$OSG_WN_TMP/singularity-scratch
+        export SINGULARITY_WORKDIR=$OSG_WN_TMP/singularity-work
         
         OSG_SINGULARITY_EXTRA_OPTS=""
    
@@ -181,6 +189,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 else
     # we are now inside singularity - fix up the env
     unset TMP
+    unset TMPDIR
     unset TEMP
     unset X509_CERT_DIR
     for key in AUTHTOKEN X509_USER_PROXY X509_USER_CERT \

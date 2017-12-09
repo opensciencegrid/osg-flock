@@ -261,6 +261,14 @@ fi # OSG_SINGULARITY_REEXEC
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for singularity..."
 
+    # set up the env to make sure Singularity uses the glidein dir for session data
+    if [ "x$OSG_WN_TMP" = "x" ]; then
+        export OSG_WN_TMP="$PWD/tmp"
+        mkdir -p $OSG_WN_TMP
+    fi
+    export SINGULARITY_SCRATCHDIR=$OSG_WN_TMP/adv/singularity-scratch
+    export SINGULARITY_WORKDIR=$OSG_WN_TMP/adv/singularity-work
+
     HAS_SINGULARITY="False"
     export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
@@ -285,7 +293,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
         fi
     fi
-
 
     # default image for this glidein - us a distribution between different OSes
     # this can be controlled a parameter in the frontend config: OSG_SINGULARITY_EL7_PERCENT
