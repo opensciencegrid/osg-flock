@@ -83,95 +83,12 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="276"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="277"/>
       <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="20"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
    <groups>
-      <group name="comet-BIO170028" enabled="False">
-         <config>
-            <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="40" reserve="5"/>
-            <idle_vms_per_entry curb="45" max="50"/>
-            <idle_vms_total curb="80" max="100"/>
-            <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="60000" min="0" relative_to_queue="10.0"/>
-            <running_glideins_total curb="57000" max="60000"/>
-         </config>
-         <match match_expr="True" start_expr='(TARGET.projectName=?="macsSwigmodels") &amp;&amp; (TARGET.WantsComet =?= True)'>
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=?="Comet"'>
-               <match_attrs>
-               </match_attrs>
-               <collectors>
-                  <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
-               </collectors>
-            </factory>
-            <job query_expr='(projectName=?="macsSwigmodels") &amp;&amp; (TARGET.WantsComet =?= True)'>
-               <match_attrs>
-               </match_attrs>
-               <schedds>
-               </schedds>
-            </job>
-         </match>
-         <security>
-            <credentials>
-               <credential absfname="/tmp/x509up_u496" project_id="uoa113" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
-            </credentials>
-         </security>
-         <attrs>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-         </attrs>
-         <files>
-            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-         </files>
-      </group>
-      <group name="comet-xenon1t" enabled="False">
-         <config>
-            <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="100" reserve="5"/>
-            <idle_vms_per_entry curb="45" max="50"/>
-            <idle_vms_total curb="200" max="1000"/>
-            <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="60000" min="0" relative_to_queue="10.0"/>
-            <running_glideins_total curb="57000" max="60000"/>
-         </config>
-         <match match_expr="True" start_expr='(TARGET.projectName=?="xenon1t")'>
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=?="Comet"'>
-               <match_attrs>
-               </match_attrs>
-               <collectors>
-                  <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
-               </collectors>
-            </factory>
-            <job query_expr='(projectName=?="xenon1t")'>
-               <match_attrs>
-               </match_attrs>
-               <schedds>
-                  <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.xenon.ci-connect.net" fullname="login.xenon.ci-connect.net"/>
-               </schedds>
-            </job>
-         </match>
-         <security>
-            <credentials>
-               <credential absfname="/tmp/x509up_u496" project_id="csd428" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
-            </credentials>
-         </security>
-         <attrs>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-         </attrs>
-         <files>
-            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-         </files>
-      </group>
       <group name="gpu" enabled="True">
          <config>
             <idle_glideins_lifetime max="864000"/>
@@ -209,6 +126,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="itb" enabled="True">
@@ -251,6 +169,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
             <file absfname="/opt/git/node-check/scitokens" after_entry="True" const="True" executable="True" untar="False" wrapper="False" />
          </files>
       </group>
@@ -294,6 +213,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="itb-xenon1t" enabled="True">
@@ -335,45 +255,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
-         </files>
-      </group>
-      <group name="itbfactory" enabled="False">
-         <config>
-            <idle_glideins_lifetime max="3600"/>
-            <idle_glideins_per_entry max="20" reserve="5"/>
-            <idle_vms_per_entry curb="45" max="50"/>
-            <idle_vms_total curb="200" max="1000"/>
-            <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="100" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="1" max="2"/>
-         </config>
-         <match match_expr="True" start_expr="(TARGET.ITB_Factory =?= True)">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSG", GLIDEIN_Supported_VOs)'>
-               <match_attrs>
-               </match_attrs>
-               <collectors>
-                  <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-int.grid.iu.edu" factory_identity="gfactory@glidein-int.grid.iu.edu" my_identity="feosgitb@glidein-int.grid.iu.edu" node="glidein-int.grid.iu.edu"/>
-               </collectors>
-            </factory>
-            <job query_expr="(ITB_Factory =?= True)">
-               <match_attrs>
-               </match_attrs>
-               <schedds>
-               </schedds>
-            </job>
-         </match>
-         <security>
-            <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-            </credentials>
-         </security>
-         <attrs>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="Is_ITB_Factory" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-         </attrs>
-         <files>
-            <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="largemem" enabled="True">
@@ -412,6 +294,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="main" enabled="True">
@@ -457,6 +340,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="main_fnal_nocerts" enabled="True">
@@ -503,6 +387,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="main_with_certs" enabled="True">
@@ -542,6 +427,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="no_osg_vo_support" enabled="True">
@@ -582,6 +468,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="sleep" enabled="True">
@@ -622,6 +509,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="xenon1t" enabled="True" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO">
@@ -665,6 +553,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="xenon1t-osgvo" enabled="True">
@@ -704,6 +593,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
    </groups>
@@ -718,9 +608,6 @@
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/crl-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" after_group="False" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
