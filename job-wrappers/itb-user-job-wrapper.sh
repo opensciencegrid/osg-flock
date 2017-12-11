@@ -81,10 +81,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
     # OSG_WN_TMP should always be defined
-    if [ "x$OSG_WN_TMP" = "x" ]; then
-        # use the one in the shared glidein dir
-        mkdir -p ../../tmp
-        export OSG_WN_TMP=`cd ../../tmp/ && pwd`
+    if [ "x$OSG_WN_TMP" = "x" -a "x$GLIDEIN_Tmp_Dir" != "x" ]; then
+        export OSG_WN_TMP="$GLIDEIN_Tmp_Dir"
+        mkdir -p $OSG_WN_TMP
     fi
 
     #############################################################################
