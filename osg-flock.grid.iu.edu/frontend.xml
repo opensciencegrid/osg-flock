@@ -83,7 +83,7 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="283"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="284"/>
       <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="20"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
@@ -126,7 +126,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="itb" enabled="True">
@@ -169,7 +169,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
             <file absfname="/opt/git/node-check/scitokens" after_entry="True" const="True" executable="True" untar="False" wrapper="False" />
          </files>
       </group>
@@ -213,7 +213,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="itb-xenon1t" enabled="True">
@@ -255,7 +255,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="largemem" enabled="True">
@@ -294,7 +294,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="main" enabled="True">
@@ -340,7 +340,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="main_fnal_nocerts" enabled="True">
@@ -387,7 +387,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="main_with_certs" enabled="True">
@@ -427,7 +427,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="no_osg_vo_support" enabled="True">
@@ -468,7 +468,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="sleep" enabled="True">
@@ -509,7 +509,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="xenon1t" enabled="True" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO">
@@ -553,7 +553,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="xenon1t-osgvo" enabled="True">
@@ -593,7 +593,7 @@
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="240" prefix="NOPREFIX" untar="False" wrapper="False" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
    </groups>
