@@ -151,6 +151,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         FS_CONV=`echo "$FS" | sed 's/\./_/g'`
         FS_ATTR="HAS_CVMFS_$FS_CONV"
         RESULT="False"
+        
+        # keep the filesystems mounted
+        ls -l /cvmfs/$FS/ >/dev/null 2>&1
+
         if [ -e /cvmfs/$FS/. ]; then
             RESULT="True"
             # add the revision
