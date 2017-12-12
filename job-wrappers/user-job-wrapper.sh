@@ -80,6 +80,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
+    # OSG_WN_TMP should always be defined
+    if [ "x$OSG_WN_TMP" = "x" -a "x$GLIDEIN_Tmp_Dir" != "x" ]; then
+        export OSG_WN_TMP="$GLIDEIN_Tmp_Dir"
+        mkdir -p $OSG_WN_TMP
+    fi
+
     #############################################################################
     #
     #  Singularity
@@ -118,12 +124,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     
         # set up the env to make sure Singularity uses the glidein dir for session data
-        if [ "x$OSG_WN_TMP" = "x" ]; then
-            export OSG_WN_TMP="$PWD/tmp"
-            mkdir -p $OSG_WN_TMP
-        fi
-        export SINGULARITY_SCRATCHDIR=$OSG_WN_TMP/singularity-scratch
-        export SINGULARITY_WORKDIR=$OSG_WN_TMP/singularity-work
+        export SINGULARITY_SCRATCHDIR=$OSG_WN_TMP/singularity-scratch.$$
+        export SINGULARITY_WORKDIR=$OSG_WN_TMP/singularity-work.$$
         
         OSG_SINGULARITY_EXTRA_OPTS=""
    

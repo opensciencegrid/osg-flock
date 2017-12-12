@@ -262,12 +262,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for singularity..."
 
     # set up the env to make sure Singularity uses the glidein dir for session data
-    if [ "x$OSG_WN_TMP" = "x" ]; then
-        export OSG_WN_TMP="$PWD/tmp"
+    if [ "x$OSG_WN_TMP" = "x" -a "x$GLIDEIN_Tmp_Dir" != "x" ]; then
+        export OSG_WN_TMP="$GLIDEIN_Tmp_Dir"
         mkdir -p $OSG_WN_TMP
     fi
-    export SINGULARITY_SCRATCHDIR=$OSG_WN_TMP/adv/singularity-scratch
-    export SINGULARITY_WORKDIR=$OSG_WN_TMP/adv/singularity-work
+    export SINGULARITY_SCRATCHDIR=$OSG_WN_TMP/adv-singularity-scratch.$$
+    export SINGULARITY_WORKDIR=$OSG_WN_TMP/adv-singularity-work.$$
 
     HAS_SINGULARITY="False"
     export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
