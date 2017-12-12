@@ -725,24 +725,25 @@ advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 for LIB in \
     /lib64/libgcc_s.so.1 \
     /lib64/libglib-2.0.so.0 \
-    /usr/lib64/libgfortran.so.3 \
-    /usr/lib64/libglib-2.0.so \
-    /usr/lib64/libgslcblas.so.0 \
-    /usr/lib64/libgsl.so.0 \
-    /usr/lib64/libstdc++.so.6 \
-    /usr/lib64/libgtk-x11-2.0.so.0 \
-    /usr/lib64/libXm.so.4 \
-    /usr/lib64/libXt.so.6 \
-    /usr/lib64/libXmu.so.6 \
-    /usr/lib64/libXdmcp.so.6 \
-    /usr/lib64/libgmp.so.3 \
-    /usr/lib64/libgslcblas.so.0 \
-    /usr/lib64/libgsl.so.0 \
-    /usr/lib64/libicuuc.so.42 \
     /usr/lib64/atlas/libatlas.so.3 \
     /usr/lib64/atlas/liblapack.so.3 \
     /usr/lib64/atlas/libptf77blas.so.3 \
+    /usr/lib64/libgfortran.so.3 \
+    /usr/lib64/libglib-2.0.so \
+    /usr/lib64/libgmp.so.3 \
+    /usr/lib64/libgslcblas.so.0 \
+    /usr/lib64/libgsl.so.0 \
+    /usr/lib64/libgsl.so.0 \
+    /usr/lib64/libgtk-x11-2.0.so.0 \
+    /usr/lib64/libicuuc.so.42 \
+    /usr/lib64/libstdc++.so.6 \
     /usr/lib64/libtk8.5.so \
+    /usr/lib64/libxcb.so.1 \
+    /usr/lib64/libXdmcp.so.6 \
+    /usr/lib64/libXm.so.4 \
+    /usr/lib64/libXmu.so.6 \
+    /usr/lib64/libXpm.so.4 \
+    /usr/lib64/libXt.so.6 \
 ; do
     ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/\+\-]/_/g'`
     HAS_LIB="False"
@@ -756,6 +757,15 @@ if (rpm -qa | egrep 'glib2-2\.28') >/dev/null 2>&1; then
     advertise HAS_GLIB2_228 "True" "C"
 fi
 
+
+##################
+# gcc
+
+HAS_GCC="False"
+if gcc --version >/dev/null 2>&1; then
+    HAS_GCC="True"
+fi
+advertise HAS_GCC "$HAS_GCC" "C"
 
 ##################
 # R
