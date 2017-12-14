@@ -767,6 +767,12 @@ if gcc --version >/dev/null 2>&1; then
 fi
 advertise HAS_GCC "$HAS_GCC" "C"
 
+HAS_GPP="False"
+if g++ --version >/dev/null 2>&1; then
+    HAS_GPP="True"
+fi
+advertise HAS_GPP "$HAS_GPP" "C"
+
 ##################
 # R
 
