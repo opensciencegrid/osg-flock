@@ -10,18 +10,9 @@
 #    http://www.uscms.org/SoftwareComputing/Grid/WMS/glideinWMS/doc.prd/factory/custom_scripts.html
 #    http://research.cs.wisc.edu/htcondor/manual/v8.2/4_4Hooks.html
 #
-# Example HTCondor startd cron entry:
-#
-# STARTD_CRON_JOBLIST = $(STARTD_CRON_JOBLIST) osgvo
-# STARTD_CRON_osgvo_EXECUTABLE = /opt/osgvo/osgvobench
-# STARTD_CRON_osgvo_PERIOD = 30m
-# STARTD_CRON_osgvo_MODE = periodic
-# STARTD_CRON_osgvo_RECONFIG = true
-# STARTD_CRON_osgvo_KILL = true
-# STARTD_CRON_osgvo_ARGS = NONE
 
 # how often to run the benchmark
-RUN_PERCENT=5
+RUN_PERCENT=2
 
 START_DIR="$PWD"
 
@@ -112,7 +103,7 @@ fi
 
 info "Running benchmarks - please wait..."
 
-if ! (wget -nv -O osgvobench.tar.gz http://xd-login.opensciencegrid.org/scratch/rynge/osgvobench.tar.gz && tar xzf osgvobench.tar.gz) >/dev/null 2>&1; then
+if ! (wget -nv -O osgvobench.tar.gz http://xd-login.opensciencegrid.org/osgvobench/osgvobench.tar.gz && tar xzf osgvobench.tar.gz) >/dev/null 2>&1; then
     failure "Unable to download/untar the tests"
 fi
 
