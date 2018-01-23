@@ -559,6 +559,46 @@
             <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
+      <group name="xenon1t-comet" enabled="True">
+         <config>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="20" reserve="5"/>
+            <idle_vms_per_entry curb="15" max="20"/>
+            <idle_vms_total curb="150" max="200"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="10000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="9000" max="10000"/>
+         </config>
+         <match match_expr="True" start_expr='(TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+	   <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=?="Comet"'>
+               <match_attrs>
+               </match_attrs>
+	              <collectors>
+               </collectors>
+            </factory>
+	   <job query_expr='(projectName=?="xenon1t")'>
+                <match_attrs>
+                </match_attrs>
+                <schedds>
+	        <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.xenon.ci-connect.net" fullname="login.xenon.ci-connect.net"/>
+                </schedds>
+             </job>
+          </match>
+         <security>
+            <credentials>
+	           <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" project_id="chi135" type="grid_proxy"/>
+             </credentials>
+         </security>
+	 <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
+         </files>
+      </group>
       <group name="xenon1t-osgvo" enabled="True">
          <config>
             <idle_glideins_lifetime max="864000"/>
