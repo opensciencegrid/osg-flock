@@ -562,12 +562,12 @@
       <group name="xenon1t-comet" enabled="True">
          <config>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="20" reserve="5"/>
-            <idle_vms_per_entry curb="15" max="20"/>
-            <idle_vms_total curb="150" max="200"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="9000" max="10000"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="1" max="1"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
 	   <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=?="Comet"'>
@@ -577,7 +577,7 @@
                      <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
                </collectors>
             </factory>
-	   <job query_expr='(projectName=?="xenon1t")'>
+	   <job query_expr='False &amp;&amp; (projectName=?="xenon1t")'>
                 <match_attrs>
                 </match_attrs>
                 <schedds>
