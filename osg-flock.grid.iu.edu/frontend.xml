@@ -577,7 +577,7 @@
                      <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
                </collectors>
             </factory>
-	   <job query_expr='False &amp;&amp; (projectName=?="xenon1t")'>
+	   <job query_expr='(projectName=?="xenon1t")'>
                 <match_attrs>
                 </match_attrs>
                 <schedds>
