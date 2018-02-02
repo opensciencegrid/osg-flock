@@ -44,6 +44,65 @@ function getPropStr
 }
 
 
+function create_host_lib_dir()
+{
+    # this is a temporary solution until enough sites have newer versions
+    # of Singularity. Idea for this solution comes from:
+    # https://github.com/singularityware/singularity/blob/master/libexec/cli/action_argparser.sh#L123
+    mkdir -p .host-libs
+    NVLIBLIST=`mktemp ${TMPDIR:-/tmp}/.nvliblist.XXXXXXXX`
+    cat >$NVLIBLIST <<EOF
+libcuda.so
+libEGL_installertest.so
+libEGL_nvidia.so
+libEGL.so
+libGLdispatch.so
+libGLESv1_CM_nvidia.so
+libGLESv1_CM.so
+libGLESv2_nvidia.so
+libGLESv2.so
+libGL.so
+libGLX_installertest.so
+libGLX_nvidia.so
+libglx.so
+libGLX.so
+libnvcuvid.so
+libnvidia-cfg.so
+libnvidia-compiler.so
+libnvidia-eglcore.so
+libnvidia-egl-wayland.so
+libnvidia-encode.so
+libnvidia-fatbinaryloader.so
+libnvidia-fbc.so
+libnvidia-glcore.so
+libnvidia-glsi.so
+libnvidia-gtk2.so
+libnvidia-gtk3.so
+libnvidia-ifr.so
+libnvidia-ml.so
+libnvidia-opencl.so
+libnvidia-ptxjitcompiler.so
+libnvidia-tls.so
+libnvidia-wfb.so
+libOpenCL.so
+libOpenGL.so
+libvdpau_nvidia.so
+nvidia_drv.so
+tls_test_.so
+EOF
+    for TARGET in $(ldconfig -p | grep -f "$NVLIBLIST"); do
+        if [ -f "$TARGET" ]; then
+            BASENAME=`basename $TARGET`
+            # only keep the first one found
+            if [ ! -e "$BASENAME" ]; then
+                cp -L $TARGET .host-libs/
+            fi
+        fi
+    done
+    rm -f $NVLIBLIST
+}
+
+
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
@@ -135,6 +194,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 HOST_LIBS=""
                 if [ -e "/usr/lib64/nvidia" ]; then
                     HOST_LIBS=/usr/lib64/nvidia
+                elif create_host_lib_dir; then
+                    HOST_LIBS=$PWD/.host-libs
                 fi
                 if [ "x$HOST_LIBS" != "x" ]; then
                     OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
