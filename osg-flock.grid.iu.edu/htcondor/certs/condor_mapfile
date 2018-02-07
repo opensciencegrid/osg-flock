@@ -27,10 +27,12 @@ GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=gli
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-001\.t2\.ucsd\.edu" t001
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-004\.t2\.ucsd\.edu" t004
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu\.grid\.iu\.edu$" flocking_iu
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu-itb\.grid\.iu\.edu$" flocking_iu
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=lsst\-glidein\.rcac\.purdue\.edu$" flocking_lsst
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=schedd\/gluex\.phys\.uconn\.edu$" flocking_gluex
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scosg16\.jlab\.org$" flocking_jlab
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=proof\-of\-concept\.scidas\.renci\.org$" flocking_renci
+GSI "^\/DC=org\/DC=incommon\/C=US\/postalCode=13244\/ST=NY\/L=Syracuse\/street=201 Physics Building\/O=Syracuse University\/OU=AS PHY\/CN=sugwg\-scitokens\.phy\.syr\.edu$" flocking_ligo
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=People\/CN\=Mats\ Rynge\ 45.*" rynge
 GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" flocking_donkri
 GSI "^\/C\=US\/O\=Pittsburgh\ Supercomputing\ Center\/CN\=Donald\ Krieger" flocking_donkri
