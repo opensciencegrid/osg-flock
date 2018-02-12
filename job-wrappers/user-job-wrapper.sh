@@ -94,7 +94,7 @@ EOF
         if [ -f "$TARGET" ]; then
             BASENAME=`basename $TARGET`
             # only keep the first one found
-            if [ ! -e "$BASENAME" ]; then
+            if [ ! -e ".host-libs/$BASENAME" ]; then
                 cp -L $TARGET .host-libs/
             fi
         fi
