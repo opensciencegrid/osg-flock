@@ -21,7 +21,8 @@
                                           (isUndefined(MY.RecentJobStarts) || RecentJobStarts &lt; 30) &amp;&amp;
                                           (isUndefined(MY.JobStarts) || JobStarts &lt; 100) &amp;&amp;
                                           (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
-                                          (GLIDEIN_Site =!= "CancerComputer" || stringListMember(TARGET.ProjectName, "SPLINTER,TG-MCB130135,BioGraph", ",")) &amp;&amp;
+                                          (GLIDEIN_ResourceName =!= "CancerComputer_Hotel_CE" || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph", ",")) &amp;&amp;
+                                          (GLIDEIN_ResourceName =!= "CancerComputer_Kitchener_CE" || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135", ",")) &amp;&amp;
                                           (isUndefined(WantsStashCvmfs) ||
                                              !WantsStashCvmfs ||                
                                              isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
@@ -86,7 +87,7 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="300"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="301"/>
       <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="20"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
@@ -311,7 +312,6 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
-                             (GLIDEIN_Site =!= "CancerComputer" || stringListMember(TARGET.ProjectName, "SPLINTER,TG-MCB130135,BioGraph", ",")) &amp;&amp;
                              (GLIDEIN_Site =!= "PuertoRico" || TARGET.ProjectName =!= "TG-IBN130001") &amp;&amp;
                              (GLIDEIN_Site =!= "OSG_US_NDSU_CCAST_CLUSTER3" || TARGET.ProjectName =!= "macsSwigmodels") &amp;&amp;
                              (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
