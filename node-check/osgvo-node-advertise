@@ -499,6 +499,13 @@ advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
 advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 
+# some cpu flags HTCondor is not yet advertising
+for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`; do
+    if (echo "$FLAG" | egrep "avx512") >/dev/null 2>&1; then
+        advertise has_$FLAG "True" "C"
+    fi
+done
+
 # if we are in Singularity, override HTCondor's OsSys* vars with the
 # default container details
 if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
