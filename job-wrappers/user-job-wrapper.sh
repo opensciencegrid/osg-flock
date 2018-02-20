@@ -321,6 +321,12 @@ fi
 
 function setup_stashcp {
   module load stashcp
+
+  # we need xrootd, which is available both in the OSG software stack
+  # as well as modules - use the system one by default
+  if ! which xrdcp >/dev/null 2>&1; then
+      module load xrootd
+  fi
  
   # Determine XRootD plugin directory.
   # in lieu of a MODULE_<name>_BASE from lmod, this will do:
