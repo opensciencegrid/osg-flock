@@ -139,11 +139,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
+    if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
+        echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
+    fi
+
     #############################################################################
     #
     #  Singularity
     #
-    if [ "x$HAS_SINGULARITY" = "x1" -a "x$OSG_SINGULARITY_AUTOLOAD" = "x1" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
+    if [ "x$HAS_SINGULARITY" = "x1" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
 
         # If  image is not provided, load the default one
         # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
