@@ -41,3 +41,4 @@ GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donal
 GSI "^\/C\=US\/O\=Pittsburgh\ Supercomputing\ Center\/CN\=Donald\ Krieger" flocking_donkri
 GSI (.*) anonymous
 FS (.*) \1
+PASSWORD (.*) \1
