@@ -94,6 +94,7 @@
    <groups>
       <group name="gpu" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="45" max="50"/>
@@ -134,6 +135,7 @@
       </group>
       <group name="itb" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="86400"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="1" max="1"/>
@@ -177,6 +179,7 @@
       </group>
       <group name="itb-gpu" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="3600"/>
             <idle_glideins_per_entry max="10" reserve="5"/>
             <idle_vms_per_entry curb="9" max="10"/>
@@ -220,6 +223,7 @@
       </group>
       <group name="itb-xenon1t" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="3600"/>
             <idle_glideins_per_entry max="5" reserve="1"/>
             <idle_vms_per_entry curb="4" max="5"/>
@@ -262,6 +266,7 @@
       </group>
       <group name="largemem" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="10" reserve="5"/>
             <idle_vms_per_entry curb="45" max="50"/>
@@ -301,6 +306,7 @@
       </group>
       <group name="main" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="450" max="500"/>
@@ -348,6 +354,7 @@
       </group>
       <group name="main_fnal_nocerts" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="100" reserve="5"/>
             <idle_vms_per_entry curb="450" max="500"/>
@@ -395,6 +402,7 @@
       </group>
       <group name="main_with_certs" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="30" reserve="5"/>
             <idle_vms_per_entry curb="450" max="500"/>
@@ -435,6 +443,7 @@
       </group>
       <group name="no_osg_vo_support" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="1" max="1"/>
@@ -476,6 +485,7 @@
       </group>
       <group name="sleep" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="45" max="50"/>
@@ -517,6 +527,7 @@
       </group>
       <group name="xenon1t" enabled="True" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="10" reserve="5"/>
             <idle_vms_per_entry curb="4" max="5"/>
@@ -563,6 +574,7 @@
       </group>
       <group name="xenon1t-comet" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="5" reserve="1"/>
             <idle_vms_per_entry curb="90" max="100"/>
@@ -605,6 +617,7 @@
       </group>
       <group name="xenon1t-osgvo" enabled="True">
          <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="5"/>
             <idle_vms_per_entry curb="15" max="20"/>
