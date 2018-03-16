@@ -645,6 +645,21 @@ if [ -e /usr/bin/scp ]; then
 fi
 advertise HAS_SCP "$HAS_SCP" "C"
 
+##################
+# stashcp
+
+# this is a one-shot test
+rm -f test.txt
+STASHCP_VERIFIED="False"
+if [ -e .osgvo.test-results.stashcp ]; then
+    STASHCP_VERIFIED=`cat .osgvo.test-results.stashcp`
+elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/4.3.1/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
+    STASHCP_VERIFIED="True"
+    echo "True" > .osgvo.test-results.stashcp
+else
+    echo "False" > .osgvo.test-results.stashcp
+fi
+advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
 ##################
 # guc
