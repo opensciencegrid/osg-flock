@@ -141,6 +141,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
         echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
+        export OSG_SINGULARITY_AUTOLOAD=0
     fi
 
     #############################################################################

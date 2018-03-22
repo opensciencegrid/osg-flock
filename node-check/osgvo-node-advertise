@@ -776,9 +776,9 @@ for LIB in \
     advertise $ATTR "$HAS_LIB" "C"
 done
 
-if (rpm -qa | egrep 'glib2-2\.28') >/dev/null 2>&1; then
-    advertise HAS_GLIB2_228 "True" "C"
-fi
+#if (rpm -qa | egrep 'glib2-2\.28') >/dev/null 2>&1; then
+#    advertise HAS_GLIB2_228 "True" "C"
+#fi
 
 
 ##################
