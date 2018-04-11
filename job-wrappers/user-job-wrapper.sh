@@ -241,8 +241,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
                                    --pwd /srv \
-                                   --scratch /var/tmp \
-                                   --scratch /tmp \
                                    --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
