@@ -138,6 +138,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        ams.cern.ch \
        atlas.cern.ch \
        cms.cern.ch \
+       connect.opensciencegrid.org \
        icecube.opensciencegrid.org \
        oasis.opensciencegrid.org \
        singularity.opensciencegrid.org \
@@ -324,12 +325,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     # in the execing, like:
     # ERROR  : Could not identify basedir for home directory path: /
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --scratch /var/tmp --scratch /tmp --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
         if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
                                          --bind /cvmfs \
                                          --pwd /srv \
-                                         --scratch /var/tmp \
-                                         --scratch /tmp \
                                          --contain --ipc --pid \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          echo "Hello World" \
@@ -343,12 +342,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     # also verify that the env is inherited correctly
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --scratch /var/tmp --scratch /tmp --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
+        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
         if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
                                          --bind /cvmfs \
                                          --pwd /srv \
-                                         --scratch /var/tmp \
-                                         --scratch /tmp \
                                          --contain --ipc --pid \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          env \
@@ -387,12 +384,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv --bind /cvmfs --pwd /srv --scratch /var/tmp --scratch /tmp --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv --bind /cvmfs --pwd /srv --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
         if $OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv \
                                       --bind /cvmfs \
                                       --pwd /srv \
-                                      --scratch /var/tmp \
-                                      --scratch /tmp \
                                       --contain --ipc --pid \
                                       "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                       $CMD \
@@ -498,6 +493,13 @@ advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 # cpu info
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
 advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
+
+# some cpu flags HTCondor is not yet advertising
+for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`; do
+    if (echo "$FLAG" | egrep "avx512") >/dev/null 2>&1; then
+        advertise has_$FLAG "True" "C"
+    fi
+done
 
 # if we are in Singularity, override HTCondor's OsSys* vars with the
 # default container details
@@ -637,6 +639,21 @@ if [ -e /usr/bin/scp ]; then
 fi
 advertise HAS_SCP "$HAS_SCP" "C"
 
+##################
+# stashcp
+
+# this is a one-shot test
+rm -f test.txt
+STASHCP_VERIFIED="False"
+if [ -e .osgvo.test-results.stashcp ]; then
+    STASHCP_VERIFIED=`cat .osgvo.test-results.stashcp`
+elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/4.3.1/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
+    STASHCP_VERIFIED="True"
+    echo "True" > .osgvo.test-results.stashcp
+else
+    echo "False" > .osgvo.test-results.stashcp
+fi
+advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
 ##################
 # guc
@@ -753,7 +770,8 @@ for LIB in \
     advertise $ATTR "$HAS_LIB" "C"
 done
 
-if (rpm -qa | egrep 'glib2-2\.28') >/dev/null 2>&1; then
+# need a better way to figure this one out
+if [ -e /usr/share/doc/glib2-2.28.8 ]; then
     advertise HAS_GLIB2_228 "True" "C"
 fi
 

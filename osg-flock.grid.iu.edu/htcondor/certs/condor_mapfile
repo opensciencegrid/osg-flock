@@ -21,6 +21,7 @@ GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=log
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login\.cms\.ci\-connect\.net$" flocking_osgconnect
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=amundsen\.grid\.uchicago\.edu$" flocking_spt
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scott\.grid\.uchicago\.edu$" flocking_spt
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=glidein-1\.sbgrid\.org$" flocking_sbgrid
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=submit\.mit\.edu$" flocking_mit
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=otsgrid\.iit\.edu$" flocking_iit
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=glide\.bakerlab\.org$" flocking_bakerlab
@@ -31,10 +32,14 @@ GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csi
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=lsst\-glidein\.rcac\.purdue\.edu$" flocking_lsst
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=schedd\/gluex\.phys\.uconn\.edu$" flocking_gluex
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scosg16\.jlab\.org$" flocking_jlab
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=rocinante\.cyverse\.org$" flocking_cyverse
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=proof\-of\-concept\.scidas\.renci\.org$" flocking_renci
 GSI "^\/DC=org\/DC=incommon\/C=US\/postalCode=13244\/ST=NY\/L=Syracuse\/street=201 Physics Building\/O=Syracuse University\/OU=AS PHY\/CN=sugwg\-scitokens\.phy\.syr\.edu$" flocking_ligo
+GSI "^\/DC=org\/DC=incommon\/C=US\/postalCode=13244\/ST=NY\/L=Syracuse\/street=201 Physics Building\/O=Syracuse University\/OU=AS PHY\/CN=sugwg\-condor\.phy\.syr\.edu$" flocking_ligo
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN=sugwg\-osg\.phy\.syr\.edu$" flocking_ligo
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=People\/CN\=Mats\ Rynge\ 45.*" rynge
 GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" flocking_donkri
 GSI "^\/C\=US\/O\=Pittsburgh\ Supercomputing\ Center\/CN\=Donald\ Krieger" flocking_donkri
 GSI (.*) anonymous
 FS (.*) \1
+PASSWORD (.*) \1

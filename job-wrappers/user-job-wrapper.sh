@@ -94,7 +94,7 @@ EOF
         if [ -f "$TARGET" ]; then
             BASENAME=`basename $TARGET`
             # only keep the first one found
-            if [ ! -e "$BASENAME" ]; then
+            if [ ! -e ".host-libs/$BASENAME" ]; then
                 cp -L $TARGET .host-libs/
             fi
         fi
@@ -139,11 +139,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
+    if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
+        echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
+        export OSG_SINGULARITY_AUTOLOAD=0
+    fi
+
     #############################################################################
     #
     #  Singularity
     #
-    if [ "x$HAS_SINGULARITY" = "x1" -a "x$OSG_SINGULARITY_AUTOLOAD" = "x1" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
+    if [ "x$HAS_SINGULARITY" = "x1" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
 
         # If  image is not provided, load the default one
         # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
@@ -236,8 +241,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --home $PWD:/srv \
                                    --pwd /srv \
-                                   --scratch /var/tmp \
-                                   --scratch /tmp \
                                    --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
@@ -321,6 +324,12 @@ fi
 
 function setup_stashcp {
   module load stashcp
+
+  # we need xrootd, which is available both in the OSG software stack
+  # as well as modules - use the system one by default
+  if ! which xrdcp >/dev/null 2>&1; then
+      module load xrootd
+  fi
  
   # Determine XRootD plugin directory.
   # in lieu of a MODULE_<name>_BASE from lmod, this will do:
