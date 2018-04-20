@@ -320,17 +320,22 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
         
-	OSG_SINGULARITY_EXTRA_OPTS="--pwd /srv --bind /cvmfs"
+    OSG_SINGULARITY_EXTRA_OPTS="--pwd /srv --bind /cvmfs"
         
-	# Binding different mounts
-    if [ -e /hadoop/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/hadoop ]; then
-        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hadoop"
-    fi
-    if [ -e /hdfs/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/hdfs ]; then
-        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hdfs"
-    fi
+    # Binding different mounts
+    for MNTPOINT in \
+        /hadoop \
+        /hdfs \
+        /lizard \
+        /mnt/hadoop \
+        /mnt/hdfs \
+    ; do
+        if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/$MNTPOINT ]; then
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
+        fi
+    done
 
-	OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain --ipc --pid"
+    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain --ipc --pid"
 
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
@@ -394,7 +399,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         export OSG_SINGULARITY_REEXEC=1
         info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
         if $OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv \
-			                          $OSG_SINGULARITY_EXTRA_OPTS \
+                                      $OSG_SINGULARITY_EXTRA_OPTS \
                                       "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                       $CMD \
         ; then

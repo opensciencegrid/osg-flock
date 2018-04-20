@@ -194,12 +194,17 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # Binding different mounts
-        if [ -e /hadoop/. -a -e $OSG_SINGULARITY_IMAGE/hadoop ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hadoop"
-        fi
-        if [ -e /hdfs/. -a -e $OSG_SINGULARITY_IMAGE/hdfs ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hdfs"
-        fi
+        for MNTPOINT in \
+            /hadoop \
+            /hdfs \
+            /lizard \
+            /mnt/hadoop \
+            /mnt/hdfs \
+        ; do
+            if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE/$MNTPOINT ]; then
+                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
+            fi
+        done
 
         # GPUs - bind outside GPU library directory to inside /host-libs
         if [ $OSG_MACHINE_GPUS -gt 0 ]; then
