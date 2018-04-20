@@ -147,6 +147,7 @@
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr="(TARGET.ITB_Sites =?= True)">
             <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)  &amp;&amp; GLIDEIN_Site=!="Comet"'>
                <match_attrs>
+                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                   <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
@@ -154,6 +155,7 @@
             </factory>
             <job query_expr="(ITB_Sites =?= True)">
                <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
                </schedds>
