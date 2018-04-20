@@ -6,7 +6,6 @@ GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=
 GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=xd\-login\.opensciencegrid\.org$" osg_xsede
 GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=osg\-vo\.isi\.edu$" isi
 GSI "^\/DC\=org\/DC\=opensciencegrid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=workflow\.isi\.edu$" flocking_workflow
-GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open\ Science\ Grid\/OU\=Services\/CN\=submit1\.bioinformatics\.vt\.edu$" flocking_vt
 GSI "^\/DC\=org\/DC\=incommon\/C\=US\/postalCode\=78711\/ST\=TX\/L\=Austin\/street\=1\ University\ Station\/O\=The\ University\ of\ Texas\ at\ Austin\/OU\=TACC\ \-\ Texas\ Advanced\ Computing\ Center\/CN\=iplant\-condor\.tacc\.utexas\.edu$" flocking_iplant
 GSI "^\/DC\=org\/DC\=incommon\/C\=US\/postalCode\=78711\/ST\=TX\/L\=Austin\/street\=1\ University\ Station\/O\=The\ University\ of\ Texas\ at\ Austin\/OU\=TACC\ \-\ Texas\ Advanced\ Computing\ Center\/CN\=iplant\-condor\-iu\.tacc\.utexas\.edu$" flocking_iplant
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=login01\.osgconnect\.net$" flocking_osgconnect
