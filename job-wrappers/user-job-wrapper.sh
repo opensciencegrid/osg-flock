@@ -192,7 +192,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
         fi
-        
+
+        # Binding different mounts
+        if [ -e /hadoop/. -a -e $OSG_SINGULARITY_IMAGE/hadoop ]; then
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hadoop"
+        fi
+        if [ -e /hdfs/. -a -e $OSG_SINGULARITY_IMAGE/hdfs ]; then
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hdfs"
+        fi
+
         # GPUs - bind outside GPU library directory to inside /host-libs
         if [ $OSG_MACHINE_GPUS -gt 0 ]; then
             if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then

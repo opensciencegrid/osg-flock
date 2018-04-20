@@ -319,17 +319,27 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
         HAS_SINGULARITY="False"
     fi
+        
+	OSG_SINGULARITY_EXTRA_OPTS="--pwd /srv --bind /cvmfs"
+        
+	# Binding different mounts
+    if [ -e /hadoop/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/hadoop ]; then
+        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hadoop"
+    fi
+    if [ -e /hdfs/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/hdfs ]; then
+        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hdfs"
+    fi
+
+	OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain --ipc --pid"
 
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
     # in the execing, like:
     # ERROR  : Could not identify basedir for home directory path: /
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
         if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
-                                         --bind /cvmfs \
-                                         --pwd /srv \
-                                         --contain --ipc --pid \
+                                         $OSG_SINGULARITY_EXTRA_OPTS \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          echo "Hello World" \
                                          | grep "Hello World") 1>&2 \
@@ -342,11 +352,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     # also verify that the env is inherited correctly
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv --bind /cvmfs --pwd /srv --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
+        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
         if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
-                                         --bind /cvmfs \
-                                         --pwd /srv \
-                                         --contain --ipc --pid \
+                                         $OSG_SINGULARITY_EXTRA_OPTS \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          env \
                                          | grep OSG_SINGULARITY_IMAGE_DEFAULT) 1>&2 \
@@ -384,11 +392,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv --bind /cvmfs --pwd /srv --contain --ipc --pid $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
         if $OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv \
-                                      --bind /cvmfs \
-                                      --pwd /srv \
-                                      --contain --ipc --pid \
+			                          $OSG_SINGULARITY_EXTRA_OPTS \
                                       "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                       $CMD \
         ; then
