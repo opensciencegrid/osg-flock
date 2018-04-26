@@ -194,12 +194,17 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # Binding different mounts
-        if [ -e /hadoop/. -a -e $OSG_SINGULARITY_IMAGE/hadoop ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hadoop"
-        fi
-        if [ -e /hdfs/. -a -e $OSG_SINGULARITY_IMAGE/hdfs ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /hdfs"
-        fi
+        for MNTPOINT in \
+            /hadoop \
+            /hdfs \
+            /lizard \
+            /mnt/hadoop \
+            /mnt/hdfs \
+        ; do
+            if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE/$MNTPOINT ]; then
+                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
+            fi
+        done
 
         # GPUs - bind outside GPU library directory to inside /host-libs
         if [ $OSG_MACHINE_GPUS -gt 0 ]; then
@@ -261,8 +266,8 @@ else
     unset TMPDIR
     unset TEMP
     unset X509_CERT_DIR
-    for key in AUTHTOKEN X509_USER_PROXY X509_USER_CERT \
-               _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
+    for key in X509_USER_PROXY X509_USER_CERT \
+               _CONDOR_CREDS _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
                _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
                OSG_WN_TMP ; do
         eval val="\$$key"
