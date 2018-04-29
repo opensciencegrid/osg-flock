@@ -130,6 +130,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs 1)
 
     export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
+    export STASHCACHE_WRITABLE=$(getPropBool $_CONDOR_JOB_AD WantsStashCacheWritable 0)
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
@@ -364,8 +365,13 @@ if [ "x$POSIXSTASHCACHE" = "x1" ]; then
   # Currently this points _ONLY_ to the OSG Connect source server
   export XROOTD_VMP=$(stashcp --closest | cut -d'/' -f3):/stash=/
  
-elif [ "x$STASHCACHE" = 'x1' ]; then
+elif [ "x$STASHCACHE" = "x1" ]; then
   setup_stashcp
+fi
+
+if [ "x$STASHCACHE_WRITABLE" = "x1" ]; then
+  setup_stashcp
+  export PATH=/cvmfs/oasis.opensciencegrid.org/osg/projects/stashcp/writeback:$PATH
 fi
 
 
