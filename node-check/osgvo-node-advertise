@@ -302,7 +302,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
     if [ "x$OSG_SINGULARITY_EL7_PERCENT" = "x" ]; then
         # default if not specified in the config
-        export OSG_SINGULARITY_EL7_PERCENT=50
+        export OSG_SINGULARITY_EL7_PERCENT=0
     fi
     if [ ! -e .osgvo-default-singularity-image ]; then
         let "rand = $RANDOM % 100 + 1"
