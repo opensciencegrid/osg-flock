@@ -168,9 +168,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 if ! cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
                     REV_VAL=""
                 fi
-                if ! cat /cvmfs/stash.osgstorage.org/user/eharstad/public/blast_database/nt.fa.nsq >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
             fi
             
             # veritas.opensciencegrid.org
