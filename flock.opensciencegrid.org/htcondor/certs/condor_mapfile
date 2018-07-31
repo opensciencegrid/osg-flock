@@ -31,6 +31,7 @@ GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csi
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu-itb\.grid\.iu\.edu$" flocking_iu
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=lsst\-glidein\.rcac\.purdue\.edu$" flocking_lsst
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=schedd\/gluex\.phys\.uconn\.edu$" flocking_gluex
+GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=pcf\-osg\.t2\.ucsd\.edu$" flocking_ucsd
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scosg16\.jlab\.org$" flocking_jlab
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=scigrid1\.physics\.fsu\.edu$" flocking_gluex_fsu
 GSI "^/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=aragon\.cyverse\.org$" flocking_cyverse

@@ -39,6 +39,7 @@
          <match_attrs>
          </match_attrs>
          <schedds>
+	    <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=pcf-osg.t2.ucsd.edu" fullname="pcf-osg.t2.ucsd.edu"/>
 	    <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=schedd/gluex.phys.uconn.edu" fullname="gluex.phys.uconn.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scosg16.jlab.org" fullname="scosg16.jlab.org"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scigrid1.physics.fsu.edu" fullname ="scigrid1.physics.fsu.edu"/>
