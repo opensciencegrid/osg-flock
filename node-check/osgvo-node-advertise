@@ -621,6 +621,8 @@ else
               if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
                   RESULT="True"
                   echo "True" > .osgvo.test-results.modules
+              else
+                  echo "False" > .osgvo.test-results.modules
               fi
           fi
       fi
