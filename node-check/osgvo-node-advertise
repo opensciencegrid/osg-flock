@@ -174,7 +174,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 fi
             fi
 
-
             # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
                 if ! cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
