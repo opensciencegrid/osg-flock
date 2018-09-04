@@ -163,6 +163,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             # add the revision
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
             REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            
+            # oasis.opensciencegrid.org needs extra checks
+            if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
+                if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+                if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+            fi
 
             # oasis.opensciencegrid.org needs extra checks
             if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
@@ -610,16 +620,23 @@ rm -f csh.test
 
 # modules
 RESULT="False"
-# extra check to make sure we can read a file
-if cat /cvmfs/oasis.opensciencegrid.org/osg/README.txt >/dev/null 2>&1; then
-    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
-        if (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail) >/dev/null 2>&1; then
-            # also make sure module avail is not throwing a stack trace
-            if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
-                RESULT="True"
-            fi
-        fi
-    fi
+if [ -e .osgvo.test-results.modules ]; then
+    RESULT=`cat .osgvo.test-results.modules`
+else
+   # extra check to make sure we can read a file
+   if cat /cvmfs/oasis.opensciencegrid.org/osg/README.txt >/dev/null 2>&1; then
+      if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+          if (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail) >/dev/null 2>&1; then
+              # also make sure module avail is not throwing a stack trace
+              if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
+                  RESULT="True"
+                  echo "True" > .osgvo.test-results.modules
+              else
+                  echo "False" > .osgvo.test-results.modules
+              fi
+          fi
+      fi
+   fi
 fi
 advertise HAS_MODULES "$RESULT" "C"
 
