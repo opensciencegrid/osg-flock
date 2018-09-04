@@ -163,6 +163,17 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             # add the revision
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
             REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            
+            # oasis.opensciencegrid.org needs extra checks
+            if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
+                if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+                if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+            fi
+
 
             # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
