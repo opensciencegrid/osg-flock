@@ -337,7 +337,7 @@ fi
 #
 
 function setup_stashcp {
-  module load stashcp
+  module load stashcp || module load stashcache
 
   # we need xrootd, which is available both in the OSG software stack
   # as well as modules - use the system one by default
@@ -365,13 +365,8 @@ if [ "x$POSIXSTASHCACHE" = "x1" ]; then
   # Currently this points _ONLY_ to the OSG Connect source server
   export XROOTD_VMP=$(stashcp --closest | cut -d'/' -f3):/stash=/
  
-elif [ "x$STASHCACHE" = "x1" ]; then
+elif [ "x$STASHCACHE" = "x1" -o "x$STASHCACHE_WRITABLE" = "x1" ]; then
   setup_stashcp
-fi
-
-if [ "x$STASHCACHE_WRITABLE" = "x1" ]; then
-  setup_stashcp
-  export PATH=/cvmfs/oasis.opensciencegrid.org/osg/projects/stashcp/writeback:$PATH
 fi
 
 
