@@ -27,7 +27,7 @@ GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=ots
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=glide\.bakerlab\.org$" flocking_bakerlab
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-001\.t2\.ucsd\.edu" t001
 GSI "^\/DC\=com\/DC\=DigiCert\-Grid\/O\=Open Science Grid\/OU\=Services\/CN\=test\-004\.t2\.ucsd\.edu" t004
-GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu\.grid\.iu\.edu$" flocking_iu
+GSI "^\/C=US\/postalCode=47405\/ST=Indiana\/L=Bloomington/street=107 South Indiana Ave\/O=Indiana University\/OU=UITS\/CN=csiu\.grid\.iu\.edu$" flocking_iu
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=csiu-itb\.grid\.iu\.edu$" flocking_iu
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=lsst\-glidein\.rcac\.purdue\.edu$" flocking_lsst
 GSI "^\/DC\=org\/DC=opensciencegrid\/O\=Open Science Grid\/OU\=Services\/CN\=schedd\/gluex\.phys\.uconn\.edu$" flocking_gluex
