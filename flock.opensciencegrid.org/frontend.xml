@@ -42,7 +42,7 @@
 	    <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=schedd/gluex.phys.uconn.edu" fullname="gluex.phys.uconn.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scosg16.jlab.org" fullname="scosg16.jlab.org"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scigrid1.physics.fsu.edu" fullname ="scigrid1.physics.fsu.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu.grid.iu.edu" fullname="csiu.grid.iu.edu"/>
+            <schedd DN="/C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=UITS/CN=csiu.grid.iu.edu" fullname="csiu.grid.iu.edu"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=duke-login.osgconnect.net" fullname="duke-login.osgconnect.net"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-1.sbgrid.org" fullname="glidein-1.sbgrid.org"/>
             <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/>
