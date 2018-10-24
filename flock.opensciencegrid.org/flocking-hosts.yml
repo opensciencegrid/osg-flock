@@ -33,7 +33,7 @@ workflow.isi.edu:
 csiu.grid.iu.edu:
   admin: Rob Quick <rquick@iu.edu>
   site: IU
-  dn: /C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=UITS/CN=csiu.grid.iu.edu
+  dn: /DC=org/DC=incommon/C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=Open Science Grid Operations Center/CN=csiu.grid.iu.edu
 
 #csiu-itb.grid.iu.edu:
 #  admin: Rob Quick <rquick@iu.edu>
