@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Edgar M Fajardo Hernandez
+# Mats Rynge
+
+glidein_config="$1"
+
+# set $rc to non-zero in case of failure, and append to $err
+rc=0
+err=""
+
+vsize=`ulimit -Sv`
+if [ $vsize == "unlimited" ]; then
+  echo "OK:  Vsize unlimited"
+elif [ $vsize -le 3000000 ]; then
+  echo "ERR: ulimit -sV less than 3000000"
+  rc=1
+  err="$err -- ulimit -sV less than 3000000."
+fi
+
+# Bad ulimits (for example -s 16000000) can prevent new threads from
+# being created. Test this with a piece of python code
+cat >thread-test.py <<EOF
+#!/usr/bin/python
+import thread
+thread.start_new(lambda: None, ())
+EOF
+chmod 755 thread-test.py
+if ./thread-test.py; then
+    echo "OK:  Python thread test of stack size"
+else
+    echo "ERR: Unable to create a new Python thread. Check stack size ulimit"
+    err="$err --  Unable to create a new Python thread. Check stack size ulimit."
+    rc=1
+fi
+rm -f thread-test.py
+
+# find error reporting helper script
+error_gen=`grep '^ERROR_GEN_PATH ' $glidein_config | awk '{print $2}'`
+
+if [ $rc != 0 ]; then
+    "$error_gen" -error "ulimits" "ulimits are not appropriate" "$err" 
+else
+    "$error_gen" -ok "ulimits" 
+fi
+
+
+exit $rc
+
+
