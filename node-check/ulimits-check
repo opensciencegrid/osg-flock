@@ -9,13 +9,22 @@ glidein_config="$1"
 rc=0
 err=""
 
+echo
+echo "Soft ulimits:"
+ulimit -a -S
+
+echo
+echo "Hard ulimits:"
+ulimit -a -H
+
+echo
 vsize=`ulimit -Sv`
 if [ $vsize == "unlimited" ]; then
   echo "OK:  Vsize unlimited"
-elif [ $vsize -le 3000000 ]; then
-  echo "ERR: ulimit -sV less than 3000000"
+elif [ $vsize -le 2000000 ]; then
+  echo "ERR: ulimit -sV less than 2000000"
   rc=1
-  err="$err -- ulimit -sV less than 3000000."
+  err="$err -- ulimit -sV less than 2000000."
 fi
 
 # Bad ulimits (for example -s 16000000) can prevent new threads from
@@ -43,7 +52,6 @@ if [ $rc != 0 ]; then
 else
     "$error_gen" -ok "ulimits" 
 fi
-
 
 exit $rc
 
