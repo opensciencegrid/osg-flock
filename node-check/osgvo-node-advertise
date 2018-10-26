@@ -684,7 +684,7 @@ rm -f test.txt
 STASHCP_VERIFIED="False"
 if [ -e .osgvo.test-results.stashcp ]; then
     STASHCP_VERIFIED=`cat .osgvo.test-results.stashcp`
-elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/4.3.1/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
+elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > .osgvo.test-results.stashcp
 else
