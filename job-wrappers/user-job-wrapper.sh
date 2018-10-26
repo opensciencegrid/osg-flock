@@ -337,12 +337,13 @@ fi
 #
 
 function setup_stashcp {
-  module load stashcp || module load stashcache
+  # keep the user job output clean
+  module load stashcache >/dev/null 2>&1 || module load stashcp >/dev/null 2>&1
 
   # we need xrootd, which is available both in the OSG software stack
   # as well as modules - use the system one by default
   if ! which xrdcp >/dev/null 2>&1; then
-      module load xrootd
+      module load xrootd >/dev/null 2>&1
   fi
  
   # Determine XRootD plugin directory.
