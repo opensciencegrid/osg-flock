@@ -134,6 +134,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
+    export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
     export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
@@ -313,13 +314,15 @@ if [ -e ../../main/condor/libexec ]; then
 fi
 
 # load modules, if available
-if [ "x$LMOD_BETA" = "x1" ]; then
-    # used for testing the new el6/el7 modules 
-    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
-        . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
+if [ "x$InitializeModulesEnv" = "x1" ]; then
+    if [ "x$LMOD_BETA" = "x1" ]; then
+        # used for testing the new el6/el7 modules 
+        if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
+            . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
+        fi
+    elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+        . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
     fi
-elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
-    . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
 fi
 
 
