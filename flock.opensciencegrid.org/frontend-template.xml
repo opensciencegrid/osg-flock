@@ -121,7 +121,7 @@
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
-                   <collector DN="/DC=ch/DC=cern/OU=computers/CN=vocms0202.cern.ch" factory_identity="gfactory@vocms0202.cern.ch" my_identity="feosgflock@vocms0204.cern.ch" node="vocms0202.cern.ch"/>
+                   <collector DN="/DC=ch/DC=cern/OU=computers/CN=vocms0202.cern.ch" factory_identity="gfactory@vocms0202.cern.ch" my_identity="feosgflock@vocms0202.cern.ch" node="vocms0202.cern.ch"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True)">
