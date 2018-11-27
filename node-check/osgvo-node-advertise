@@ -640,6 +640,7 @@ rm -f csh.test
 
 # modules
 RESULT="False"
+find . -maxdepth 1 -name .osgvo.test-results.modules -mmin +8 -exec rm {} \;
 if [ -e .osgvo.test-results.modules ]; then
     RESULT=`cat .osgvo.test-results.modules`
 else
