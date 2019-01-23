@@ -241,6 +241,12 @@ descmp3.cosmology.illinois.edu:
   admin: Greg Daues <daues@illinois.edu>
   site: NCSA
 
+### UCI Atlas ###
+uclhc-1.ps.uci.edu:
+  admin: Edgar Fajardo <emfajard@ucsd.edu>
+  site: UCI
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=uclhc-1.ps.uci.edu
+
 # not sure about these:
 
 ### FLOCK_FROM = $(FLOCK_FROM) scigrid1.physics.fsu.edu
