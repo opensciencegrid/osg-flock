@@ -131,6 +131,19 @@ export GLIDEIN_VALIDATION_WARNINGS=""
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
+    # we need the "outside" kernel version to be able to steer
+    # singularity jobs to kernel/glibcs which are not too old
+    VER=`uname -r | sed 's/-.*//'`
+    MAJ=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\1/'`
+    MIN=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\2/'`
+    PATCH=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\3/'`
+    VER=$(( 10000 * $MAJ + 100 * $MIN + $PATCH ))
+    if [ "x$VER" != "x" ]; then
+        if [ $VER -gt 10000 ]; then
+            advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
+        fi
+    fi
+
     ##################
     # cvmfs filesystem availability
     info "Checking for CVMFS availability and attributes..."
@@ -164,6 +177,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
             REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
             
+            # oasis.opensciencegrid.org needs extra checks
+            if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
+                if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+                if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
+                    REV_VAL=""
+                fi
+            fi
+
             # oasis.opensciencegrid.org needs extra checks
             if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
                 if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
@@ -505,6 +528,12 @@ if [ "x$OS_KERNEL" = "x" ]; then
     OS_KERNEL="Unknown"
 fi
 
+advertise OSG_OS_NAME "$OS_NAME" "S"
+advertise OSG_OS_VERSION "$OS_VERSION" "S"
+advertise OSG_OS_STRING "$OS_NAME $OS_VERSION" "S"
+advertise OSG_OS_KERNEL "$OS_KERNEL" "S"
+
+# deprecated names
 advertise OSGVO_OS_NAME "$OS_NAME" "S"
 advertise OSGVO_OS_VERSION "$OS_VERSION" "S"
 advertise OSGVO_OS_STRING "$OS_NAME $OS_VERSION" "S"
@@ -512,6 +541,7 @@ advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 
 # cpu info
 CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
+advertise OSG_CPU_MODEL "$CPU_MODEL" "S"
 advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 
 # some cpu flags HTCondor is not yet advertising
@@ -610,6 +640,7 @@ rm -f csh.test
 
 # modules
 RESULT="False"
+find . -maxdepth 1 -name .osgvo.test-results.modules -mmin +8 -exec rm {} \;
 if [ -e .osgvo.test-results.modules ]; then
     RESULT=`cat .osgvo.test-results.modules`
 else
@@ -674,7 +705,7 @@ rm -f test.txt
 STASHCP_VERIFIED="False"
 if [ -e .osgvo.test-results.stashcp ]; then
     STASHCP_VERIFIED=`cat .osgvo.test-results.stashcp`
-elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/4.3.1/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
+elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > .osgvo.test-results.stashcp
 else

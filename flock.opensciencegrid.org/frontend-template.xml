@@ -2,8 +2,8 @@
    <config>
       <idle_vms_total curb="2000" max="2500"/>
       <idle_vms_total_global curb="2000" max="2500"/>
-      <running_glideins_total curb="28000" max="30000"/>
-      <running_glideins_total_global curb="28000" max="30000"/>
+      <running_glideins_total curb="38000" max="40000"/>
+      <running_glideins_total_global curb="38000" max="40000"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -20,8 +20,7 @@
                                           (isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
                                           (isUndefined(MY.RecentJobStarts) || RecentJobStarts &lt; 100) &amp;&amp;
                                           (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
-                                          (GLIDEIN_ResourceName =!= "CancerComputer_Hotel_CE" || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph", ",")) &amp;&amp;
-                                          (GLIDEIN_ResourceName =!= "CancerComputer_Kitchener_CE" || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135", ",")) &amp;&amp;
+                                          (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio", ",")) &amp;&amp;
                                           (isUndefined(WantsStashCvmfs) ||
                                              !WantsStashCvmfs ||                
                                              isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
@@ -39,38 +38,7 @@
          <match_attrs>
          </match_attrs>
          <schedds>
-	    <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=pcf-osg.t2.ucsd.edu" fullname="pcf-osg.t2.ucsd.edu"/>
-	    <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=schedd/gluex.phys.uconn.edu" fullname="gluex.phys.uconn.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scosg16.jlab.org" fullname="scosg16.jlab.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scigrid1.physics.fsu.edu" fullname ="scigrid1.physics.fsu.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu.grid.iu.edu" fullname="csiu.grid.iu.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=duke-login.osgconnect.net" fullname="duke-login.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-1.sbgrid.org" fullname="glidein-1.sbgrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="login01.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="Q1@login01.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="Q2@login01.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="Q3@login01.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="Q4@login01.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net" fullname="Q5@login01.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="login02.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="Q1@login02.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="Q2@login02.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="Q3@login02.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="Q4@login02.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net" fullname="Q5@login02.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login03.osgconnect.net" fullname="login03.osgconnect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.ci-connect.uchicago.edu" fullname="login.ci-connect.uchicago.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.xenon.ci-connect.net" fullname="login.xenon.ci-connect.net"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=lsst-glidein.rcac.purdue.edu" fullname="lsst-glidein.rcac.purdue.edu"/>
-            <schedd DN="/DC=org/DC=incommon/C=US/postalCode=53706/ST=WI/L=Madison/street=1210 West Dayton Street/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" fullname="flock.opensciencegrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=osg-vo.isi.edu" fullname="osg-vo.isi.edu"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu" fullname="SUBMIT.MIT.EDU"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q1@xd-login.opensciencegrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q2@xd-login.opensciencegrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q3@xd-login.opensciencegrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q4@xd-login.opensciencegrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="Q5@xd-login.opensciencegrid.org"/>
-            <schedd DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org" fullname="xd-login.opensciencegrid.org"/>
+           {{{schedd_blob}}}
          </schedds>
       </job>
    </match>
@@ -89,8 +57,8 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="332"/>
-      <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="50"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="353"/>
+      <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="90"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
@@ -136,7 +104,7 @@
             <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
-      <group name="itb" enabled="False">
+      <group name="itb" enabled="True">
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="86400"/>
@@ -148,12 +116,12 @@
             <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr="(TARGET.ITB_Sites =?= True)">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)  &amp;&amp; GLIDEIN_Site=!="Comet"'>
+            <factory query_expr='FactoryType == "CERN-ITB-Dev" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)  &amp;&amp; GLIDEIN_Site=!="Comet"'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
-                  <collector DN="/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-itb.grid.iu.edu" factory_identity="gfactory@glidein-itb.grid.iu.edu" my_identity="feosgflock@glidein-itb.grid.iu.edu" node="glidein-itb.grid.iu.edu"/>
+                   <collector DN="/DC=ch/DC=cern/OU=computers/CN=vocms0202.cern.ch" factory_identity="gfactory@vocms0202.cern.ch" my_identity="feosgflock@vocms0202.cern.ch" node="vocms0202.cern.ch"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True)">
@@ -313,7 +281,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="1"/>
+            <idle_glideins_per_entry max="100" reserve="1"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="1900" max="2000"/>
             <processing_workers matchmakers="3"/>
@@ -322,13 +290,14 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
-                             (GLIDEIN_Site =!= "PuertoRico" || TARGET.ProjectName =!= "TG-IBN130001") &amp;&amp;
-                             (GLIDEIN_Site =!= "OSG_US_NDSU_CCAST_CLUSTER3" || TARGET.ProjectName =!= "macsSwigmodels") &amp;&amp;
-                             (GLIDEIN_Site =!= "OSG_US_GSU_ACORE" || TARGET.ProjectName =!= "TG-IBN130001") &amp;&amp;
                              (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
                              (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
+                                 !StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_US_UUTAH_EMBER,OSG_US_UUTAH_KINGSPEAK,OSG_US_UUTAH_LONEPEAK") &amp;&amp;
+                                 (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
+                                 (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
@@ -358,11 +327,61 @@
             <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
-      <group name="main_fnal_nocerts" enabled="True">
+      <group name="main_timeout" enabled="True">
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="1"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="15" max="20"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="950" max="1000"/>
+         </config>
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+                start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                             (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
+                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                             (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
+                                 StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_US_UUTAH_EMBER,OSG_US_UUTAH_KINGSPEAK,OSG_US_UUTAH_LONEPEAK") &amp;&amp;
+                                 (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
+                                 (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
+               <match_attrs>
+                  <match_attr name="GLIDEIN_Site" type="string"/>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+               <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
+               </match_attrs>
+               <schedds>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
+         </files>
+      </group>
+      <group name="main_fnal" enabled="True">
+         <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="150" reserve="1"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="1900" max="2000"/>
             <processing_workers matchmakers="3"/>
@@ -372,10 +391,11 @@
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                              (TARGET.SleepSlot=!=True) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                             (MY.HAS_SINGULARITY =?= True) &amp;&amp;
                              (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
                              isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp;
                              (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
-                             isUndefined(x509userproxysubject) &amp;&amp; (regexp("xd-login.opensciencegrid.org", User) || regexp("csiu.grid.iu.edu", User) || regexp("ci-connect.net", User) || regexp("uchicago.edu", User)))'>
+                             (regexp("xd-login.opensciencegrid.org", User) || regexp("csiu.grid.iu.edu", User) || regexp("ci-connect.net", User) || regexp("uchicago.edu", User)))'>
             <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "False") &amp;&amp; (GLIDEIN_REQUIRE_GLEXEC_USE =?= "False") &amp;&amp; ( (GLIDEIN_ResourceName =?= "FNAL_FERMIGRID") || (GLIDEIN_ResourceName =?= "GPGrid") || (GLIDEIN_ResourceName =?= "USCMS-FNAL-WC1") )'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -400,47 +420,6 @@
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-         </attrs>
-         <files>
-            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
-            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
-         </files>
-      </group>
-      <group name="main_with_certs" enabled="True">
-         <config>
-            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
-            <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="1"/>
-            <idle_vms_per_entry curb="450" max="500"/>
-            <idle_vms_total curb="900" max="1000"/>
-            <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="40000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="35000" max="40000"/>
-         </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp; (TARGET.RequiresWholeMachine =!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime))'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; (stringListMember("OSGVO", GLIDEIN_Supported_VOs)) &amp;&amp; (GLIDEIN_REQUIRE_VOMS =?= "True")'>
-               <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
-               </match_attrs>
-               <collectors>
-               </collectors>
-            </factory>
-            <job query_expr='isUndefined(DESIRED_Sites) &amp;&amp; isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; isString(x509userproxyfirstfqan) &amp;&amp; isString(x509userproxysubject) &amp;&amp; (!regexp("cilogon", x509userproxysubject)) &amp;&amp; isString(x509UserProxyVOName) &amp;&amp; (x509UserProxyVOName == "osg") &amp;&amp; isInteger(x509UserProxyExpiration) &amp;&amp; (x509UserProxyExpiration &gt; CurrentTime)'>
-               <match_attrs>
-                  <match_attr name="DESIRED_Sites" type="string"/>
-               </match_attrs>
-               <schedds>
-               </schedds>
-            </job>
-         </match>
-         <security>
-            <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-            </credentials>
-         </security>
-         <attrs>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="OPTIONAL"/>
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
@@ -567,7 +546,7 @@
             </credentials>
          </security>
          <attrs>
-            <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="30"/>
+            <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="90"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
@@ -610,7 +589,7 @@
              </credentials>
          </security>
          <attrs>
-            <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="0"/>
+            <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="90"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
@@ -652,7 +631,7 @@
             </credentials>
          </security>
          <attrs>
-            <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="0"/>
+            <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="90"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
@@ -673,7 +652,13 @@
       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <file absfname="/opt/git/node-check/clock-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
       <file absfname="/opt/git/node-check/crl-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/git/node-check/ulimits-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">

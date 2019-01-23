@@ -1,0 +1,257 @@
+
+flock.opensciencegrid.org:
+  admin: Mats Rynge <rynge@isi.edu>
+  site: UChicago
+  dn: /DC=org/DC=incommon/C=US/postalCode=53706/ST=WI/L=Madison/street=1210 West Dayton Street/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org
+
+xd-login.opensciencegrid.org:
+  admin: Mats Rynge <rynge@isi.edu>
+  site: UChicago
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=xd-login.opensciencegrid.org
+  subschedds:
+    - main
+    - Q1
+    - Q2
+    - Q3
+    - Q4
+    - Q5
+
+### ISI ###
+
+osg-vo.isi.edu:
+  admin: Mats Rynge <rynge@isi.edu>
+  site: ISI
+  dn: /CN=osg-vo.isi.edu
+
+workflow.isi.edu:
+  admin: Mats Rynge <rynge@isi.edu>
+  site: ISI
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=workflow.isi.edu
+
+### IU ###
+
+csiu.grid.iu.edu:
+  admin: Rob Quick <rquick@iu.edu>
+  site: IU
+  dn: /DC=org/DC=incommon/C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=Open Science Grid Operations Center/CN=csiu.grid.iu.edu
+
+#csiu-itb.grid.iu.edu:
+#  admin: Rob Quick <rquick@iu.edu>
+#  site: IU
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu-itb.grid.iu.edu
+
+### OSG Connect ###
+
+login01.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net
+  subschedds:
+    - main
+    - Q1
+    - Q2
+    - Q3
+    - Q4
+    - Q5
+
+login02.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net
+  subschedds:
+    - main
+    - Q1
+    - Q2
+    - Q3
+    - Q4
+    - Q5
+
+login03.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login03.osgconnect.net
+  subschedds:
+    - main
+    - Q1
+    - Q2
+    - Q3
+    - Q4
+    - Q5
+
+duke-login.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=duke-login.osgconnect.net
+
+login.ci-connect.uchicago.edu:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.ci-connect.uchicago.edu
+
+login.xenon.ci-connect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.xenon.ci-connect.net
+
+login.cms.ci-connect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.cms.ci-connect.net
+
+fsurf.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=fsurf.osgconnect.net
+
+training.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=training.osgconnect.net
+
+user-training.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=user-training.osgconnect.net
+
+amundsen.grid.uchicago.edu:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=amundsen.grid.uchicago.edu
+
+scott.grid.uchicago.edu:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scott.grid.uchicago.edu
+
+vc3-gateway.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=vc3-gateway.osgconnect.net
+
+### SBGrid ###
+
+glidein-1.sbgrid.org:
+  admin: Pete Meyer <meyer@hkl.hms.harvard.edu>
+  site: SBGrid
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-1.sbgrid.org
+
+### MIT ###
+
+submit.mit.edu:
+  admin: Yutaro Iiyama <yiiyama@mit.edu>
+  site: MIT
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu
+
+### IIT ###
+
+otsgrid.iit.edu:
+  admin: Grigoriy Abramov <gabramov@iit.edu>
+  site: IIT
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=otsgrid.iit.edu
+
+### TACC ###
+
+iplant-condor.tacc.utexas.edu:
+  admin: Steve Terry <sterry1@tacc.utexas.edu>
+  site: TACC
+  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor.tacc.utexas.edu
+
+iplant-condor-iu.tacc.utexas.edu:
+  admin: Steve Terry <sterry1@tacc.utexas.edu>
+  site: TACC
+  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor-iu.tacc.utexas.edu
+
+### Purdue ###
+
+lsst-glidein.rcac.purdue.edu:
+  admin: Majid Arabgol <majid@purdue.edu>
+  site: Purdue
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=lsst-glidein.rcac.purdue.edu
+
+### JLab ###
+
+scosg16.jlab.org:
+  admin: Kurt Strosahl <strosahl@jlab.org>
+  site: JLab
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scosg16.jlab.org
+
+### Cyverse ###
+
+aragon.cyverse.org:
+  admin: Ian McEwen <mian@cyverse.org>
+  site: Cyverse
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=aragon.cyverse.org
+
+services-2.cyverse.org:
+  admin: Ian McEwen <mian@cyverse.org>
+  site: Cyverse
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=services-2.cyverse.org
+
+rocinante.cyverse.org:
+  admin: Ian McEwen <mian@cyverse.org>
+  site: Cyverse
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=rocinante.cyverse.org
+
+akbul.cyverse.org:
+  admin: Ian McEwen <mian@cyverse.org>
+  site: Cyverse
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=akbul.cyverse.org
+
+### UConn ###
+
+gluex.phys.uconn.edu:
+  admin: Richard Jones <richard.t.jones@uconn.edu>
+  site: UConn
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=schedd/gluex.phys.uconn.ed
+
+### Syracuse ###
+
+sugwg-scitokens.phy.syr.edu:
+  admin: Duncan Brown <dabrown@syr.edu>
+  site: Syracuse
+  dn: /DC=org/DC=incommon/C=US/postalCode=13244/ST=NY/L=Syracuse/street=201 Physics Building/O=Syracuse University/OU=AS PHY/CN=sugwg-scitokens.phy.syr.edu
+
+sugwg-condor.phy.syr.edu:
+  admin: Duncan Brown <dabrown@syr.edu>
+  site: Syracuse
+  dn: /DC=org/DC=incommon/C=US/postalCode=13244/ST=NY/L=Syracuse/street=201 Physics Building/O=Syracuse University/OU=AS PHY/CN=sugwg-condor.phy.syr.edu
+
+sugwg-osg.phy.syr.edu:
+  admin: Duncan Brown <dabrown@syr.edu>
+  site: Syracuse
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=sugwg-osg.phy.syr.edu
+
+### UCSD ###
+
+pcf-osg.t2.ucsd.edu:
+  admin: Edgar Fajardo <emfajard@ucsd.edu>
+  site: UCSD
+  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=pcf-osg.t2.ucsd.edu
+
+### Rutgers ###
+
+osg-amarel.hpc.rutgers.edu:
+  admin: Edgar Fajardo <emfajard@ucsd.edu>
+  site: Rutgers
+  dn: /DC=org/DC=incommon/C=US/postalCode=08901/ST=NJ/L=NEW BRUNSWICK/street=57 US HIGHWAY 1/O=Rutgers, The State University of New Jersey/OU=OIT-CCS/CN=osg-amarel.hpc.rutgers.edu
+
+### NCSA ###
+
+descmp3.cosmology.illinois.edu:
+  admin: Greg Daues <daues@illinois.edu>
+  site: NCSA
+
+# not sure about these:
+
+### FLOCK_FROM = $(FLOCK_FROM) scigrid1.physics.fsu.edu
+### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scigrid1.physics.fsu.edu
+### 
+### FLOCK_FROM = $(FLOCK_FROM) proof-of-concept.scidas.renci.org
+### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=proof-of-concept.scidas.renci.org
+### 
+### FLOCK_FROM = $(FLOCK_FROM) test-001.t2.ucsd.edu
+### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-001.t2.ucsd.edu
+### 
+### FLOCK_FROM = $(FLOCK_FROM) test-004.t2.ucsd.edu
+### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-004.t2.ucsd.edu
+### 
