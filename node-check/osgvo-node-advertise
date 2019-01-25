@@ -728,7 +728,7 @@ if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
     if [ -e .osgvo.test-results.guc ]; then
         GUC_VERIFIED=`cat .osgvo.test-results.guc`
-    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null; then
+    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
         GUC_VERIFIED="True"
         echo "True" > .osgvo.test-results.guc
     else
@@ -737,6 +737,20 @@ if [ "X$GUC_PATH" != "X" ]; then
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
 
+##################
+# gfal
+
+# this is a one-shot test
+GFAL_VERIFIED="False"
+if [ -e .osgvo.test-results.gfal ]; then
+    GFAL_VERIFIED=`cat .osgvo.test-results.gfal`
+elif gfal-copy -t 30 -f gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
+    GFAL_VERIFIED="True"
+    echo "True" > .osgvo.test-results.gfal
+else
+    echo "False" > .osgvo.test-results.gfal
+fi
+advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 
 #############################
 ## squid enviroment variable
