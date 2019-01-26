@@ -473,12 +473,12 @@ fi
 # At this point Singularity tests are done, and we can concentrate on 
 # regular systems test. Some tests are too heavy-weight to run every
 # 5 minutes. Such test can drop a file named .osgvo.test-results.NNNNNNN
-# in cwd. These files will be cleaned up after 120 minutes and allow the
+# in cwd. These files will be cleaned up after 60 minutes and allow the
 # test to rerun then again.
 #
 
 # clean up old ones
-find . -maxdepth 1 -name .osgvo.test-results.\* -mmin +120 -exec rm {} \;
+find . -maxdepth 1 -name .osgvo.test-results.\* -mmin +60 -exec rm {} \;
 
 
 # operating system
@@ -739,6 +739,7 @@ fi
 # gfal
 
 # this is a one-shot test
+find . -maxdepth 1 -name .osgvo.test-results.gfal -mmin +10 -exec rm {} \;
 GFAL_VERIFIED="False"
 if [ -e .osgvo.test-results.gfal ]; then
     GFAL_VERIFIED=`cat .osgvo.test-results.gfal`
