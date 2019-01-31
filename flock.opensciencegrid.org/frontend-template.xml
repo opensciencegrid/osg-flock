@@ -289,7 +289,7 @@
             <running_glideins_total curb="57000" max="60000"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
-                start_expr='(((DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                start_expr='(((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                              (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
                              (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
