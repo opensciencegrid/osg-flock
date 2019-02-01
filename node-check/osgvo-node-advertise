@@ -739,7 +739,6 @@ fi
 # gfal
 
 # this is a one-shot test
-find . -maxdepth 1 -name .osgvo.test-results.gfal -mmin +10 -exec rm {} \;
 GFAL_VERIFIED="False"
 if [ -e .osgvo.test-results.gfal ]; then
     GFAL_VERIFIED=`cat .osgvo.test-results.gfal`
