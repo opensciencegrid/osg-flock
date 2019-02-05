@@ -472,13 +472,17 @@ fi
 #
 # At this point Singularity tests are done, and we can concentrate on 
 # regular systems test. Some tests are too heavy-weight to run every
-# 5 minutes. Such test can drop a file named .osgvo.test-results.NNNNNNN
+# 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
 # in cwd. These files will be cleaned up after 60 minutes and allow the
-# test to rerun then again.
+# test to rerun then again. There is also a 3 hour version.
 #
 
+TEST_FILE_1H=.osgvo.test-results.1h
+TEST_FILE_3H=.osgvo.test-results.3h
+
 # clean up old ones
-find . -maxdepth 1 -name .osgvo.test-results.\* -mmin +60 -exec rm {} \;
+find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
+find . -maxdepth 1 -name $TEST_FILE_3H.\* -mmin +180 -exec rm {} \;
 
 
 # operating system
@@ -638,9 +642,9 @@ rm -f csh.test
 
 # modules
 RESULT="False"
-find . -maxdepth 1 -name .osgvo.test-results.modules -mmin +8 -exec rm {} \;
-if [ -e .osgvo.test-results.modules ]; then
-    RESULT=`cat .osgvo.test-results.modules`
+find . -maxdepth 1 -name $TEST_FILE_1H.modules -mmin +8 -exec rm {} \;
+if [ -e $TEST_FILE_1H.modules ]; then
+    RESULT=`cat $TEST_FILE_1H.modules`
 else
    # extra check to make sure we can read a file
    if cat /cvmfs/oasis.opensciencegrid.org/osg/README.txt >/dev/null 2>&1; then
@@ -649,9 +653,9 @@ else
               # also make sure module avail is not throwing a stack trace
               if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
                   RESULT="True"
-                  echo "True" > .osgvo.test-results.modules
+                  echo "True" > $TEST_FILE_1H.modules
               else
-                  echo "False" > .osgvo.test-results.modules
+                  echo "False" > $TEST_FILE_1H.modules
               fi
           fi
       fi
@@ -701,13 +705,13 @@ advertise HAS_SCP "$HAS_SCP" "C"
 # this is a one-shot test
 rm -f test.txt
 STASHCP_VERIFIED="False"
-if [ -e .osgvo.test-results.stashcp ]; then
-    STASHCP_VERIFIED=`cat .osgvo.test-results.stashcp`
+if [ -e $TEST_FILE_1H.stashcp ]; then
+    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
 elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
-    echo "True" > .osgvo.test-results.stashcp
+    echo "True" > $TEST_FILE_1H.stashcp
 else
-    echo "False" > .osgvo.test-results.stashcp
+    echo "False" > $TEST_FILE_1H.stashcp
 fi
 advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
@@ -724,13 +728,13 @@ advertise GUC_PATH "$GUC_PATH" "S"
 # this is a one-shot test
 if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
-    if [ -e .osgvo.test-results.guc ]; then
-        GUC_VERIFIED=`cat .osgvo.test-results.guc`
+    if [ -e $TEST_FILE_3H.guc ]; then
+        GUC_VERIFIED=`cat $TEST_FILE_3H.guc`
     elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
         GUC_VERIFIED="True"
-        echo "True" > .osgvo.test-results.guc
+        echo "True" > $TEST_FILE_3H.guc
     else
-        echo "False" > .osgvo.test-results.guc
+        echo "False" > $TEST_FILE_3H.guc
     fi
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
@@ -740,13 +744,13 @@ fi
 
 # this is a one-shot test
 GFAL_VERIFIED="False"
-if [ -e .osgvo.test-results.gfal ]; then
-    GFAL_VERIFIED=`cat .osgvo.test-results.gfal`
+if [ -e $TEST_FILE_3H.gfal ]; then
+    GFAL_VERIFIED=`cat $TEST_FILE_3H.gfal`
 elif gfal-copy -t 30 -f gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
     GFAL_VERIFIED="True"
-    echo "True" > .osgvo.test-results.gfal
+    echo "True" > $TEST_FILE_3H.gfal
 else
-    echo "False" > .osgvo.test-results.gfal
+    echo "False" > $TEST_FILE_3H.gfal
 fi
 advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 
@@ -764,22 +768,22 @@ advertise WGET_PATH "$WGET_PATH" "S"
 
 if [ "X$WGET_PATH" != "X" ]; then
     SQUID_VERIFIED="False"
-    if [ -e .osgvo.test-results.squid ]; then
-	SQUID_VERIFIED=`cat .osgvo.test-results.squid`
+    if [ -e $TEST_FILE_1H.squid ]; then
+        SQUID_VERIFIED=`cat $TEST_FILE_1H.squid`
     else
-	info "Seting up http_proxy enviroment variable"
-	info "VALUE of OSG_SQUID_LOCATION: $OSG_SQUID_LOCATION"
-	env http_proxy=$OSG_SQUID_LOCATION wget -qO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
-	if [ $? == 0 -a "X$OSG_SQUID_LOCATION" != "X" ]; then
-	     info "testing proxy succeed"
-	     info "setting up http_proxy to OSG_SQUID_LOCATION"
-	     advertise "http_proxy" $OSG_SQUID_LOCATION "S"
-	     SQUID_VERIFIED="true"
-	     echo "True" > .osgvo.test-results.squid
-	else
-	    info "testing proxy failed leaving http_proxy untouched"
-	    echo "False" > .osgvo.test-results.squid
-	fi	
+        info "Setting up http_proxy enviroment variable"
+        info "VALUE of OSG_SQUID_LOCATION: $OSG_SQUID_LOCATION"
+        env http_proxy=$OSG_SQUID_LOCATION wget -qO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
+        if [ $? == 0 -a "X$OSG_SQUID_LOCATION" != "X" ]; then
+            info "testing proxy succeed"
+            info "setting up http_proxy to OSG_SQUID_LOCATION"
+            advertise "http_proxy" $OSG_SQUID_LOCATION "S"
+            SQUID_VERIFIED="true"
+            echo "True" > $TEST_FILE_1H.squid
+        else
+            info "testing proxy failed leaving http_proxy untouched"
+            echo "False" > $TEST_FILE_1H.squid
+        fi    
     fi
     advertise SQUID_VERIFIED "$SQUID_VERIFIED" "C"
 fi
