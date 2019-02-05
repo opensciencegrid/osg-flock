@@ -705,15 +705,22 @@ advertise HAS_SCP "$HAS_SCP" "C"
 # this is a one-shot test
 rm -f test.txt
 STASHCP_VERIFIED="False"
+XCACHE_CLOSEST=""
 if [ -e $TEST_FILE_1H.stashcp ]; then
     STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+    XCACHE_CLOSEST=`cat $TEST_FILE_1H.xcache_closest`
 elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
+    XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH &&stashcp --closest) 2>/dev/null`
+    echo "$XCACHE_CLOSEST" > $TEST_FILE_1H.xcache_closest
 else
     echo "False" > $TEST_FILE_1H.stashcp
+    echo "" > $TEST_FILE_1H.xcache_closest
 fi
 advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
+
 
 ##################
 # guc
