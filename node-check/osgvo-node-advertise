@@ -478,11 +478,11 @@ fi
 #
 
 TEST_FILE_1H=.osgvo.test-results.1h
-TEST_FILE_3H=.osgvo.test-results.3h
+TEST_FILE_4H=.osgvo.test-results.4h
 
 # clean up old ones
 find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
-find . -maxdepth 1 -name $TEST_FILE_3H.\* -mmin +180 -exec rm {} \;
+find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
 
 
 # operating system
@@ -735,13 +735,13 @@ advertise GUC_PATH "$GUC_PATH" "S"
 # this is a one-shot test
 if [ "X$GUC_PATH" != "X" ]; then
     GUC_VERIFIED="False"
-    if [ -e $TEST_FILE_3H.guc ]; then
-        GUC_VERIFIED=`cat $TEST_FILE_3H.guc`
+    if [ -e $TEST_FILE_4H.guc ]; then
+        GUC_VERIFIED=`cat $TEST_FILE_4H.guc`
     elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
         GUC_VERIFIED="True"
-        echo "True" > $TEST_FILE_3H.guc
+        echo "True" > $TEST_FILE_4H.guc
     else
-        echo "False" > $TEST_FILE_3H.guc
+        echo "False" > $TEST_FILE_4H.guc
     fi
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
@@ -751,13 +751,13 @@ fi
 
 # this is a one-shot test
 GFAL_VERIFIED="False"
-if [ -e $TEST_FILE_3H.gfal ]; then
-    GFAL_VERIFIED=`cat $TEST_FILE_3H.gfal`
+if [ -e $TEST_FILE_4H.gfal ]; then
+    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
 elif gfal-copy -t 30 -f gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
     GFAL_VERIFIED="True"
-    echo "True" > $TEST_FILE_3H.gfal
+    echo "True" > $TEST_FILE_4H.gfal
 else
-    echo "False" > $TEST_FILE_3H.gfal
+    echo "False" > $TEST_FILE_4H.gfal
 fi
 advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 

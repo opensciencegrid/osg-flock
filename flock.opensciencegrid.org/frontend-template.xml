@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config>
-      <idle_vms_total curb="0" max="0"/>
-      <idle_vms_total_global curb="0" max="0"/>
-      <running_glideins_total curb="0" max="0"/>
-      <running_glideins_total_global curb="0" max="0"/>
+      <idle_vms_total curb="80" max="100"/>
+      <idle_vms_total_global curb="80" max="100"/>
+      <running_glideins_total curb="38000" max="40000"/>
+      <running_glideins_total_global curb="38000" max="40000"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -282,7 +282,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="100" reserve="1"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="1900" max="2000"/>
             <processing_workers matchmakers="3"/>
@@ -296,7 +296,7 @@
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
-                                 !StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_US_UUTAH_EMBER,OSG_US_UUTAH_KINGSPEAK,OSG_US_UUTAH_LONEPEAK") &amp;&amp;
+                                 !StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_US_UUTAH_EMBER,OSG_US_UUTAH_KINGSPEAK,OSG_US_UUTAH_LONEPEAK,OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
                                  (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
@@ -346,7 +346,7 @@
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
-                                 StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_US_UUTAH_EMBER,OSG_US_UUTAH_KINGSPEAK,OSG_US_UUTAH_LONEPEAK") &amp;&amp;
+                                 StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_US_UUTAH_EMBER,OSG_US_UUTAH_KINGSPEAK,OSG_US_UUTAH_LONEPEAK,OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
                                  (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
@@ -382,7 +382,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="150" reserve="1"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="1900" max="2000"/>
             <processing_workers matchmakers="3"/>
@@ -515,7 +515,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="1"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="4" max="5"/>
             <idle_vms_total curb="40" max="50"/>
             <processing_workers matchmakers="3"/>
@@ -562,7 +562,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="5" reserve="1"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="90" max="100"/>
             <idle_vms_total curb="90" max="100"/>
             <processing_workers matchmakers="3"/>
@@ -604,7 +604,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="20" reserve="1"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="15" max="20"/>
             <idle_vms_total curb="150" max="200"/>
             <processing_workers matchmakers="3"/>
