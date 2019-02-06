@@ -147,8 +147,8 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
-            <!-- file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" / -->
-            <!-- file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" / -->
+            <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
       <group name="itb-gpu" enabled="False">
