@@ -138,7 +138,7 @@
             </credentials>
          </security>
          <attrs>
-            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="REQUIRED"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="OPTIONAL"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="8.7.8-439067"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
@@ -282,7 +282,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="200" reserve="1"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="2400" max="2500"/>
             <processing_workers matchmakers="3"/>
@@ -316,6 +316,56 @@
          <security>
             <credentials>
                <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
+         </files>
+      </group>
+      <group name="main_cert_testing" enabled="True">
+         <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
+            <idle_vms_per_entry curb="450" max="500"/>
+            <idle_vms_total curb="2400" max="2500"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="60000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="57000" max="60000"/>
+         </config>
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+                start_expr='(((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                             (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
+                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                             (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
+                                 !StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_IN_IUCAA_SARATHI") &amp;&amp;
+                                 (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
+                                 (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
+               <match_attrs>
+                  <match_attr name="GLIDEIN_Site" type="string"/>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+               <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
+               </match_attrs>
+               <schedds>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/tmp//tmp/x509up_u496.hostbased" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
