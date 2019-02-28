@@ -296,7 +296,7 @@
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
-                                 (TARGET.GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
                                  (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
@@ -347,7 +347,7 @@
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
-                                 (TARGET.GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "UCR-HEP,OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
                                  (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
