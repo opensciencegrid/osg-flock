@@ -365,7 +365,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp//tmp/x509up_u496.hostbased" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/tmp/x509up_u496.hostbased" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
