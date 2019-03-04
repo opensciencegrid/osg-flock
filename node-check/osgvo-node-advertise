@@ -895,6 +895,7 @@ if python --version >/dev/null 2>&1; then
     if [ "x$PYTHON_VERSION" != "x" ]; then
         advertise PYTHON_VERSION "$PYTHON_VERSION" "S"
     fi
+    advertise HAS_PYTHON "True" "C"
 fi
 
 info "Checking for numpy/scipy availability..."
