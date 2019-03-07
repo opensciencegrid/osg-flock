@@ -130,9 +130,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs 1)
 
     export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
+    export STASHCACHE_WRITABLE=$(getPropBool $_CONDOR_JOB_AD WantsStashCacheWritable 0)
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
+    export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
     export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
@@ -312,13 +314,15 @@ if [ -e ../../main/condor/libexec ]; then
 fi
 
 # load modules, if available
-if [ "x$LMOD_BETA" = "x1" ]; then
-    # used for testing the new el6/el7 modules 
-    if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
-        . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
+if [ "x$InitializeModulesEnv" = "x1" ]; then
+    if [ "x$LMOD_BETA" = "x1" ]; then
+        # used for testing the new el6/el7 modules 
+        if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
+            . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
+        fi
+    elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+        . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
     fi
-elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
-    . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
 fi
 
 
@@ -336,12 +340,13 @@ fi
 #
 
 function setup_stashcp {
-  module load stashcp
+  # keep the user job output clean
+  module load stashcache >/dev/null 2>&1 || module load stashcp >/dev/null 2>&1
 
   # we need xrootd, which is available both in the OSG software stack
   # as well as modules - use the system one by default
   if ! which xrdcp >/dev/null 2>&1; then
-      module load xrootd
+      module load xrootd >/dev/null 2>&1
   fi
  
   # Determine XRootD plugin directory.
@@ -364,7 +369,7 @@ if [ "x$POSIXSTASHCACHE" = "x1" ]; then
   # Currently this points _ONLY_ to the OSG Connect source server
   export XROOTD_VMP=$(stashcp --closest | cut -d'/' -f3):/stash=/
  
-elif [ "x$STASHCACHE" = 'x1' ]; then
+elif [ "x$STASHCACHE" = "x1" -o "x$STASHCACHE_WRITABLE" = "x1" ]; then
   setup_stashcp
 fi
 
