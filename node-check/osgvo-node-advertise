@@ -302,7 +302,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     HAS_SINGULARITY="False"
-    export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
+    export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
         HAS_SINGULARITY="True"
         export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
