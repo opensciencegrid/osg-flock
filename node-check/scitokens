@@ -34,4 +34,8 @@ add_condor_vars_line TOKENS "C" "-" "+" "N" "N" "-"
 add_config_line_safe SEC_DAEMON_ENCRYPTION "REQUIRED"
 add_condor_vars_line SEC_DAEMON_ENCRYPTION "C" "-" "+" "N" "N" "-"
 
+# 3/13/19 - zmiller suggested for 8.8.1
+add_config_line_safe CREDD_OAUTH_MODE "TRUE"
+add_condor_vars_line CREDD_OAUTH_MODE "C" "-" "+" "N" "N" "-"
+
 
