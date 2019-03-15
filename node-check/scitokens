@@ -26,6 +26,10 @@ mkdir -p $credentials_dir
 add_config_line_safe SEC_CREDENTIAL_DIRECTORY "${credentials_dir}"
 add_condor_vars_line SEC_CREDENTIAL_DIRECTORY "C" "-" "+" "N" "N" "-"
 
+# 3/13/19 - zmiller suggested for 8.8.1
+add_config_line_safe CREDD_OAUTH_MODE "TRUE"
+add_condor_vars_line CREDD_OAUTH_MODE "C" "-" "+" "N" "N" "-"
+
 # SEC_CREDENTIAL_DIRECTORY = ${credentials_dir} (defined above)
 add_config_line_safe TOKENS "TRUE"
 add_condor_vars_line TOKENS "C" "-" "+" "N" "N" "-"
@@ -33,9 +37,4 @@ add_condor_vars_line TOKENS "C" "-" "+" "N" "N" "-"
 # SEC_CREDENTIAL_DIRECTORY = ${credentials_dir} (defined above)
 add_config_line_safe SEC_DAEMON_ENCRYPTION "REQUIRED"
 add_condor_vars_line SEC_DAEMON_ENCRYPTION "C" "-" "+" "N" "N" "-"
-
-# 3/13/19 - zmiller suggested for 8.8.1
-add_config_line_safe CREDD_OAUTH_MODE "TRUE"
-add_condor_vars_line CREDD_OAUTH_MODE "C" "-" "+" "N" "N" "-"
-
 
