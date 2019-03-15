@@ -101,7 +101,7 @@ login.cms.ci-connect.net:
 fsurf.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=fsurf.osgconnect.net
+  dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
 
 training.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
@@ -127,12 +127,6 @@ vc3-gateway.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=vc3-gateway.osgconnect.net
-
-# virtual host for all submit nodes at uchicago
-condor-flocking-cert.grid.uchicago.edu:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
 
 ### SBGrid ###
 
