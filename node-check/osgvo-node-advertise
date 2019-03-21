@@ -557,8 +557,8 @@ advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 
 # some cpu flags HTCondor is not yet advertising
 for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`; do
-    if (echo "$FLAG" | egrep "avx512") >/dev/null 2>&1; then
-        advertise has_$FLAG "True" "C"
+    if (echo "$FLAG" | egrep "avx512|f16c") >/dev/null 2>&1; then
+        advertise HAS_$FLAG "True" "C"
     fi
 done
 
