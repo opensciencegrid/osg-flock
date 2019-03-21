@@ -242,6 +242,14 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     ###########################################################
+    # system attributes from the host
+
+    VIRTUALIZATION=`(systemd-detect-virt) 2>/dev/null`
+    if [ "x$VIRTUALIZATION" != "x" ]; then
+        advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
+    fi
+
+    ###########################################################
     # gpus - detect this outside Singularity
 
     if [ "x$CUDA_VISIBLE_DEVICES" != "x" ]; then
@@ -568,6 +576,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
     advertise OpSysVer "${OS_VERSION}00" "I"
 fi
 
+##################
+# ulimits
+
+ULIMIT_STACK_SIZE=`(ulimit -s) 2>/dev/null`
+if [ "x$ULIMIT_STACK_SIZE" != "x" ]; then
+    if [ "X$ULIMIT_STACK_SIZE" = "Xunlimited" ]; then
+        ULIMIT_STACK_SIZE=-1
+    fi
+    advertise ULIMIT_STACK_SIZE "$ULIMIT_STACK_SIZE" "C"
+fi
 
 ##################
 # stash
