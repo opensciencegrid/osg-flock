@@ -311,7 +311,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
         else
             echo "" > $TEST_FILE_4H.xcache_closest
-            echo "" > $TEST_FILE_4H.xcache_closest_rtt
+            echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
         fi
     fi
     advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"

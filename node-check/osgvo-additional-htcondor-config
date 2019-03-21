@@ -10,6 +10,13 @@ source $add_config_line_source
 
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
+
+###########################################################
+# fix for chirp problem (Edgar)
+add_config_line CHIRP_DELAYED_UPDATE_PREFIX "Chirp*"
+add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
+
+
 ###########################################################
 # stashcp - only use if oasis is available
 if [ -e /cvmfs/oasis.opensciencegrid.org/. ]; then
