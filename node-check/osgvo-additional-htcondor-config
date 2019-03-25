@@ -16,6 +16,10 @@ condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}
 add_config_line CHIRP_DELAYED_UPDATE_PREFIX "Chirp*"
 add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 
+###########################################################
+# debugging GSI
+add_config_line MASTER_DEBUG "D_SECURITY:2"
+add_condor_vars_line MASTER_DEBUG "C" "-" "+" "N" "N" "-"
 
 ###########################################################
 # stashcp - only use if oasis is available
