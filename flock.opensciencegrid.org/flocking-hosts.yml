@@ -241,6 +241,13 @@ descmp3.cosmology.illinois.edu:
   admin: Greg Daues <daues@illinois.edu>
   site: NCSA
 
+### BNL ###
+
+hcsubmit.sdcc.bnl.gov:
+  admin: John Hover <jhover@bnl.gov>
+  site: BNL
+  dn: /DC=org/DC=incommon/C=US/ST=New York/L=Upton/O=Brookhaven National Laboratory/OU=SDCC/CN=hcsubmit.sdcc.bnl.gov
+
 ### UCI Atlas ###
 uclhc-1.ps.uci.edu:
   admin: Edgar Fajardo <emfajard@ucsd.edu>
