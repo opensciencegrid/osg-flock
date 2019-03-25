@@ -185,7 +185,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
         # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
         if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
-            export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-work.$$
+            if mkdir $GLIDEIN_Tmp_Dir/singularity-work.$$ ; then
+                export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-work.$$
+            fi
         fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
