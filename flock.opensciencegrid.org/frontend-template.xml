@@ -57,7 +57,7 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="392"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="393"/>
       <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="60"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
@@ -579,7 +579,8 @@
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("XENON_DESIRED_Sites","").split(",")) or (job.get("XENON_DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='((XENON_DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
                             (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
+                                 !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
