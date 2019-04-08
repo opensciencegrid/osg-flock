@@ -26,7 +26,7 @@ osg-vo.isi.edu:
 workflow.isi.edu:
   admin: Mats Rynge <rynge@isi.edu>
   site: ISI
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=workflow.isi.edu
+  dn: /CN=workflow.isi.edu
 
 ### IU ###
 
