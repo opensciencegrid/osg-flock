@@ -209,12 +209,12 @@ gluex.phys.uconn.edu:
 sugwg-scitokens.phy.syr.edu:
   admin: Duncan Brown <dabrown@syr.edu>
   site: Syracuse
-  dn: /DC=org/DC=incommon/C=US/postalCode=13244/ST=NY/L=Syracuse/street=201 Physics Building/O=Syracuse University/OU=AS PHY/CN=sugwg-scitokens.phy.syr.edu
+  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-scitokens.phy.syr.edu
 
 sugwg-condor.phy.syr.edu:
   admin: Duncan Brown <dabrown@syr.edu>
   site: Syracuse
-  dn: /DC=org/DC=incommon/C=US/postalCode=13244/ST=NY/L=Syracuse/street=201 Physics Building/O=Syracuse University/OU=AS PHY/CN=sugwg-condor.phy.syr.edu
+  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-condor.phy.syr.edu
 
 sugwg-osg.phy.syr.edu:
   admin: Duncan Brown <dabrown@syr.edu>
