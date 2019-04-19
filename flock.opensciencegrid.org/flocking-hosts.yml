@@ -254,6 +254,14 @@ uclhc-1.ps.uci.edu:
   site: UCI
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=uclhc-1.ps.uci.edu
 
+### AMNH ###
+
+amnh-submit.opensciencegrid.org:
+  admin: Brian Lin <blin@cs.wisc.edu>
+  site: AMNH
+  dn: /DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=amnh-submit.opensciencegrid.org
+
+
 # not sure about these:
 
 ### FLOCK_FROM = $(FLOCK_FROM) scigrid1.physics.fsu.edu
