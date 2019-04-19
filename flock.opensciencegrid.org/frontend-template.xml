@@ -681,6 +681,7 @@
               <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
               <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
               <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+              <attr name="RANK" glidein_publish="True" job_publish="False" parameter="True" type="expr" value='(regexp("amnh-submit", RemoteOwner) =?= True) + (ProjectName =?= "AMNH")'/>
           </attrs>
           <files>
               <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
