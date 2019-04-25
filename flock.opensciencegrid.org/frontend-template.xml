@@ -627,6 +627,7 @@
                <schedds>
                   <schedd DN="/DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-scitokens.phy.syr.edu" fullname="sugwg-scitokens.phy.syr.edu"/>
                   <schedd DN="/DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-condor.phy.syr.edu" fullname="sugwg-condor.phy.syr.edu"/>
+		  <schedd DN="/DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-osg.phy.syr.edu" fullname="sugwg-osg.phy.syr.edu"/>
               </schedds>
           </job>
       </match>
