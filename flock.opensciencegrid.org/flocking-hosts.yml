@@ -219,7 +219,7 @@ sugwg-condor.phy.syr.edu:
 sugwg-osg.phy.syr.edu:
   admin: Duncan Brown <dabrown@syr.edu>
   site: Syracuse
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=sugwg-osg.phy.syr.edu
+  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=AS PHY/CN=sugwg-osg.phy.syr.edu
 
 ### UCSD ###
 
