@@ -147,7 +147,7 @@ submit.mit.edu:
 otsgrid.iit.edu:
   admin: Grigoriy Abramov <gabramov@iit.edu>
   site: IIT
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=otsgrid.iit.edu
+  dn: /CN=otsgrid.iit.edu
 
 ### TACC ###
 
