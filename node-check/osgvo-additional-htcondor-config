@@ -44,7 +44,7 @@ LOC=\$2
 SRC=\$(echo \$FULLSRC | cut -d':' -f2-)
 . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
 module load stashcache || module load stashcp
-stashcp -r \$SRC \$LOC > /dev/null 2>&1
+stashcp \$SRC \$LOC > /dev/null 2>&1
 
 EOF
     chmod 755 stashcp_plugin
