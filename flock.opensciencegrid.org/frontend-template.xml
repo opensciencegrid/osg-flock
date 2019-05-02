@@ -44,7 +44,7 @@
    </match>
    <monitor base_dir="/var/lib/gwms-frontend/web-area/monitor" flot_dir="/usr/share/javascriptrrd/flot" javascriptRRD_dir="/usr/share/javascriptrrd/js" jquery_dir="/usr/share/javascriptrrd/flot"/>
    <monitor_footer display_txt="" href_link=""/>
-   <security classad_proxy="/tmp/x509up_u496.factory" proxy_DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" proxy_selection_plugin="ProxyAll" security_name="OSG_Flock" sym_key="aes_256_cbc">
+      <security classad_proxy="/etc/grid-security/gwms-frontend/frontend.proxy" proxy_DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" proxy_selection_plugin="ProxyAll" security_name="OSG_Flock" sym_key="aes_256_cbc">
       <credentials>
       </credentials>
    </security>
@@ -57,7 +57,7 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="2400"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="10800"/>
-      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="401"/>
+      <attr name="OSG_GLIDEIN_VERSION" glidein_publish="True" job_publish="True" parameter="True" type="expr" value="402"/>
       <attr name="OSG_SINGULARITY_EL7_PERCENT" glidein_publish="False" job_publish="False" parameter="True" type="expr" value="90"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
@@ -90,7 +90,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -134,7 +134,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -179,7 +179,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -223,7 +223,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496.xenon1t" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -265,7 +265,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -317,7 +317,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -367,7 +367,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -416,7 +416,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -458,7 +458,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -503,7 +503,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -546,7 +546,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496.xenon1t" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -589,7 +589,7 @@
           </match>
          <security>
             <credentials>
-                   <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" project_id="chi135" type="grid_proxy+project_id"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" project_id="chi135" type="grid_proxy+project_id"/>
              </credentials>
          </security>
          <attrs>
@@ -633,7 +633,7 @@
       </match>
       <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -674,7 +674,7 @@
           </match>
           <security>
               <credentials>
-                  <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                  <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
               </credentials>
           </security>
           <attrs>
@@ -717,7 +717,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/tmp/x509up_u496" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -735,8 +735,8 @@
    <ccbs>
    </ccbs>
    <collectors>
-       <collector DN="/DC=org/DC=incommon/C=US/postalCode=53706/ST=WI/L=Madison/street=1210 West Dayton Street/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9618" secondary="False"/>
-       <collector DN="/DC=org/DC=incommon/C=US/postalCode=53706/ST=WI/L=Madison/street=1210 West Dayton Street/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9700-9899" secondary="True"/>
+       <collector DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9618" secondary="False"/>
+       <collector DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9700-9899" secondary="True"/>
    </collectors>
    <files>
       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
