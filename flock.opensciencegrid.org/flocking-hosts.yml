@@ -173,7 +173,7 @@ lsst-glidein.rcac.purdue.edu:
 scosg16.jlab.org:
   admin: Kurt Strosahl <strosahl@jlab.org>
   site: JLab
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scosg16.jlab.org
+  dn: /CN=scosg16.jlab.org
 
 ### Cyverse ###
 
