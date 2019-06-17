@@ -231,7 +231,7 @@ sugwg-osg.phy.syr.edu:
 pcf-osg.t2.ucsd.edu:
   admin: Edgar Fajardo <emfajard@ucsd.edu>
   site: UCSD
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=pcf-osg.t2.ucsd.edu
+  dn: /DC=org/DC=incommon/C=US/ST=CA/L=La Jolla/O=University of California, San Diego/OU=UCSD/CN=pcf-osg.t2.ucsd.edu
 
 ### Rutgers ###
 
