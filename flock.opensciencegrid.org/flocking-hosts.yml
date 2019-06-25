@@ -138,7 +138,7 @@ vc3-gateway.osgconnect.net:
 glidein-1.sbgrid.org:
   admin: hpc@sbgrid.org, timony@hkl.hms.harvard.edu
   site: SBGrid
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=glidein-1.sbgrid.org
+  dn: /CN=glidein-1.sbgrid.org
 
 ### MIT ###
 
