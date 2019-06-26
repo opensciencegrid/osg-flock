@@ -176,7 +176,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             RESULT="True"
             # add the revision
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            REV_VAL=1
+            if [ -e /usr/bin/attr ]; then
+                REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            fi
             
             # oasis.opensciencegrid.org needs extra checks
             if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
@@ -217,12 +220,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 # make sure it is an integer
                 if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
                     advertise $FS_ATTR "$RESULT" "C"
-                    advertise $REV_ATTR "$REV_VAL" "I"
+                    if [ $REV_VAL -ne 1 ]; then
+                        advertise $REV_ATTR "$REV_VAL" "I"
+                    fi
                 fi
-            else
-                # unable to determine revision - this is common on sites which re-export CVMFS
-                # via for example NFS locally. Advertise availability.
-                advertise $FS_ATTR "$RESULT" "C"
             fi
         fi
     done
@@ -253,9 +254,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     ###########################################################
     # gpus - detect this outside Singularity
 
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" ]; then
+    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
 
-        info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+        info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
 
         rm -f gpu.ad
 
@@ -305,7 +306,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     else
         XCACHE_CLOSEST=`attr -qg external_host /cvmfs/stash.osgstorage.org| sed 's~http[s]*://~~g' | sed 's/.\{6\}$//' 2>/dev/null`
         # test first using the cached cvmfs values
-	if [ "X$XCACHE_CLOSEST" != "X" ]; then
+    if [ "X$XCACHE_CLOSEST" != "X" ]; then
             XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH &&stashcp --closest | sed 's;root://;;') 2>/dev/null`
         fi
         if [ "X$XCACHE_CLOSEST" != "X" ]; then
@@ -384,7 +385,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
         
-    OSG_SINGULARITY_EXTRA_OPTS="--pwd /srv --bind /cvmfs"
+    OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"
         
     # Binding different mounts
     for MNTPOINT in \
@@ -406,8 +407,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     # in the execing, like:
     # ERROR  : Could not identify basedir for home directory path: /
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
-        if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
+        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
                                          $OSG_SINGULARITY_EXTRA_OPTS \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          echo "Hello World" \
@@ -421,8 +422,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     # also verify that the env is inherited correctly
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
-        if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
+        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
+        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
                                          $OSG_SINGULARITY_EXTRA_OPTS \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          env \

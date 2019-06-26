@@ -256,8 +256,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
-                                   --home $PWD:/srv \
-                                   --pwd /srv \
+                                   --bind $PWD:/srv \
                                    --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
@@ -265,7 +264,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
 else
-    # we are now inside singularity - fix up the env
+    # we are now inside singularity
+
+    # need to start in /srv (Singularity's --pwd is not reliable)
+    cd /srv
+
+    # fix up the env
     unset TMP
     unset TMPDIR
     unset TEMP
