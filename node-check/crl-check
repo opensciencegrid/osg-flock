@@ -13,7 +13,7 @@ import time
 
 from os.path import expanduser
 
-cert_hashes = ["70d35895", "ba240aa8"]
+cert_hashes = ["ba240aa8"]
 
 def try_home_install(c_hash):
     """
