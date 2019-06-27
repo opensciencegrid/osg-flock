@@ -164,6 +164,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        stash.osgstorage.org \
        veritas.opensciencegrid.org \
        xenon.opensciencegrid.org \
+       sw.lsst.eu \
     ; do
         FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
         FS_ATTR="HAS_CVMFS_$FS_CONV"
