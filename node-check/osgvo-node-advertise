@@ -763,6 +763,21 @@ advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
 
 ##################
+# gfal
+
+# this is a one-shot test
+GFAL_VERIFIED="False"
+if [ -e $TEST_FILE_4H.gfal ]; then
+    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
+elif gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
+    GFAL_VERIFIED="True"
+    echo "True" > $TEST_FILE_4H.gfal
+else
+    echo "False" > $TEST_FILE_4H.gfal
+fi
+advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
+
+##################
 # guc
 
 GUC_PATH=`which globus-url-copy 2>/dev/null`
@@ -771,35 +786,12 @@ if [ "X$GUC_PATH" = "X" ]; then
 fi
 advertise GUC_PATH "$GUC_PATH" "S"
 
-# does it work?
+# save some gridftp connections here by reusing the gfal results (imperfect, but good enough)
 # this is a one-shot test
 if [ "X$GUC_PATH" != "X" ]; then
-    GUC_VERIFIED="False"
-    if [ -e $TEST_FILE_4H.guc ]; then
-        GUC_VERIFIED=`cat $TEST_FILE_4H.guc`
-    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
-        GUC_VERIFIED="True"
-        echo "True" > $TEST_FILE_4H.guc
-    else
-        echo "False" > $TEST_FILE_4H.guc
-    fi
+    GUC_VERIFIED="$GFAL_VERIFIED"
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
-
-##################
-# gfal
-
-# this is a one-shot test
-GFAL_VERIFIED="False"
-if [ -e $TEST_FILE_4H.gfal ]; then
-    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
-elif gfal-copy -t 30 -f gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
-    GFAL_VERIFIED="True"
-    echo "True" > $TEST_FILE_4H.gfal
-else
-    echo "False" > $TEST_FILE_4H.gfal
-fi
-advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 
 #############################
 ## squid enviroment variable
