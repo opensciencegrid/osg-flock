@@ -85,7 +85,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         cd ../
         info "GWMS tmp directory detected. Switched working directory to $PWD"
     fi
- 
+
+    # bash can set a default PATH - make sure it is exported
+    export PATH=$PATH
+
     # some sites do not have PATH set
     if [ "x$PATH" = "x" ]; then
         export PATH="/usr/local/bin:/usr/bin:/bin"
