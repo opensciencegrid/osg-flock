@@ -78,6 +78,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
     info "Running in directory $PWD"
+    
+    if [ -e ../glidein_config ]; then
+        # gwms stupid tmp dir for periodic scripts - this breaks
+        # out ability to cache results
+        cd ../
+        info "GWMS tmp directory detected. Switched working directory to $PWD"
+    fi
  
     # some sites do not have PATH set
     if [ "x$PATH" = "x" ]; then
