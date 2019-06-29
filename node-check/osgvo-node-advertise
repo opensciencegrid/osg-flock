@@ -411,7 +411,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     done
 
-    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain --ipc --pid"
+    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc --pid"
 
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
@@ -473,8 +473,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
-        if $OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv \
+        info "$OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+        if $OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv \
                                       $OSG_SINGULARITY_EXTRA_OPTS \
                                       "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                       $CMD \

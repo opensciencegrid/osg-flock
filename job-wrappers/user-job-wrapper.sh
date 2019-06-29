@@ -257,7 +257,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                                    --bind $PWD:/srv \
-                                   --ipc --pid \
+                                   --no-home --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
                                    "${CMD[@]}"
