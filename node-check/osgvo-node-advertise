@@ -318,7 +318,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         XCACHE_CLOSEST=`attr -qg external_host /cvmfs/stash.osgstorage.org| sed 's~http[s]*://~~g' | sed 's/.\{6\}$//' 2>/dev/null`
         # test first using the cached cvmfs values
     if [ "X$XCACHE_CLOSEST" != "X" ]; then
-            XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH &&stashcp --closest | sed 's;root://;;') 2>/dev/null`
+            XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
         fi
         if [ "X$XCACHE_CLOSEST" != "X" ]; then
             echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
@@ -431,6 +431,27 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     
+    # check that the /srv mount works correctly
+    rm -f test-singularity-create
+    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT touch test-singularity-create"
+        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+                                         $OSG_SINGULARITY_EXTRA_OPTS \
+                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+                                         touch /srv/test-singularity-create) 1>&2 \
+        ; then
+            # singularity simple exec failed - we are done
+            info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+            HAS_SINGULARITY="False"
+        else
+            # was the file really created?
+            if [ ! -f test-singularity-create ]; then
+                info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+                HAS_SINGULARITY="False"
+            fi
+        fi
+    fi
+    
     # also verify that the env is inherited correctly
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
         info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
@@ -489,6 +510,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
 else
 
+    # make sure we are inside the correct dir
+    cd /srv
+
     if [ "x$add_config_line_source" != "x" ]; then
         export add_config_line_source=`singularityfy_path "$add_config_line_source"`
         export condor_vars_file=`singularityfy_path "$condor_vars_file"`
@@ -530,6 +554,14 @@ TEST_FILE_4H=.osgvo.test-results.4h
 find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
 
+# timeout - need this early as we use it in some commands later
+HAS_TIMEOUT="False"
+TIMEOUT_CMD=""
+if /usr/bin/timeout --version >/dev/null 2>&1; then
+    HAS_TIMEOUT="True"
+    export TIMEOUT_CMD="/usr/bin/timeout 60"
+fi
+advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 
 # operating system
 
@@ -763,7 +795,7 @@ rm -f test.txt
 STASHCP_VERIFIED="False"
 if [ -e $TEST_FILE_4H.stashcp ]; then
     STASHCP_VERIFIED=`cat $TEST_FILE_4H.stashcp`
-elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
+elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > $TEST_FILE_4H.stashcp
 else
@@ -779,7 +811,7 @@ advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 GFAL_VERIFIED="False"
 if [ -e $TEST_FILE_4H.gfal ]; then
     GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
-elif gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
+elif $TIMEOUT_CMD gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
     GFAL_VERIFIED="True"
     echo "True" > $TEST_FILE_4H.gfal
 else
@@ -849,15 +881,6 @@ if xrdcp --version >/dev/null 2>&1; then
 fi
 advertise HAS_XRDCP "$HAS_XRDCP" "C"
 
-
-##################
-# timeout
-
-HAS_TIMEOUT="False"
-if /usr/bin/timeout --version >/dev/null 2>&1; then
-    HAS_TIMEOUT="True"
-fi
-advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 
 
 ##################
