@@ -276,6 +276,7 @@ else
     cd /srv
 
     # fix up the env
+    export HOME=/srv
     unset TMP
     unset TMPDIR
     unset TEMP
