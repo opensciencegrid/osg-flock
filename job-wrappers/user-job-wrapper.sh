@@ -102,6 +102,12 @@ EOF
     rm -f $NVLIBLIST
 }
 
+# ensure all jobs have PATH set
+# bash can set a default PATH - make sure it is exported
+export PATH=$PATH
+if [ "x$PATH" = "x" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin"
+fi
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
