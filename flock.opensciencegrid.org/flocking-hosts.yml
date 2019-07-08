@@ -257,7 +257,7 @@ hcsubmit.sdcc.bnl.gov:
 uclhc-1.ps.uci.edu:
   admin: Edgar Fajardo <emfajard@ucsd.edu>
   site: UCI
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=uclhc-1.ps.uci.edu
+  dn: /DC=org/DC=incommon/C=US/ST=CA/L=Irvine/O=University of California/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
 
 ### AMNH ###
 
