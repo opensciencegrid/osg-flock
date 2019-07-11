@@ -336,10 +336,10 @@ fi
 if [ "x$InitializeModulesEnv" = "x1" ]; then
     if [ "x$LMOD_BETA" = "x1" ]; then
         # used for testing the new el6/el7 modules 
-        if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
+        if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh -a -e /cvmfs/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]; then
             . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
         fi
-    elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+    elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh -a -e /cvmfs/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]; then
         . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
     fi
 fi
