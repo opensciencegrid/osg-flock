@@ -42,17 +42,17 @@ csiu.grid.iu.edu:
 
 ### OSG Connect ###
 
-login01.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net
-  subschedds:
-    - main
-    - Q1
-    - Q2
-    - Q3
-    - Q4
-    - Q5
+#login01.osgconnect.net:
+#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+#  site: OSGConnect
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net
+#  subschedds:
+#    - main
+#    - Q1
+#    - Q2
+#    - Q3
+#    - Q4
+#    - Q5
 
 login02.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
