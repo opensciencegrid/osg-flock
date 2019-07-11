@@ -668,18 +668,6 @@ if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     fi
 fi
 
-
-##################
-# squid
-
-HAS_SQUID="False"
-export OSG_SQUID_LOCATION=${OSG_SQUID_LOCATION:-UNAVAILABLE}
-if [ "$OSG_SQUID_LOCATION" != UNAVAILABLE ]; then
-    HAS_SQUID="True"
-fi
-advertise HAS_SQUID "$HAS_SQUID" "C"
-
-
 ##################
 # cms software
 
@@ -849,26 +837,35 @@ advertise WGET_PATH "$WGET_PATH" "S"
 
 if [ "X$WGET_PATH" != "X" ]; then
     SQUID_VERIFIED="False"
+    HTTP_PROXY_VALUE=""
     if [ -e $TEST_FILE_1H.squid ]; then
         SQUID_VERIFIED=`cat $TEST_FILE_1H.squid`
     else
-        info "Setting up http_proxy enviroment variable"
-        info "VALUE of OSG_SQUID_LOCATION: $OSG_SQUID_LOCATION"
-        env http_proxy=$OSG_SQUID_LOCATION wget -qO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
-        if [ $? == 0 -a "X$OSG_SQUID_LOCATION" != "X" ]; then
-            info "testing proxy succeed"
-            info "setting up http_proxy to OSG_SQUID_LOCATION"
-            advertise "http_proxy" $OSG_SQUID_LOCATION "S"
-            SQUID_VERIFIED="true"
-            echo "True" > $TEST_FILE_1H.squid
-        else
-            info "testing proxy failed leaving http_proxy untouched"
+        info "Checking http_proxy enviroment"
+        for CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
+            info " ... checking $CANDIDATE"
+            env http_proxy=$CANDIDATE wget -qO/dev/null http://flock.opensciencegrid.org/vofrontend/monitor/
+            if [ $? == 0 -a "x$CANDIDATE" != "x" ]; then
+                info " ... testing proxy succeed"
+                SQUID_VERIFIED="true"
+                HTTP_PROXY_VALUE="$CANDIDATE"
+                echo "True" > $TEST_FILE_1H.squid
+                echo "$http_proxy" > $TEST_FILE_1H.http_proxy
+                break
+            fi
+        done
+        if [ "x$SQUID_VERIFIED" = "False" ]; then
+            info " ... testing proxy failed - leaving http_proxy untouched"
             echo "False" > $TEST_FILE_1H.squid
-        fi    
+            echo "" > $TEST_FILE_1H.http_proxy
+        fi
     fi
+    advertise HAS_SQUID "$SQUID_VERIFIED" "C"
     advertise SQUID_VERIFIED "$SQUID_VERIFIED" "C"
+    if [ "x$HTTP_PROXY_VALUE" != "x" ]; then
+        advertise "http_proxy" "$HTTP_PROXY_VALUE" "S"
+    fi
 fi
-
 
 
 

@@ -147,6 +147,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
+    # http_proxy from our advertise script
+    export http_proxy=$(getPropStr $_CONDOR_MACHINE_AD http_proxy)
+    if [ "x$http_proxy" = "x" ]; then
+        unset http_proxy
+    fi
+
     if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
         echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
         export OSG_SINGULARITY_AUTOLOAD=0
