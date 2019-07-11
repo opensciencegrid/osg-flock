@@ -259,6 +259,12 @@ uclhc-1.ps.uci.edu:
   site: UCI
   dn: /DC=org/DC=incommon/C=US/ST=CA/L=Irvine/O=University of California/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
 
+### SDSC GRAPLeR ###
+rocks-186.sdsc.edu:
+  admin: Shava Smallen <ssmallen@sdsc.edu>
+  site: SDSC
+  dn: /DC=org/DC=incommon/C=US/ST=CA/L=La Jolla/O=University of California, San Diego/OU=San Diego Supercomputer Center/CN=rocks-186.sdsc.edu
+
 ### AMNH ###
 
 amnh-submit.opensciencegrid.org:
