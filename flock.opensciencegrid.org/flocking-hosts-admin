@@ -57,6 +57,7 @@ def generate_htcondor_mapfile(data):
     # special case
     print('GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" donkri')
     print('GSI "^\/C\=US\/O\=Pittsburgh\ Supercomputing\ Center\/CN\=Donald\ Krieger" donkri')
+    print('GSI "^/O=Flock/CN=syracusetesting/flock.opensciencegrid.org" syracuse')
 
     print('GSI (.*) anonymous')
     print('FS (.*) \\1')
