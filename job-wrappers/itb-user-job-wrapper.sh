@@ -102,6 +102,12 @@ EOF
     rm -f $NVLIBLIST
 }
 
+# ensure all jobs have PATH set
+# bash can set a default PATH - make sure it is exported
+export PATH=$PATH
+if [ "x$PATH" = "x" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin"
+fi
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
@@ -140,6 +146,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
     
     export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
+
+    # http_proxy from our advertise script
+    export http_proxy=$(getPropStr $_CONDOR_MACHINE_AD http_proxy)
+    if [ "x$http_proxy" = "x" ]; then
+        unset http_proxy
+    fi
 
     if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
         echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
@@ -185,7 +197,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
         # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
         if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
-            export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-work.$$
+            if mkdir $GLIDEIN_Tmp_Dir/singularity-work.$$ ; then
+                export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-work.$$
+            fi
         fi
         
         OSG_SINGULARITY_EXTRA_OPTS=""
@@ -254,16 +268,21 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         export OSG_SINGULARITY_REEXEC=1
         exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
-                                   --home $PWD:/srv \
-                                   --pwd /srv \
-                                   --ipc --pid \
+                                   --bind $PWD:/srv \
+                                   --no-home --ipc --pid \
                                    "$OSG_SINGULARITY_IMAGE" \
                                    /srv/.osgvo-user-job-wrapper.sh \
                                    "${CMD[@]}"
     fi
 
 else
-    # we are now inside singularity - fix up the env
+    # we are now inside singularity
+
+    # need to start in /srv (Singularity's --pwd is not reliable)
+    cd /srv
+
+    # fix up the env
+    export HOME=/srv
     unset TMP
     unset TMPDIR
     unset TEMP
@@ -317,10 +336,10 @@ fi
 if [ "x$InitializeModulesEnv" = "x1" ]; then
     if [ "x$LMOD_BETA" = "x1" ]; then
         # used for testing the new el6/el7 modules 
-        if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh ]; then
+        if [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh -a -e /cvmfs/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]; then
             . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh
         fi
-    elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh ]; then
+    elif [ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh -a -e /cvmfs/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]; then
         . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
     fi
 fi

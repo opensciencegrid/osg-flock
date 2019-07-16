@@ -78,7 +78,17 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
     info "Running in directory $PWD"
- 
+    
+    if [ -e ../glidein_config ]; then
+        # gwms stupid tmp dir for periodic scripts - this breaks
+        # out ability to cache results
+        cd ../
+        info "GWMS tmp directory detected. Switched working directory to $PWD"
+    fi
+
+    # bash can set a default PATH - make sure it is exported
+    export PATH=$PATH
+
     # some sites do not have PATH set
     if [ "x$PATH" = "x" ]; then
         export PATH="/usr/local/bin:/usr/bin:/bin"
@@ -152,6 +162,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        atlas.cern.ch \
        cms.cern.ch \
        connect.opensciencegrid.org \
+       desdm.osgstorage.org \
        gwosc.osgstorage.org \
        icecube.opensciencegrid.org \
        ligo-containers.opensciencegrid.org \
@@ -163,6 +174,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        stash.osgstorage.org \
        veritas.opensciencegrid.org \
        xenon.opensciencegrid.org \
+       sw.lsst.eu \
     ; do
         FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
         FS_ATTR="HAS_CVMFS_$FS_CONV"
@@ -175,7 +187,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             RESULT="True"
             # add the revision
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            REV_VAL=1
+            if [ -e /usr/bin/attr ]; then
+                REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            fi
             
             # oasis.opensciencegrid.org needs extra checks
             if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
@@ -216,12 +231,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 # make sure it is an integer
                 if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
                     advertise $FS_ATTR "$RESULT" "C"
-                    advertise $REV_ATTR "$REV_VAL" "I"
+                    if [ $REV_VAL -ne 1 ]; then
+                        advertise $REV_ATTR "$REV_VAL" "I"
+                    fi
                 fi
-            else
-                # unable to determine revision - this is common on sites which re-export CVMFS
-                # via for example NFS locally. Advertise availability.
-                advertise $FS_ATTR "$RESULT" "C"
             fi
         fi
     done
@@ -242,11 +255,19 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     ###########################################################
+    # system attributes from the host
+
+    VIRTUALIZATION=`(systemd-detect-virt) 2>/dev/null`
+    if [ "x$VIRTUALIZATION" != "x" ]; then
+        advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
+    fi
+
+    ###########################################################
     # gpus - detect this outside Singularity
 
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" ]; then
+    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
 
-        info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+        info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
 
         rm -f gpu.ad
 
@@ -287,6 +308,31 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
 
+    # xcache - has to be outside due to the ping requirement
+    XCACHE_CLOSEST=""
+    XCACHE_CLOSEST_RTT="-1"
+    if [ -e $TEST_FILE_4H.xcache_closest ]; then
+        XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
+        XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
+    else
+        XCACHE_CLOSEST=`attr -qg external_host /cvmfs/stash.osgstorage.org| sed 's~http[s]*://~~g' | sed 's/.\{6\}$//' 2>/dev/null`
+        # test first using the cached cvmfs values
+    if [ "X$XCACHE_CLOSEST" != "X" ]; then
+            XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
+        fi
+        if [ "X$XCACHE_CLOSEST" != "X" ]; then
+            echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
+            # also want the RTT
+            XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
+            echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
+        else
+            echo "" > $TEST_FILE_4H.xcache_closest
+            echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
+        fi
+    fi
+    advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
+    advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
+
 fi # OSG_SINGULARITY_REEXEC
 
 ##################
@@ -302,7 +348,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     HAS_SINGULARITY="False"
-    export OSG_SINGULARITY_VERSION=`singularity --version 2>/dev/null`
+    export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
     if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
         HAS_SINGULARITY="True"
         export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
@@ -350,7 +396,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         HAS_SINGULARITY="False"
     fi
         
-    OSG_SINGULARITY_EXTRA_OPTS="--pwd /srv --bind /cvmfs"
+    OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"
         
     # Binding different mounts
     for MNTPOINT in \
@@ -365,15 +411,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     done
 
-    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain --ipc --pid"
+    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc --pid"
 
     # Let's do a simple singularity test by echoing something inside, and then
     # grepping for it outside. This takes care of some errors which happen "late"
     # in the execing, like:
     # ERROR  : Could not identify basedir for home directory path: /
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
-        if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
+        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
                                          $OSG_SINGULARITY_EXTRA_OPTS \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          echo "Hello World" \
@@ -385,10 +431,31 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     
+    # check that the /srv mount works correctly
+    rm -f test-singularity-create
+    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT touch test-singularity-create"
+        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+                                         $OSG_SINGULARITY_EXTRA_OPTS \
+                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+                                         touch /srv/test-singularity-create) 1>&2 \
+        ; then
+            # singularity simple exec failed - we are done
+            info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+            HAS_SINGULARITY="False"
+        else
+            # was the file really created?
+            if [ ! -f test-singularity-create ]; then
+                info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+                HAS_SINGULARITY="False"
+            fi
+        fi
+    fi
+    
     # also verify that the env is inherited correctly
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --home $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
-        if ! ($OSG_SINGULARITY_PATH exec --home $PWD:/srv \
+        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
+        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
                                          $OSG_SINGULARITY_EXTRA_OPTS \
                                          "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                          env \
@@ -427,8 +494,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
-        if $OSG_SINGULARITY_PATH exec --home $SING_OUTSIDE_BASE_DIR:/srv \
+        info "$OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+        if $OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv \
                                       $OSG_SINGULARITY_EXTRA_OPTS \
                                       "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                       $CMD \
@@ -442,6 +509,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     advertise HAS_SINGULARITY "False" "C"
 
 else
+
+    # make sure we are inside the correct dir
+    cd /srv
 
     if [ "x$add_config_line_source" != "x" ]; then
         export add_config_line_source=`singularityfy_path "$add_config_line_source"`
@@ -484,6 +554,14 @@ TEST_FILE_4H=.osgvo.test-results.4h
 find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
 
+# timeout - need this early as we use it in some commands later
+HAS_TIMEOUT="False"
+TIMEOUT_CMD=""
+if /usr/bin/timeout --version >/dev/null 2>&1; then
+    HAS_TIMEOUT="True"
+    export TIMEOUT_CMD="/usr/bin/timeout 60"
+fi
+advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 
 # operating system
 
@@ -548,8 +626,8 @@ advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
 
 # some cpu flags HTCondor is not yet advertising
 for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`; do
-    if (echo "$FLAG" | egrep "avx512") >/dev/null 2>&1; then
-        advertise has_$FLAG "True" "C"
+    if (echo "$FLAG" | egrep "avx512|cx16|f16c") >/dev/null 2>&1; then
+        advertise HAS_$FLAG "True" "C"
     fi
 done
 
@@ -568,6 +646,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
     advertise OpSysVer "${OS_VERSION}00" "I"
 fi
 
+##################
+# ulimits
+
+ULIMIT_STACK_SIZE=`(ulimit -s) 2>/dev/null`
+if [ "x$ULIMIT_STACK_SIZE" != "x" ]; then
+    if [ "X$ULIMIT_STACK_SIZE" = "Xunlimited" ]; then
+        ULIMIT_STACK_SIZE=-1
+    fi
+    advertise ULIMIT_STACK_SIZE "$ULIMIT_STACK_SIZE" "C"
+fi
 
 ##################
 # stash
@@ -579,18 +667,6 @@ if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
         advertise StashReadWrite "True" "C"
     fi
 fi
-
-
-##################
-# squid
-
-HAS_SQUID="False"
-export OSG_SQUID_LOCATION=${OSG_SQUID_LOCATION:-UNAVAILABLE}
-if [ "$OSG_SQUID_LOCATION" != UNAVAILABLE ]; then
-    HAS_SQUID="True"
-fi
-advertise HAS_SQUID "$HAS_SQUID" "C"
-
 
 ##################
 # cms software
@@ -705,22 +781,31 @@ advertise HAS_SCP "$HAS_SCP" "C"
 # this is a one-shot test
 rm -f test.txt
 STASHCP_VERIFIED="False"
-XCACHE_CLOSEST=""
-if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-    XCACHE_CLOSEST=`cat $TEST_FILE_1H.xcache_closest`
-elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
+if [ -e $TEST_FILE_4H.stashcp ]; then
+    STASHCP_VERIFIED=`cat $TEST_FILE_4H.stashcp`
+elif (export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp /user/rynge/public/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
-    echo "True" > $TEST_FILE_1H.stashcp
-    XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH &&stashcp --closest) 2>/dev/null`
-    echo "$XCACHE_CLOSEST" > $TEST_FILE_1H.xcache_closest
+    echo "True" > $TEST_FILE_4H.stashcp
 else
-    echo "False" > $TEST_FILE_1H.stashcp
-    echo "" > $TEST_FILE_1H.xcache_closest
+    echo "False" > $TEST_FILE_4H.stashcp
 fi
 advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
-advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
 
+
+##################
+# gfal
+
+# this is a one-shot test
+GFAL_VERIFIED="False"
+if [ -e $TEST_FILE_4H.gfal ]; then
+    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
+elif $TIMEOUT_CMD gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
+    GFAL_VERIFIED="True"
+    echo "True" > $TEST_FILE_4H.gfal
+else
+    echo "False" > $TEST_FILE_4H.gfal
+fi
+advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 
 ##################
 # guc
@@ -731,35 +816,12 @@ if [ "X$GUC_PATH" = "X" ]; then
 fi
 advertise GUC_PATH "$GUC_PATH" "S"
 
-# does it work?
+# save some gridftp connections here by reusing the gfal results (imperfect, but good enough)
 # this is a one-shot test
 if [ "X$GUC_PATH" != "X" ]; then
-    GUC_VERIFIED="False"
-    if [ -e $TEST_FILE_4H.guc ]; then
-        GUC_VERIFIED=`cat $TEST_FILE_4H.guc`
-    elif globus-url-copy -stall-timeout 10 -notpt gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
-        GUC_VERIFIED="True"
-        echo "True" > $TEST_FILE_4H.guc
-    else
-        echo "False" > $TEST_FILE_4H.guc
-    fi
+    GUC_VERIFIED="$GFAL_VERIFIED"
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
-
-##################
-# gfal
-
-# this is a one-shot test
-GFAL_VERIFIED="False"
-if [ -e $TEST_FILE_4H.gfal ]; then
-    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
-elif gfal-copy -t 30 -f gsiftp://workflow.isi.edu/etc/hosts file:///dev/null >/dev/null 2>&1; then
-    GFAL_VERIFIED="True"
-    echo "True" > $TEST_FILE_4H.gfal
-else
-    echo "False" > $TEST_FILE_4H.gfal
-fi
-advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 
 #############################
 ## squid enviroment variable
@@ -775,26 +837,35 @@ advertise WGET_PATH "$WGET_PATH" "S"
 
 if [ "X$WGET_PATH" != "X" ]; then
     SQUID_VERIFIED="False"
+    HTTP_PROXY_VALUE=""
     if [ -e $TEST_FILE_1H.squid ]; then
         SQUID_VERIFIED=`cat $TEST_FILE_1H.squid`
     else
-        info "Setting up http_proxy enviroment variable"
-        info "VALUE of OSG_SQUID_LOCATION: $OSG_SQUID_LOCATION"
-        env http_proxy=$OSG_SQUID_LOCATION wget -qO/dev/null http://glidein2.chtc.wisc.edu/vofrontend/monitor/
-        if [ $? == 0 -a "X$OSG_SQUID_LOCATION" != "X" ]; then
-            info "testing proxy succeed"
-            info "setting up http_proxy to OSG_SQUID_LOCATION"
-            advertise "http_proxy" $OSG_SQUID_LOCATION "S"
-            SQUID_VERIFIED="true"
-            echo "True" > $TEST_FILE_1H.squid
-        else
-            info "testing proxy failed leaving http_proxy untouched"
+        info "Checking http_proxy enviroment"
+        for CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
+            info " ... checking $CANDIDATE"
+            env http_proxy=$CANDIDATE wget -qO/dev/null http://flock.opensciencegrid.org/vofrontend/monitor/
+            if [ $? == 0 -a "x$CANDIDATE" != "x" ]; then
+                info " ... testing proxy succeed"
+                SQUID_VERIFIED="true"
+                HTTP_PROXY_VALUE="$CANDIDATE"
+                echo "True" > $TEST_FILE_1H.squid
+                echo "$http_proxy" > $TEST_FILE_1H.http_proxy
+                break
+            fi
+        done
+        if [ "x$SQUID_VERIFIED" = "False" ]; then
+            info " ... testing proxy failed - leaving http_proxy untouched"
             echo "False" > $TEST_FILE_1H.squid
-        fi    
+            echo "" > $TEST_FILE_1H.http_proxy
+        fi
     fi
+    advertise HAS_SQUID "$SQUID_VERIFIED" "C"
     advertise SQUID_VERIFIED "$SQUID_VERIFIED" "C"
+    if [ "x$HTTP_PROXY_VALUE" != "x" ]; then
+        advertise "http_proxy" "$HTTP_PROXY_VALUE" "S"
+    fi
 fi
-
 
 
 
@@ -807,15 +878,6 @@ if xrdcp --version >/dev/null 2>&1; then
 fi
 advertise HAS_XRDCP "$HAS_XRDCP" "C"
 
-
-##################
-# timeout
-
-HAS_TIMEOUT="False"
-if /usr/bin/timeout --version >/dev/null 2>&1; then
-    HAS_TIMEOUT="True"
-fi
-advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 
 
 ##################
