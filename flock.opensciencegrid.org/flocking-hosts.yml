@@ -143,9 +143,9 @@ glidein-1.sbgrid.org:
 ### MIT ###
 
 submit.mit.edu:
-  admin: Yutaro Iiyama <yiiyama@mit.edu>
+  admin: Yutaro Iiyama <yiiyama@mit.edu>, Benedikt Maier <benedikt.maier@cern.ch>
   site: MIT
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=submit.mit.edu
+  dn: /DC=org/DC=incommon/C=US/ST=MA/L=Cambridge/O=Massachusetts Institute of Technology/OU=Information Systems & Technology/CN=submit.mit.edu
 
 ### IIT ###
 
