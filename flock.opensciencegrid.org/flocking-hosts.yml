@@ -236,7 +236,7 @@ pcf-osg.t2.ucsd.edu:
 ### Rutgers ###
 
 osg-amarel.hpc.rutgers.edu:
-  admin: Edgar Fajardo <emfajard@ucsd.edu>
+  admin: Balamurugan Desinghu <bala.desinghu@rutgers.edu>
   site: Rutgers
   dn: /DC=org/DC=incommon/C=US/postalCode=08901/ST=NJ/L=NEW BRUNSWICK/street=57 US HIGHWAY 1/O=Rutgers, The State University of New Jersey/OU=OIT-CCS/CN=osg-amarel.hpc.rutgers.edu
 
