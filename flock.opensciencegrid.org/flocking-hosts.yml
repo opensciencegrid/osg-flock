@@ -140,9 +140,9 @@ glidein-1.sbgrid.org:
   site: SBGrid
   dn: /CN=glidein-1.sbgrid.org
 
-### MIT ###
+### MIT ### (note that gwms is case-sensitive, and this host advertises itself in all caps)
 
-submit.mit.edu:
+SUBMIT.MIT.EDU:
   admin: Yutaro Iiyama <yiiyama@mit.edu>, Benedikt Maier <benedikt.maier@cern.ch>
   site: MIT
   dn: /DC=org/DC=incommon/C=US/ST=MA/L=Cambridge/O=Massachusetts Institute of Technology/OU=Information Systems & Technology/CN=submit.mit.edu
