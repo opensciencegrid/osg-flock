@@ -200,7 +200,7 @@ rocinante.cyverse.org:
 akbul.cyverse.org:
   admin: Ian McEwen <mian@cyverse.org>
   site: Cyverse
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=akbul.cyverse.org
+  dn: /DC=org/DC=incommon/C=US/ST=AZ/L=Tucson/O=The University of Arizona/CN=akbul.cyverse.org
 
 ### UConn ###
 
