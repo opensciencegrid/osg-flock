@@ -306,6 +306,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             my_warn "GPU detection failed!"
             advertise "GPUDetection" "No GPUs detected" "S"
         fi
+	if [ $rand -le $OSG_SINGULARITY_EL7_PERCENT ]; then
+            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >.osgvo-default-singularity-image
+        else
+            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6-cuda:latest" >.osgvo-default-singularity-image
+        fi
+	export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+	info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
     fi
 
     # xcache - has to be outside due to the ping requirement
