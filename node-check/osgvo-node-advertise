@@ -366,7 +366,14 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             HAS_SINGULARITY="True"
             export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
         else
-            info "Unable to find singularity in PATH=$PATH"
+            # last resort is to try adding to the PATH
+            export OSG_SINGULARITY_VERSION=`export PATH="/usr/local/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; singularity --version 2>/dev/null`
+            if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
+                HAS_SINGULARITY="True"
+                export OSG_SINGULARITY_PATH=`export PATH="/usr/local/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; which singularity`
+            else
+                info "Unable to find singularity in PATH=$PATH"
+            fi
         fi
     fi
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
