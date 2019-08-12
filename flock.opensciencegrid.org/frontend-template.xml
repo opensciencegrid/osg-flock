@@ -20,7 +20,7 @@
                                           (isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
                                           (isUndefined(MY.RecentJobStarts) || RecentJobStarts &lt; 100) &amp;&amp;
                                           (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
-                                          (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio", ",")) &amp;&amp;
+                                          (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",")) &amp;&amp;
                                           (isUndefined(WantsStashCvmfs) ||
                                              !WantsStashCvmfs ||                
                                              isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
