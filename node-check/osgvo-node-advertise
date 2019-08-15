@@ -74,6 +74,23 @@ function singularityfy_path {
     fi
 }
 
+
+#############################################################################
+#
+# Some tests are too heavy-weight to run every
+# 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
+# in cwd. These files will be cleaned up after 60 minutes and allow the
+# test to rerun then again. There is also a 3 hour version.
+#
+
+TEST_FILE_1H=.osgvo.test-results.1h
+TEST_FILE_4H=.osgvo.test-results.4h
+
+# clean up old ones
+find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
+find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
+
+
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
@@ -202,16 +219,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 fi
             fi
 
-            # oasis.opensciencegrid.org needs extra checks
-            if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
-                if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
-                if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
-            fi
-
             # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
                 if ! cat /cvmfs/stash.osgstorage.org/user/bbockelm/public/testfile >/dev/null 2>&1; then
@@ -306,13 +313,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             my_warn "GPU detection failed!"
             advertise "GPUDetection" "No GPUs detected" "S"
         fi
-	if [ $rand -le $OSG_SINGULARITY_EL7_PERCENT ]; then
-            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >.osgvo-default-singularity-image
-        else
-            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6-cuda:latest" >.osgvo-default-singularity-image
-        fi
-	export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
-	info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
+
+        echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >.osgvo-default-singularity-image
+        export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+        info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
     fi
 
     # xcache - has to be outside due to the ping requirement
@@ -465,6 +469,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
         fi
     fi
+    rm -f test-singularity-create
     
     # also verify that the env is inherited correctly
     if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
@@ -479,6 +484,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             my_warn "Singularity is not inheriting the outside environment"
             HAS_SINGULARITY="False"
         fi
+    fi
+
+    # some sites have crappy CVMFS which means HAS_SINGULARITY flaps - prevent this
+    # by remembering failures for 4 hours
+    if [ "x$HAS_SINGULARITY" = "xFalse" ]; then
+        echo "False" > $TEST_FILE_4H.has_singularity
+    elif [ -e $TEST_FILE_4H.has_singularity ]; then
+        my_warn "Singularity is disabled due to failures some time in the last 4 hours"
+        HAS_SINGULARITY="False"
     fi
 
     # If we still think we have singularity, we should re-exec this script within the default
@@ -555,18 +569,7 @@ fi
 #############################################################################
 #
 # At this point Singularity tests are done, and we can concentrate on 
-# regular systems test. Some tests are too heavy-weight to run every
-# 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
-# in cwd. These files will be cleaned up after 60 minutes and allow the
-# test to rerun then again. There is also a 3 hour version.
-#
-
-TEST_FILE_1H=.osgvo.test-results.1h
-TEST_FILE_4H=.osgvo.test-results.4h
-
-# clean up old ones
-find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
-find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
+# regular systems test.
 
 # timeout - need this early as we use it in some commands later
 HAS_TIMEOUT="False"
@@ -1024,35 +1027,6 @@ if [ -e "$APP_BASE/bin/blastp" -a -e "$DATA_BASE/nr.00.phr" ]; then
 fi
 advertise HAS_BLAST "$HAS_BLAST" "C"
 
-
-##################
-# PHSW (Matt Snowball)
-#
-#info "Checking for PHSW availability..."
-#
-#PHSW_RESULT="True"
-#PHSWDIR=/cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw
-#
-#if [ -e /cvmfs/oasis.opensciencegrid.org/osg/projects/phenix/snowball/phnxsw/bin/set_grid_env.sh ]; then
-#
-#    if ! (source $PHSWDIR/bin/set_grid_env.sh && grid-proxy-init -version && voms-proxy-init -version) 1>&2 ; then
-#        PHSW_RESULT="False"
-#    fi
-#    
-#    (source $PHSWDIR/bin/set_grid_env.sh && globus-url-copy -version) 1>&2
-#    RC=$?
-#    if [ "x$RC" != "x0" -a "x$RC" != "x1" ]; then
-#        PHSW_RESULT="False"
-#    fi
-#    
-#    if ! (source $PHSWDIR/bin/set_grid_env.sh && root.exe -l -b -q) 1>&2 ; then
-#        PHSW_RESULT="False"
-#    fi
-#else
-#    PHSW_RESULT="False"
-#fi
-#
-#advertise HAS_PHSW "$PHSW_RESULT" "C"
 
 ##################
 # mostly done - update START validation expressions and warnings attribute
