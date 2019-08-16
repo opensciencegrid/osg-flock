@@ -109,6 +109,9 @@ if [ "x$PATH" = "x" ]; then
     export PATH="/usr/local/bin:/usr/bin:/bin"
 fi
 
+# clean up potential leftovers from previous runs
+rm -f .singularity.startup-ok
+
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
@@ -175,8 +178,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
                 echo "warning: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
                 echo "         $OSG_SITE_NAME" `hostname -f` 1>&2
-                touch ../../.stop-glidein.stamp >/dev/null 2>&1
-                sleep 10m
+                if [ "x$GWMS_DEBUG" = "x" ]; then
+                    touch ../../.stop-glidein.stamp >/dev/null 2>&1
+                    sleep 20m
+                fi
+                exit 1
             fi
         fi
 
@@ -267,12 +273,26 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         done
 
         export OSG_SINGULARITY_REEXEC=1
-        exec $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
-                                   --bind $PWD:/srv \
-                                   --no-home --ipc --pid \
-                                   "$OSG_SINGULARITY_IMAGE" \
-                                   /srv/.osgvo-user-job-wrapper.sh \
-                                   "${CMD[@]}"
+        $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
+                              --bind $PWD:/srv \
+                              --no-home --ipc --pid \
+                              "$OSG_SINGULARITY_IMAGE" \
+                              /srv/.osgvo-user-job-wrapper.sh \
+                              "${CMD[@]}"
+        EC=$?
+        if [ $EC -ne 0 ]; then
+            # was it a Singularity issue or a user job issue?
+            if [ ! -e .singularity.startup-ok ]; then
+                echo "Singularity encountered an error starting the container." 1>&2
+                if [ "x$GWMS_DEBUG" = "x" ]; then
+                    sleep 20m
+                fi
+            fi
+        fi
+        if [ "x$GWMS_DEBUG" = "x" ]; then
+            rm -f .singularity.startup-ok
+        fi
+        exit $EC
     fi
 
 else
@@ -317,6 +337,9 @@ else
     if [ "x$TZ" = "x" ]; then
         export TZ="UTC"
     fi
+
+    # signal our parent that we got here
+    touch .singularity.startup-ok
 fi 
 
 

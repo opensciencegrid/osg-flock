@@ -1,0 +1,3 @@
+HAS_SINGULARITY = 1
+OSG_SINGULARITY_PATH = "/usr/bin/singularity-non-existant"
+OSG_SINGULARITY_IMAGE_DEFAULT = "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7:latest"

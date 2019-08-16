@@ -1,0 +1,4 @@
+.stop-glidein.stamp
+job-wrappers/tests/.singularity.startup-ok
+job-wrappers/tests/.user-job-wrapper.sh
+job-wrappers/tests/user-job-wrapper.sh
