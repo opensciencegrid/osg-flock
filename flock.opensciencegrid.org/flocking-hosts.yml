@@ -185,17 +185,17 @@ scosg16.jlab.org:
 aragon.cyverse.org:
   admin: Ian McEwen <mian@cyverse.org>
   site: Cyverse
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=aragon.cyverse.org
+  dn: /DC=org/DC=incommon/C=US/ST=AZ/L=Tucson/O=The University of Arizona/CN=aragon.cyverse.org
 
 services-2.cyverse.org:
   admin: Ian McEwen <mian@cyverse.org>
   site: Cyverse
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=services-2.cyverse.org
+  dn: /DC=org/DC=incommon/C=US/ST=AZ/L=Tucson/O=The University of Arizona/CN=services-2.cyverse.org
 
 rocinante.cyverse.org:
   admin: Ian McEwen <mian@cyverse.org>
   site: Cyverse
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=rocinante.cyverse.org
+  dn: /DC=org/DC=incommon/C=US/ST=AZ/L=Tucson/O=The University of Arizona/CN=rocinante.cyverse.org
 
 akbul.cyverse.org:
   admin: Ian McEwen <mian@cyverse.org>
