@@ -703,13 +703,13 @@
             <running_glideins_total curb="9000" max="10000"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.projectName =?= "pcfosgucsd" || TARGET.projectName =?= "mapping" || TARGET.projectName=?= "UCSD_YZYou") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
-	   <factory query_expr='FactoryType == "production" &amp;&amp; GLIDEIN_SITE=?="SDSC-PRP"'>
+	   <factory query_expr='FactoryType == "production" &amp;&amp; GLIDEIN_ENTRY_NAME=?="Glow_US_UCSD_xcache" '>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-	     <job query_expr='(projectName =?= "pcfosgucsd" || projectName =?= "mapping" || projectName=?= "UCSD_YZYou") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+	     <job query_expr='(projectName =?= "pcfosgucsd" || projectName =?= "mapping" || projectName=?= "UCSD_YZYou") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; isUndefined(RequestGPUs) '>
                <match_attrs>
                </match_attrs>
                <schedds>
