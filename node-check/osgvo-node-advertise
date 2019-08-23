@@ -492,6 +492,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         echo "False" > $TEST_FILE_4H.has_singularity
     elif [ -e $TEST_FILE_4H.has_singularity ]; then
         my_warn "Singularity is disabled due to failures some time in the last 4 hours"
+        GLIDEIN_VALIDATION_WARNINGS="Singularity is disabled due to failures some time in the last 4 hours. $GLIDEIN_VALIDATION_WARNINGS"
         HAS_SINGULARITY="False"
     fi
 

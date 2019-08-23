@@ -283,9 +283,20 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         if [ $EC -ne 0 ]; then
             # was it a Singularity issue or a user job issue?
             if [ ! -e .singularity.startup-ok ]; then
-                echo "Singularity encountered an error starting the container." 1>&2
+                echo "Singularity encountered an error starting the container" 1>&2
+                # also to _CONDOR_WRAPPER_ERROR_FILE
+                if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
+                    echo "Singularity encountered an error starting the container" >>$_CONDOR_WRAPPER_ERROR_FILE
+                fi
+                # also chirp
+                if [ -e ../../main/condor/libexec/condor_chirp ]; then
+                    ../../main/condor/libexec/condor_chirp set_job_attr JobWrapperFailure "Singularity encountered an error starting the container"
+                fi
+                # small wait for ad to update
+                sleep 2m
                 if [ "x$GWMS_DEBUG" = "x" ]; then
-                    sleep 20m
+                    # if we are not debugging, add more wait to block slot
+                    sleep 15m
                 fi
             fi
         fi

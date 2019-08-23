@@ -68,6 +68,8 @@ function test_singularity_fail_1 {
 function test_singularity_fail_2 {
     # test with good image, bad Singularity binary
     export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity-bad-detection
+    export _CONDOR_WRAPPER_ERROR_FILE=$PWD/.condor_wrapper_error_file
+    rm -f $_CONDOR_WRAPPER_ERROR_FILE
     if ($PWD/user-job-wrapper.sh true); then
         echo "ERROR: job exited zero, we expected non-zero"
         return 1
@@ -76,6 +78,11 @@ function test_singularity_fail_2 {
         echo "ERROR: .singularity.startup-ok exists - this is unexpected"
         return 1 
     fi
+    if [ ! -e $_CONDOR_WRAPPER_ERROR_FILE ]; then
+        echo "ERROR: \$_CONDOR_WRAPPER_ERROR_FILE was not created"
+        return 1 
+    fi
+    rm -f $_CONDOR_WRAPPER_ERROR_FILE
     return 0
 }
 
