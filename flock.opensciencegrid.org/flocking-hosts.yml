@@ -128,10 +128,10 @@ scott.grid.uchicago.edu:
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scott.grid.uchicago.edu
 
-vc3-gateway.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=vc3-gateway.osgconnect.net
+#vc3-gateway.osgconnect.net:
+#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+#  site: OSGConnect
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=vc3-gateway.osgconnect.net
 
 ### SBGrid ###
 
