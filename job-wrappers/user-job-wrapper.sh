@@ -143,7 +143,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
-    export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
+    # Loading modules should only happen by default for OSG VO
+    if [ "x$GLIDECLIENT_OSG_VO" = "xOSG" ]; then
+        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
+    else
+        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 0)
+    fi
     export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)

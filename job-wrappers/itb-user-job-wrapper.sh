@@ -143,7 +143,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
-    export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
+    # Loading modules should only happen by default for OSG VO
+    if [ "x$GLIDECLIENT_OSG_VO" = "xOSG" ]; then
+        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
+    else
+        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 0)
+    fi
     export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
     export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
@@ -200,7 +205,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 fi
             fi
         fi
-    
+
+	# ddavila 20190510:
+        # If condor_chirp is present, then copy it inside the container.
+        if [ -e ../../main/condor/libexec/condor_chirp ]; then
+            mkdir -p condor/libexec
+            cp ../../main/condor/libexec/condor_chirp condor/libexec/condor_chirp
+            mkdir -p condor/lib
+            cp -r ../../main/condor/lib condor/
+        fi
+
         # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
         if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
             if mkdir $GLIDEIN_Tmp_Dir/singularity-work.$$ ; then
@@ -341,6 +355,13 @@ else
     # override some OSG specific variables
     if [ "x$OSG_WN_TMP" != "x" ]; then
         export OSG_WN_TMP=/tmp
+    fi
+
+    # ddavila 20190510:
+    # Add Chirp back to the environment
+    if [ -e $PWD/condor/libexec/condor_chirp ]; then
+        export PATH=$PWD/condor/libexec:$PATH
+        export LD_LIBRARY_PATH=$PWD/condor/lib:$LD_LIBRARY_PATH
     fi
 
     # Some java programs have seen problems with the timezone in our containers.
