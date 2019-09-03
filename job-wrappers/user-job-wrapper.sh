@@ -200,7 +200,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 fi
             fi
         fi
-    
+
+	# ddavila 20190510:
+        # If condor_chirp is present, then copy it inside the container.
+        if [ -e ../../main/condor/libexec/condor_chirp ]; then
+            mkdir -p condor/libexec
+            cp ../../main/condor/libexec/condor_chirp condor/libexec/condor_chirp
+            mkdir -p condor/lib
+            cp -r ../../main/condor/lib condor/
+        fi
+
         # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
         if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
             if mkdir $GLIDEIN_Tmp_Dir/singularity-work.$$ ; then
@@ -341,6 +350,13 @@ else
     # override some OSG specific variables
     if [ "x$OSG_WN_TMP" != "x" ]; then
         export OSG_WN_TMP=/tmp
+    fi
+
+    # ddavila 20190510:
+    # Add Chirp back to the environment
+    if [ -e $PWD/condor/libexec/condor_chirp ]; then
+        export PATH=$PWD/condor/libexec:$PATH
+        export LD_LIBRARY_PATH=$PWD/condor/lib:$LD_LIBRARY_PATH
     fi
 
     # Some java programs have seen problems with the timezone in our containers.
