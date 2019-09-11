@@ -74,6 +74,71 @@ function singularityfy_path {
     fi
 }
 
+function determine_default_container_image {
+    # Selects a default image to use if a job does not specify
+    # an image to use. The new style to specify this is with an
+    # attribute named OSG_DEFAULT_CONTAINER_DISTRIBUTION
+    # Example:
+    # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
+
+    # only run the selection once
+    if [ -e .osgvo-default-singularity-image ]; then
+        SELECTED_IMAGE=`cat .osgvo-default-singularity-image`
+        return
+    fi
+
+    OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
+    OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
+
+    # if we are given GPUs, pick up GPU specific images
+    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+        OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
+    fi
+
+    SELECTED_IMAGE=""
+    if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
+        # new style - weghted random selection
+        TARGET=$(($RANDOM % 100 + 1))
+        TOTAL_PERCENT=0
+        for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
+            PERCENT=`echo $ENTRY | sed 's/%__.*//'`
+            IMAGE=`echo $ENTRY | sed 's/.*%__//'`
+            # verify it exists
+            if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
+                my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
+                continue
+            fi
+            # we just need to track the upper limit
+            TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
+            if [ $TARGET -le $TOTAL_PERCENT ]; then
+                SELECTED_IMAGE=$IMAGE
+                break
+            fi
+        done
+    elif [ "x$OSG_SINGULARITY_EL7_PERCENT" != "x" ]; then
+        # old style - keep until OSG_SINGULARITY_EL7_PERCENT has been
+        # removed from all frontends
+        TARGET=$(($RANDOM % 100 + 1))
+        if [ $TARGET -le $OSG_SINGULARITY_EL7_PERCENT ]; then
+            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
+        else
+            SELECTED_IMAGE="opensciencegrid/osgvo-el6:latest"
+        fi
+    fi
+
+    # if everything else fails, use EL7
+    if [ "x$SELECTED_IMAGE" = "x" ]; then
+        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+            SELECTED_IMAGE="opensciencegrid/osgvo-el7-cuda10:latest"
+        else
+            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
+        fi
+    fi
+
+    # prepend the base bath
+    SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
+    echo $SELECTED_IMAGE >.osgvo-default-singularity-image
+}
 
 #############################################################################
 #
@@ -117,6 +182,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     alias 1>&2 || true
 else
     info "Now running inside a singularity container"
+    # make sure we are inside the correct dir
+    cd /srv
 fi
 
 if [ "x$glidein_config" = "x" ]; then
@@ -391,19 +458,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     # default image for this glidein - us a distribution between different OSes
-    # this can be controlled a parameter in the frontend config: OSG_SINGULARITY_EL7_PERCENT
-    export OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
-    if [ "x$OSG_SINGULARITY_EL7_PERCENT" = "x" ]; then
-        # default if not specified in the config
-        export OSG_SINGULARITY_EL7_PERCENT=0
-    fi
     if [ ! -e .osgvo-default-singularity-image ]; then
-        let "rand = $RANDOM % 100 + 1"
-        if [ $rand -le $OSG_SINGULARITY_EL7_PERCENT ]; then
-            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7:latest" >.osgvo-default-singularity-image
-        else
-            echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest" >.osgvo-default-singularity-image
-        fi
+        determine_default_container_image
     fi
     export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
     info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
@@ -520,6 +576,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         for VAR in "$@"; do
             CMD="$CMD "`singularityfy_path $VAR`
         done
+    
+        # update the gwms configs 
+        if [ "x$add_config_line_source" != "x" ]; then
+            export add_config_line_source=`singularityfy_path "$add_config_line_source"`
+            export condor_vars_file=`singularityfy_path "$condor_vars_file"`
+            info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+        fi
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
@@ -534,19 +597,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     
+    
     # if we get here, singularity is not available or not working
     advertise HAS_SINGULARITY "False" "C"
 
 else
-
-    # make sure we are inside the correct dir
-    cd /srv
-
-    if [ "x$add_config_line_source" != "x" ]; then
-        export add_config_line_source=`singularityfy_path "$add_config_line_source"`
-        export condor_vars_file=`singularityfy_path "$condor_vars_file"`
-        info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
-    fi
 
     # delay the advertisement until here to make sure singularity actually works
     advertise HAS_SINGULARITY "True" "C"
