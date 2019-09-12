@@ -143,11 +143,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
     export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
-    # Loading modules should only happen by default for OSG VO
-    if [ "x$GLIDECLIENT_OSG_VO" = "xOSG" ]; then
-        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
-    else
+    # Don't load modules for LIGO
+    if (echo "X$GLIDEIN_Client" | grep ligo) >/dev/null 2>&1; then
         export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 0)
+    else
+        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
     fi
     export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
