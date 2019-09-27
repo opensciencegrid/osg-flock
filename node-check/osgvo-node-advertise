@@ -568,13 +568,16 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             cp $X509_USER_PROXY $SING_OUTSIDE_BASE_DIR/x509-pilot-proxy
             export X509_USER_PROXY=/srv/x509-pilot-proxy
         fi
+        
+        # We want to bind $PWD to /srv within the container - however, in order
+        # to do that, we have to make sure everything we need is in $PWD, most
+        # notably the osgvo-node-advertise (this script!)
+        if [ ! -e .osgvo-node-advertise ]; then
+            cp $0 .osgvo-node-advertise
+        fi
 
         # build a new command line, with updated paths
-        CMD=`singularityfy_path $0`
-        # if $0 does not contain a full path, prepend /srv
-        if ! (echo $0 | grep "^/") >/dev/null 2>&1; then
-            CMD="/srv/$0"
-        fi
+        CMD="/srv/.osgvo-node-advertise"
         for VAR in "$@"; do
             CMD="$CMD "`singularityfy_path $VAR`
         done
