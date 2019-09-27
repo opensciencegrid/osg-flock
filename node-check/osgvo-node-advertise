@@ -29,6 +29,7 @@ function info {
 
 function my_warn {
     echo "WARN  " $@ 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$GLIDEIN_VALIDATION_WARNINGS $@."
 }
 
 function advertise {
@@ -140,6 +141,15 @@ function determine_default_container_image {
     echo $SELECTED_IMAGE >.osgvo-default-singularity-image
 }
 
+
+###########################################################
+# We have two env variables which can be added to in this
+# script to provide an expression for the START expression
+# and a general warnings string which gets published in the
+# ad. These are env variables until the end.
+export GLIDEIN_VALIDATION_EXPR="True"
+export GLIDEIN_VALIDATION_WARNINGS=""
+
 #############################################################################
 #
 # Some tests are too heavy-weight to run every
@@ -208,14 +218,6 @@ if [ "$glidein_config" != "NONE" ]; then
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
 fi
-
-###########################################################
-# We have two env variables which can be added to in this
-# script to provide an expression for the START expression
-# and a general warnings string which gets published in the
-# ad. These are env variables until the end.
-export GLIDEIN_VALIDATION_EXPR="True"
-export GLIDEIN_VALIDATION_WARNINGS=""
 
 ###########################################################
 #
@@ -939,7 +941,6 @@ if [ "X$WGET_PATH" != "X" ]; then
         advertise "http_proxy" "$HTTP_PROXY_VALUE" "S"
     fi
 fi
-
 
 
 ##################
