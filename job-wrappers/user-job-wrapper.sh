@@ -286,6 +286,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             CMD+=("$VAR")
         done
 
+        if [ "x$LD_LIBRARY_PATH" != "x" ]; then
+            echo "OSG Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+            unset LD_LIBRARY_PATH
+        fi
+
         export OSG_SINGULARITY_REEXEC=1
         $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                               --bind $PWD:/srv \

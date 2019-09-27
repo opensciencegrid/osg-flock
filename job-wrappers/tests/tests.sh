@@ -54,6 +54,25 @@ function test_singularity {
     return 0
 }
 
+function test_singularity_ld_library_path {
+    rm -f out.txt
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity
+    if ! (LD_LIBRARY_PATH=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh ls >out.txt 2>&1); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    if ! (grep DO_NOT_PROPAGATE out.txt >/dev/null); then
+        echo "ERROR: LD_LIBRARY_PATH propagated?"
+        return 1 
+    fi
+    rm -f out.txt
+    return 0
+}
+
 function test_singularity_fail_1 {
     # missing image
     export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity-fail
@@ -107,6 +126,7 @@ export GWMS_DEBUG=1
 
 # run the tests
 run_test test_non_singularity
+run_test test_singularity_ld_library_path
 run_test test_non_singularity_fail
 run_test test_singularity
 run_test test_singularity_fail_1
