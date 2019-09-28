@@ -281,6 +281,13 @@ huxley-osgsub-001.sdmz.amnh.org:
   admin: Sajesh Singh <ssingh@amnh.org>
   site: AMNH
 
+### NanoHub ###
+
+devsubmit-64.nanohub.org:
+  admin: Steven Clark <clarks@purdue.edu>
+  site: NanoHub
+  dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=devcondordaemon.nanohub.org
+
 # not sure about these:
 
 ### FLOCK_FROM = $(FLOCK_FROM) scigrid1.physics.fsu.edu
