@@ -137,6 +137,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad 1)
     export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS 1)
     export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs 1)
+    export OSG_SINGULARITY_CLEAN_ENV_IMAGE=$(getPropStr $_CONDOR_JOB_AD SingularityImageCleanEnv 0)
 
     export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
     export STASHCACHE_WRITABLE=$(getPropBool $_CONDOR_JOB_AD WantsStashCacheWritable 0)
@@ -227,6 +228,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # cvmfs access inside container (default, but optional)
         if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
+        fi
+
+        # clean environment if user wants it
+        if [ "x$OSG_SINGULARITY_CLEAN_ENV_IMAGE" = "x" ]; then
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --cleanenv"
         fi
 
         # Binding different mounts
