@@ -231,7 +231,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         # clean environment if user wants it
-        if [ "x$OSG_SINGULARITY_CLEAN_ENV_IMAGE" = "x1" ]; then
+        if [ "x$OSG_SINGULARITY_CLEAN_ENV" = "x1" ]; then
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --cleanenv"
         fi
 
