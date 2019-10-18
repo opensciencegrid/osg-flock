@@ -207,7 +207,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
         fi
 
-	# ddavila 20190510:
+	    # ddavila 20190510:
         # If condor_chirp is present, then copy it inside the container.
         if [ -e ../../main/condor/libexec/condor_chirp ]; then
             mkdir -p condor/libexec
@@ -298,6 +298,79 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         export OSG_SINGULARITY_REEXEC=1
+
+        # If we are cleaning the environment, then we also need to export
+        # variables that will be transformed into certain critical variables
+        # inside the container. Note, we don't deal with PATH, which requires
+        # requires some care, as a user could conceivably set not just
+        # SINGULARITYENV_PATH, but also either of SINGULARITYENV_PREPEND_PATH
+        # or SINGULARITYENV_APPEND_PATH.
+        #
+        # The list of variables below that are transformed should be any variable
+        # that is exported during the first execution of this script (above), or
+        # which is inspected or manipulated during the second execution of this
+        # script.  Maybe also others...
+        #
+        # Note on future proofing: if additional variables are exported above
+        # or referenced during the second execution of this script, they will
+        # also need to be added to this list.  I don't know an elegant way
+        # to automate that process.
+        if [ "x$OSG_SINGULARITY_CLEAN_ENV" = "x1" ]; then
+            for varname in OSG_SINGULARITY_REEXEC \
+                _CHIRP_DELAYED_UPDATE_PREFIX \
+                _CONDOR_CHIRP_CONFIG \
+                _CONDOR_CREDS \
+                _CONDOR_JOB_AD \
+                _CONDOR_JOB_IWD \
+                _CONDOR_MACHINE_AD \
+                _CONDOR_SCRATCH_DIR \
+                _CONDOR_WRAPPER_ERROR_FILE \
+                GLIDEIN_Client \
+                GLIDEIN_CMSSite \
+                GLIDEIN_Country \
+                GLIDEIN_ResourceName \
+                GLIDEIN_Site \
+                HAS_SINGULARITY \
+                http_proxy \
+                InitializeModulesEnv \
+                OSG_MACHINE_GPUS \
+                OSG_SINGULARITY_AUTOLOAD \
+                OSG_SINGULARITY_BIND_CVMFS \
+                OSG_SINGULARITY_BIND_GPU_LIBS \
+                OSG_SINGULARITY_CLEAN_ENV \
+                OSG_SINGULARITY_IMAGE \
+                OSG_SINGULARITY_IMAGE_DEFAULT \
+                OSG_SINGULARITY_IMAGE_HUMAN \
+                OSG_SINGULARITY_OUTSIDE_PWD \
+                OSG_SINGULARITY_PATH \
+                OSGVO_PROJECT_NAME \
+                OSGVO_SUBMITTER \
+                OSG_WN_TMP \
+                POSIXSTASHCACHE \
+                SINGULARITY_WORKDIR \
+                STASHCACHE \
+                STASHCACHE_WRITABLE \
+                TZ \
+                X509_USER_CERT \
+                X509_USER_KEY \
+                X509_USER_PROXY \
+            ; do
+                # If any of the variables above are unset, we don't want to
+                # accidentally propagate that into the container as set but empty.
+                # Note the test below could be simplified in bash 4.2+, but not
+                # sure what we can assume.
+                if [ ! -z ${!varname+x} ]; then
+                    newname="SINGULARITYENV_${varname}"
+                    # If there's already a variable of the form SINGULARITYENV_varname set,
+                    # then do nothing.  Unsure if this should  be removed if setting up
+                    # the condor-specified environment inside the container is implemented.
+                    if [ -z ${!newname+x} ]; then
+                        export $newname=${!varname}
+                    fi
+                fi
+            done
+        fi
+
         $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
                               --bind $PWD:/srv \
                               --no-home --ipc --pid \

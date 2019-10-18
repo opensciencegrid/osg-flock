@@ -54,10 +54,11 @@ function test_singularity {
     return 0
 }
 
-function test_singularity_ld_library_path {
+function test_singularity_clean_env {
     rm -f out.txt
     export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity
-    if ! (LD_LIBRARY_PATH=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh ls >out.txt 2>&1); then
+    export _CONDOR_JOB_AD=$PWD/.job_ad.clean-env
+    if ! (GLIDEIN_Client=submit.ligo.org FOOBAR=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh env >out.txt 2>&1); then
         echo "ERROR: job exited non-zero"
         return 1
     fi
@@ -65,7 +66,27 @@ function test_singularity_ld_library_path {
         echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
         return 1 
     fi
-    if ! (grep DO_NOT_PROPAGATE out.txt >/dev/null); then
+    if (grep FOOBAR out.txt >/dev/null); then
+        echo "ERROR: FOOBAR envvar propagated?"
+        return 1 
+    fi
+    rm -f out.txt
+    return 0
+}
+
+function test_singularity_ld_library_path {
+    rm -f out.txt
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity
+    if ! (LD_LIBRARY_PATH=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh env >out.txt 2>/dev/null); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    if (grep DO_NOT_PROPAGATE out.txt >/dev/null); then
+        cat out.txt
         echo "ERROR: LD_LIBRARY_PATH propagated?"
         return 1 
     fi
@@ -126,6 +147,7 @@ export GWMS_DEBUG=1
 
 # run the tests
 run_test test_non_singularity
+run_test test_singularity_clean_env
 run_test test_singularity_ld_library_path
 run_test test_non_singularity_fail
 run_test test_singularity
