@@ -316,20 +316,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # also need to be added to this list.  I don't know an elegant way
         # to automate that process.
         if [ "x$OSG_SINGULARITY_CLEAN_ENV" = "x1" ]; then
-            for varname in OSG_SINGULARITY_REEXEC \
+
+            OSG_SINGULARITY_ENVVARS="OSG_SINGULARITY_REEXEC \
                 _CHIRP_DELAYED_UPDATE_PREFIX \
-                _CONDOR_CHIRP_CONFIG \
-                _CONDOR_CREDS \
-                _CONDOR_JOB_AD \
-                _CONDOR_JOB_IWD \
-                _CONDOR_MACHINE_AD \
-                _CONDOR_SCRATCH_DIR \
-                _CONDOR_WRAPPER_ERROR_FILE \
-                GLIDEIN_Client \
-                GLIDEIN_CMSSite \
-                GLIDEIN_Country \
-                GLIDEIN_ResourceName \
-                GLIDEIN_Site \
                 HAS_SINGULARITY \
                 http_proxy \
                 InitializeModulesEnv \
@@ -353,8 +342,17 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 TZ \
                 X509_USER_CERT \
                 X509_USER_KEY \
-                X509_USER_PROXY \
-            ; do
+                X509_USER_PROXY"
+
+            # Determine all the _CONDOR_* variable names
+            OSG_SINGULARITY_ENVVARS="$OSG_SINGULARITY_ENVVARS $(env -0 | tr '\n' '\\n' | tr '\0' '\n' | tr '=' ' ' | awk '{print $1;}' | grep ^_CONDOR_)"
+
+            # Determine all the environment variables from the job ClassAd
+            if [ -e "$_CONDOR_JOB_AD" ]; then
+                OSG_SINGULARITY_ENVVARS="$OSG_SINGULARITY_ENVVARS $(cat $_CONDOR_JOB_AD | grep '^Environment =' | sed "s/'.*'//" | sed 's/^Environment = "//' | sed 's/"$//' | tr ' ' '\n' | tr '=' ' ' | awk '{print $1;}')"
+            fi
+
+            for varname in $OSG_SINGULARITY_ENVVARS; do
                 # If any of the variables above are unset, we don't want to
                 # accidentally propagate that into the container as set but empty.
                 # Note the test below could be simplified in bash 4.2+, but not

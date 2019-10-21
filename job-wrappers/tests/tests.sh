@@ -58,7 +58,27 @@ function test_singularity_clean_env {
     rm -f out.txt
     export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity
     export _CONDOR_JOB_AD=$PWD/.job_ad.clean-env
-    if ! (GLIDEIN_Client=submit.ligo.org FOOBAR=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh env >out.txt 2>&1); then
+    if ! (GLIDEIN_Client=submit.ligo.org _CONDOR_ANCESTOR_123=ping FOO=hello BAR=world FOOBAR=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh env | sort >out.txt 2>&1); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    if (grep FOOBAR out.txt >/dev/null); then
+        echo "ERROR: FOOBAR envvar propagated?"
+        return 1 
+    fi
+    rm -f out.txt
+    return 0
+}
+
+function test_singularity_clean_env_2 {
+    rm -f out.txt
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity
+    export _CONDOR_JOB_AD=$PWD/.job_ad.clean-env
+    if ! (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && FOOBAR=DO_NOT_PROPAGATE $PWD/user-job-wrapper.sh env | sort >out.txt 2>&1); then
         echo "ERROR: job exited non-zero"
         return 1
     fi
@@ -148,6 +168,7 @@ export GWMS_DEBUG=1
 # run the tests
 run_test test_non_singularity
 run_test test_singularity_clean_env
+run_test test_singularity_clean_env_2
 run_test test_singularity_ld_library_path
 run_test test_non_singularity_fail
 run_test test_singularity

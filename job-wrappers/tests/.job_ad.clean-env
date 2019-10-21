@@ -1,1 +1,2 @@
 SingularityCleanEnv = 1
+Environment = FOO="something" BAR="yes=no"
