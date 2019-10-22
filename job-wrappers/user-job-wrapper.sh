@@ -415,7 +415,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 		if [ -n "${_SING_ENV_CONDOR_SET_VARNAMES}" ]; then
 		    echo "The following variables beginning with 'SINGULARITYENV_' were set " \
                          "in the condor submission file and will not be propagated: " \
-			 "${_SING_ENV_CONDOR_SET_VARNAMES}"
+			 "${_SING_ENV_CONDOR_SET_VARNAMES}" 1>&2
 		    for varname in ${_SING_ENV_CONDOR_SET_VARNAMES}; do
 			unset $varname
 		    done
