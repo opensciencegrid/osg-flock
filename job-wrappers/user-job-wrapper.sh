@@ -102,6 +102,57 @@ EOF
     rm -f $NVLIBLIST
 }
 
+
+# The following four functions are based mostly on Carl Edquist's code
+
+setmatch () {
+  local __=("$@")
+  set -- "${BASH_REMATCH[@]}"
+  shift
+  eval "${__[@]}"
+}
+
+rematch () {
+  [[ $1 =~ $2 ]] || return 1
+  shift 2
+  setmatch "$@"
+}
+
+get_vars_from_env_str () {
+  local str_arr condor_var_string=""
+  env_str=${env_str#'"'}
+  env_str=${env_str%'"'}
+  # Strip out escaped whitespace
+  while rematch "$env_str" "(.*)'([[:space:]]+)'(.*)" env_str='$1$3'
+  do :; done
+
+  # Now, split the string on whitespace
+  read -ra str_arr <<<"${env_str}"
+
+  # Finally, parse each element of the array.
+  # They should each be name=value assignments,
+  # and we only need to grab the name
+  vname_regex="(^[_a-zA-Z][_a-zA-Z0-9]*)(=)[.]*"
+  for assign in "${str_arr[@]}"; do
+      if [[ "$assign" =~ $vname_regex ]]; then
+	  condor_var_string="$condor_var_string ${BASH_REMATCH[1]}"
+      fi
+  done
+  echo "$condor_var_string"
+}
+
+parse_env_file () {
+    shopt -s nocasematch
+    while read -r attr eq env_str; do
+	if [[ $attr = Environment && $eq = '=' ]]; then
+	    get_vars_from_env_str
+	    break
+	fi
+    done < "$1"
+    shopt -u nocasematch
+}
+
+
 # ensure all jobs have PATH set
 # bash can set a default PATH - make sure it is exported
 export PATH=$PATH
@@ -349,7 +400,26 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
             # Determine all the environment variables from the job ClassAd
             if [ -e "$_CONDOR_JOB_AD" ]; then
-                OSG_SINGULARITY_ENVVARS="$OSG_SINGULARITY_ENVVARS $(cat $_CONDOR_JOB_AD | grep '^Environment =' | sed "s/'.*'//" | sed 's/^Environment = "//' | sed 's/"$//' | tr ' ' '\n' | tr '=' ' ' | awk '{print $1;}')"
+                _ALL_CONDOR_SET_VARNAMES=$(parse_env_file "$_CONDOR_JOB_AD")
+		_SING_ENV_CONDOR_SET_VARNAMES=""
+		_sing_regex="^SINGULARITYENV_"
+		for varname in ${_ALL_CONDOR_SET_VARNAMES}; do
+		    if [[ "$varname" =~ $_sing_regex ]]; then
+			_SING_ENV_CONDOR_SET_VARNAMES="$_SING_ENV_CONDOR_SET_VARNAMES $varname"
+		    else
+			OSG_SINGULARITY_ENVVARS="$OSG_SINGULARITY_ENVVARS $varname"
+		    fi
+		done
+		# If the user set variables of the form SINGULARITYENV_VARNAME,
+		# then warn them and unset those variables
+		if [ -n "${_SING_ENV_CONDOR_SET_VARNAMES}" ]; then
+		    echo "The following variables beginning with 'SINGULARITYENV_' were set " \
+                         "in the condor submission file and will not be propagated: " \
+			 "${_SING_ENV_CONDOR_SET_VARNAMES}" 1>&2
+		    for varname in ${_SING_ENV_CONDOR_SET_VARNAMES}; do
+			unset $varname
+		    done
+		fi
             fi
 
             for varname in $OSG_SINGULARITY_ENVVARS; do
