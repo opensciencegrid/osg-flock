@@ -325,6 +325,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 _CONDOR_MACHINE_AD \
                 _CONDOR_SCRATCH_DIR \
                 _CONDOR_WRAPPER_ERROR_FILE \
+		CONDOR_PARENT_ID \
                 GLIDEIN_Client \
                 GLIDEIN_CMSSite \
                 GLIDEIN_Country \
@@ -417,7 +418,8 @@ else
     unset TEMP
     unset X509_CERT_DIR
     for key in X509_USER_PROXY X509_USER_CERT \
-               _CONDOR_CREDS _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
+               _CONDOR_CREDS _CONDOR_MACHINE_AD \
+               _CONDOR_EXECUTE _CONDOR_JOB_AD \
                _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
                OSG_WN_TMP ; do
         eval val="\$$key"
