@@ -344,6 +344,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 OSG_SINGULARITY_IMAGE_HUMAN \
                 OSG_SINGULARITY_OUTSIDE_PWD \
                 OSG_SINGULARITY_PATH \
+                OSG_SITE_NAME \
                 OSGVO_PROJECT_NAME \
                 OSGVO_SUBMITTER \
                 OSG_WN_TMP \

@@ -371,6 +371,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             OSG_SINGULARITY_ENVVARS="OSG_SINGULARITY_REEXEC \
                 _CHIRP_DELAYED_UPDATE_PREFIX \
                 CONDOR_PARENT_ID \
+                GLIDEIN_ResourceName \
+                GLIDEIN_Site \
                 HAS_SINGULARITY \
                 http_proxy \
                 InitializeModulesEnv \
@@ -384,6 +386,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 OSG_SINGULARITY_IMAGE_HUMAN \
                 OSG_SINGULARITY_OUTSIDE_PWD \
                 OSG_SINGULARITY_PATH \
+                OSG_SITE_NAME \
                 OSGVO_PROJECT_NAME \
                 OSGVO_SUBMITTER \
                 OSG_WN_TMP \
