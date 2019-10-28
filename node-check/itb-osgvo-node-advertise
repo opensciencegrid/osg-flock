@@ -29,6 +29,7 @@ function info {
 
 function my_warn {
     echo "WARN  " $@ 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
 }
 
 function advertise {
@@ -141,6 +142,14 @@ function determine_default_container_image {
 }
 
 
+###########################################################
+# We have two env variables which can be added to in this
+# script to provide an expression for the START expression
+# and a general warnings string which gets published in the
+# ad. These are env variables until the end.
+export GLIDEIN_VALIDATION_EXPR="True"
+export GLIDEIN_VALIDATION_WARNINGS=""
+
 #############################################################################
 #
 # Some tests are too heavy-weight to run every
@@ -183,6 +192,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     alias 1>&2 || true
 else
     info "Now running inside a singularity container"
+    # make sure we are inside the correct dir
+    cd /srv
 fi
 
 if [ "x$glidein_config" = "x" ]; then
@@ -207,14 +218,6 @@ if [ "$glidein_config" != "NONE" ]; then
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
 fi
-
-###########################################################
-# We have two env variables which can be added to in this
-# script to provide an expression for the START expression
-# and a general warnings string which gets published in the
-# ad. These are env variables until the end.
-export GLIDEIN_VALIDATION_EXPR="True"
-export GLIDEIN_VALIDATION_WARNINGS=""
 
 ###########################################################
 #
@@ -379,6 +382,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             my_warn "GPU detection failed!"
             advertise "GPUDetection" "No GPUs detected" "S"
         fi
+
+        echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >.osgvo-default-singularity-image
+        export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+        info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
     fi
 
     # xcache - has to be outside due to the ping requirement
@@ -538,12 +545,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     # some sites have crappy CVMFS which means HAS_SINGULARITY flaps - prevent this
-    # by remembering failures for 4 hours
+    # by remembering failures for 1 hour
     if [ "x$HAS_SINGULARITY" = "xFalse" ]; then
-        echo "False" > $TEST_FILE_4H.has_singularity
-    elif [ -e $TEST_FILE_4H.has_singularity ]; then
-        my_warn "Singularity is disabled due to failures some time in the last 4 hours"
-        GLIDEIN_VALIDATION_WARNINGS="Singularity is disabled due to failures some time in the last 4 hours. $GLIDEIN_VALIDATION_WARNINGS"
+        echo "False" > $TEST_FILE_1H.has_singularity
+    elif [ -e $TEST_FILE_1H.has_singularity ]; then
+        my_warn "Singularity is disabled due to failures some time in the last 1 hour"
         HAS_SINGULARITY="False"
     fi
 
@@ -561,16 +567,26 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             cp $X509_USER_PROXY $SING_OUTSIDE_BASE_DIR/x509-pilot-proxy
             export X509_USER_PROXY=/srv/x509-pilot-proxy
         fi
+        
+        # We want to bind $PWD to /srv within the container - however, in order
+        # to do that, we have to make sure everything we need is in $PWD, most
+        # notably the osgvo-node-advertise (this script!)
+        if [ ! -e .osgvo-node-advertise ]; then
+            cp $0 .osgvo-node-advertise
+        fi
 
         # build a new command line, with updated paths
-        CMD=`singularityfy_path $0`
-        # if $0 does not contain a full path, prepend /srv
-        if ! (echo $0 | grep "^/") >/dev/null 2>&1; then
-            CMD="/srv/$0"
-        fi
+        CMD="/srv/.osgvo-node-advertise"
         for VAR in "$@"; do
             CMD="$CMD "`singularityfy_path $VAR`
         done
+    
+        # update the gwms configs 
+        if [ "x$add_config_line_source" != "x" ]; then
+            export add_config_line_source=`singularityfy_path "$add_config_line_source"`
+            export condor_vars_file=`singularityfy_path "$condor_vars_file"`
+            info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+        fi
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
@@ -585,19 +601,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
     
+    
     # if we get here, singularity is not available or not working
     advertise HAS_SINGULARITY "False" "C"
 
 else
-
-    # make sure we are inside the correct dir
-    cd /srv
-
-    if [ "x$add_config_line_source" != "x" ]; then
-        export add_config_line_source=`singularityfy_path "$add_config_line_source"`
-        export condor_vars_file=`singularityfy_path "$condor_vars_file"`
-        info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
-    fi
 
     # delay the advertisement until here to make sure singularity actually works
     advertise HAS_SINGULARITY "True" "C"
@@ -935,7 +943,6 @@ if [ "X$WGET_PATH" != "X" ]; then
         advertise "http_proxy" "$HTTP_PROXY_VALUE" "S"
     fi
 fi
-
 
 
 ##################
