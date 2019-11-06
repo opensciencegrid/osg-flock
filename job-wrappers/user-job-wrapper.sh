@@ -465,7 +465,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 # small wait for ad to update
                 sleep 2m
                 if [ "x$GWMS_DEBUG" = "x" ]; then
-                    # if we are not debugging, add more wait to block slot
+                    # if we are not debugging, shutdown
+                    touch ../../.stop-glidein.stamp >/dev/null 2>&1
                     sleep 15m
                 fi
             fi
