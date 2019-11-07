@@ -230,17 +230,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             # Default
             export OSG_SINGULARITY_IMAGE="$OSG_SINGULARITY_IMAGE_DEFAULT"
             export OSG_SINGULARITY_BIND_CVMFS=1
+        fi
 
-            # also some extra debugging and make sure CVMFS has not fallen over
-            if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
-                echo "warning: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
-                echo "         $OSG_SITE_NAME" `hostname -f` 1>&2
-                if [ "x$GWMS_DEBUG" = "x" ]; then
-                    touch ../../.stop-glidein.stamp >/dev/null 2>&1
-                    sleep 20m
-                fi
-                exit 1
-            fi
+        # check that the image is actually available
+        if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
+            echo "Error: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
+            exit 1
         fi
 
         # put a human readable version of the image in the env before
