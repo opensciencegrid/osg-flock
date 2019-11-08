@@ -568,7 +568,9 @@ fi
 
 function setup_stashcp {
   # keep the user job output clean
-  module load stashcache >/dev/null 2>&1 || module load stashcp >/dev/null 2>&1
+  if ! which stashcp >/dev/null 2>&1; then
+      module load stashcache >/dev/null 2>&1 || module load stashcp >/dev/null 2>&1
+  fi
 
   # we need xrootd, which is available both in the OSG software stack
   # as well as modules - use the system one by default
