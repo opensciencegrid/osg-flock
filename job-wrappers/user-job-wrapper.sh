@@ -371,6 +371,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 HAS_SINGULARITY \
                 http_proxy \
                 InitializeModulesEnv \
+                LIGO_DATAFIND_SERVER \
                 OSG_MACHINE_GPUS \
                 OSG_SINGULARITY_AUTOLOAD \
                 OSG_SINGULARITY_BIND_CVMFS \
