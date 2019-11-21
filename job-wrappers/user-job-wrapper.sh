@@ -152,6 +152,29 @@ parse_env_file () {
     shopt -u nocasematch
 }
 
+shutdown_glidein() {
+    # Ian be called when a severe error is encountered. It will
+    # result in the glidin stopping taking jobs and eventually
+    # shuts down.
+    # $1 error message
+
+    echo "$1" 1>&2
+    # error to _CONDOR_WRAPPER_ERROR_FILE
+    if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
+        echo "$1" >>$_CONDOR_WRAPPER_ERROR_FILE
+    fi
+    # chirp
+    if [ -e ../../main/condor/libexec/condor_chirp ]; then
+        ../../main/condor/libexec/condor_chirp set_job_attr JobWrapperFailure "$1"
+    fi
+    if [ "x$GWMS_DEBUG" = "x" ]; then
+        # if we are not debugging, shutdown
+        touch ../../.stop-glidein.stamp >/dev/null 2>&1
+        sleep 10m
+    fi
+    exit 1
+}
+
 
 # ensure all jobs have PATH set
 # bash can set a default PATH - make sure it is exported
@@ -234,8 +257,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # check that the image is actually available
         if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
-            echo "Error: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
-            exit 1
+            shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
         fi
 
         # put a human readable version of the image in the env before
@@ -449,22 +471,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         if [ $EC -ne 0 ]; then
             # was it a Singularity issue or a user job issue?
             if [ ! -e .singularity.startup-ok ]; then
-                echo "Singularity encountered an error starting the container" 1>&2
-                # also to _CONDOR_WRAPPER_ERROR_FILE
-                if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
-                    echo "Singularity encountered an error starting the container" >>$_CONDOR_WRAPPER_ERROR_FILE
-                fi
-                # also chirp
-                if [ -e ../../main/condor/libexec/condor_chirp ]; then
-                    ../../main/condor/libexec/condor_chirp set_job_attr JobWrapperFailure "Singularity encountered an error starting the container"
-                fi
-                # small wait for ad to update
-                sleep 2m
-                if [ "x$GWMS_DEBUG" = "x" ]; then
-                    # if we are not debugging, shutdown
-                    touch ../../.stop-glidein.stamp >/dev/null 2>&1
-                    sleep 15m
-                fi
+                shutdown_glidein "Singularity encountered an error starting the container"
             fi
         fi
         if [ "x$GWMS_DEBUG" = "x" ]; then
