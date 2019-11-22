@@ -10,6 +10,10 @@ source $add_config_line_source
 
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
+###########################################################
+# potential fix for SU NAT issues
+add_config_line CCB_HEARTBEAT_INTERVAL "120"
+add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 
 ###########################################################
 # fix for chirp problem (Edgar)
