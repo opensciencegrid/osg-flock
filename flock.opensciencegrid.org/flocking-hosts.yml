@@ -265,6 +265,7 @@ uclhc-1.ps.uci.edu:
   dn: /DC=org/DC=incommon/C=US/ST=CA/L=Irvine/O=University of California/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
 
 ### SDSC GRAPLeR ###
+
 rocks-186.sdsc.edu:
   admin: Shava Smallen <ssmallen@sdsc.edu>
   site: SDSC
@@ -298,17 +299,14 @@ devscatter.nanohub.org:
   site: NanoHub
   dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=devcondordaemon.nanohub.org
 
-# not sure about these:
+### UW-Milwaukee / LIGO
 
-### FLOCK_FROM = $(FLOCK_FROM) scigrid1.physics.fsu.edu
-### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scigrid1.physics.fsu.edu
-### 
-### FLOCK_FROM = $(FLOCK_FROM) proof-of-concept.scidas.renci.org
-### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=proof-of-concept.scidas.renci.org
-### 
-### FLOCK_FROM = $(FLOCK_FROM) test-001.t2.ucsd.edu
-### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-001.t2.ucsd.edu
-### 
-### FLOCK_FROM = $(FLOCK_FROM) test-004.t2.ucsd.edu
-### GSI_DAEMON_NAME=$(GSI_DAEMON_NAME),/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=Services/CN=test-004.t2.ucsd.edu
-### 
+submit.ligo.uwm.edu:
+  admin: Shawn Kwang <kwangs@uwm.edu>
+  site: UWM-LIGO
+
+testcl-submit-dev1.ligo.uwm.edu:
+  admin: Shawn Kwang <kwangs@uwm.edu>
+  site: UWM-LIGO
+
+
