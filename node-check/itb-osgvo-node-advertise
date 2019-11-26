@@ -21,6 +21,19 @@
 # STARTD_CRON_osgvo_KILL = true
 # STARTD_CRON_osgvo_ARGS = NONE
 
+#######################################################################
+#
+# Configuration
+#
+
+# OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
+# This can be used by negotiators or users, for example to match
+# against a glidein newer than some base with new features.
+OSG_GLIDEIN_VERSION=443
+
+#######################################################################
+
+
 glidein_config="$1"
 
 function info {
@@ -226,6 +239,8 @@ fi
 #
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
+
+    advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
 
     # we need the "outside" kernel version to be able to steer
     # singularity jobs to kernel/glibcs which are not too old
@@ -612,8 +627,6 @@ else
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
     advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
-    # for debugging - remove later
-    advertise OSG_SINGULARITY_EL7_PERCENT "$OSG_SINGULARITY_EL7_PERCENT" "C"
    
     # fix up the env
     for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
