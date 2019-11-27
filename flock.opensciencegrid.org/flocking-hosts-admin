@@ -64,6 +64,7 @@ def generate_htcondor_mapfile(data):
     print('GSI (.*) anonymous')
     print('FS (.*) \\1')
     print('PASSWORD (.*) \\1')
+    print('TOKEN (.*) \\1')
 
 
 def generate_htcondor_flock_config(data):
