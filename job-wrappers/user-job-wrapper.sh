@@ -255,9 +255,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             export OSG_SINGULARITY_BIND_CVMFS=1
         fi
 
-        # check that the image is actually available
-        if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
-            shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
+        # check that the image is actually available (but only for /cvmfs ones)
+        if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
+            if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
+                shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
+            fi
         fi
 
         # put a human readable version of the image in the env before
