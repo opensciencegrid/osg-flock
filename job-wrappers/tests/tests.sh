@@ -54,6 +54,19 @@ function test_singularity {
     return 0
 }
 
+function test_singularity_docker_direct {
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity-docker-direct
+    if ! ($PWD/user-job-wrapper.sh ls); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    return 0
+}
+
 function test_singularity_clean_env {
     rm -f out.txt
     export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity
@@ -172,6 +185,7 @@ run_test test_singularity_clean_env_2
 run_test test_singularity_ld_library_path
 run_test test_non_singularity_fail
 run_test test_singularity
+run_test test_singularity_docker_direct
 run_test test_singularity_fail_1
 run_test test_singularity_fail_2
 run_test test_singularity_fail_3
