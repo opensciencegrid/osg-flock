@@ -78,6 +78,14 @@ login03.osgconnect.net:
     - Q4
     - Q5
 
+login04.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+
+login05.osgconnect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+
 duke-login.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
