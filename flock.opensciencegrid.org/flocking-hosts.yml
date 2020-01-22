@@ -100,11 +100,6 @@ login.ci-connect.uchicago.edu:
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.ci-connect.uchicago.edu
 
-login.xenon.ci-connect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
-
 login-el7.xenon.ci-connect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
