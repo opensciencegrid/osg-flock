@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=450
+OSG_GLIDEIN_VERSION=451
 
 #######################################################################
 
@@ -291,6 +291,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             REV_VAL=1
             if [ -e /usr/bin/attr ]; then
                 REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+            fi
+            # some site mount /cvmfs over NFS and attr will not work
+            if [ "x$REV_VAL" = "x" ]; then
+                REV_VAL=1
             fi
             
             # oasis.opensciencegrid.org needs extra checks
