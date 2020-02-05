@@ -152,7 +152,7 @@
             <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
-      <group name="itb-gpu" enabled="False">
+      <group name="itb-gpu" enabled="True">
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="3600"/>
@@ -164,7 +164,7 @@
             <running_glideins_total curb="45" max="50"/>
          </config>
          <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs)  &amp;&amp; GLIDEIN_Site =?= "UCSD"'>
+            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
