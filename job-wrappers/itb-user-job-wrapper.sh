@@ -255,9 +255,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             export OSG_SINGULARITY_BIND_CVMFS=1
         fi
 
-        # check that the image is actually available
-        if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
-            shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
+        # check that the image is actually available (but only for /cvmfs ones)
+        if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
+            if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
+                shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
+            fi
         fi
 
         # put a human readable version of the image in the env before
@@ -319,18 +321,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # GPUs - bind outside GPU library directory to inside /host-libs
         if [ $OSG_MACHINE_GPUS -gt 0 ]; then
             if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then
-                HOST_LIBS=""
-                if [ -e "/usr/lib64/nvidia" ]; then
-                    HOST_LIBS=/usr/lib64/nvidia
-                elif create_host_lib_dir; then
-                    HOST_LIBS=$PWD/.host-libs
-                fi
-                if [ "x$HOST_LIBS" != "x" ]; then
-                    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $HOST_LIBS:/host-libs"
-                fi
-                if [ -e /etc/OpenCL/vendors ]; then
-                    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /etc/OpenCL/vendors:/etc/OpenCL/vendors"
-                fi
+                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --nv"
             fi
         else
             # if not using gpus, we can limit the image more
@@ -344,11 +335,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # Remember what the outside pwd dir is so that we can rewrite env vars
         # pointing to omewhere inside that dir (for example, X509_USER_PROXY)
-        if [ "x$_CONDOR_JOB_IWD" != "x" ]; then
-            export OSG_SINGULARITY_OUTSIDE_PWD="$_CONDOR_JOB_IWD"
-        else
-            export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
-        fi
+        #if [ "x$_CONDOR_JOB_IWD" != "x" ]; then
+        #    export OSG_SINGULARITY_OUTSIDE_PWD="$_CONDOR_JOB_IWD"
+        #else
+        #    export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
+        #fi
+        export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
 
         # build a new command line, with updated paths
         CMD=()
