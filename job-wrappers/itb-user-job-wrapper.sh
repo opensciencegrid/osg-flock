@@ -44,65 +44,6 @@ function getPropStr
 }
 
 
-function create_host_lib_dir()
-{
-    # this is a temporary solution until enough sites have newer versions
-    # of Singularity. Idea for this solution comes from:
-    # https://github.com/singularityware/singularity/blob/master/libexec/cli/action_argparser.sh#L123
-    mkdir -p .host-libs
-    NVLIBLIST=`mktemp ${TMPDIR:-/tmp}/.nvliblist.XXXXXXXX`
-    cat >$NVLIBLIST <<EOF
-libcuda.so
-libEGL_installertest.so
-libEGL_nvidia.so
-libEGL.so
-libGLdispatch.so
-libGLESv1_CM_nvidia.so
-libGLESv1_CM.so
-libGLESv2_nvidia.so
-libGLESv2.so
-libGL.so
-libGLX_installertest.so
-libGLX_nvidia.so
-libglx.so
-libGLX.so
-libnvcuvid.so
-libnvidia-cfg.so
-libnvidia-compiler.so
-libnvidia-eglcore.so
-libnvidia-egl-wayland.so
-libnvidia-encode.so
-libnvidia-fatbinaryloader.so
-libnvidia-fbc.so
-libnvidia-glcore.so
-libnvidia-glsi.so
-libnvidia-gtk2.so
-libnvidia-gtk3.so
-libnvidia-ifr.so
-libnvidia-ml.so
-libnvidia-opencl.so
-libnvidia-ptxjitcompiler.so
-libnvidia-tls.so
-libnvidia-wfb.so
-libOpenCL.so
-libOpenGL.so
-libvdpau_nvidia.so
-nvidia_drv.so
-tls_test_.so
-EOF
-    for TARGET in $(ldconfig -p | grep -f "$NVLIBLIST"); do
-        if [ -f "$TARGET" ]; then
-            BASENAME=`basename $TARGET`
-            # only keep the first one found
-            if [ ! -e ".host-libs/$BASENAME" ]; then
-                cp -L $TARGET .host-libs/
-            fi
-        fi
-    done
-    rm -f $NVLIBLIST
-}
-
-
 # The following four functions are based mostly on Carl Edquist's code
 
 setmatch () {
@@ -210,7 +151,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     export OSG_SINGULARITY_IMAGE=$(getPropStr $_CONDOR_JOB_AD SingularityImage)
     export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad 1)
     export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS 1)
-    export OSG_SINGULARITY_BIND_GPU_LIBS=$(getPropBool $_CONDOR_JOB_AD SingularityBindGPULibs 1)
     export OSG_SINGULARITY_CLEAN_ENV=$(getPropBool $_CONDOR_JOB_AD SingularityCleanEnv 0)
 
     export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
@@ -320,9 +260,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # GPUs - bind outside GPU library directory to inside /host-libs
         if [ $OSG_MACHINE_GPUS -gt 0 ]; then
-            if [ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]; then
-                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --nv"
+            # check if the image on cvmfs has /.singularity/libs
+            if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
+                if ! ls -l "$OSG_SINGULARITY_IMAGE/.singularity.d/libs/" >/dev/null 2>&1; then
+                    echo "OSG Singularity wrapper: The container does not have a /.singularity.d/libs directory - NVIDIA GPU binding of libraries will probably not work." 1>&2
+                fi
             fi
+            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --nv"
+            # --nv does not update LD_LIBRARY_PATH in some versions
+            export SINGULARITYENV_LD_LIBRARY_PATH=/.singularity.d/libs:$SINGULARITYENV_LD_LIBRARY_PATH
         else
             # if not using gpus, we can limit the image more
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain"
@@ -389,7 +335,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 OSG_MACHINE_GPUS \
                 OSG_SINGULARITY_AUTOLOAD \
                 OSG_SINGULARITY_BIND_CVMFS \
-                OSG_SINGULARITY_BIND_GPU_LIBS \
                 OSG_SINGULARITY_CLEAN_ENV \
                 OSG_SINGULARITY_IMAGE \
                 OSG_SINGULARITY_IMAGE_DEFAULT \

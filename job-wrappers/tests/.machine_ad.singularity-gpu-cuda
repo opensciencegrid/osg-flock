@@ -1,0 +1,5 @@
+HAS_SINGULARITY = 1
+OSG_SINGULARITY_PATH = "/usr/bin/singularity"
+OSG_SINGULARITY_IMAGE_DEFAULT = "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest"
+GPUs = 1
+

@@ -173,6 +173,45 @@ function test_singularity_fail_3 {
     return 0
 }
 
+function test_singularity_gpu_cuda {
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity-gpu-cuda
+    if ! ($PWD/user-job-wrapper.sh /usr/bin/nvidia-smi); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    return 0
+}
+
+function test_singularity_gpu_tensorflow {
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity-gpu-tensorflow
+    if ! ($PWD/user-job-wrapper.sh /usr/bin/nvidia-smi); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    return 0
+}
+
+function test_singularity_gpu_rift {
+    export _CONDOR_MACHINE_AD=$PWD/.machine_ad.singularity-gpu-rift
+    if ! ($PWD/user-job-wrapper.sh /usr/bin/nvidia-smi); then
+        echo "ERROR: job exited non-zero"
+        return 1
+    fi
+    if [ ! -e .singularity.startup-ok ]; then
+        echo "ERROR: .singularity.startup-ok is missing - did the job run in Singularity?"
+        return 1 
+    fi
+    return 0
+}
+
 # we need a copy as it will be used inside containers
 cp ../user-job-wrapper.sh .
 
@@ -189,6 +228,15 @@ run_test test_singularity_docker_direct
 run_test test_singularity_fail_1
 run_test test_singularity_fail_2
 run_test test_singularity_fail_3
+
+# only run on GPU host, for example ldas-pcdev3.ligo.caltech.edu
+if nvidia-smi >/dev/null 2>&1; then
+    run_test test_singularity_gpu_cuda
+    run_test test_singularity_gpu_tensorflow
+    run_test test_singularity_gpu_rift
+else
+    echo "Skipping GPU tests as nvidia-smi can not be found"
+fi
 
 # cleanup
 rm -f .singularity.startup-ok .user-job-wrapper.sh user-job-wrapper.sh
