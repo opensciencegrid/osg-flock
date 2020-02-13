@@ -496,6 +496,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     # Binding different mounts
     for MNTPOINT in \
         /hadoop \
+        /ceph \
         /hdfs \
         /lizard \
         /mnt/hadoop \
