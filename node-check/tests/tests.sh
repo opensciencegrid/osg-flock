@@ -27,6 +27,12 @@ function test_basic {
     rm -rf work
     mkdir work
     cd work
+
+    # specific tmp dir
+    export TMP=$PWD/tmp
+    rm -rf $TMP
+    mkdir -p $TMP
+
     cp ../../osgvo-node-advertise .
 
     ./osgvo-node-advertise
@@ -47,7 +53,9 @@ function test_gwms {
     echo "ADD_CONFIG_LINE_SOURCE $PWD/add_config_line.source" > glidein_config
     echo "CONDOR_VARS_FILE $PWD/condor_vars.lst" >> glidein_config 
 
-    ./osgvo-node-advertise glidein_config client
+    ./osgvo-node-advertise $PWD/glidein_config client
+
+    rm -f glidein_config
 
     # TODO: how to validate the resuls
     return 0

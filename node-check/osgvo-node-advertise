@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=452
+OSG_GLIDEIN_VERSION=453
 
 #######################################################################
 
@@ -96,8 +96,8 @@ function determine_default_container_image {
     # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
 
     # only run the selection once
-    if [ -e .osgvo-default-singularity-image ]; then
-        SELECTED_IMAGE=`cat .osgvo-default-singularity-image`
+    if [ -e osgvo.default-singularity-image ]; then
+        SELECTED_IMAGE=`cat osgvo.default-singularity-image`
         return
     fi
 
@@ -151,7 +151,7 @@ function determine_default_container_image {
 
     # prepend the base bath
     SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
-    echo $SELECTED_IMAGE >.osgvo-default-singularity-image
+    echo $SELECTED_IMAGE >osgvo.default-singularity-image
 }
 
 
@@ -171,24 +171,45 @@ export GLIDEIN_VALIDATION_WARNINGS=""
 # test to rerun then again. There is also a 3 hour version.
 #
 
-TEST_FILE_1H=.osgvo.test-results.1h
-TEST_FILE_4H=.osgvo.test-results.4h
+TEST_FILE_1H=osgvo.test-results.1h
+TEST_FILE_4H=osgvo.test-results.4h
 
 # clean up old ones
 find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
-
+find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "This is a setup script for the OSG-FLOCK frontend."
     info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
     info "Running in directory $PWD"
     
-    if [ -e ../glidein_config ]; then
+    if [ -e glidein_config ]; then
+        # gwms 
+        info "GWMS directory detected. Staying in $PWD"
+    elif [ -e ../glidein_config ]; then
         # gwms stupid tmp dir for periodic scripts - this breaks
         # out ability to cache results
         cd ../
-        info "GWMS tmp directory detected. Switched working directory to $PWD"
+        info "GWMS tmp directory detected. Switched directory to $PWD"
+    else
+        # find a good directory for our tests - we need something that we
+        # can re-enter later to pick up cached results
+        for DER in $GLIDEIN_Tmp_Dir $TMP $TMPDIR /tmp . ; do
+            # do we have write permissions
+            if touch $DER/.writetest.$$ >/dev/null 2>&1; then
+                rm -f $DER/.writetest.$$
+                if mkdir -p $DER/osgvo-node-advertise.work >/dev/null 2>&1; then
+                    cp $0 $DER/osgvo-node-advertise.work/
+                    if [ -e add_config_line.source ]; then
+                        cp add_config_line.source $DER/osgvo-node-advertise.work/
+                    fi
+                    cd $DER/osgvo-node-advertise.work
+                    info "Switched working directory to $PWD"
+                    break
+                fi
+            fi
+        done
     fi
 
     # bash can set a default PATH - make sure it is exported
@@ -402,8 +423,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             advertise "GPUDetection" "No GPUs detected" "S"
         fi
 
-        echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >.osgvo-default-singularity-image
-        export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+        echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >osgvo.default-singularity-image
+        export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
         info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
     fi
 
@@ -442,9 +463,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for singularity..."
 
     # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
+    export SINGULARITY_WORKDIR=$PWD/singularity-workdir
     if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
-        export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/adv-singularity-work.$$
+        export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-workdir
     fi
+    mkdir -p $SINGULARITY_WORKDIR
 
     HAS_SINGULARITY="False"
     export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
@@ -479,10 +502,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
 
     # default image for this glidein - us a distribution between different OSes
-    if [ ! -e .osgvo-default-singularity-image ]; then
+    if [ ! -e osgvo.default-singularity-image ]; then
         determine_default_container_image
     fi
-    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
+    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
     info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
 
     # for now, we will only advertise singularity on nodes which can access cvmfs
@@ -883,6 +906,7 @@ elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load st
 else
     echo "False" > $TEST_FILE_1H.stashcp
 fi
+rm -f testfile
 advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
 
@@ -1115,7 +1139,6 @@ else
         advertise OSG_NODE_WARNINGS "$GLIDEIN_VALIDATION_WARNINGS" "S"
     fi
 fi
-
 
 ##################
 info "All done - time to do some real work!"
