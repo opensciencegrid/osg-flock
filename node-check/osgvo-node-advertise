@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=453
+OSG_GLIDEIN_VERSION=454
 
 #######################################################################
 
@@ -511,6 +511,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     # for now, we will only advertise singularity on nodes which can access cvmfs
     if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
         info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
+        HAS_SINGULARITY="False"
+    fi
+    
+    # we have been seeing problems with Singularity and CVMFS over NFS - disable on those sites
+    if (mount | grep /cvmfs/singularity.opensciencegrid.org | grep "type nfs") >/dev/null 2>&1; then
+        info "CVMFS over NFS detected - disabling singularity"
         HAS_SINGULARITY="False"
     fi
         
