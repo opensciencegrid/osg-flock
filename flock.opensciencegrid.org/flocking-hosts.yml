@@ -225,7 +225,7 @@ akbul.cyverse.org:
 gluex.phys.uconn.edu:
   admin: Richard Jones <richard.t.jones@uconn.edu>
   site: UConn
-  dn:  /DC=org/DC=incommon/C=US/ST=CT/L=Storrs/O=University of Connecticut/OU=Academic IT/CN=gluex.phys.uconn.edu
+  dn:  /DC=org/DC=incommon/C=US/ST=Connecticut/L=Storrs/O=University of Connecticut/OU=Academic IT/CN=gluex.phys.uconn.edu
 
 ### Syracuse ###
 
