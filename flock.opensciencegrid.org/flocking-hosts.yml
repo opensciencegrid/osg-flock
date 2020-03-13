@@ -286,11 +286,6 @@ rocks-186.sdsc.edu:
 
 ### AMNH ###
 
-amnh-submit.opensciencegrid.org:
-  admin: Brian Lin <blin@cs.wisc.edu>
-  site: AMNH
-  dn: /DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=amnh-submit.opensciencegrid.org
-
 huxley-osgsub-001.sdmz.amnh.org:
   admin: Sajesh Singh <ssingh@amnh.org>
   site: AMNH
