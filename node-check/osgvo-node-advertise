@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=456
+OSG_GLIDEIN_VERSION=457
 
 #######################################################################
 
@@ -292,6 +292,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        oasis.opensciencegrid.org \
        singularity.opensciencegrid.org \
        snoplus.egi.eu \
+       sphenix.opensciencegrid.org \
        spt.opensciencegrid.org \
        stash.osgstorage.org \
        veritas.opensciencegrid.org \
