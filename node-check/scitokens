@@ -26,6 +26,11 @@ mkdir -p $credentials_dir
 add_config_line_safe SEC_CREDENTIAL_DIRECTORY "${credentials_dir}"
 add_condor_vars_line SEC_CREDENTIAL_DIRECTORY "C" "-" "+" "N" "N" "-"
 
+# 3/24/20 - dweitzel for new 8.9.X change
+# SEC_CREDENTIAL_DIRECTORY_OAUTH = ${credentials_dir} (defined above)
+add_config_line_safe SEC_CREDENTIAL_DIRECTORY_OAUTH "${credentials_dir}"
+add_condor_vars_line SEC_CREDENTIAL_DIRECTORY_OAUTH "C" "-" "+" "N" "N" "-"
+
 # 3/13/19 - zmiller suggested for 8.8.1
 add_config_line_safe CREDD_OAUTH_MODE "TRUE"
 add_condor_vars_line CREDD_OAUTH_MODE "C" "-" "+" "N" "N" "-"
