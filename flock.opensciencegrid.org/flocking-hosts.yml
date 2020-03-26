@@ -54,29 +54,29 @@ csiu.grid.iu.edu:
 #    - Q4
 #    - Q5
 
-login02.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net
-  subschedds:
-    - main
-    - Q1
-    - Q2
-    - Q3
-    - Q4
-    - Q5
-
-login03.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login03.osgconnect.net
-  subschedds:
-    - main
-    - Q1
-    - Q2
-    - Q3
-    - Q4
-    - Q5
+#login02.osgconnect.net:
+#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+#  site: OSGConnect
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net
+#  subschedds:
+#    - main
+#    - Q1
+#    - Q2
+#    - Q3
+#    - Q4
+#    - Q5
+#
+#login03.osgconnect.net:
+#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+#  site: OSGConnect
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login03.osgconnect.net
+#  subschedds:
+#    - main
+#    - Q1
+#    - Q2
+#    - Q3
+#    - Q4
+#    - Q5
 
 login04.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
@@ -121,20 +121,15 @@ login.cms.ci-connect.net:
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.cms.ci-connect.net
 
-fsurf.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
-
-training.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=training.osgconnect.net
-
-user-training.osgconnect.net:
-  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-  site: OSGConnect
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=user-training.osgconnect.net
+#training.osgconnect.net:
+#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+#  site: OSGConnect
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=training.osgconnect.net
+#
+#user-training.osgconnect.net:
+#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+#  site: OSGConnect
+#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=user-training.osgconnect.net
 
 amundsen.grid.uchicago.edu:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
