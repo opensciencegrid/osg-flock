@@ -88,7 +88,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(TARGET.IsCOVID19 =?= True) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+            <job query_expr="(IsCOVID19 =?= True) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
                <match_attrs>
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
