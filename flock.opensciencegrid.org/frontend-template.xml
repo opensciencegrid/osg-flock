@@ -63,6 +63,54 @@
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
    <groups>
+      <group name="covid19" enabled="True">
+         <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="50" reserve="1"/>
+            <idle_vms_per_entry curb="450" max="500"/>
+            <idle_vms_total curb="2400" max="2500"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="60000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="57000" max="60000"/>
+         </config>
+         <match match_expr='True'
+                start_expr='(TARGET.IsCOVID19 =?= True) &amp;&amp;
+                            (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                            (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 stringListMember("COVID19", GLIDEIN_Supported_VO) &amp;&amp; 
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
+                                 (GLIDEIN_REQUIRE_VOMS =!= "True")'>
+               <match_attrs>
+                  <match_attr name="GLIDEIN_Site" type="string"/>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="(TARGET.IsCOVID19 =?= True) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+               <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
+               </match_attrs>
+               <schedds>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
+         </files>
+      </group>
       <group name="gpu" enabled="True">
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
