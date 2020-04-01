@@ -79,7 +79,7 @@
                             (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                             (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
-                                 stringListMember("COVID19", GLIDEIN_Supported_VO) &amp;&amp; 
+                                 stringListMember("COVID19", GLIDEIN_Supported_VOs) &amp;&amp; 
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True")'>
                <match_attrs>
