@@ -146,6 +146,13 @@ scott.grid.uchicago.edu:
 #  site: OSGConnect
 #  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=vc3-gateway.osgconnect.net
 
+### Open Science CE ###
+
+192.170.236.216:
+  admin: Brian Lin <blin@cs.wisc.edu>, Matyas Selmeci <matyas@cs.wisc.edu>
+  site: Slate
+  dn: /DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ce1.opensciencegrid.org
+
 ### SBGrid ###
 
 glidein-1.sbgrid.org:
