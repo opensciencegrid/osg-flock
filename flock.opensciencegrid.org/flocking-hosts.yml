@@ -148,7 +148,7 @@ scott.grid.uchicago.edu:
 
 ### Open Science CE ###
 
-192.170.236.216:
+ce1.opensciencegrid.org:
   admin: Brian Lin <blin@cs.wisc.edu>, Matyas Selmeci <matyas@cs.wisc.edu>
   site: Slate
   dn: /DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ce1.opensciencegrid.org
