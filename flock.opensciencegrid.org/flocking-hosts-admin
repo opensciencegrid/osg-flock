@@ -49,6 +49,7 @@ def generate_htcondor_mapfile(data):
     print("# DO NOT EDIT LOCAL COPY - This file is generated from the osg-flock repository")
 
     # pilot DNs
+    print('GSI "^/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock\.opensciencegrid\.org$" pilot')
     print('GSI "^\/DC=org\/DC=incommon\/C=US\/ST=WI\/L=Madison\/O=University of Wisconsin-Madison\/OU=OCIS\/CN=flock\.opensciencegrid\.org$" pilot')
     print('GSI "^/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=xenon-pilot.grid.uchicago.edu" pilot_xenon1t')
 
