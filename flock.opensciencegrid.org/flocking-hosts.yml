@@ -156,7 +156,7 @@ ce1.opensciencegrid.org:
 ### SBGrid ###
 
 glidein-1.sbgrid.org:
-  admin: hpc@sbgrid.org, timony@hkl.hms.harvard.edu
+  admin: hpc@sbgrid.org, Peter Meyer <meyer@hkl.hms.harvard.edu>
   site: SBGrid
   dn: /CN=glidein-1.sbgrid.org
 
