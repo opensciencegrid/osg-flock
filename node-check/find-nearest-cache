@@ -2,13 +2,8 @@
 # Code and configuration files contributed by Edgar Fajardo, OSG Software
 """ Finding nearest cache based on list                                                                                                 
 """
-from __future__ import print_function
-from __future__ import absolute_import
-
 import json
 import os
-import pwd
-import re
 import subprocess
 import sys
 
