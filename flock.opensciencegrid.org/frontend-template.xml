@@ -829,9 +829,6 @@
        <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9700-9899" secondary="True"/>
    </collectors>
    <files>
-     <file absfname="/opt/git/node-check/find-nearest-cache"  after_entry="True" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" \
-untar="False" wrapper="False">
-       <file absfname="/opt/git/node-check/cache-list.json"  after_entry="True" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
