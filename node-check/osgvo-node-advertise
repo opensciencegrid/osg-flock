@@ -29,8 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=465
-
+OSG_GLIDEIN_VERSION=469
 #######################################################################
 
 
@@ -484,11 +483,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
         else
             # last resort is to try adding to the PATH
-            # /usr/local/software/Singularity/singularity-3.0.3/bin is a temp solution for AMNH
-            export OSG_SINGULARITY_VERSION=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.0.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; singularity --version 2>/dev/null`
+            # /usr/local/software/Singularity/singularity-3.5.3/bin is a temp solution for AMNH
+            export OSG_SINGULARITY_VERSION=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; singularity --version 2>/dev/null`
             if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
                 HAS_SINGULARITY="True"
-                export OSG_SINGULARITY_PATH=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.0.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; which singularity`
+                export OSG_SINGULARITY_PATH=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; which singularity`
             else
                 info "Unable to find singularity in PATH=$PATH"
             fi
@@ -518,10 +517,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     fi
     
     # we have been seeing problems with Singularity and CVMFS over NFS - disable on those sites
-    if (mount | grep /cvmfs/singularity.opensciencegrid.org | grep "type nfs") >/dev/null 2>&1; then
-        info "CVMFS over NFS detected - disabling singularity"
-        HAS_SINGULARITY="False"
-    fi
+    #if (mount | grep /cvmfs/singularity.opensciencegrid.org | grep "type nfs") >/dev/null 2>&1; then
+    #    info "CVMFS over NFS detected - disabling singularity"
+    #    HAS_SINGULARITY="False"
+    #fi
         
     OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"
         
