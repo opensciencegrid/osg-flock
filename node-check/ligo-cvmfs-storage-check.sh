@@ -68,7 +68,7 @@ entry_name=`grep "^GLIDEIN_Entry_Name " $glidein_config | awk '{print $2}'`
 FS=ligo.osgstorage.org
 RESULT="False"
 FS_ATTR="HAS_CVMFS_LIGO_STORAGE"
-if [ $entry_name = "VIRGO_T2_BE_UCL_ingrid" ]; then
+if [[ $entry_name = "VIRGO_T2_BE_UCL_ingrid" || $entry_name = "HCC_US_Omaha_crane_gpu" ]]; then
     setsid cat /cvmfs/$FS/test_access/access_ligo 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err
     if [ $? == 0 ]; then
         if [ -s ${FS_ATTR}.out ]; then
@@ -84,6 +84,7 @@ else
     fi
 fi
 advertise $FS_ATTR "$RESULT" "C"
+advertise "HAS_CVMFS_IGWN_STORAGE" "$RESULT" "C"
 
 FS_ATTR="HAS_CVMFS_LIGO_CONTAINERS"
 RESULT="False"
@@ -91,14 +92,15 @@ if [ -s /cvmfs/ligo-containers.opensciencegrid.org/lscsoft/bayeswave/master ]; t
     RESULT="True"
 fi
 advertise $FS_ATTR "$RESULT" "C"
+advertise "HAS_CVMFS_IGWN_CONTAINERS" "$RESULT" "C"
 
 # Test requested by Brian
 FS_ATTR="HAS_LIGO_FRAMES"
 RESULT="False"
 
 TEST_FILE=`shuf -n 1 client/frame_files_small.txt`
-if [ $entry_name = "VIRGO_T2_BE_UCL_ingrid" ]; then
-    setsid head -c 1K $TEST_FILE 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err
+if [[ $entry_name = "VIRGO_T2_BE_UCL_ingrid" || $entry_name = "HCC_US_Omaha_crane_gpu" ]]; then
+    setsid md5sum $TEST_FILE 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err
     if [ $? == 0 ]; then
         if [ -s ${FS_ATTR}.out ]; then
             cat ${FS_ATTR}.out
@@ -109,39 +111,13 @@ if [ $entry_name = "VIRGO_T2_BE_UCL_ingrid" ]; then
     fi
     rm ${FS_ATTR}.out ${FS_ATTR}.err
 else
-  head -c 1K $TEST_FILE
+  md5sum $TEST_FILE
   if [ $? == 0 ]; then
     RESULT="True"
   fi
 fi
 advertise $FS_ATTR "$RESULT" "C"
-
-if [ $RESULT != "True" ]; then
-    TEST_FILE=`shuf -n 1 client/frame_files_small.txt`
-    if [ $entry_name = "VIRGO_T2_BE_UCL_ingrid" ]; then
-        setsid head -c 1K $TEST_FILE 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err
-        if [ $? == 0 ]; then
-            if [ -s ${FS_ATTR}.out ]; then
-                cat ${FS_ATTR}.out
-                RESULT="True"
-            elif [ -s ${FS_ATTR}.err ]; then
-                cat ${FS_ATTR}.err
-            fi
-        fi
-        rm ${FS_ATTR}.out ${FS_ATTR}.err
-    else
-        head -c 1K $TEST_FILE
-        if [ $? == 0 ]; then
-            RESULT="True"
-        fi
-    fi
-    advertise $FS_ATTR "$RESULT" "C"
-fi
-
-## Advertising a new variable with same value has HAS_LIGO_FRAMES
-FS_ATTR="HAS_CVMFS_IGWN_PRIVATE_DATA"
-advertise $FS_ATTR "$RESULT" "C"
-
+advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
 
 ##################                                                                                                                                                   
 info "All done - time to do some real work!"
