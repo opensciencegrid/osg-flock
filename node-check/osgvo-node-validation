@@ -55,6 +55,13 @@ if ! (globus-url-copy -version 2>&1 | grep ^globus-url-copy:) >/dev/null 2>&1; t
     my_warn "globus-url-copy not found - this usually means that the wn package is not installed"
 fi
 
+if [ "XGLIDECLIENT_Group" = "Xgpu" ]; then
+    my_info "   ensuring GPU environment is set up"
+    if [ "XCUDA_VISIBLE_DEVICES" = "X" ]; then
+        my_error "CUDA_VISIBLE_DEVICES is not defined"
+    fi
+fi
+
 my_info "Node looks good - exiting with 0"
 exit 0
 
