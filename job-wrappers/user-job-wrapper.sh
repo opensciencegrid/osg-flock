@@ -266,6 +266,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 if ! ls -l "$OSG_SINGULARITY_IMAGE/.singularity.d/libs/" >/dev/null 2>&1; then
                     echo "OSG Singularity wrapper: The container does not have a /.singularity.d/libs directory - NVIDIA GPU binding of libraries will probably not work." 1>&2
                 fi
+                # some versions of Singulariy does not bind /etc/OpenCL/vendors
+                if [ -e "$OSG_SINGULARITY_IMAGE/etc/OpenCL" ]; then
+                    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /etc/OpenCL/vendors"
+                fi
             fi
             OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --nv"
             # --nv does not update LD_LIBRARY_PATH in some versions
@@ -397,6 +401,11 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                     fi
                 fi
             done
+        fi
+
+        # if debugging, dump the command line on stderr
+        if [ "x$GWMS_DEBUG" = "x" ]; then
+            echo "$OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS --bind $PWD:/srv --no-home --ipc --pid $OSG_SINGULARITY_IMAGE /srv/.osgvo-user-job-wrapper.sh ${CMD[@]}" 1>&2
         fi
 
         $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
