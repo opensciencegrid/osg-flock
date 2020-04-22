@@ -438,11 +438,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
     else
         XCACHE_CLOSEST=`attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/' 2>/dev/null`
+	info "Closest XCACHE found is: $XCACHE_CLOSEST"
         # test first using the cached cvmfs values
-    if [ "X$XCACHE_CLOSEST" != "X" ]; then
+        if [ "X$XCACHE_CLOSEST" = "X" ]; then
             XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
         fi
-        if [ "X$XCACHE_CLOSEST" != "X" ]; then
+        if [ "X$XCACHE_CLOSEST" = "X" ]; then
             echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
             # also want the RTT
             XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
