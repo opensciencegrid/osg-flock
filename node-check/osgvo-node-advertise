@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=475
+OSG_GLIDEIN_VERSION=476
 #######################################################################
 
 
@@ -478,6 +478,12 @@ fi # OSG_SINGULARITY_REEXEC
 ##################
 # singularity
 # advertise availability and version
+
+GLIDEIN_Singularity_Use=`GLIDEIN_Singularity_Use`
+
+if [ "$GLIDEIN_Singularity_Use" == "NEVER" ]; then
+   info "Testing singularity cause GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
+fi
 
 if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     info "Checking for singularity..."
