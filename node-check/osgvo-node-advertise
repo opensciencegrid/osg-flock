@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=476
+OSG_GLIDEIN_VERSION=477
 #######################################################################
 
 
@@ -892,13 +892,9 @@ advertise HAS_MODULES "$RESULT" "C"
 
 
 ##################
-# Java
+# Java - rely on HTCondor detection
 
-HAS_JAVA="False"
-if java -Xmx100m -version >/dev/null 2>&1; then
-    HAS_JAVA="True"
-fi
-advertise HAS_JAVA "$HAS_JAVA" "C"
+advertise HAS_JAVA "HasJava" "C"
 
 
 ##################
