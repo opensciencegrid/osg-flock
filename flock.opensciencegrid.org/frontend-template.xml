@@ -115,6 +115,50 @@
             <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
          </files>
       </group>
+      <group name="covid19_gpu" enabled="True">
+         <config>
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="5" reserve="1"/>
+            <idle_vms_per_entry curb="45" max="50"/>
+            <idle_vms_total curb="40" max="50"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="900" max="1000"/>
+         </config>
+         <match match_expr="True"
+                start_expr='(isUndefined(TARGET.DESIRED_Sites) &amp;&amp; TARGET.RequestGPUs &gt; 0) &amp;&amp; 
+                            (UNDESIRED_Sites=?=undefined || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
+                            (TARGET.IsCOVID19 =?= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("COVID19_GPU", Glidein_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(DESIRED_Sites) &amp;&amp; RequestGPUs &gt; 0">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
+            <file absfname="/opt/git/node-check/osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
+         </files>
+      </group>
       <group name="gpu" enabled="True">
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
