@@ -268,10 +268,10 @@ descmp3.cosmology.illinois.edu:
 
 ### BNL ###
 
-hcsubmit.sdcc.bnl.gov:
-  admin: John Hover <jhover@bnl.gov>
+osgsub01.sdcc.bnl.gov:
+  admin: Xin Zhao <xinzhao@bnl.gov>
   site: BNL
-  dn: /DC=org/DC=incommon/C=US/ST=New York/L=Upton/O=Brookhaven National Laboratory/OU=SDCC/CN=hcsubmit.sdcc.bnl.gov
+  dn: /DC=org/DC=incommon/C=US/ST=New York/L=Upton/O=Brookhaven National Laboratory/OU=SDCC/CN=osgsub01.sdcc.bnl.gov
 
 ### UCI Atlas ###
 uclhc-1.ps.uci.edu:
