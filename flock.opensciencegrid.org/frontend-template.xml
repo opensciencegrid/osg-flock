@@ -56,7 +56,7 @@
       <attr name="GLIDECLIENT_Rank" glidein_publish="False" job_publish="False" parameter="True" type="string" value="1"/>
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
-      <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="28800"/>
+      <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="72000"/>
       <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="95%__opensciencegrid/osgvo-el7:latest 3%__opensciencegrid/osgvo-el6:latest 2%__opensciencegrid/osgvo-el8:latest"/>
       <attr name="OSG_DEFAULT_CVMFS_DATA" glidein_publish="False" job_publish="False" parameter="True" type="string" value="/cvmfs/stash.osgstorage.org"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="x509userproxysubject,x509UserProxyFQAN,x509UserProxyVOName,x509UserProxyEmail,x509UserProxyExpiration,ProjectName"/>
@@ -109,6 +109,7 @@
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="72000"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="136800"/>
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
@@ -153,6 +154,7 @@
             <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="136800"/>
          </attrs>
          <files>
             <file absfname="/opt/git/job-wrappers/user-job-wrapper.sh" wrapper="True" />
