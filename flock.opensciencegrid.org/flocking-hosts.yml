@@ -7,7 +7,7 @@ flock.opensciencegrid.org:
 xd-login.opensciencegrid.org:
   admin: Mats Rynge <rynge@isi.edu>
   site: UChicago
-  dn: /DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=xd-login.opensciencegrid.org
+  dn: /DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=xd-login.opensciencegrid.org
   subschedds:
     - main
     - Q1
