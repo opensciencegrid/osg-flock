@@ -1,10 +1,9 @@
 #!/bin/bash
 #
 # This is script is mostly the sama script that OSG Frontend uses to                                                                                     
-# advertise.                                                                                                                                             
-  #                                                                                                                                                      
-# All credits to Mats Rynge (rynge@isi.edu)                                                                                                              
-                       
+# advertise.  
+#                                                                                                                                                      
+# All credits to Mats Rynge (rynge@isi.edu)  
 #
 
 glidein_config="$1"
@@ -41,6 +40,18 @@ function advertise {
     fi
 }
 
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
 if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
     info "No arguments provided - assuming HTCondor startd cron mode"
@@ -48,7 +59,7 @@ else
     info "Arguments to the script: $@"
 fi
 
-info "This is a setup script for the Ligo frontend."
+info "This is a setup script for the IGWN frontend."
 info "In case of problems, contact Edgar Fajardo (emfajard@ucsd.edu)"
 
 if [ "$glidein_config" != "NONE" ]; then
@@ -61,30 +72,7 @@ if [ "$glidein_config" != "NONE" ]; then
 fi
 
 
-info "Checking for CVMFS availability and attributes..."
-
-entry_name=`grep "^GLIDEIN_Entry_Name " $glidein_config | awk '{print $2}'`
-
-FS=ligo.osgstorage.org
-RESULT="False"
-FS_ATTR="HAS_CVMFS_LIGO_STORAGE"
-if [[ $entry_name = "VIRGO_T2_BE_UCL_ingrid" || $entry_name = "HCC_US_Omaha_crane_gpu" ]]; then
-    setsid cat /cvmfs/$FS/test_access/access_ligo 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err
-    if [ $? == 0 ]; then
-        if [ -s ${FS_ATTR}.out ]; then
-            RESULT="True"
-        elif [ -s ${FS_ATTR}.err ]; then
-            cat ${FS_ATTR}.err
-        fi
-    fi
-    rm ${FS_ATTR}.out ${FS_ATTR}.err
-else
-    if [ -s /cvmfs/$FS/test_access/access_ligo ]; then
-        RESULT="True"
-    fi
-fi
-advertise $FS_ATTR "$RESULT" "C"
-advertise "HAS_CVMFS_IGWN_STORAGE" "$RESULT" "C"
+info "Checking for IGWN container availability"
 
 FS_ATTR="HAS_CVMFS_LIGO_CONTAINERS"
 RESULT="False"
@@ -94,30 +82,40 @@ fi
 advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_CONTAINERS" "$RESULT" "C"
 
-# Test requested by Brian
+
+info "Checking for IGWN FRAMES availability"
+
+$HAS_SINGULARITY=`get_glidein_config_value HAS_SINGULARITY`
+FS=ligo.osgstorage.org
 FS_ATTR="HAS_LIGO_FRAMES"
 RESULT="False"
-
 TEST_FILE=`shuf -n 1 client/frame_files_small.txt`
-if [[ $entry_name = "VIRGO_T2_BE_UCL_ingrid" || $entry_name = "HCC_US_Omaha_crane_gpu" ]]; then
-    setsid md5sum $TEST_FILE 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err
-    if [ $? == 0 ]; then
-        if [ -s ${FS_ATTR}.out ]; then
-            cat ${FS_ATTR}.out
-            RESULT="True"
-        elif [ -s ${FS_ATTR}.err ]; then
-            cat ${FS_ATTR}.err
-        fi
-    fi
-    rm ${FS_ATTR}.out ${FS_ATTR}.err
-else
-  md5sum $TEST_FILE
-  if [ $? == 0 ]; then
+$OSG_SINGULARITY_PATH=`get_glidein_config_value OSG_SINGULARITY_PATH`
+$OSG_SINGULARITY_EXTRA_OPTS=`get_glidein_config_value OSG_SINGULARITY_EXTRA_OPTS`
+$OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DEFAULT`
+TEST_CMD="md5sum $TEST_FILE 1> ${FS_ATTR}.out 2> ${FS_ATTR}.err"
+ 
+if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+   info "setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
+   if ! (setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+                                           $OSG_SINGULARITY_EXTRA_OPTS \
+                                           "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+                                           $TEST_CMD \
+                                           | grep Frame) 1>&2 \
+   ; then
+    RESULT="False"
+   else
     RESULT="True"
-  fi
+else
+  if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
+  ; then
+    RESULT="False"
+  else
+    RESULT="True"
 fi
 advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
-
+advertise "HAS_CVMFS_LIGO_STORAGE" "$RESULT" "C"
+advertise "HAS_CVMFS_IGWN_STORAGE" "$RESULT" "C"
 ##################                                                                                                                                                   
 info "All done - time to do some real work!"
