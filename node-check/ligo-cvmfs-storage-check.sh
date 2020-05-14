@@ -96,24 +96,24 @@ OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DE
 TEST_CMD="head -c 1k $TEST_FILE"
 
 if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-   info "setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
-   if ! (setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                           $OSG_SINGULARITY_EXTRA_OPTS \
-                                           "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                           $TEST_CMD \
-                                           | grep Frame) 1>&2 \
-   ; then
-    RESULT="False"
-   else
-    RESULT="True"
-   fi
+    info "setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
+    if ! (setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+                                            $OSG_SINGULARITY_EXTRA_OPTS \
+                                            "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+                                            $TEST_CMD \
+                                            | grep Frame) 1>&2 \
+    ; then
+        RESULT="False"
+    else
+        RESULT="True"
+    fi
 else
-  if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
-  ; then
-      RESULT="False"
-  else
-      RESULT="True"
-  fi
+    if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
+    ; then
+        RESULT="False"
+    else
+        RESULT="True"
+    fi
 fi
 advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
