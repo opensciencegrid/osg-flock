@@ -90,9 +90,9 @@ FS=ligo.osgstorage.org
 FS_ATTR="HAS_LIGO_FRAMES"
 RESULT="False"
 TEST_FILE=`shuf -n 1 client/frame_files_small.txt`
-$OSG_SINGULARITY_PATH=`get_glidein_config_value OSG_SINGULARITY_PATH`
-$OSG_SINGULARITY_EXTRA_OPTS=`get_glidein_config_value OSG_SINGULARITY_EXTRA_OPTS`
-$OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DEFAULT`
+OSG_SINGULARITY_PATH=`get_glidein_config_value OSG_SINGULARITY_PATH`
+OSG_SINGULARITY_EXTRA_OPTS=`get_glidein_config_value OSG_SINGULARITY_EXTRA_OPTS`
+OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DEFAULT`
 TEST_CMD="head -c 1k $TEST_FILE"
 
 if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
