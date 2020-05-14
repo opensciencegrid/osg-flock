@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # This is script is mostly the sama script that OSG Frontend uses to                                                                                     
-# advertise.  
-#                                                                                                                                                      
-# All credits to Mats Rynge (rynge@isi.edu)  
+# advertise.
+#
+# All credits to Mats Rynge (rynge@isi.edu)
 #
 
 glidein_config="$1"
