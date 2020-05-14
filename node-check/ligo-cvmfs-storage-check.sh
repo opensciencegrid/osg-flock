@@ -106,12 +106,14 @@ if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
     RESULT="False"
    else
     RESULT="True"
+   fi
 else
   if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
   ; then
-    RESULT="False"
+      RESULT="False"
   else
-    RESULT="True"
+      RESULT="True"
+  fi
 fi
 advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
