@@ -479,7 +479,7 @@ fi # OSG_SINGULARITY_REEXEC
 # singularity
 # advertise availability and version
 
-GLIDEIN_Singularity_Use=`GLIDEIN_Singularity_Use`
+GLIDEIN_Singularity_Use=`get_glidein_config_value GLIDEIN_Singularity_Use`
 
 if [ "$GLIDEIN_Singularity_Use" == "NEVER" ]; then
    info "Testing singularity cause GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
@@ -692,6 +692,7 @@ else
     advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
     advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
     advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
+    advertise OSG_SINGULARITY_EXTRA_OPTS "$OSG_SINGULARITY_EXTRA_OPTS" "S"
    
     # fix up the env
     for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
