@@ -85,7 +85,7 @@ advertise "HAS_CVMFS_IGWN_CONTAINERS" "$RESULT" "C"
 
 info "Checking for IGWN FRAMES availability"
 
-$HAS_SINGULARITY=`get_glidein_config_value HAS_SINGULARITY`
+HAS_SINGULARITY=`get_glidein_config_value HAS_SINGULARITY`
 FS=ligo.osgstorage.org
 FS_ATTR="HAS_LIGO_FRAMES"
 RESULT="False"
