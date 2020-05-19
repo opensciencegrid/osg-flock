@@ -29,8 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=448
-
+OSG_GLIDEIN_VERSION=483
 #######################################################################
 
 
@@ -78,88 +77,27 @@ function get_glidein_config_value {
     echo "$VALUE"
 }
 
-function singularityfy_path {
-    ORIG="$1"
-    # Are we replacing a gwms path? If so, use the safer expression which
-    if (echo "$ORIG" | grep "glide_") >/dev/null 2>&1; then
-        echo "$ORIG" | sed -E "s;.*/glide_[a-zA-Z0-9]+(.*);/srv\1;"
-    else
-        echo "$ORIG" | sed -E "s;$PWD;/srv;"
+###########################################################
+# Ensure only one copy of this script is running at the 
+# same time. For example, if a mount or something hangs
+# further down, we do not want more copies of this script
+# to add to the problem.
+
+export PID_FILE=osgvo-node-advertise.pid
+if [ -e $PID_FILE ]; then
+    OLD_PID=`cat $PID_FILE 2>/dev/null`
+    if kill -0 $OLD_PID >/dev/null 2>&1; then
+        exit 0
     fi
-}
-
-function determine_default_container_image {
-    # Selects a default image to use if a job does not specify
-    # an image to use. The new style to specify this is with an
-    # attribute named OSG_DEFAULT_CONTAINER_DISTRIBUTION
-    # Example:
-    # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
-
-    # only run the selection once
-    if [ -e .osgvo-default-singularity-image ]; then
-        SELECTED_IMAGE=`cat .osgvo-default-singularity-image`
-        return
-    fi
-
-    OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
-    OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
-
-    # if we are given GPUs, pick up GPU specific images
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-        OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
-    fi
-
-    SELECTED_IMAGE=""
-    if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
-        # new style - weghted random selection
-        TARGET=$(($RANDOM % 100 + 1))
-        TOTAL_PERCENT=0
-        for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
-            PERCENT=`echo $ENTRY | sed 's/%__.*//'`
-            IMAGE=`echo $ENTRY | sed 's/.*%__//'`
-            # verify it exists
-            if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
-                my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
-                continue
-            fi
-            # we just need to track the upper limit
-            TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
-            if [ $TARGET -le $TOTAL_PERCENT ]; then
-                SELECTED_IMAGE=$IMAGE
-                break
-            fi
-        done
-    elif [ "x$OSG_SINGULARITY_EL7_PERCENT" != "x" ]; then
-        # old style - keep until OSG_SINGULARITY_EL7_PERCENT has been
-        # removed from all frontends
-        TARGET=$(($RANDOM % 100 + 1))
-        if [ $TARGET -le $OSG_SINGULARITY_EL7_PERCENT ]; then
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
-        else
-            SELECTED_IMAGE="opensciencegrid/osgvo-el6:latest"
-        fi
-    fi
-
-    # if everything else fails, use EL7
-    if [ "x$SELECTED_IMAGE" = "x" ]; then
-        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7-cuda10:latest"
-        else
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
-        fi
-    fi
-
-    # prepend the base bath
-    SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
-    echo $SELECTED_IMAGE >.osgvo-default-singularity-image
-}
-
+fi
+echo $$ >$PID_FILE
 
 ###########################################################
 # We have two env variables which can be added to in this
 # script to provide an expression for the START expression
 # and a general warnings string which gets published in the
 # ad. These are env variables until the end.
+
 export GLIDEIN_VALIDATION_EXPR="True"
 export GLIDEIN_VALIDATION_WARNINGS=""
 
@@ -171,43 +109,55 @@ export GLIDEIN_VALIDATION_WARNINGS=""
 # test to rerun then again. There is also a 3 hour version.
 #
 
-TEST_FILE_1H=.osgvo.test-results.1h
-TEST_FILE_4H=.osgvo.test-results.4h
+TEST_FILE_1H=osgvo.test-results.1h
+TEST_FILE_4H=osgvo.test-results.4h
 
 # clean up old ones
 find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
+find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
 
-
-if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
-    info "This is a setup script for the OSG-FLOCK frontend."
-    info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
-    info "Running in directory $PWD"
+info "This is a setup script for the OSG-FLOCK frontend."
+info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
+info "Running in directory $PWD"
     
-    if [ -e ../glidein_config ]; then
-        # gwms stupid tmp dir for periodic scripts - this breaks
-        # out ability to cache results
-        cd ../
-        info "GWMS tmp directory detected. Switched working directory to $PWD"
-    fi
-
-    # bash can set a default PATH - make sure it is exported
-    export PATH=$PATH
-
-    # some sites do not have PATH set
-    if [ "x$PATH" = "x" ]; then
-        export PATH="/usr/local/bin:/usr/bin:/bin"
-        my_warn "PATH is empty, setting it to $PATH"
-    fi
-    info "PATH is set to $PATH"
-
-    info "The following aliases are set:"
-    alias 1>&2 || true
+if [ -e glidein_config ]; then
+    # gwms 
+    info "GWMS directory detected. Staying in $PWD"
+elif [ -e ../glidein_config ]; then
+    # gwms stupid tmp dir for periodic scripts - this breaks
+    # out ability to cache results
+    cd ../
+    info "GWMS tmp directory detected. Switched directory to $PWD"
 else
-    info "Now running inside a singularity container"
-    # make sure we are inside the correct dir
-    cd /srv
+    # find a good directory for our tests - we need something that we
+    # can re-enter later to pick up cached results
+    for DER in $GLIDEIN_Tmp_Dir $TMP $TMPDIR /tmp . ; do
+        # do we have write permissions
+        if touch $DER/.writetest.$$ >/dev/null 2>&1; then
+            rm -f $DER/.writetest.$$
+            if mkdir -p $DER/osgvo-node-advertise.work >/dev/null 2>&1; then
+                cp $0 $DER/osgvo-node-advertise.work/
+                if [ -e add_config_line.source ]; then
+                    cp add_config_line.source $DER/osgvo-node-advertise.work/
+                fi
+                cd $DER/osgvo-node-advertise.work
+                info "Switched working directory to $PWD"
+                break
+            fi
+        fi
+    done
 fi
+
+# bash can set a default PATH - make sure it is exported
+export PATH=$PATH
+
+# some sites do not have PATH set
+if [ "x$PATH" = "x" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin"
+    my_warn "PATH is empty, setting it to $PATH"
+fi
+info "PATH is set to $PATH"
 
 if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
@@ -232,417 +182,203 @@ if [ "$glidein_config" != "NONE" ]; then
     source $add_config_line_source
 fi
 
-###########################################################
-#
-#  some of the following checks has to take place outside
-#  singularity, some inside. First the set we need outside:
-#
 
-if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
+advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
 
-    advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
-
-    # we need the "outside" kernel version to be able to steer
-    # singularity jobs to kernel/glibcs which are not too old
-    VER=`uname -r | sed 's/-.*//'`
-    MAJ=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\1/'`
-    MIN=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\2/'`
-    PATCH=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\3/'`
-    VER=$(( 10000 * $MAJ + 100 * $MIN + $PATCH ))
-    if [ "x$VER" != "x" ]; then
-        if [ $VER -gt 10000 ]; then
-            advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
-        fi
+# we need the "outside" kernel version to be able to steer
+# singularity jobs to kernel/glibcs which are not too old
+VER=`uname -r | sed 's/-.*//'`
+MAJ=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\1/'`
+MIN=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\2/'`
+PATCH=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\3/'`
+VER=$(( 10000 * $MAJ + 100 * $MIN + $PATCH ))
+if [ "x$VER" != "x" ]; then
+    if [ $VER -gt 10000 ]; then
+        advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
     fi
-
-    ##################
-    # cvmfs filesystem availability
-    info "Checking for CVMFS availability and attributes..."
-    for FS in \
-       ams.cern.ch \
-       atlas.cern.ch \
-       cms.cern.ch \
-       connect.opensciencegrid.org \
-       desdm.osgstorage.org \
-       gwosc.osgstorage.org \
-       icecube.opensciencegrid.org \
-       ligo-containers.opensciencegrid.org \
-       nexo.opensciencegrid.org \
-       oasis.opensciencegrid.org \
-       singularity.opensciencegrid.org \
-       snoplus.egi.eu \
-       spt.opensciencegrid.org \
-       stash.osgstorage.org \
-       veritas.opensciencegrid.org \
-       xenon.opensciencegrid.org \
-       sw.lsst.eu \
-    ; do
-        FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
-        FS_ATTR="HAS_CVMFS_$FS_CONV"
-        RESULT="False"
-        
-        # keep the filesystems mounted
-        ls -l /cvmfs/$FS/ >/dev/null 2>&1
-
-        if [ -e /cvmfs/$FS/. ]; then
-            RESULT="True"
-            # add the revision
-            REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-            REV_VAL=1
-            if [ -e /usr/bin/attr ]; then
-                REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
-            fi
-            
-            # oasis.opensciencegrid.org needs extra checks
-            if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
-                if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
-                if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
-            fi
-
-            # stash.osgstorage.org needs extra checks
-            if [ "x$FS" = "xstash.osgstorage.org" ]; then
-                if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
-            fi
-            
-            # veritas.opensciencegrid.org
-            if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
-                if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
-                    REV_VAL=""
-                fi
-            fi
-
-            # now we are ready to advertise
-            if [ "x$REV_VAL" != "x" ]; then
-                # make sure it is an integer
-                if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
-                    advertise $FS_ATTR "$RESULT" "C"
-                    if [ $REV_VAL -ne 1 ]; then
-                        advertise $REV_ATTR "$REV_VAL" "I"
-                    fi
-                fi
-            fi
-        fi
-    done
-
-    # if it looks like we have CVMFS, make sure the START expression knows that
-    #if [ -e /cvmfs ]; then
-    #    export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
-    #fi
-
-    # update timestamp?
-    TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
-    TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
-    if [ "x$TS_VAL" != "x" ]; then
-        # make sure it is an integer
-        if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
-            advertise $TS_ATTR "$TS_VAL" "I"
-        fi
-    fi
-
-    ###########################################################
-    # system attributes from the host
-
-    VIRTUALIZATION=`(systemd-detect-virt) 2>/dev/null`
-    if [ "x$VIRTUALIZATION" != "x" ]; then
-        advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
-    fi
-
-    ###########################################################
-    # gpus - detect this outside Singularity
-
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-
-        info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
-
-        rm -f gpu.ad
-
-        for LOCATION in \
-              /usr/libexec/condor/condor_gpu_discovery \
-              ./main/condor/libexec/condor_gpu_discovery \
-              ../main/condor/libexec/condor_gpu_discovery \
-        ; do
-            if [ -e "$LOCATION" ]; then
-                ($LOCATION -properties -extra -cuda ; $LOCATION -properties -extra -opencl) \
-                    | grep -v DetectedGPUs \
-                    | sort | uniq \
-                    >gpu.ad 
-                break
-            fi
-        done
-        
-        if [ -s gpu.ad ]; then
-            while read line; do
-                key=`echo "$line" | sed 's/=.*//'`
-                value=`echo "$line" | sed 's/.*=//'`
-                if (echo "$value" | grep '"') >/dev/null 2>&1; then
-                    value=`echo "$value" | sed 's/"//g'`
-                    advertise "$key" "$value" "S"
-                else
-                    advertise "$key" "$value" "C"
-                fi
-            done <gpu.ad
-        
-            # and some extra nvidia attributes
-            nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
-            if [ "x$nvidia_version" != "x" ]; then
-                advertise NV_DRIVER "$nvidia_version" "C"
-            fi
-        else
-            my_warn "GPU detection failed!"
-            advertise "GPUDetection" "No GPUs detected" "S"
-        fi
-
-        echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >.osgvo-default-singularity-image
-        export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
-        info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
-    fi
-
-    # xcache - has to be outside due to the ping requirement
-    XCACHE_CLOSEST=""
-    XCACHE_CLOSEST_RTT="-1"
-    if [ -e $TEST_FILE_4H.xcache_closest ]; then
-        XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
-        XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
-    else
-        XCACHE_CLOSEST=`attr -qg external_host /cvmfs/stash.osgstorage.org| sed 's~http[s]*://~~g' | sed 's/.\{6\}$//' 2>/dev/null`
-        # test first using the cached cvmfs values
-    if [ "X$XCACHE_CLOSEST" != "X" ]; then
-            XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
-        fi
-        if [ "X$XCACHE_CLOSEST" != "X" ]; then
-            echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
-            # also want the RTT
-            XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
-            echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
-        else
-            echo "" > $TEST_FILE_4H.xcache_closest
-            echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
-        fi
-    fi
-    advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
-    advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
-
-fi # OSG_SINGULARITY_REEXEC
-
-##################
-# singularity
-# advertise availability and version
-
-if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
-    info "Checking for singularity..."
-
-    # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
-    if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
-        export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/adv-singularity-work.$$
-    fi
-
-    HAS_SINGULARITY="False"
-    export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
-    if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
-        HAS_SINGULARITY="True"
-        export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
-    else
-        # some sites requires us to do a module load first - not sure if we always want to do that
-        export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
-        if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
-            HAS_SINGULARITY="True"
-            export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
-        else
-            # last resort is to try adding to the PATH
-            export OSG_SINGULARITY_VERSION=`export PATH="/usr/local/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; singularity --version 2>/dev/null`
-            if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
-                HAS_SINGULARITY="True"
-                export OSG_SINGULARITY_PATH=`export PATH="/usr/local/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; which singularity`
-            else
-                info "Unable to find singularity in PATH=$PATH"
-            fi
-        fi
-    fi
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        # one last check - make sure we could determine the path to singularity
-        if [ "x$OSG_SINGULARITY_PATH" = "x" ]; then
-            my_warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
-            HAS_SINGULARITY="False"
-        else
-            info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
-        fi
-    fi
-
-    # default image for this glidein - us a distribution between different OSes
-    if [ ! -e .osgvo-default-singularity-image ]; then
-        determine_default_container_image
-    fi
-    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat .osgvo-default-singularity-image`
-    info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
-
-    # for now, we will only advertise singularity on nodes which can access cvmfs
-    if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
-        info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
-        HAS_SINGULARITY="False"
-    fi
-        
-    OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"
-        
-    # Binding different mounts
-    for MNTPOINT in \
-        /hadoop \
-        /hdfs \
-        /lizard \
-        /mnt/hadoop \
-        /mnt/hdfs \
-    ; do
-        if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/$MNTPOINT ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
-        fi
-    done
-
-    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc --pid"
-
-    # Let's do a simple singularity test by echoing something inside, and then
-    # grepping for it outside. This takes care of some errors which happen "late"
-    # in the execing, like:
-    # ERROR  : Could not identify basedir for home directory path: /
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
-        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                         $OSG_SINGULARITY_EXTRA_OPTS \
-                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                         echo "Hello World" \
-                                         | grep "Hello World") 1>&2 \
-        ; then
-            # singularity simple exec failed - we are done
-            info "Simple singularity exec inside $OSG_SINGULARITY_IMAGE_DEFAULT failed."
-            HAS_SINGULARITY="False"
-        fi
-    fi
-    
-    # check that the /srv mount works correctly
-    rm -f test-singularity-create
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT touch test-singularity-create"
-        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                         $OSG_SINGULARITY_EXTRA_OPTS \
-                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                         touch /srv/test-singularity-create) 1>&2 \
-        ; then
-            # singularity simple exec failed - we are done
-            info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
-            HAS_SINGULARITY="False"
-        else
-            # was the file really created?
-            if [ ! -f test-singularity-create ]; then
-                info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
-                HAS_SINGULARITY="False"
-            fi
-        fi
-    fi
-    rm -f test-singularity-create
-    
-    # also verify that the env is inherited correctly
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
-        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                         $OSG_SINGULARITY_EXTRA_OPTS \
-                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                         env \
-                                         | grep OSG_SINGULARITY_IMAGE_DEFAULT) 1>&2 \
-        ; then
-            # singularity env fail - we are done
-            my_warn "Singularity is not inheriting the outside environment"
-            HAS_SINGULARITY="False"
-        fi
-    fi
-
-    # some sites have crappy CVMFS which means HAS_SINGULARITY flaps - prevent this
-    # by remembering failures for 1 hour
-    if [ "x$HAS_SINGULARITY" = "xFalse" ]; then
-        echo "False" > $TEST_FILE_1H.has_singularity
-    elif [ -e $TEST_FILE_1H.has_singularity ]; then
-        my_warn "Singularity is disabled due to failures some time in the last 1 hour"
-        HAS_SINGULARITY="False"
-    fi
-
-    # If we still think we have singularity, we should re-exec this script within the default
-    # container so that we can advertise that environment
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        # We want to map the full glidein dir to /srv inside the container. This is so 
-        # that we can rewrite env vars pointing to somewhere inside that dir (for
-        # example, X509_USER_PROXY)
-        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+).*;\1;"`
-
-        # Make a copy of the user proxy - sometimes this lives outside the glidein dir
-        if [ "x$X509_USER_PROXY" != "x" -a -e "$X509_USER_PROXY" ]; then
-            info "Making a copy of the provided X509_USER_PROXY=$X509_USER_PROXY"
-            cp $X509_USER_PROXY $SING_OUTSIDE_BASE_DIR/x509-pilot-proxy
-            export X509_USER_PROXY=/srv/x509-pilot-proxy
-        fi
-        
-        # We want to bind $PWD to /srv within the container - however, in order
-        # to do that, we have to make sure everything we need is in $PWD, most
-        # notably the osgvo-node-advertise (this script!)
-        if [ ! -e .osgvo-node-advertise ]; then
-            cp $0 .osgvo-node-advertise
-        fi
-
-        # build a new command line, with updated paths
-        CMD="/srv/.osgvo-node-advertise"
-        for VAR in "$@"; do
-            CMD="$CMD "`singularityfy_path $VAR`
-        done
-    
-        # update the gwms configs 
-        if [ "x$add_config_line_source" != "x" ]; then
-            export add_config_line_source=`singularityfy_path "$add_config_line_source"`
-            export condor_vars_file=`singularityfy_path "$condor_vars_file"`
-            info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
-        fi
-
-        # let "inside" script know we are re-execing
-        export OSG_SINGULARITY_REEXEC=1
-        info "$OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
-        if $OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv \
-                                      $OSG_SINGULARITY_EXTRA_OPTS \
-                                      "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                      $CMD \
-        ; then
-            # singularity worked - exit here as the rest script ran inside the container
-            exit $?
-        fi
-    fi
-    
-    
-    # if we get here, singularity is not available or not working
-    advertise HAS_SINGULARITY "False" "C"
-
-else
-
-    # delay the advertisement until here to make sure singularity actually works
-    advertise HAS_SINGULARITY "True" "C"
-    advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
-    advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
-    advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
-   
-    # fix up the env
-    for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
-               _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
-               add_config_line_source condor_vars_file ; do
-        eval val="\$$key"
-        val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
-        eval $key=$val
-    done
-
 fi
 
-#############################################################################
-#
-# At this point Singularity tests are done, and we can concentrate on 
-# regular systems test.
+##################
+# cvmfs filesystem availability
+info "Checking for CVMFS availability and attributes..."
+for FS in \
+   ams.cern.ch \
+   atlas.cern.ch \
+   cms.cern.ch \
+   connect.opensciencegrid.org \
+   desdm.osgstorage.org \
+   gwosc.osgstorage.org \
+   icecube.opensciencegrid.org \
+   ligo-containers.opensciencegrid.org \
+   nexo.opensciencegrid.org \
+   oasis.opensciencegrid.org \
+   singularity.opensciencegrid.org \
+   snoplus.egi.eu \
+   sphenix.opensciencegrid.org \
+   spt.opensciencegrid.org \
+   stash.osgstorage.org \
+   veritas.opensciencegrid.org \
+   xenon.opensciencegrid.org \
+   sw.lsst.eu \
+; do
+    FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
+    FS_ATTR="HAS_CVMFS_$FS_CONV"
+    RESULT="False"
+    
+    # keep the filesystems mounted
+    ls -l /cvmfs/$FS/ >/dev/null 2>&1
+
+    if [ -e /cvmfs/$FS/. ]; then
+        RESULT="True"
+        # add the revision
+        REV_ATTR="CVMFS_${FS_CONV}_REVISION"
+        REV_VAL=1
+        if [ -e /usr/bin/attr ]; then
+            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+        fi
+        # some site mount /cvmfs over NFS and attr will not work
+        if [ "x$REV_VAL" = "x" ]; then
+            REV_VAL=1
+        fi
+        
+        # oasis.opensciencegrid.org needs extra checks
+        if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
+            if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+            if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+        fi
+
+        # stash.osgstorage.org needs extra checks
+        if [ "x$FS" = "xstash.osgstorage.org" ]; then
+            if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+        fi
+        
+        # veritas.opensciencegrid.org
+        if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
+            if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+        fi
+
+        # now we are ready to advertise
+        if [ "x$REV_VAL" != "x" ]; then
+            # make sure it is an integer
+            if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                advertise $FS_ATTR "$RESULT" "C"
+                if [ $REV_VAL -ne 1 ]; then
+                    advertise $REV_ATTR "$REV_VAL" "I"
+                fi
+            fi
+        fi
+    fi
+done
+
+# if it looks like we have CVMFS, make sure the START expression knows that
+#if [ -e /cvmfs ]; then
+#    export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
+#fi
+
+# update timestamp?
+TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
+TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
+if [ "x$TS_VAL" != "x" ]; then
+    # make sure it is an integer
+    if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
+        advertise $TS_ATTR "$TS_VAL" "I"
+    fi
+fi
+
+###########################################################
+# system attributes from the host
+
+VIRTUALIZATION=`(systemd-detect-virt) 2>/dev/null`
+if [ "x$VIRTUALIZATION" != "x" ]; then
+    advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
+fi
+
+###########################################################
+# gpus - detect this outside Singularity
+
+if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+
+    info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
+
+    rm -f gpu.ad
+
+    for LOCATION in \
+          /usr/libexec/condor/condor_gpu_discovery \
+          ./main/condor/libexec/condor_gpu_discovery \
+          ../main/condor/libexec/condor_gpu_discovery \
+    ; do
+        if [ -e "$LOCATION" ]; then
+            ($LOCATION -properties -extra -cuda ; $LOCATION -properties -extra -opencl) \
+                | grep -v DetectedGPUs \
+                | sort | uniq \
+                >gpu.ad 
+            break
+        fi
+    done
+    
+    if [ -s gpu.ad ]; then
+        while read line; do
+            key=`echo "$line" | sed 's/=.*//'`
+            value=`echo "$line" | sed 's/.*=//'`
+            if (echo "$value" | grep '"') >/dev/null 2>&1; then
+                value=`echo "$value" | sed 's/"//g'`
+                advertise "$key" "$value" "S"
+            else
+                advertise "$key" "$value" "C"
+            fi
+        done <gpu.ad
+    
+        # and some extra nvidia attributes
+        nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
+        if [ "x$nvidia_version" != "x" ]; then
+            advertise NV_DRIVER "$nvidia_version" "C"
+        fi
+    else
+        my_warn "GPU detection failed!"
+        advertise "GPUDetection" "No GPUs detected" "S"
+    fi
+
+    echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >osgvo.default-singularity-image
+    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
+    info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
+fi
+
+# xcache - has to be outside due to the ping requirement
+XCACHE_CLOSEST=""
+XCACHE_CLOSEST_RTT="-1"
+OSG_DEFAULT_CVMFS_DATA=`get_glidein_config_value OSG_DEFAULT_CVMFS_DATA`
+info "Using $OSG_DEFAULT_CVMFS_DATA to check closest cache"
+if [ -e $TEST_FILE_4H.xcache_closest ]; then
+    XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
+    XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
+else
+    XCACHE_CLOSEST=`(attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/') 2>/dev/null`
+	info "Closest XCACHE found is: $XCACHE_CLOSEST"
+    # test first using the cached cvmfs values
+    if [ "X$XCACHE_CLOSEST" = "X" ]; then
+        XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
+    fi
+    if [ "X$XCACHE_CLOSEST" != "X" ]; then
+        echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
+        # also want the RTT
+        XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
+        echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
+    else
+        echo "" > $TEST_FILE_4H.xcache_closest
+        echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
+    fi
+fi
+advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
+advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
+
 
 # timeout - need this early as we use it in some commands later
 HAS_TIMEOUT="False"
@@ -831,13 +567,9 @@ advertise HAS_MODULES "$RESULT" "C"
 
 
 ##################
-# Java
+# Java - rely on HTCondor detection
 
-HAS_JAVA="False"
-if java -Xmx100m -version >/dev/null 2>&1; then
-    HAS_JAVA="True"
-fi
-advertise HAS_JAVA "$HAS_JAVA" "C"
+advertise HAS_JAVA "HasJava" "C"
 
 
 ##################
@@ -871,14 +603,15 @@ advertise HAS_SCP "$HAS_SCP" "C"
 # this is a one-shot test
 rm -f test.txt
 STASHCP_VERIFIED="False"
-if [ -e $TEST_FILE_4H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_4H.stashcp`
-elif (module load stashcache && $TIMEOUT_CMD stashcp /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
+if [ -e $TEST_FILE_1H.stashcp ]; then
+    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
-    echo "True" > $TEST_FILE_4H.stashcp
+    echo "True" > $TEST_FILE_1H.stashcp
 else
-    echo "False" > $TEST_FILE_4H.stashcp
+    echo "False" > $TEST_FILE_1H.stashcp
 fi
+rm -f testfile
 advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
 
@@ -1112,7 +845,7 @@ else
     fi
 fi
 
-
 ##################
+rm -f $PID_FILE
 info "All done - time to do some real work!"
 

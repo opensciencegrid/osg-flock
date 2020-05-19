@@ -124,353 +124,40 @@ if [ "x$PATH" = "x" ]; then
     export PATH="/usr/local/bin:/usr/bin:/bin"
 fi
 
-# clean up potential leftovers from previous runs
-rm -f .singularity.startup-ok
-
-if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
-    if [ "x$_CONDOR_JOB_AD" = "x" ]; then
-        export _CONDOR_JOB_AD="NONE"
-    fi
-    if [ "x$_CONDOR_MACHINE_AD" = "x" ]; then
-        export _CONDOR_MACHINE_AD="NONE"
-    fi
+if [ "x$_CONDOR_JOB_AD" = "x" ]; then
+    export _CONDOR_JOB_AD="NONE"
+fi
+if [ "x$_CONDOR_MACHINE_AD" = "x" ]; then
+    export _CONDOR_MACHINE_AD="NONE"
+fi
 
-    # make sure the job can access certain information via the environment, for example ProjectName
-    export OSGVO_PROJECT_NAME=$(getPropStr $_CONDOR_JOB_AD ProjectName)
-    export OSGVO_SUBMITTER=$(getPropStr $_CONDOR_JOB_AD User)
-    
-    # "save" some setting from the condor ads - we need these even if we get re-execed
-    # inside singularity in which the paths in those env vars are wrong
-    # Seems like arrays do not survive the singularity transformation, so set them
-    # explicity
+# make sure the job can access certain information via the environment, for example ProjectName
+export OSGVO_PROJECT_NAME=$(getPropStr $_CONDOR_JOB_AD ProjectName)
+export OSGVO_SUBMITTER=$(getPropStr $_CONDOR_JOB_AD User)
 
-    export HAS_SINGULARITY=$(getPropBool $_CONDOR_MACHINE_AD HAS_SINGULARITY 0)
-    export OSG_SINGULARITY_PATH=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_PATH)
-    export OSG_SINGULARITY_IMAGE_DEFAULT=$(getPropStr $_CONDOR_MACHINE_AD OSG_SINGULARITY_IMAGE_DEFAULT)
-    export OSG_SINGULARITY_IMAGE=$(getPropStr $_CONDOR_JOB_AD SingularityImage)
-    export OSG_SINGULARITY_AUTOLOAD=$(getPropBool $_CONDOR_JOB_AD SingularityAutoLoad 1)
-    export OSG_SINGULARITY_BIND_CVMFS=$(getPropBool $_CONDOR_JOB_AD SingularityBindCVMFS 1)
-    export OSG_SINGULARITY_CLEAN_ENV=$(getPropBool $_CONDOR_JOB_AD SingularityCleanEnv 0)
+export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
+export STASHCACHE_WRITABLE=$(getPropBool $_CONDOR_JOB_AD WantsStashCacheWritable 0)
 
-    export STASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsStashCache 0)
-    export STASHCACHE_WRITABLE=$(getPropBool $_CONDOR_JOB_AD WantsStashCacheWritable 0)
+export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
 
-    export POSIXSTASHCACHE=$(getPropBool $_CONDOR_JOB_AD WantsPosixStashCache 0)
-
-    # Don't load modules for LIGO
-    if (echo "X$GLIDEIN_Client" | grep ligo) >/dev/null 2>&1; then
-        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 0)
-    else
-        export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
-    fi
-    export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
-
-    export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
-    
-    export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
-
-    # http_proxy from our advertise script
-    export http_proxy=$(getPropStr $_CONDOR_MACHINE_AD http_proxy)
-    if [ "x$http_proxy" = "x" ]; then
-        unset http_proxy
-    fi
-
-    if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
-        echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
-        export OSG_SINGULARITY_AUTOLOAD=0
-    fi
-
-    #############################################################################
-    #
-    #  Singularity
-    #
-    if [ "x$HAS_SINGULARITY" = "x1" -a "x$OSG_SINGULARITY_PATH" != "x" ]; then
-
-        # If  image is not provided, load the default one
-        # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
-        if [ "x$OSG_SINGULARITY_IMAGE" = "x" ]; then
-            # Default
-            export OSG_SINGULARITY_IMAGE="$OSG_SINGULARITY_IMAGE_DEFAULT"
-            export OSG_SINGULARITY_BIND_CVMFS=1
-        fi
-
-        # check that the image is actually available (but only for /cvmfs ones)
-        if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
-            if ! ls -l "$OSG_SINGULARITY_IMAGE/" >/dev/null; then
-                shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
-            fi
-        fi
-
-        # put a human readable version of the image in the env before
-        # expanding it - useful for monitoring
-        export OSG_SINGULARITY_IMAGE_HUMAN="$OSG_SINGULARITY_IMAGE"
-
-        # for /cvmfs based directory images, expand the path without symlinks so that
-        # the job can stay within the same image for the full duration
-        if echo "$OSG_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
-            if (cd $OSG_SINGULARITY_IMAGE) >/dev/null 2>&1; then
-                NEW_IMAGE_PATH=`(cd $OSG_SINGULARITY_IMAGE && pwd -P) 2>/dev/null`
-                if [ "x$NEW_IMAGE_PATH" != "x" ]; then
-                    OSG_SINGULARITY_IMAGE="$NEW_IMAGE_PATH"
-                fi
-            fi
-        fi
-
-	    # ddavila 20190510:
-        # If condor_chirp is present, then copy it inside the container.
-        if [ -e ../../main/condor/libexec/condor_chirp ]; then
-            mkdir -p condor/libexec
-            cp ../../main/condor/libexec/condor_chirp condor/libexec/condor_chirp
-            mkdir -p condor/lib
-            cp -r ../../main/condor/lib condor/
-        fi
-
-        # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
-        if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
-            if mkdir $GLIDEIN_Tmp_Dir/singularity-work.$$ ; then
-                export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-work.$$
-            fi
-        fi
-        
-        OSG_SINGULARITY_EXTRA_OPTS=""
-   
-        # cvmfs access inside container (default, but optional)
-        if [ "x$OSG_SINGULARITY_BIND_CVMFS" = "x1" ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind /cvmfs"
-        fi
-
-        # clean environment if user wants it
-        if [ "x$OSG_SINGULARITY_CLEAN_ENV" = "x1" ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --cleanenv"
-        fi
-
-        # Binding different mounts
-        for MNTPOINT in \
-            /hadoop \
-            /hdfs \
-            /lizard \
-            /mnt/hadoop \
-            /mnt/hdfs \
-        ; do
-            if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE/$MNTPOINT ]; then
-                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
-            fi
-        done
-
-        # GPUs - bind outside GPU library directory to inside /host-libs
-        if [ $OSG_MACHINE_GPUS -gt 0 ]; then
-            # check if the image on cvmfs has /.singularity/libs
-            if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
-                if ! ls -l "$OSG_SINGULARITY_IMAGE/.singularity.d/libs/" >/dev/null 2>&1; then
-                    echo "OSG Singularity wrapper: The container does not have a /.singularity.d/libs directory - NVIDIA GPU binding of libraries will probably not work." 1>&2
-                fi
-            fi
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --nv"
-            # --nv does not update LD_LIBRARY_PATH in some versions
-            export SINGULARITYENV_LD_LIBRARY_PATH=/.singularity.d/libs:$SINGULARITYENV_LD_LIBRARY_PATH
-        else
-            # if not using gpus, we can limit the image more
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --contain"
-        fi
-
-        # We want to bind $PWD to /srv within the container - however, in order
-        # to do that, we have to make sure everything we need is in $PWD, most
-        # notably the user-job-wrapper.sh (this script!)
-        cp $0 .osgvo-user-job-wrapper.sh
-
-        # Remember what the outside pwd dir is so that we can rewrite env vars
-        # pointing to omewhere inside that dir (for example, X509_USER_PROXY)
-        #if [ "x$_CONDOR_JOB_IWD" != "x" ]; then
-        #    export OSG_SINGULARITY_OUTSIDE_PWD="$_CONDOR_JOB_IWD"
-        #else
-        #    export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
-        #fi
-        export OSG_SINGULARITY_OUTSIDE_PWD="$PWD"
-
-        # build a new command line, with updated paths
-        CMD=()
-        for VAR in "$@"; do
-            # Two seds to make sure we catch variations of the iwd,
-            # including symlinked ones. The leading space is to prevent
-            # echo to interpret dashes.
-            VAR=`echo " $VAR" | sed -E "s;$PWD(.*);/srv\1;" | sed -E "s;.*/execute/dir_[0-9a-zA-Z]*(.*);/srv\1;" | sed -E "s;^ ;;"`
-            CMD+=("$VAR")
-        done
-
-        if [ "x$LD_LIBRARY_PATH" != "x" ]; then
-            echo "OSG Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
-            unset LD_LIBRARY_PATH
-        fi
-
-        export OSG_SINGULARITY_REEXEC=1
-
-        # If we are cleaning the environment, then we also need to export
-        # variables that will be transformed into certain critical variables
-        # inside the container. Note, we don't deal with PATH, which requires
-        # requires some care, as a user could conceivably set not just
-        # SINGULARITYENV_PATH, but also either of SINGULARITYENV_PREPEND_PATH
-        # or SINGULARITYENV_APPEND_PATH.
-        #
-        # The list of variables below that are transformed should be any variable
-        # that is exported during the first execution of this script (above), or
-        # which is inspected or manipulated during the second execution of this
-        # script.  Maybe also others...
-        #
-        # Note on future proofing: if additional variables are exported above
-        # or referenced during the second execution of this script, they will
-        # also need to be added to this list.  I don't know an elegant way
-        # to automate that process.
-        if [ "x$OSG_SINGULARITY_CLEAN_ENV" = "x1" ]; then
-
-            OSG_SINGULARITY_ENVVARS="OSG_SINGULARITY_REEXEC \
-                _CHIRP_DELAYED_UPDATE_PREFIX \
-                CONDOR_PARENT_ID \
-                GLIDEIN_ResourceName \
-                GLIDEIN_Site \
-                HAS_SINGULARITY \
-                http_proxy \
-                InitializeModulesEnv \
-                LIGO_DATAFIND_SERVER \
-                OSG_MACHINE_GPUS \
-                OSG_SINGULARITY_AUTOLOAD \
-                OSG_SINGULARITY_BIND_CVMFS \
-                OSG_SINGULARITY_CLEAN_ENV \
-                OSG_SINGULARITY_IMAGE \
-                OSG_SINGULARITY_IMAGE_DEFAULT \
-                OSG_SINGULARITY_IMAGE_HUMAN \
-                OSG_SINGULARITY_OUTSIDE_PWD \
-                OSG_SINGULARITY_PATH \
-                OSG_SITE_NAME \
-                OSGVO_PROJECT_NAME \
-                OSGVO_SUBMITTER \
-                OSG_WN_TMP \
-                POSIXSTASHCACHE \
-                SINGULARITY_WORKDIR \
-                STASHCACHE \
-                STASHCACHE_WRITABLE \
-                TZ \
-                X509_USER_CERT \
-                X509_USER_KEY \
-                X509_USER_PROXY"
-
-            # Determine all the _CONDOR_* variable names
-            OSG_SINGULARITY_ENVVARS="$OSG_SINGULARITY_ENVVARS $(env -0 | tr '\n' '\\n' | tr '\0' '\n' | tr '=' ' ' | awk '{print $1;}' | grep ^_CONDOR_)"
-
-            # Determine all the environment variables from the job ClassAd
-            if [ -e "$_CONDOR_JOB_AD" ]; then
-                _ALL_CONDOR_SET_VARNAMES=$(parse_env_file "$_CONDOR_JOB_AD")
-		_SING_ENV_CONDOR_SET_VARNAMES=""
-		_sing_regex="^SINGULARITYENV_"
-		for varname in ${_ALL_CONDOR_SET_VARNAMES}; do
-		    if [[ "$varname" =~ $_sing_regex ]]; then
-			_SING_ENV_CONDOR_SET_VARNAMES="$_SING_ENV_CONDOR_SET_VARNAMES $varname"
-		    else
-			OSG_SINGULARITY_ENVVARS="$OSG_SINGULARITY_ENVVARS $varname"
-		    fi
-		done
-		# If the user set variables of the form SINGULARITYENV_VARNAME,
-		# then warn them and unset those variables
-		if [ -n "${_SING_ENV_CONDOR_SET_VARNAMES}" ]; then
-		    echo "The following variables beginning with 'SINGULARITYENV_' were set " \
-                         "in the condor submission file and will not be propagated: " \
-			 "${_SING_ENV_CONDOR_SET_VARNAMES}" 1>&2
-		    for varname in ${_SING_ENV_CONDOR_SET_VARNAMES}; do
-			unset $varname
-		    done
-		fi
-            fi
-
-            for varname in $OSG_SINGULARITY_ENVVARS; do
-                # If any of the variables above are unset, we don't want to
-                # accidentally propagate that into the container as set but empty.
-                # Note the test below could be simplified in bash 4.2+, but not
-                # sure what we can assume.
-                if [ ! -z ${!varname+x} ]; then
-                    newname="SINGULARITYENV_${varname}"
-                    # If there's already a variable of the form SINGULARITYENV_varname set,
-                    # then do nothing.  Unsure if this should  be removed if setting up
-                    # the condor-specified environment inside the container is implemented.
-                    if [ -z ${!newname+x} ]; then
-                        export $newname=${!varname}
-                    fi
-                fi
-            done
-        fi
-
-        $OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS \
-                              --bind $PWD:/srv \
-                              --no-home --ipc --pid \
-                              "$OSG_SINGULARITY_IMAGE" \
-                              /srv/.osgvo-user-job-wrapper.sh \
-                              "${CMD[@]}"
-        EC=$?
-        if [ $EC -ne 0 ]; then
-            # was it a Singularity issue or a user job issue?
-            if [ ! -e .singularity.startup-ok ]; then
-                shutdown_glidein "Singularity encountered an error starting the container"
-            fi
-        fi
-        if [ "x$GWMS_DEBUG" = "x" ]; then
-            rm -f .singularity.startup-ok
-        fi
-        exit $EC
-    fi
-
+# Don't load modules for LIGO
+if (echo "X$GLIDEIN_Client" | grep ligo) >/dev/null 2>&1; then
+    export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 0)
 else
-    # we are now inside singularity
+    export InitializeModulesEnv=$(getPropBool $_CONDOR_JOB_AD InitializeModulesEnv 1)
+fi
+export LoadModules=$(getPropStr $_CONDOR_JOB_AD LoadModules)
 
-    # need to start in /srv (Singularity's --pwd is not reliable)
-    cd /srv
+export LMOD_BETA=$(getPropBool $_CONDOR_JOB_AD LMOD_BETA 0)
 
-    # fix up the env
-    export HOME=/srv
-    unset TMP
-    unset TMPDIR
-    unset TEMP
-    unset X509_CERT_DIR
-    for key in X509_USER_PROXY X509_USER_CERT \
-               _CONDOR_CREDS _CONDOR_MACHINE_AD \
-               _CONDOR_EXECUTE _CONDOR_JOB_AD \
-               _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
-               OSG_WN_TMP ; do
-        eval val="\$$key"
-        val=`echo "$val" | sed -E "s;$OSG_SINGULARITY_OUTSIDE_PWD(.*);/srv\1;"`
-        eval $key=$val
-    done
+export OSG_MACHINE_GPUS=$(getPropStr $_CONDOR_MACHINE_AD GPUs "0")
 
-    # If X509_USER_PROXY and friends are not set by the job, we might see the
-    # glidein one - in that case, just unset the env var
-    for key in X509_USER_PROXY X509_USER_CERT X509_USER_KEY ; do
-        eval val="\$$key"
-        if [ "x$val" != "x" ]; then
-            if [ ! -e "$val" ]; then
-                eval unset $key >/dev/null 2>&1 || true
-            fi
-        fi
-    done
-
-    # override some OSG specific variables
-    if [ "x$OSG_WN_TMP" != "x" ]; then
-        export OSG_WN_TMP=/tmp
-    fi
-
-    # ddavila 20190510:
-    # Add Chirp back to the environment
-    if [ -e $PWD/condor/libexec/condor_chirp ]; then
-        export PATH=$PWD/condor/libexec:$PATH
-        export LD_LIBRARY_PATH=$PWD/condor/lib:$LD_LIBRARY_PATH
-    fi
-
-    # Some java programs have seen problems with the timezone in our containers.
-    # If not already set, provide a default TZ
-    if [ "x$TZ" = "x" ]; then
-        export TZ="UTC"
-    fi
-
-    # signal our parent that we got here
-    touch .singularity.startup-ok
-fi 
+# http_proxy from our advertise script
+export http_proxy=$(getPropStr $_CONDOR_MACHINE_AD http_proxy)
+if [ "x$http_proxy" = "x" ]; then
+    unset http_proxy
+fi
 
 
 
