@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=485
+OSG_GLIDEIN_VERSION=486
 #######################################################################
 
 
@@ -670,6 +670,8 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
 
         # let "inside" script know we are re-execing
         export OSG_SINGULARITY_REEXEC=1
+        # also export some variables that are needed on the inside
+        export OSG_SINGULARITY_EXTRA_OPTS
         info "$OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
         if $OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv \
                                       $OSG_SINGULARITY_EXTRA_OPTS \
