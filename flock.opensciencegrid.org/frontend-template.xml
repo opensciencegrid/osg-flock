@@ -250,7 +250,6 @@
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-el6:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-debian-10:latest"/>
          </attrs>
          <files>
-            <file absfname="/opt/git/job-wrappers/itb-user-job-wrapper.sh" wrapper="True" />
             <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False" />
             <file absfname="/var/lib/gwms-frontend/web-base/frontend/generic_pre_singularity_setup.sh" after_entry="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
