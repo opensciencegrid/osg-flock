@@ -99,6 +99,7 @@ if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
     info "Testing LIGO frames inside singularity"
     info "Making copy of $X509_USER_PROXY"
     cp $X509_USER_PROXY $PWD/frames_test_proxy
+    chmod 600 $PWD/frames_test_proxy
     export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy
     info "Validating proxy inside singularity"
     setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
