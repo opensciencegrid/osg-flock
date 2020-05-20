@@ -96,6 +96,10 @@ OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DE
 TEST_CMD="head -c 1k $TEST_FILE"
 
 if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+    info "Testing LIGO frames inside singularity"
+    info "Making copy of $X509_USER_PROXY"
+    cp $X509_USER_PROXY $PWD/frames_test_proxy
+    export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy
     info "setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
     if ! (setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
                                             $OSG_SINGULARITY_EXTRA_OPTS \
