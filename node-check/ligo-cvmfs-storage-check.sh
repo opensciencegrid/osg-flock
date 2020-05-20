@@ -100,14 +100,8 @@ if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
     info "Making copy of $X509_USER_PROXY"
     cp $X509_USER_PROXY $PWD/frames_test_proxy
     chmod 600 $PWD/frames_test_proxy
-    export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy
-    info "Validating proxy inside singularity"
-    setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                            $OSG_SINGULARITY_EXTRA_OPTS \
-                                            "$OSG_SINGULARITY_IMAGE_DEFAULT" voms-proxy-info --file /srv/frames_test_proxy -all \
-                                            | grep issuer
-    info "setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
-    if ! (setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+    info "export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
+    if ! (export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
                                             $OSG_SINGULARITY_EXTRA_OPTS \
                                             "$OSG_SINGULARITY_IMAGE_DEFAULT" \
                                             $TEST_CMD \
