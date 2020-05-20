@@ -111,8 +111,11 @@ if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
     else
         RESULT="True"
     fi
-else
-    if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
+    advertise "HAS_CVMFS_IGWN_PRIVATE_DATA_SINGULARITY" "$RESULT" "C"
+fi
+info "Testing LIGO frames outside singularity"
+info "setsid  $TEST_CMD | grep Frame"
+if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
     ; then
         RESULT="False"
     else
