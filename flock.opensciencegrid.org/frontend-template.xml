@@ -389,7 +389,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="1"/>
+            <idle_glideins_per_entry max="200" reserve="1"/>
             <idle_vms_per_entry curb="450" max="500"/>
             <idle_vms_total curb="2400" max="2500"/>
             <processing_workers matchmakers="3"/>
