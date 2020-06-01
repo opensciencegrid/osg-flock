@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config>
-      <idle_vms_total curb="2400" max="2500"/>
-      <idle_vms_total_global curb="2400" max="2500"/>
-      <running_glideins_total curb="58000" max="60000"/>
-      <running_glideins_total_global curb="58000" max="60000"/>
+      <idle_vms_total curb="14500" max="15000"/>
+      <idle_vms_total_global curb="14500" max="15000"/>
+      <running_glideins_total curb="78000" max="80000"/>
+      <running_glideins_total_global curb="78000" max="80000"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -69,11 +69,11 @@
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="200" reserve="1"/>
-            <idle_vms_per_entry curb="200" max="250"/>
-            <idle_vms_total curb="2400" max="2500"/>
+            <idle_vms_per_entry curb="950" max="1000"/>
+            <idle_vms_total curb="9500" max="10000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="60000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="59000" max="60000"/>
+            <running_glideins_per_entry max="30000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="78000" max="80000"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
