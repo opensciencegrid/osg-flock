@@ -136,7 +136,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="isUndefined(DESIRED_Sites) &amp;&amp; RequestGPUs &gt; 0">
+            <job query_expr="(IsCOVID19 =?= True) &amp;&amp; isUndefined(DESIRED_Sites) &amp;&amp; RequestGPUs &gt; 0">
                <match_attrs>
                </match_attrs>
                <schedds>
