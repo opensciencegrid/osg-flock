@@ -121,6 +121,12 @@ login.cms.ci-connect.net:
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.cms.ci-connect.net
 
+login.snowmass21.ci-connect.net:
+  admin: Lincoln Bryant <lincolnb@uchicago.edu>
+  site: OSGConnect
+  dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
+# doesn't really have a DN, but need it for gwms to pick up the host
+
 #training.osgconnect.net:
 #  admin: Lincoln Bryant <lincolnb@uchicago.edu>
 #  site: OSGConnect
