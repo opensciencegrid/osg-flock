@@ -254,7 +254,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             /mnt/hadoop \
             /mnt/hdfs \
         ; do
-            if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE/$MNTPOINT ]; then
+            if [ -e $MNTPOINT/. ]; then
                 OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
             fi
         done
