@@ -405,8 +405,7 @@
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
-                                 !StringListMember(GLIDEIN_ResourceName, "SU-ITS-CE2,SU-ITS-CE3,UCR-HEP,OSG_IN_IUCAA_SARATHI") &amp;&amp;
-                                 !StringListMember(EntryName, "Glow_US_Syracuse_condor-ce2_rhel6,Glow_US_Syracuse_condor-ce3_rhel6") &amp;&amp;
+                                 !StringListMember(GLIDEIN_ResourceName, "OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
                                  (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
@@ -457,7 +456,7 @@
                              (isUndefined(RequestGPUs) || RequestGPUs == 0))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
-                                 StringListMember(GLIDEIN_ResourceName, "SU-ITS-CE2,SU-ITS-CE3UCR-HEP,OSG_IN_IUCAA_SARATHI") &amp;&amp;
+                                 StringListMember(GLIDEIN_ResourceName, "OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp; 
                                  (GLIDEIN_ResourceName =!= "FNAL_FERMIGRID") &amp;&amp; (GLIDEIN_ResourceName =!= "GPGrid") &amp;&amp; (GLIDEIN_ResourceName =!= "USCMS-FNAL-WC1")'>
                <match_attrs>
