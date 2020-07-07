@@ -51,7 +51,7 @@ def generate_htcondor_mapfile(data):
     # pilot DNs
     print('GSI "^/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock\.opensciencegrid\.org$" pilot')
     print('GSI "^\/DC=org\/DC=incommon\/C=US\/ST=WI\/L=Madison\/O=University of Wisconsin-Madison\/OU=OCIS\/CN=flock\.opensciencegrid\.org$" pilot')
-    print('GSI "^/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=xenon-pilot.grid.uchicago.edu" pilot_xenon1t')
+    print('GSI "^/DC=org/DC=incommon/C=US/ST=Illinois/L=Chicago/O=The University of Chicago/OU=IT Security/CN=xenon-pilot.grid.uchicago.edu" pilot_xenon1t')
 
     for hostname, attrs in sorted(data.items()):
         if 'dn' in attrs:
