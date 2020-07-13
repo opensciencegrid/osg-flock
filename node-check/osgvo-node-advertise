@@ -457,7 +457,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         XCACHE_CLOSEST=`(attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/') 2>/dev/null`
 	info "Closest XCACHE found is: $XCACHE_CLOSEST"
         # test first using the cached cvmfs values
+	info "Lenght of XCache found is ${#XCACHE_CLOSEST}"
         if [ ${#XCACHE_CLOSEST} -ge 4 ]; then
+            info "Looking for closest XCache using stashcp --closest"
             XCACHE_CLOSEST=`(export OSG_LOCATION=/cvmfs/oasis.opensciencegrid.org/mis/osg-wn-client/3.5/current/el7-x86_64/ PYTHONPATH="$OSG_LOCATION/usr/lib/python2.7/site-packages:$OSG_LOCATION/usr/lib64/python2.7/site-packages" PATH="$OSG_LOCATION/usr/bin:$OSG_LOCATION/usr/sbin:$PATH" && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
         fi
         if [ "X$XCACHE_CLOSEST" != "X" ]; then
