@@ -484,229 +484,226 @@ fi # OSG_SINGULARITY_REEXEC
 GLIDEIN_Singularity_Use=`get_glidein_config_value GLIDEIN_Singularity_Use`
 
 if [ "$GLIDEIN_Singularity_Use" == "NEVER" ]; then
-   info "Testing singularity cause GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
-fi
+    info "Testing singularity cause GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
+    if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
+        info "Checking for singularity..."
 
-if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
-    info "Checking for singularity..."
+        # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
+        export SINGULARITY_WORKDIR=$PWD/singularity-workdir
+        if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
+            export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-workdir
+        fi
+        mkdir -p $SINGULARITY_WORKDIR
 
-    # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
-    export SINGULARITY_WORKDIR=$PWD/singularity-workdir
-    if [ "x$GLIDEIN_Tmp_Dir" != "x" -a -e "$GLIDEIN_Tmp_Dir" ]; then
-        export SINGULARITY_WORKDIR=$GLIDEIN_Tmp_Dir/singularity-workdir
-    fi
-    mkdir -p $SINGULARITY_WORKDIR
-
-    HAS_SINGULARITY="False"
-    export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
-    if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
-        HAS_SINGULARITY="True"
-        export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
-    else
-        # some sites requires us to do a module load first - not sure if we always want to do that
-        export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
+        HAS_SINGULARITY="False"
+        export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
         if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
             HAS_SINGULARITY="True"
-            export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
+            export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
         else
-            # last resort is to try adding to the PATH
-            # /usr/local/software/Singularity/singularity-3.5.3/bin is a temp solution for AMNH
-            export OSG_SINGULARITY_VERSION=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; singularity --version 2>/dev/null`
+            # some sites requires us to do a module load first - not sure if we always want to do that
+            export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
             if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
                 HAS_SINGULARITY="True"
-                export OSG_SINGULARITY_PATH=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; which singularity`
+                export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
             else
-                info "Unable to find singularity in PATH=$PATH"
+                # last resort is to try adding to the PATH
+                # /usr/local/software/Singularity/singularity-3.5.3/bin is a temp solution for AMNH
+                export OSG_SINGULARITY_VERSION=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; singularity --version 2>/dev/null`
+                if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
+                    HAS_SINGULARITY="True"
+                    export OSG_SINGULARITY_PATH=`export PATH="/usr/local/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/bin:$PATH" ; which singularity`
+                else
+                    info "Unable to find singularity in PATH=$PATH"
+                fi
             fi
         fi
-    fi
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        # one last check - make sure we could determine the path to singularity
-        if [ "x$OSG_SINGULARITY_PATH" = "x" ]; then
-            my_warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
-            HAS_SINGULARITY="False"
-        else
-            info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
+        if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+            # one last check - make sure we could determine the path to singularity
+            if [ "x$OSG_SINGULARITY_PATH" = "x" ]; then
+                my_warn "Looks like we found Singularity, but were unable to determine the full path to the executable"
+                HAS_SINGULARITY="False"
+            else
+                info "Singularity binary appears present in $OSG_SINGULARITY_PATH and claims to be version $OSG_SINGULARITY_VERSION"
+            fi
         fi
-    fi
 
-    # default image for this glidein - us a distribution between different OSes
-    if [ ! -e osgvo.default-singularity-image ]; then
-        determine_default_container_image
-    fi
-    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
-    info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
+        # default image for this glidein - us a distribution between different OSes
+        if [ ! -e osgvo.default-singularity-image ]; then
+            determine_default_container_image
+        fi
+        export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
+        info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
 
-    # for now, we will only advertise singularity on nodes which can access cvmfs
-    if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
-        info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
-        HAS_SINGULARITY="False"
-    fi
+        # for now, we will only advertise singularity on nodes which can access cvmfs
+        if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
+            info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
+            HAS_SINGULARITY="False"
+        fi
     
-    # we have been seeing problems with Singularity and CVMFS over NFS - disable on those sites
-    if (mount | grep /cvmfs/singularity.opensciencegrid.org | grep "type nfs") >/dev/null 2>&1; then
-        if (echo "$GLIDEIN_Site" | grep -i utah) >/dev/null 2>&1; then
-            info "CVMFS over NFS detected - trying out Utah's solution so leaving things in place"
-        else
-            info "CVMFS over NFS detected - disabling singularity"
-            HAS_SINGULARITY="False"
-        fi
-    fi
-        
-    OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"
-        
-    # Binding different mounts
-    for MNTPOINT in \
-        /hadoop \
-        /ceph \
-        /hdfs \
-        /lizard \
-        /mnt/hadoop \
-        /mnt/hdfs \
-    ; do
-        if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/$MNTPOINT ]; then
-            OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
-        fi
-    done
-
-    OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc --pid"
-
-    # Let's do a simple singularity test by echoing something inside, and then
-    # grepping for it outside. This takes care of some errors which happen "late"
-    # in the execing, like:
-    # ERROR  : Could not identify basedir for home directory path: /
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
-        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                         $OSG_SINGULARITY_EXTRA_OPTS \
-                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                         echo "Hello World" \
-                                         | grep "Hello World") 1>&2 \
-        ; then
-            # singularity simple exec failed - we are done
-            info "Simple singularity exec inside $OSG_SINGULARITY_IMAGE_DEFAULT failed."
-            HAS_SINGULARITY="False"
-        fi
-    fi
-    
-    # check that the /srv mount works correctly
-    rm -f test-singularity-create
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT touch test-singularity-create"
-        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                         $OSG_SINGULARITY_EXTRA_OPTS \
-                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                         touch /srv/test-singularity-create) 1>&2 \
-        ; then
-            # singularity simple exec failed - we are done
-            info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
-            HAS_SINGULARITY="False"
-        else
-            # was the file really created?
-            if [ ! -f test-singularity-create ]; then
-                info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+        # we have been seeing problems with Singularity and CVMFS over NFS - disable on those sites
+        if (mount | grep /cvmfs/singularity.opensciencegrid.org | grep "type nfs") >/dev/null 2>&1; then
+            if (echo "$GLIDEIN_Site" | grep -i utah) >/dev/null 2>&1; then
+                info "CVMFS over NFS detected - trying out Utah's solution so leaving things in place"
+            else
+                info "CVMFS over NFS detected - disabling singularity"
                 HAS_SINGULARITY="False"
             fi
         fi
-    fi
-    rm -f test-singularity-create
     
-    # also verify that the env is inherited correctly
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
-        if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                         $OSG_SINGULARITY_EXTRA_OPTS \
-                                         "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                         env \
-                                         | grep OSG_SINGULARITY_IMAGE_DEFAULT) 1>&2 \
-        ; then
-            # singularity env fail - we are done
-            my_warn "Singularity is not inheriting the outside environment"
-            HAS_SINGULARITY="False"
-        fi
-    fi
-
-    # some sites have crappy CVMFS which means HAS_SINGULARITY flaps - prevent this
-    # by remembering failures for 1 hour
-    if [ "x$HAS_SINGULARITY" = "xFalse" ]; then
-        echo "False" > $TEST_FILE_1H.has_singularity
-    elif [ -e $TEST_FILE_1H.has_singularity ]; then
-        my_warn "Singularity is disabled due to failures some time in the last 1 hour"
-        HAS_SINGULARITY="False"
-    fi
-
-    # If we still think we have singularity, we should re-exec this script within the default
-    # container so that we can advertise that environment
-    if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-        # We want to map the full glidein dir to /srv inside the container. This is so 
-        # that we can rewrite env vars pointing to somewhere inside that dir (for
-        # example, X509_USER_PROXY)
-        export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+).*;\1;"`
-
-        # Make a copy of the user proxy - sometimes this lives outside the glidein dir
-        if [ "x$X509_USER_PROXY" != "x" -a -e "$X509_USER_PROXY" ]; then
-            info "Making a copy of the provided X509_USER_PROXY=$X509_USER_PROXY"
-            cp $X509_USER_PROXY $SING_OUTSIDE_BASE_DIR/x509-pilot-proxy
-            export X509_USER_PROXY=/srv/x509-pilot-proxy
-        fi
-        
-        # We want to bind $PWD to /srv within the container - however, in order
-        # to do that, we have to make sure everything we need is in $PWD, most
-        # notably the osgvo-node-advertise (this script!)
-        if [ ! -e .osgvo-node-advertise ]; then
-            cp $0 .osgvo-node-advertise
-        fi
-
-        # build a new command line, with updated paths
-        CMD="/srv/.osgvo-node-advertise"
-        for VAR in "$@"; do
-            CMD="$CMD "`singularityfy_path $VAR`
+        OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"
+    
+        # Binding different mounts
+        for MNTPOINT in \
+            /hadoop \
+            /ceph \
+            /hdfs \
+            /lizard \
+            /mnt/hadoop \
+            /mnt/hdfs \
+	    ; do
+            if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE_DEFAULT/$MNTPOINT ]; then
+                OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --bind $MNTPOINT"
+            fi
         done
+
+        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc --pid"
+
+        # Let's do a simple singularity test by echoing something inside, and then
+        # grepping for it outside. This takes care of some errors which happen "late"
+        # in the execing, like:
+        # ERROR  : Could not identify basedir for home directory path: /
+         if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+            info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT echo Hello World | grep Hello World"
+            if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+                $OSG_SINGULARITY_EXTRA_OPTS \
+                "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+                echo "Hello World" \
+                | grep "Hello World") 1>&2 \
+                ; then
+                # singularity simple exec failed - we are done
+                info "Simple singularity exec inside $OSG_SINGULARITY_IMAGE_DEFAULT failed."
+                HAS_SINGULARITY="False"
+            fi
+         fi
     
-        # update the gwms configs 
-        if [ "x$add_config_line_source" != "x" ]; then
-            export add_config_line_source=`singularityfy_path "$add_config_line_source"`
-            export condor_vars_file=`singularityfy_path "$condor_vars_file"`
-            info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+        # check that the /srv mount works correctly
+        rm -f test-singularity-create
+        if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+	    info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT touch test-singularity-create"
+	    if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+	        $OSG_SINGULARITY_EXTRA_OPTS \
+	        "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+	        touch /srv/test-singularity-create) 1>&2 \
+	        ; then
+	         # singularity simple exec failed - we are done
+	        info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+	        HAS_SINGULARITY="False"
+  	    else
+	         # was the file really created?
+	        if [ ! -f test-singularity-create ]; then
+		    info "Simple file create inside $OSG_SINGULARITY_IMAGE_DEFAULT /srv failed."
+		    HAS_SINGULARITY="False"
+	        fi
+	    fi
+        fi
+        rm -f test-singularity-create
+
+         # also verify that the env is inherited correctly
+        if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+	    info "$OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT env | grep OSG_SINGULARITY_IMAGE_DEFAULT"
+	    if ! ($OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
+	        $OSG_SINGULARITY_EXTRA_OPTS \
+	        "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+	        env \
+	        | grep OSG_SINGULARITY_IMAGE_DEFAULT) 1>&2 \
+ 	        ; then
+	         # singularity env fail - we are done
+	        my_warn "Singularity is not inheriting the outside environment"
+	        HAS_SINGULARITY="False"
+  	    fi
         fi
 
-        # let "inside" script know we are re-execing
-        export OSG_SINGULARITY_REEXEC=1
-        # also export some variables that are needed on the inside
-        export OSG_SINGULARITY_EXTRA_OPTS
-        info "$OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
-        if $OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv \
-                                      $OSG_SINGULARITY_EXTRA_OPTS \
-                                      "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                      $CMD \
-        ; then
-            # singularity worked - exit here as the rest script ran inside the container
-            exit $?
+         # some sites have crappy CVMFS which means HAS_SINGULARITY flaps - prevent this
+         # by remembering failures for 1 hour
+        if [ "x$HAS_SINGULARITY" = "xFalse" ]; then
+	    echo "False" > $TEST_FILE_1H.has_singularity
+        elif [ -e $TEST_FILE_1H.has_singularity ]; then
+	    my_warn "Singularity is disabled due to failures some time in the last 1 hour"
+ 	    HAS_SINGULARITY="False"
         fi
+
+         # If we still think we have singularity, we should re-exec this script within the default
+         # container so that we can advertise that environment
+        if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
+	     # We want to map the full glidein dir to /srv inside the container. This is so 
+	     # that we can rewrite env vars pointing to somewhere inside that dir (for
+	     # example, X509_USER_PROXY)
+  	    export SING_OUTSIDE_BASE_DIR=`echo "$PWD" | sed -E "s;(.*/glide_[a-zA-Z0-9]+).*;\1;"`
+
+	     # Make a copy of the user proxy - sometimes this lives outside the glidein dir
+	    if [ "x$X509_USER_PROXY" != "x" -a -e "$X509_USER_PROXY" ]; then
+	        info "Making a copy of the provided X509_USER_PROXY=$X509_USER_PROXY"
+	        cp $X509_USER_PROXY $SING_OUTSIDE_BASE_DIR/x509-pilot-proxy
+	        export X509_USER_PROXY=/srv/x509-pilot-proxy
+   	    fi
+
+	     # We want to bind $PWD to /srv within the container - however, in order
+	     # to do that, we have to make sure everything we need is in $PWD, most
+	     # notably the osgvo-node-advertise (this script!)
+	    if [ ! -e .osgvo-node-advertise ]; then
+	        cp $0 .osgvo-node-advertise
+  	    fi
+
+	     # build a new command line, with updated paths
+	    CMD="/srv/.osgvo-node-advertise"
+	    for VAR in "$@"; do
+	        CMD="$CMD "`singularityfy_path $VAR`
+  	    done
+
+	     # update the gwms configs 
+	    if [ "x$add_config_line_source" != "x" ]; then
+	        export add_config_line_source=`singularityfy_path "$add_config_line_source"`
+	        export condor_vars_file=`singularityfy_path "$condor_vars_file"`
+	        info "Updated glidein config to paths inside the container: add_config_line_source=$add_config_line_source condor_vars_file=$condor_vars_file"
+	    fi
+
+	     # let "inside" script know we are re-execing
+	    export OSG_SINGULARITY_REEXEC=1
+	     # also export some variables that are needed on the inside
+	    export OSG_SINGULARITY_EXTRA_OPTS
+	    info "$OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $CMD"
+	    if $OSG_SINGULARITY_PATH exec --bind $SING_OUTSIDE_BASE_DIR:/srv \
+	        $OSG_SINGULARITY_EXTRA_OPTS \
+	        "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+	        $CMD \
+	        ; then
+	         # singularity worked - exit here as the rest script ran inside the container
+	        exit $?
+	    fi
+        fi
+
+
+        # if we get here, singularity is not available or not working
+        advertise HAS_SINGULARITY "False" "C"
+
+    else
+        # delay the advertisement until here to make sure singularity actually works
+        advertise HAS_SINGULARITY "True" "C"
+        advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
+        advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
+        advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
+        advertise OSG_SINGULARITY_EXTRA_OPTS "$OSG_SINGULARITY_EXTRA_OPTS" "S"
+
+        # fix up the env
+        for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
+	    _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
+	    add_config_line_source condor_vars_file ; do
+	    eval val="\$$key"
+    	    val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
+	    eval $key=$val
+        done
     fi
-    
-    
-    # if we get here, singularity is not available or not working
-    advertise HAS_SINGULARITY "False" "C"
-
-else
-
-    # delay the advertisement until here to make sure singularity actually works
-    advertise HAS_SINGULARITY "True" "C"
-    advertise OSG_SINGULARITY_VERSION "$OSG_SINGULARITY_VERSION" "S"
-    advertise OSG_SINGULARITY_PATH "$OSG_SINGULARITY_PATH" "S"
-    advertise OSG_SINGULARITY_IMAGE_DEFAULT "$OSG_SINGULARITY_IMAGE_DEFAULT" "S"
-    advertise OSG_SINGULARITY_EXTRA_OPTS "$OSG_SINGULARITY_EXTRA_OPTS" "S"
-   
-    # fix up the env
-    for key in X509_USER_PROXY X509_USER_CERT _CONDOR_MACHINE_AD _CONDOR_JOB_AD \
-               _CONDOR_SCRATCH_DIR _CONDOR_CHIRP_CONFIG _CONDOR_JOB_IWD \
-               add_config_line_source condor_vars_file ; do
-        eval val="\$$key"
-        val=`echo "$val" | sed -E "s;$SING_OUTSIDE_BASE_DIR(.*);/srv\1;"`
-        eval $key=$val
-    done
-
 fi
 
 #############################################################################
