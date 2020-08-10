@@ -1,0 +1,21 @@
+#!/bin/bash                                                                                                                                                                       
+#                                                                                                                                                                                 
+# This script setup some condor config variables for Singularity                                                                                                                   
+# Still in development phase for questions ask Edgar and Marco
+#
+glidein_config="$1"
+
+if [ "$glidein_config" != "NONE" ]; then
+    ########################################################### 
+    # import advertise and add_condor_vars_line functions                                                                                                                        
+    if [ "x$add_config_line_source" = "x" ]; then
+        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    fi
+    # full path is problematic as sometimes we are inside a container - however, looks like                                                                                        
+    # the file is always named "add_config_line.source", so use that                                                                                                               
+    add_config_line_source=$PWD/add_config_line.source
+    info "Sourcing $add_config_line_source"
+    source $add_config_line_source
+fi
+add_condor_vars_line SINGULARITY C '\\$F\\(GWMS_SINGULARITY_PATH\\)' "+" "N" "N" "-"
