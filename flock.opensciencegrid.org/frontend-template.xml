@@ -120,7 +120,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="40" max="50"/>
             <processing_workers matchmakers="3"/>
@@ -165,7 +165,7 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
             <idle_vms_per_entry curb="45" max="50"/>
             <idle_vms_total curb="40" max="50"/>
             <processing_workers matchmakers="3"/>
