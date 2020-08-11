@@ -482,6 +482,7 @@ fi # OSG_SINGULARITY_REEXEC
 # advertise availability and version
 
 GLIDEIN_Singularity_Use=`get_glidein_config_value GLIDEIN_Singularity_Use`
+info "Value of GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
 
 if [ "x$GLIDEIN_Singularity_Use" = "x"  -o "x$GLIDEIN_Singularity_Use" = "xGWMS_DISABLE" ]; then
     info "Testing singularity cause GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
