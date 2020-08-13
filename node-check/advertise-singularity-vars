@@ -20,4 +20,4 @@ if [ "$glidein_config" != "NONE" ]; then
 fi
 add_condor_vars_line SINGULARITY C '\\$F\\(GWMS_SINGULARITY_PATH\\)' "+" "N" "N" "-"
 add_condor_vars_line SINGULARITY_TARGET_DIR C '/srv' "+" "N" "N" "-"
-add_condor_vars_line SINGULARITY_TARGET_DIR C '--ipc --pid' "+" "N" "N" "-"
+add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '--ipc --pid' "+" "N" "N" "-"
