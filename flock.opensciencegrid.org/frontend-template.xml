@@ -121,9 +121,9 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="10" reserve="1"/>
-            <idle_vms_per_entry curb="45" max="50"/>
-            <idle_vms_total curb="40" max="50"/>
+            <idle_glideins_per_entry max="30" reserve="5"/>
+            <idle_vms_per_entry curb="90" max="100"/>
+            <idle_vms_total curb="190" max="200"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="900" max="1000"/>
@@ -166,9 +166,9 @@
          <config>
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="10" reserve="1"/>
-            <idle_vms_per_entry curb="45" max="50"/>
-            <idle_vms_total curb="40" max="50"/>
+            <idle_glideins_per_entry max="30" reserve="5"/>
+            <idle_vms_per_entry curb="90" max="100"/>
+            <idle_vms_total curb="190" max="200"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="900" max="1000"/>
