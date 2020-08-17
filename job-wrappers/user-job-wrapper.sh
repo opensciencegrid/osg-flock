@@ -195,6 +195,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             export OSG_SINGULARITY_BIND_CVMFS=1
         fi
 
+        # ensure we are only accessing images from CVMFS
+        if (echo "$OSG_SINGULARITY_IMAGE" | grep -v '^/cvmfs') >/dev/null 2>&1; then
+            echo "Error: Container images have to be loaded from /cvmfs" 1>&2
+            exit 1
+        fi
+
         # check that the image is actually available (but only for /cvmfs ones)
         if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
             if ! ls -l "$OSG_SINGULARITY_IMAGE" >/dev/null; then
