@@ -176,6 +176,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         unset http_proxy
     fi
 
+    # do not use $HOME for caching
+    export SINGULARITY_CACHEDIR=$PWD/.singularity-cache
+    mkdir -p $SINGULARITY_CACHEDIR
+
     if [ "x$OSG_SINGULARITY_AUTOLOAD" != "x1" ]; then
         echo "Warning: Using +SingularityAutoLoad is no longer allowed. Ignoring." 1>&2
         export OSG_SINGULARITY_AUTOLOAD=0
