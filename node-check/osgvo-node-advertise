@@ -301,6 +301,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        cms.cern.ch \
        connect.opensciencegrid.org \
        desdm.osgstorage.org \
+       eic.opensciencegrid.org \
        gwosc.osgstorage.org \
        icecube.opensciencegrid.org \
        ligo-containers.opensciencegrid.org \
