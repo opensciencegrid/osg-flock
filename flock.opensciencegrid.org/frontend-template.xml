@@ -220,7 +220,7 @@
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
-                   <collector DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
+                   <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True)">
@@ -277,7 +277,7 @@
                <match_attrs>
                </match_attrs>
                <collectors>
-                   <collector DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
+                   <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True) &amp;&amp; RequestGPUs &gt; 0">
