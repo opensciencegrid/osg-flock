@@ -27,10 +27,18 @@ elif [ $vsize -le 2000000 ]; then
   err="$err -- ulimit -sV less than 2000000."
 fi
 
+PYTHON=None
+for CANDIDATE in /usr/bin/python3 /usr/bin/python $(which python3 2>/dev/null); do
+    if [ -e $CANDIDATE ]; then
+        PYTHON=$CANDIDATE
+        break
+    fi
+done
+
 # Bad ulimits (for example -s 16000000) can prevent new threads from
 # being created. Test this with a piece of python code
 cat >thread-test.py <<EOF
-#!/usr/bin/python
+#!$PYTHON
 import thread
 thread.start_new(lambda: None, ())
 EOF

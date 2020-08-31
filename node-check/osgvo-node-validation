@@ -62,6 +62,33 @@ if [ "XGLIDECLIENT_Group" = "Xgpu" ]; then
     fi
 fi
 
+
+# find a suitable python install
+PYTHON=None
+for CANDIDATE in /usr/bin/python3 /usr/bin/python $(which python3 2>/dev/null); do
+    if [ -e $CANDIDATE ]; then
+        PYTHON=$CANDIDATE
+        break
+    fi
+done
+
+CURL=$(curlio --version 2>/dev/null)
+
+for SCRIPT in \
+    clock-check \
+    crl-check \
+; do
+    my_info "Fetching/running $SCRIPT ..."
+    if [ "x$CURL" != "x" ]; then
+        curl -s -o $SCRIPT http://flock.opensciencegrid.org/node-check/$SCRIPT
+    else
+        wget -q -O $SCRIPT http://flock.opensciencegrid.org/node-check/$SCRIPT
+    fi
+    if ! $PYTHON $SCRIPT; then
+        my_error "$SCRIPT failed!"
+    fi
+done
+
 my_info "Node looks good - exiting with 0"
 exit 0
 

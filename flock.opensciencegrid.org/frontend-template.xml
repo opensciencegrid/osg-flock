@@ -770,12 +770,6 @@
       <file absfname="/opt/git/node-check/ligo-cvmfs-storage-check.sh" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/git/node-check/clock-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/git/node-check/crl-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
       <file absfname="/opt/git/node-check/ulimits-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
