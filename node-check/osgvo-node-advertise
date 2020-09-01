@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=498
+OSG_GLIDEIN_VERSION=499
 #######################################################################
 
 
@@ -292,6 +292,21 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
     fi
 
+    # network namespaces detection (BrianB)
+    NETWORK_NAMESPACES="False"
+    if [ -e $TEST_FILE_4H.network_namespaces ]; then
+        NETWORK_NAMESPACES=`cat $TEST_FILE_4H.network_namespaces`
+    else
+        COUNT=`(unshare --net --user --map-root-user ip link show | grep state | wc -l) 2>/dev/null`
+        if [ "x$COUNT" = "x1" ]; then
+            NETWORK_NAMESPACES="True"
+            echo "True" >$TEST_FILE_4H.network_namespaces
+        else
+            echo "False" >$TEST_FILE_4H.network_namespaces
+        fi
+    fi
+    advertise NETWORK_NAMESPACES "$NETWORK_NAMESPACES" "C"
+
     ##################
     # cvmfs filesystem availability
     info "Checking for CVMFS availability and attributes..."
@@ -482,7 +497,7 @@ fi # OSG_SINGULARITY_REEXEC
 # singularity
 # advertise availability and version
 
-GLIDEIN_Singularity_Use=`get_glidein_config_value GLIDEIN_Singularity_Use`
+GLIDEIN_Singularity_Use=`get_glidein_config_value GLIDEIN_Singularity_Use 2>/dev/null`
 info "Value of GLIDEIN_Singularity_Use is set to $GLIDEIN_Singularity_Use "
 
 if [ "x$GLIDEIN_Singularity_Use" = "x"  -o "x$GLIDEIN_Singularity_Use" = "xGWMS_DISABLE" ]; then
@@ -946,7 +961,6 @@ else
 fi
 rm -f testfile
 advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
-
 
 ##################
 # gfal
