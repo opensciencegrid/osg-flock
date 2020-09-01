@@ -37,11 +37,22 @@ done
 
 # Bad ulimits (for example -s 16000000) can prevent new threads from
 # being created. Test this with a piece of python code
-cat >thread-test.py <<EOF
+if (echo $PYTHON | grep python3) >/dev/null 2>&1; then
+    # python2
+    cat >thread-test.py <<EOF
+#!$PYTHON
+import _thread
+_thread.start_new(lambda: None, ())
+EOF
+else
+    # python2
+    cat >thread-test.py <<EOF
 #!$PYTHON
 import thread
 thread.start_new(lambda: None, ())
 EOF
+fi
+
 chmod 755 thread-test.py
 if ./thread-test.py; then
     echo "OK:  Python thread test of stack size"
