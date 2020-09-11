@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=499
+OSG_GLIDEIN_VERSION=500
 #######################################################################
 
 
@@ -513,7 +513,7 @@ if [ "x$GLIDEIN_Singularity_Use" = "x"  -o "x$GLIDEIN_Singularity_Use" = "xGWMS_
         mkdir -p $SINGULARITY_WORKDIR
 
         HAS_SINGULARITY="False"
-        export OSG_SINGULARITY_VERSION=`(singularity --version | sed 's/singularity version //') 2>/dev/null`
+        export OSG_SINGULARITY_VERSION=`(LC_ALL=C singularity --version | sed 's/singularity version //' | sed 's/[\+~-].*//') 2>/dev/null`
         if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
             HAS_SINGULARITY="True"
             export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
