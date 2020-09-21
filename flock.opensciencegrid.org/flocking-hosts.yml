@@ -283,7 +283,7 @@ osgsub01.sdcc.bnl.gov:
 uclhc-1.ps.uci.edu:
   admin: Edgar Fajardo <emfajard@ucsd.edu>
   site: UCI
-  dn: /DC=org/DC=incommon/C=US/ST=CA/L=Irvine/O=University of California/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
+  dn: /DC=org/DC=incommon/C=US/ST=Calirfonia/L=Irvine/O=University of California/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
 
 uclhc-2.ps.uci.edu:
   admin: Nathan Crawford <nrcrawfo@uci.edu>
