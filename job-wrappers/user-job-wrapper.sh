@@ -94,16 +94,18 @@ parse_env_file () {
 }
 
 shutdown_glidein() {
-    # Ian be called when a severe error is encountered. It will
+    # To be called when a severe error is encountered. It will
     # result in the glidin stopping taking jobs and eventually
     # shuts down.
     # $1 error message
 
     echo "$1" 1>&2
     # error to _CONDOR_WRAPPER_ERROR_FILE
-    if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
-        echo "$1" >>$_CONDOR_WRAPPER_ERROR_FILE
-    fi
+    # https://htcondor.readthedocs.io/en/latest/admin-manual/configuration-macros.html?highlight=_CONDOR_WRAPPER_ERROR_FILE#condor-starter-configuration-file-entries
+    # disabled as it makes the .err file not come back to the user
+    #if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
+    #    echo "$1" >>$_CONDOR_WRAPPER_ERROR_FILE
+    #fi
     # chirp
     if [ -e ../../main/condor/libexec/condor_chirp ]; then
         ../../main/condor/libexec/condor_chirp set_job_attr JobWrapperFailure "$1"
