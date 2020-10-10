@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=503
+OSG_GLIDEIN_VERSION=504
 #######################################################################
 
 
@@ -519,10 +519,10 @@ if [ "x$GLIDEIN_Singularity_Use" = "x"  -o "x$GLIDEIN_Singularity_Use" = "xGWMS_
             export OSG_SINGULARITY_PATH=`which singularity 2>/dev/null`
         else
             # some sites requires us to do a module load first - not sure if we always want to do that
-            export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; singularity --version 2>/dev/null`
+            export OSG_SINGULARITY_VERSION=`module load singularity >/dev/null 2>&1; module load singularitypro >/dev/null 2>&1; singularity --version 2>/dev/null`
             if [ "x$OSG_SINGULARITY_VERSION" != "x" ]; then
                 HAS_SINGULARITY="True"
-                export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; which singularity`
+                export OSG_SINGULARITY_PATH=`module load singularity >/dev/null 2>&1; module load singularitypro >/dev/null 2>&1; which singularity`
             else
                 # last resort is to try adding to the PATH
                 # /usr/local/software/Singularity/singularity-3.5.3/bin is a temp solution for AMNH
