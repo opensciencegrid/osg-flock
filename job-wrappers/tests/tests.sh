@@ -3,7 +3,8 @@
 function run_test {
     
     # cleanup
-    rm -f .singularity*
+    rm -rf .singularity-cache >/dev/null 2>&1
+    rm -r .singularity* >/dev/null 2>&1
     rm -f test.err test.out
 
     echo "Running" "$@"
@@ -224,7 +225,7 @@ run_test test_singularity_clean_env_2
 run_test test_singularity_ld_library_path
 run_test test_non_singularity_fail
 run_test test_singularity
-run_test test_singularity_docker_direct
+#run_test test_singularity_docker_direct
 run_test test_singularity_fail_1
 run_test test_singularity_fail_2
 run_test test_singularity_fail_3

@@ -102,20 +102,15 @@ shutdown_glidein() {
     echo "$1" 1>&2
     # error to _CONDOR_WRAPPER_ERROR_FILE
     # https://htcondor.readthedocs.io/en/latest/admin-manual/configuration-macros.html?highlight=_CONDOR_WRAPPER_ERROR_FILE#condor-starter-configuration-file-entries
-    # disabled as it makes the .err file not come back to the user
-    #if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
-    #    echo "$1" >>$_CONDOR_WRAPPER_ERROR_FILE
-    #fi
-    # chirp
-    if [ -e ../../main/condor/libexec/condor_chirp ]; then
-        ../../main/condor/libexec/condor_chirp set_job_attr JobWrapperFailure "$1"
+    if [ "x$_CONDOR_WRAPPER_ERROR_FILE" != "x" ]; then
+        echo "$1" >>$_CONDOR_WRAPPER_ERROR_FILE
     fi
     if [ "x$GWMS_DEBUG" = "x" ]; then
         # if we are not debugging, shutdown
         touch ../../.stop-glidein.stamp >/dev/null 2>&1
-        sleep 10m
+        sleep 20m
     fi
-    exit 1
+    exit 90
 }
 
 
@@ -129,7 +124,8 @@ fi
 # clean up potential leftovers from previous runs
 rm -f .singularity.startup-ok
 
-if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
+# SINGULARITY_CONTAINER as --cleanenv does not propate REXEC variable
+if [ "x$OSG_SINGULARITY_REEXEC" = "x" -a "x$SINGULARITY_CONTAINER" = "x" ]; then
     
     if [ "x$_CONDOR_JOB_AD" = "x" ]; then
         export _CONDOR_JOB_AD="NONE"
@@ -204,13 +200,23 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         # ensure we are only accessing images from CVMFS
         if (echo "$OSG_SINGULARITY_IMAGE" | grep -v '^/cvmfs') >/dev/null 2>&1; then
             echo "Error: Container images have to be loaded from /cvmfs" 1>&2
-            exit 1
+            exit 90
         fi
 
         # check that the image is actually available (but only for /cvmfs ones)
         if (echo "$OSG_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
             if ! ls -l "$OSG_SINGULARITY_IMAGE" >/dev/null; then
-                shutdown_glidein "Error: unable to access $OSG_SINGULARITY_IMAGE"
+                # if we get here, it could either be a user error (wrong path
+                # to an image for example, or that CVMFS crapped out since
+                # testing. We will use a crude test to determine how to handle
+                # the error.
+                if ! ls -l "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/" >/dev/null 2>&1; then
+                    shutdown_glidein "Error: unable to access CVMFS! ($OSG_SINGULARITY_IMAGE)"
+                else
+                    # goes to users stderr
+                    echo "Error: unable to access $OSG_SINGULARITY_IMAGE" 1>&2
+                    exit 90
+                fi
             fi
         fi
 
@@ -319,6 +325,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         fi
 
         export OSG_SINGULARITY_REEXEC=1
+        export SINGULARITYENV_OSG_SINGULARITY_REEXEC=1
 
         # If we are cleaning the environment, then we also need to export
         # variables that will be transformed into certain critical variables
@@ -596,7 +603,7 @@ rm -f .trace-callback .osgvo-user-job-wrapper.sh >/dev/null 2>&1 || true
 exec "$@"
 error=$?
 echo "Failed to exec($error): $@" > $_CONDOR_WRAPPER_ERROR_FILE
-exit 1
+exit 90
 
 
 
