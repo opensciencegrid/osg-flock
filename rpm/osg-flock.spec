@@ -1,6 +1,6 @@
 Name:      osg-flock
-Version:   1.1
-Release:   2%{?dist}
+Version:   1.2
+Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Oct 22 2020 Mats Rynge <rynge@isi.edu> 1.2-1
+- Moved to IDTOKENS on HTCondor versions greater than 8.9.6
+
 * Wed Jun 8 2020 Brian Lin <blin@cs.wisc.edu> 1.1-2
 - Fix CA requirements to work with osg-ca-scripts or certificate bundles
 
