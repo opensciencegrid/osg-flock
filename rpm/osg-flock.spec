@@ -1,6 +1,6 @@
 Name:      osg-flock
 Version:   1.2
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -13,13 +13,13 @@ Requires: gratia-probe-glideinwms
 Requires: fetch-crl
 Requires: condor
 
-Source0: 80-osg-flocking.conf
-Source1: ProbeConfig
+Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
 
 %description
 %{summary}
 
 %prep
+%setup -q
 
 %build
 
@@ -28,12 +28,12 @@ rm -fr $RPM_BUILD_ROOT
 
 # Install condor configuration
 install -d $RPM_BUILD_ROOT/%{_sysconfdir}/condor/config.d
-install -m 644 %{SOURCE0} $RPM_BUILD_ROOT/%{_sysconfdir}/condor/config.d
+install -m 644 rpm/80-osg-flocking.conf $RPM_BUILD_ROOT/%{_sysconfdir}/condor/config.d
 
 
 # Install gratia configuration
 install -d $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/
-install -m 644 %{SOURCE1} $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/ProbeConfig-flocking
+install -m 644 rpm/ProbeConfig $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/ProbeConfig-flocking
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Oct 23 2020 Brian Lin <blin@cs.wisc.edu> 1.2-2
+- Fix paths to configuration source files
+
 * Thu Oct 22 2020 Mats Rynge <rynge@isi.edu> 1.2-1
 - Moved to IDTOKENS on HTCondor versions greater than 8.9.6
 
