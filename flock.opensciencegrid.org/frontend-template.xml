@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config>
-      <idle_vms_total curb="14500" max="15000"/>
-      <idle_vms_total_global curb="14500" max="15000"/>
-      <running_glideins_total curb="78000" max="80000"/>
-      <running_glideins_total_global curb="78000" max="80000"/>
+      <idle_vms_total curb="0" max="0"/>
+      <idle_vms_total_global curb="0" max="0"/>
+      <running_glideins_total curb="0" max="0"/>
+      <running_glideins_total_global curb="0" max="0"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
