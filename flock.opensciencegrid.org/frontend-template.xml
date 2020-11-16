@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config ignore_down_entries="False">
-      <idle_vms_total curb="50" max="60"/>
-      <idle_vms_total_global curb="50" max="60"/>
-      <running_glideins_total curb="50" max="60"/>
-      <running_glideins_total_global curb="50" max="60"/>
+      <idle_vms_total curb="1450" max="1500"/>
+      <idle_vms_total_global curb="1450" max="1500"/>
+      <running_glideins_total curb="1900" max="2000"/>
+      <running_glideins_total_global curb="1900" max="2000"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -16,10 +16,9 @@
          <process_log backup_count="1" compression="" extension="dbg" max_days="7.0" max_mbytes="100.0" min_days="1.0" msg_types="DEBUG"/>
       </process_logs>
    </log_retention>
-   <match match_expr="True" start_expr='(TARGET.Owner == "rynge") &amp;&amp;
-                                        (isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
+   <match match_expr="True" start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
                                         (isUndefined(MY.RecentJobStarts) || RecentJobStarts &lt; 64) &amp;&amp;
-                                        (!isUndefined(TARGET.ProjectName) || Owner == "rsv") &amp;&amp;
+                                        (!isUndefined(TARGET.ProjectName)) &amp;&amp;
                                         (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
                                         (isUndefined(WantsStashCvmfs) ||
                                            !WantsStashCvmfs ||
