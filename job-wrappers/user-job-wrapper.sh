@@ -320,9 +320,15 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" -a "x$SINGULARITY_CONTAINER" = "x" ]; then
         done
 
         if [ "x$LD_LIBRARY_PATH" != "x" ]; then
-            echo "OSG Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+            if [ "x$GWMS_DEBUG" != "x" ]; then
+                echo "OSG Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+            fi
             unset LD_LIBRARY_PATH
         fi
+        
+        #if [ "x$LD_PRELOAD" != "x" ]; then
+        #    unset LD_PRELOAD
+        #fi
 
         export OSG_SINGULARITY_REEXEC=1
         export SINGULARITYENV_OSG_SINGULARITY_REEXEC=1
@@ -421,7 +427,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" -a "x$SINGULARITY_CONTAINER" = "x" ]; then
         fi
 
         # if debugging, dump the command line on stderr
-        if [ "x$GWMS_DEBUG" = "x" ]; then
+        if [ "x$GWMS_DEBUG" != "x" ]; then
             echo "$OSG_SINGULARITY_PATH exec $OSG_SINGULARITY_EXTRA_OPTS --bind $PWD:/srv --no-home --ipc --pid $OSG_SINGULARITY_IMAGE /srv/.osgvo-user-job-wrapper.sh ${CMD[@]}" 1>&2
         fi
 
@@ -438,6 +444,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" -a "x$SINGULARITY_CONTAINER" = "x" ]; then
                 shutdown_glidein "Singularity encountered an error starting the container"
             fi
         fi
+        # do not delete in debug - used for testing
         if [ "x$GWMS_DEBUG" = "x" ]; then
             rm -f .singularity.startup-ok
         fi
@@ -456,6 +463,7 @@ else
     unset TMPDIR
     unset TEMP
     unset X509_CERT_DIR
+    unset LD_PRELOAD
     for key in X509_USER_PROXY X509_USER_CERT \
                _CONDOR_CREDS _CONDOR_MACHINE_AD \
                _CONDOR_EXECUTE _CONDOR_JOB_AD \
