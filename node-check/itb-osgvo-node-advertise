@@ -209,7 +209,6 @@ for FS in \
    desdm.osgstorage.org \
    gwosc.osgstorage.org \
    icecube.opensciencegrid.org \
-   ligo-containers.opensciencegrid.org \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
    singularity.opensciencegrid.org \
