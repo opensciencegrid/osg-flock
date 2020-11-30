@@ -76,7 +76,7 @@ info "Checking for IGWN container availability"
 
 FS_ATTR="HAS_CVMFS_LIGO_CONTAINERS"
 RESULT="False"
-if [ -s /cvmfs/ligo-containers.opensciencegrid.org/lscsoft/bayeswave/master ]; then
+if [ -s /cvmfs/singularity.opensciencegrid.org/lscsoft/bayeswave:latest ]; then
     RESULT="True"
 fi
 advertise $FS_ATTR "$RESULT" "C"
