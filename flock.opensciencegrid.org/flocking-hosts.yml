@@ -259,6 +259,10 @@ pcf-osg.t2.ucsd.edu:
   site: UCSD
   dn: /DC=org/DC=incommon/C=US/ST=CA/L=La Jolla/O=University of California, San Diego/OU=UCSD/CN=pcf-osg.t2.ucsd.edu
 
+osg-prp-submit.nautilus.optiputer.net:
+  admin: Edgar Fajardo <emfajard@ucsd.edu>
+  site: PRP
+
 ### Rutgers ###
 
 osg-amarel.hpc.rutgers.edu:
