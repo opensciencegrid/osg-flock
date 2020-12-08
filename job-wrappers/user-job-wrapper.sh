@@ -440,9 +440,10 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" -a "x$SINGULARITY_CONTAINER" = "x" ]; then
         EC=$?
         if [ $EC -ne 0 ]; then
             # was it a Singularity issue or a user job issue?
-            if [ ! -e .singularity.startup-ok ]; then
-                shutdown_glidein "Singularity encountered an error starting the container"
-            fi
+            #if [ ! -e .singularity.startup-ok ]; then
+            #    shutdown_glidein "Singularity encountered an error starting the container"
+            #fi
+            exit 90
         fi
         # do not delete in debug - used for testing
         if [ "x$GWMS_DEBUG" = "x" ]; then
