@@ -25,5 +25,6 @@ add_condor_vars_line SINGULARITY_TARGET_DIR C '/srv' "+" "N" "N" "-"
 #else
 #   add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '--no-home\\ --pid' "+" "N" "N" "-"
 #fi
+add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '\\$F\\(SINGULARITY_EXTRA_ARGUMENTS\\)' "+" "N" "N" "-"
 add_condor_vars_line MOUNT_UNDER_SCRATCH C '/var/tmp' "+" "N" "N" "-"
 
