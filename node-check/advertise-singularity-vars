@@ -21,9 +21,9 @@ fi
 add_condor_vars_line SINGULARITY C '\\$F\\(GWMS_SINGULARITY_PATH\\)' "+" "N" "N" "-"
 add_condor_vars_line SINGULARITY_TARGET_DIR C '/srv' "+" "N" "N" "-"
 if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-   add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '--nv ' "+" "N" "N" "-"    
+   add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '--nv\\ --no-home\\ --pid' "+" "N" "N" "-"    
 else
-   add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '--ipc ' "+" "N" "N" "-"
+   add_condor_vars_line SINGULARITY_EXTRA_ARGUMENTS C '--no-home\\ --pid' "+" "N" "N" "-"
 fi
 add_condor_vars_line MOUNT_UNDER_SCRATCH C '/var/tmp' "+" "N" "N" "-"
 
