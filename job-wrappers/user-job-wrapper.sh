@@ -326,9 +326,12 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" -a "x$SINGULARITY_CONTAINER" = "x" ]; then
             unset LD_LIBRARY_PATH
         fi
         
-        #if [ "x$LD_PRELOAD" != "x" ]; then
-        #    unset LD_PRELOAD
-        #fi
+        if [ "x$LD_PRELOAD" != "x" ]; then
+            if [ "x$GWMS_DEBUG" != "x" ]; then
+                echo "OSG Singularity wrapper: LD_PRELOAD is set to $LD_PRELOAD outside Singularity. Unsetting it." 1>&2
+            fi
+            unset LD_PRELOAD
+        fi
 
         export OSG_SINGULARITY_REEXEC=1
         export SINGULARITYENV_OSG_SINGULARITY_REEXEC=1
