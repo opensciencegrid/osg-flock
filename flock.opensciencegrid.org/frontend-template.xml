@@ -400,7 +400,10 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
          </attrs>
          <files>
-            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/git/node-check/itb-osgvo-node-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/var/lib/gwms-frontend/web-base/frontend/generic_pre_singularity_setup.sh" after_entry="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">

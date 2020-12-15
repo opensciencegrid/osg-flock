@@ -1,0 +1,375 @@
+#!/bin/bash
+#
+# This script probes a system for properties useful for OSG-XD,
+# OSG-Direct and OSG-Connect users. To be able to support both
+# integration with GlideinWMS and HTCondor startd cron, argv1 is used
+# to determine what mode we are in. If argv1 points to a glidein_config
+# file, GlideinWMS mode is assumed. If argv1 is "NONE", HTCondor startd
+# cron mode is assumed.
+#
+# More information:
+#    http://www.uscms.org/SoftwareComputing/Grid/WMS/glideinWMS/doc.prd/factory/custom_scripts.html
+#    http://research.cs.wisc.edu/htcondor/manual/v8.2/4_4Hooks.html
+#
+# Example HTCondor startd cron entry:
+#
+# STARTD_CRON_JOBLIST = $(STARTD_CRON_JOBLIST) osgvo
+# STARTD_CRON_osgvo_EXECUTABLE = /opt/osgvo/osgvo-node-advertise
+# STARTD_CRON_osgvo_PERIOD = 30m
+# STARTD_CRON_osgvo_MODE = periodic
+# STARTD_CRON_osgvo_RECONFIG = true
+# STARTD_CRON_osgvo_KILL = true
+# STARTD_CRON_osgvo_ARGS = NONE
+
+#######################################################################
+#
+# Configuration
+#
+
+# OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
+# This can be used by negotiators or users, for example to match
+# against a glidein newer than some base with new features.
+OSG_GLIDEIN_VERSION=521
+#######################################################################
+
+
+glidein_config="$1"
+
+function info {
+    echo "INFO  " $@ 1>&2
+}
+
+function my_warn {
+    echo "WARN  " $@ 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
+}
+
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line_safe $key "$value"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
+    else
+        echo "$key = $value"
+    fi
+}
+
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
+###########################################################
+# Ensure only one copy of this script is running at the 
+# same time. For example, if a mount or something hangs
+# further down, we do not want more copies of this script
+# to add to the problem.
+
+export PID_FILE=osgvo-node-advertise.pid
+if [ -e $PID_FILE ]; then
+    OLD_PID=`cat $PID_FILE 2>/dev/null`
+    if kill -0 $OLD_PID >/dev/null 2>&1; then
+        exit 0
+    fi
+fi
+echo $$ >$PID_FILE
+
+#############################################################################
+#
+# Some tests are too heavy-weight to run every
+# 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
+# in cwd. These files will be cleaned up after 60 minutes and allow the
+# test to rerun then again. There is also a 3 hour version.
+#
+
+TEST_FILE_1H=osgvo.test-results.1h
+TEST_FILE_4H=osgvo.test-results.4h
+
+# clean up old ones
+find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
+find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
+find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
+
+info "This is a setup script for the OSG-FLOCK frontend."
+info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
+info "Running in directory $PWD"
+    
+if [ -e glidein_config ]; then
+    # gwms 
+    info "GWMS directory detected. Staying in $PWD"
+elif [ -e ../glidein_config ]; then
+    # gwms stupid tmp dir for periodic scripts - this breaks
+    # out ability to cache results
+    cd ../
+    info "GWMS tmp directory detected. Switched directory to $PWD"
+else
+    # find a good directory for our tests - we need something that we
+    # can re-enter later to pick up cached results
+    for DER in $GLIDEIN_Tmp_Dir $TMP $TMPDIR /tmp . ; do
+        # do we have write permissions
+        if touch $DER/.writetest.$$ >/dev/null 2>&1; then
+            rm -f $DER/.writetest.$$
+            if mkdir -p $DER/osgvo-node-advertise.work >/dev/null 2>&1; then
+                cp $0 $DER/osgvo-node-advertise.work/
+                if [ -e add_config_line.source ]; then
+                    cp add_config_line.source $DER/osgvo-node-advertise.work/
+                fi
+                cd $DER/osgvo-node-advertise.work
+                info "Switched working directory to $PWD"
+                break
+            fi
+        fi
+    done
+fi
+
+# bash can set a default PATH - make sure it is exported
+export PATH=$PATH
+
+# some sites do not have PATH set
+if [ "x$PATH" = "x" ]; then
+    export PATH="/usr/local/bin:/usr/bin:/bin"
+    my_warn "PATH is empty, setting it to $PATH"
+fi
+info "PATH is set to $PATH"
+
+if [ "x$glidein_config" = "x" ]; then
+    glidein_config="NONE"
+    info "No arguments provided - assuming HTCondor startd cron mode"
+else
+    info "Arguments to the script: $@"
+fi
+
+if [ "$glidein_config" != "NONE" ]; then
+    ###########################################################
+    # import advertise and add_condor_vars_line functions
+    if [ "x$add_config_line_source" = "x" ]; then
+        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    fi
+
+    # full path is problematic as sometimes we are inside a container - however, looks like
+    # the file is always named "add_config_line.source", so use that
+    add_config_line_source=$PWD/add_config_line.source
+
+    info "Sourcing $add_config_line_source"
+    source $add_config_line_source
+fi
+
+
+advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
+
+# we need the "outside" kernel version to be able to steer
+# singularity jobs to kernel/glibcs which are not too old
+VER=`uname -r | sed 's/-.*//'`
+MAJ=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\1/'`
+MIN=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\2/'`
+PATCH=`echo $VER | sed -E 's/([0-9]+)\.([0-9]+)\.([0-9]+)/\3/'`
+VER=$(( 10000 * $MAJ + 100 * $MIN + $PATCH ))
+if [ "x$VER" != "x" ]; then
+    if [ $VER -gt 10000 ]; then
+        advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
+    fi
+fi
+
+##################
+# cvmfs filesystem availability
+info "Checking for CVMFS availability and attributes..."
+for FS in \
+   ams.cern.ch \
+   atlas.cern.ch \
+   cms.cern.ch \
+   connect.opensciencegrid.org \
+   desdm.osgstorage.org \
+   gwosc.osgstorage.org \
+   icecube.opensciencegrid.org \
+   nexo.opensciencegrid.org \
+   oasis.opensciencegrid.org \
+   singularity.opensciencegrid.org \
+   snoplus.egi.eu \
+   sphenix.opensciencegrid.org \
+   spt.opensciencegrid.org \
+   stash.osgstorage.org \
+   veritas.opensciencegrid.org \
+   xenon.opensciencegrid.org \
+   sw.lsst.eu \
+; do
+    FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
+    FS_ATTR="HAS_CVMFS_$FS_CONV"
+    RESULT="False"
+    
+    # keep the filesystems mounted
+    ls -l /cvmfs/$FS/ >/dev/null 2>&1
+
+    if [ -e /cvmfs/$FS/. ]; then
+        RESULT="True"
+        # add the revision
+        REV_ATTR="CVMFS_${FS_CONV}_REVISION"
+        REV_VAL=1
+        if [ -e /usr/bin/attr ]; then
+            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+        fi
+        # some site mount /cvmfs over NFS and attr will not work
+        if [ "x$REV_VAL" = "x" ]; then
+            REV_VAL=1
+        fi
+        
+        # oasis.opensciencegrid.org needs extra checks
+        if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
+            if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+            if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+        fi
+
+        # stash.osgstorage.org needs extra checks
+        if [ "x$FS" = "xstash.osgstorage.org" ]; then
+            if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+        fi
+        
+        # veritas.opensciencegrid.org
+        if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
+            if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
+                REV_VAL=""
+            fi
+        fi
+
+        # now we are ready to advertise
+        if [ "x$REV_VAL" != "x" ]; then
+            # make sure it is an integer
+            if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
+                advertise $FS_ATTR "$RESULT" "C"
+                if [ $REV_VAL -ne 1 ]; then
+                    advertise $REV_ATTR "$REV_VAL" "I"
+                fi
+            fi
+        fi
+    fi
+done
+
+# if it looks like we have CVMFS, make sure the START expression knows that
+#if [ -e /cvmfs ]; then
+#    export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
+#fi
+
+# update timestamp?
+TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
+TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
+if [ "x$TS_VAL" != "x" ]; then
+    # make sure it is an integer
+    if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
+        advertise $TS_ATTR "$TS_VAL" "I"
+    fi
+fi
+
+###########################################################
+# system attributes from the host
+
+VIRTUALIZATION=`(systemd-detect-virt) 2>/dev/null`
+if [ "x$VIRTUALIZATION" != "x" ]; then
+    advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
+fi
+
+###########################################################
+# gpus - detect this outside Singularity
+
+if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+
+    info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
+
+    rm -f gpu.ad
+
+    for LOCATION in \
+          /usr/libexec/condor/condor_gpu_discovery \
+          ./main/condor/libexec/condor_gpu_discovery \
+          ../main/condor/libexec/condor_gpu_discovery \
+    ; do
+        if [ -e "$LOCATION" ]; then
+            ($LOCATION -properties -extra -cuda ; $LOCATION -properties -extra -opencl) \
+                | grep -v DetectedGPUs \
+                | sort | uniq \
+                >gpu.ad 
+            break
+        fi
+    done
+    
+    if [ -s gpu.ad ]; then
+        while read line; do
+            key=`echo "$line" | sed 's/=.*//'`
+            value=`echo "$line" | sed 's/.*=//'`
+            if (echo "$value" | grep '"') >/dev/null 2>&1; then
+                value=`echo "$value" | sed 's/"//g'`
+                advertise "$key" "$value" "S"
+            else
+                advertise "$key" "$value" "C"
+            fi
+        done <gpu.ad
+    
+        # and some extra nvidia attributes
+        nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
+        if [ "x$nvidia_version" != "x" ]; then
+            advertise NV_DRIVER "$nvidia_version" "C"
+        fi
+    else
+        my_warn "GPU detection failed!"
+        advertise "GPUDetection" "No GPUs detected" "S"
+    fi
+
+    echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >osgvo.default-singularity-image
+    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
+    info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
+fi
+
+# xcache - has to be outside due to the ping requirement
+XCACHE_CLOSEST=""
+XCACHE_CLOSEST_RTT="-1"
+OSG_DEFAULT_CVMFS_DATA=`get_glidein_config_value OSG_DEFAULT_CVMFS_DATA`
+info "Using $OSG_DEFAULT_CVMFS_DATA to check closest cache"
+if [ -e $TEST_FILE_4H.xcache_closest ]; then
+    XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
+    XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
+else
+    XCACHE_CLOSEST=`(attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/') 2>/dev/null`
+	info "Closest XCACHE found is: $XCACHE_CLOSEST"
+    # test first using the cached cvmfs values
+    if [ "X$XCACHE_CLOSEST" = "X" ]; then
+        XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
+    fi
+    if [ "X$XCACHE_CLOSEST" != "X" ]; then
+        echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
+        # also want the RTT
+        XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
+        echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
+    else
+        echo "" > $TEST_FILE_4H.xcache_closest
+        echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
+    fi
+fi
+advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
+advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
+
+##################
+rm -f $PID_FILE
+info "All done - time to do some real work!"
+
