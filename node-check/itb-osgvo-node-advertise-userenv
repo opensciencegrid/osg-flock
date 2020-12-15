@@ -148,20 +148,11 @@ else
     info "Arguments to the script: $@"
 fi
 
-env | sort >inside-sing.env
-exit 0
-
 if [ "$glidein_config" != "NONE" ]; then
-    ###########################################################
-    # import advertise and add_condor_vars_line functions
-    if [ "x$add_config_line_source" = "x" ]; then
-        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
-        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
-    fi
-
     # full path is problematic as sometimes we are inside a container - however, looks like
-    # the file is always named "add_config_line.source", so use that
-    add_config_line_source=$PWD/add_config_line.source
+    # the file is always in pwd, so use that
+    export add_config_line_source=$PWD/add_config_line.source
+    export condor_vars_file=$PWD/condor_vars.lst.tmp
 
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
