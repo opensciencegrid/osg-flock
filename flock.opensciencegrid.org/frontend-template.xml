@@ -414,7 +414,7 @@
             </file>
          </files>
       </group>
-      <group name="itb-gpu" enabled="True">
+      <group name="itb-gpu" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="3600"/>
