@@ -241,6 +241,10 @@ for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z
     fi
 done
 
+# testing singularity "inside"
+advertise OSGVO_TESTING_SING_COMMAND "Value - $SINGULARITY_COMMAND" "S"
+advertise OSGVO_TESTING_LAST_RUN $(date +'%s') "S"
+
 # if we are in Singularity, override HTCondor's OsSys* vars with the
 # default container details
 if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
