@@ -298,12 +298,6 @@ uclhc-2.ps.uci.edu:
   site: UCI
   dn: /DC=org/DC=incommon/C=US/ST=California/L=Irvine/O=University of California, Irvine/OU=School of Physical Sciences/CN=uclhc-2.ps.uci.edu
 
-### SDSC ###
-
-nsgosg.sdsc.edu:
-  admin: Edgar Fajardo <emfajard@ucsd.edu>
-  site: SDSC
-
 ### SDSC GRAPLeR ###
 
 rocks-186.sdsc.edu:
