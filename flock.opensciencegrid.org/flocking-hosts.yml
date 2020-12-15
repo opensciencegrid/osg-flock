@@ -263,6 +263,10 @@ osg-prp-submit.nautilus.optiputer.net:
   admin: Edgar Fajardo <emfajard@ucsd.edu>
   site: PRP
 
+nsgosg.sdsc.edu:
+  admin: Marty Kandes <mkandes@sdsc.edu>
+  site: SDSC
+
 ### Rutgers ###
 
 osg-amarel.hpc.rutgers.edu:
