@@ -148,6 +148,9 @@ else
     info "Arguments to the script: $@"
 fi
 
+env | sort >inside-sing.env
+exit 0
+
 if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
