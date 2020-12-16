@@ -319,7 +319,6 @@ advertise HAS_TCSH "$HAS_TCSH" "C"
 rm -f csh.test
 
 
-
 # modules
 RESULT="False"
 find . -maxdepth 1 -name $TEST_FILE_1H.modules -mmin +8 -exec rm {} \;

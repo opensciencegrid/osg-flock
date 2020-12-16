@@ -268,11 +268,6 @@ for FS in \
     fi
 done
 
-# if it looks like we have CVMFS, make sure the START expression knows that
-#if [ -e /cvmfs ]; then
-#    export GLIDEIN_VALIDATION_EXPR="HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_singularity_opensciencegrid_org && HAS_CVMFS_stash_osgstorage_org"
-#fi
-
 # update timestamp?
 TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
 TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
@@ -335,10 +330,6 @@ if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; the
         my_warn "GPU detection failed!"
         advertise "GPUDetection" "No GPUs detected" "S"
     fi
-
-    echo "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el7-cuda10:latest" >osgvo.default-singularity-image
-    export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
-    info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
 fi
 
 # xcache - has to be outside due to the ping requirement
