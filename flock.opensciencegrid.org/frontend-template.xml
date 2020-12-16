@@ -394,10 +394,10 @@
             <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
             <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-            <attr name="REQUIRED_OS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="ubuntu18"/>
-            <attr name="SINGULARITY_IMAGES_DICT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="default:/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-ubuntu-18.04:latest,ubuntu18:/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-ubuntu-18.04:latest,rhel8:/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el8:latest"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>
+            <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
          </attrs>
          <files>
             <file absfname="/opt/git/node-check/itb-osgvo-node-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
@@ -406,9 +406,9 @@
             <file absfname="/opt/git/node-check/itb-osgvo-node-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <!-- file absfname="/var/lib/gwms-frontend/web-base/frontend/generic_pre_singularity_setup.sh" after_entry="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+            <file absfname="/opt/git/node-check/itb-osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
-            </file -->
+            </file>
             <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
