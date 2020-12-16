@@ -173,7 +173,7 @@ advertise HAS_TIMEOUT "$HAS_TIMEOUT" "C"
 OS_NAME=$(cat /etc/issue | head -n1 | awk '{print $1;}' | tr '[:lower:]' '[:upper:]')
 
 if [ "x$OS_NAME" = "xUBUNTU" ]; then
-    OS_VERSION=$(cat /etc/issue | head -n1 | grep -o -E '[0-9]+.[0-9]+')
+    OS_VERSION=$(cat /etc/issue | head -n1 | grep -o -E ' [0-9]+.[0-9]+')
 elif [ -e /etc/debian_version ]; then
     OS_NAME="DEBIAN"
     OS_VERSION=`cat /etc/debian_version`
@@ -241,7 +241,7 @@ advertise OSGVO_TESTING_LAST_RUN $(date +'%s') "S"
 
 # if we are in Singularity, override HTCondor's OsSys* vars with the
 # default container details
-if [ "x$OSG_SINGULARITY_REEXEC" = "x1" ]; then
+if [ "x$SINGULARITY_COMMAND" != "x" ]; then
     # RHEL is CentOS in HTCondor
     if [ "x$OS_NAME" = "xRHEL" ]; then
         OS_NAME="CentOS"
