@@ -1,6 +1,6 @@
 Name:      osg-flock
-Version:   1.2
-Release:   2%{?dist}
+Version:   1.3
+Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 1 2021 Mats Rynge <rynge@isi.edu> 1.3-1
+- Enable Schedd AuditLog by default in osg-flock (SOFTWARE-4390)
+
 * Fri Oct 23 2020 Brian Lin <blin@cs.wisc.edu> 1.2-2
 - Fix paths to configuration source files
 
