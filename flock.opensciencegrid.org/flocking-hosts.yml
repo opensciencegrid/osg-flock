@@ -318,25 +318,10 @@ submit.dev.nanohub.org:
   site: NanoHub
   dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=devcondordaemon.nanohub.org
 
-devsubmit-64.nanohub.org:
-  admin: Steven Clark <clarks@purdue.edu>
-  site: NanoHub
-  dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=devcondordaemon.nanohub.org
-
-scatter.nanohub.org:
-  admin: Steven Clark <clarks@purdue.edu>
-  site: NanoHub
-  dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=scattercondordaemon.nanohub.org
-
 scatter2.dev.nanohub.org:
   admin: Steven Clark <clarks@purdue.edu>
   site: NanoHub
   dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=scattercondordaemon.nanohub.org
-
-devscatter.nanohub.org:
-  admin: Steven Clark <clarks@purdue.edu>
-  site: NanoHub
-  dn: /DC=org/DC=incommon/C=US/ST=IN/L=West Lafayette/O=Purdue University/OU=HUBzero/CN=devcondordaemon.nanohub.org
 
 ### UW-Milwaukee / LIGO
 
