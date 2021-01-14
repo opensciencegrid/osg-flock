@@ -691,6 +691,12 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/git/node-check/frame_files_small.txt" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/git/node-check/ligo-cvmfs-storage-check.sh"  type="run:singularity" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -867,12 +873,6 @@
    </collectors>
    <files>
       <file absfname="/opt/git/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/git/node-check/frame_files_small.txt" after_entry="True" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/git/node-check/ligo-cvmfs-storage-check.sh" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/git/node-check/ulimits-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
