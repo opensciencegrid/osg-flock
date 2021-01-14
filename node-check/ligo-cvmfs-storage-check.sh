@@ -90,30 +90,7 @@ FS=ligo.osgstorage.org
 FS_ATTR="HAS_LIGO_FRAMES"
 RESULT="False"
 TEST_FILE=`shuf -n 1 client/frame_files_small.txt`
-OSG_SINGULARITY_PATH=`get_glidein_config_value OSG_SINGULARITY_PATH`
-OSG_SINGULARITY_EXTRA_OPTS=`get_glidein_config_value OSG_SINGULARITY_EXTRA_OPTS`
-OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DEFAULT`
 TEST_CMD="head -c 1k $TEST_FILE"
-
-if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
-    info "Testing LIGO frames inside singularity"
-    info "Making copy of $X509_USER_PROXY"
-    cp $X509_USER_PROXY $PWD/frames_test_proxy
-    chmod 600 $PWD/frames_test_proxy
-    info "export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
-    if ! (export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                            $OSG_SINGULARITY_EXTRA_OPTS \
-                                            "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                            $TEST_CMD \
-                                            | grep Frame) 1>&2 \
-    ; then
-        RESULT="False"
-    else
-        RESULT="True"
-    fi
-    advertise "HAS_CVMFS_IGWN_PRIVATE_DATA_SINGULARITY" "$RESULT" "C"
-fi
-info "Testing LIGO frames outside singularity"
 info "setsid  $TEST_CMD | grep Frame"
 if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
     ; then
@@ -125,5 +102,4 @@ advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
 advertise "HAS_CVMFS_LIGO_STORAGE" "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_STORAGE" "$RESULT" "C"
-##################                                                                                                                                                   
-info "All done - time to do some real work!"
+
