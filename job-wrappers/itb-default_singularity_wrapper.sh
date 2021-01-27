@@ -129,6 +129,7 @@ export GWMS_DIR
 GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "$GWMS_THIS_SCRIPT" 2>/dev/null | cut -d ' ' -f1)_$(md5sum "${GWMS_AUX_DIR}/singularity_lib.sh" 2>/dev/null | cut -d ' ' -f1)"
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
+info_dbg "OSGVO DEBUGGING 1"
 
 # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
 exit_or_fallback() {
