@@ -112,7 +112,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -166,7 +166,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -217,7 +217,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -279,7 +279,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -335,7 +335,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -388,7 +388,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -451,7 +451,7 @@
             <file absfname="/opt/git/node-check/itb-osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/itb-default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -507,7 +507,7 @@
             <file absfname="/opt/git/node-check/itb-osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/itb-default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -570,7 +570,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -629,7 +629,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -691,7 +691,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -749,7 +749,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -801,7 +801,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -853,7 +853,7 @@
             <file absfname="/opt/git/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/var/lib/gwms-frontend/web-base/frontend/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/git/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
