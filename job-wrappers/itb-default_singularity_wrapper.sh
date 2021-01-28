@@ -446,11 +446,11 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
 
         # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
-        if [[ "$(type -t singularity_prepare_and_invoke)" == 'function' ]]; then
-            singularity_prepare_and_invoke "${@}"
-        else
+        #if [[ "$(type -t singularity_prepare_and_invoke)" == 'function' ]]; then
+        #    singularity_prepare_and_invoke "${@}"
+        #else
             prepare_and_invoke_singularity "$@"
-        fi
+        #fi
 
         # If we arrive here, then something failed in Singularity but is OK to continue w/o
 
