@@ -129,7 +129,7 @@ export GWMS_DIR
 GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "$GWMS_THIS_SCRIPT" 2>/dev/null | cut -d ' ' -f1)_$(md5sum "${GWMS_AUX_DIR}/singularity_lib.sh" 2>/dev/null | cut -d ' ' -f1)"
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
-info_dbg "OSGVO DEBUGGING 1"
+info_dbg "OSGVO DEBUGGING 2"
 
 # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
 exit_or_fallback() {
@@ -292,6 +292,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     fi
 
     # GPUs - bind outside GPU library directory to inside /host-libs
+    info_dbg "TESTING"
     info_dbg "Checking for GPUS: $OSG_MACHINE_GPUS"
     if [[ "$OSG_MACHINE_GPUS" -gt 0  ||  "x$GPU_USE" = "x1" ]]; then
         if [[ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]]; then
