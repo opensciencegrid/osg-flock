@@ -129,7 +129,6 @@ export GWMS_DIR
 GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "$GWMS_THIS_SCRIPT" 2>/dev/null | cut -d ' ' -f1)_$(md5sum "${GWMS_AUX_DIR}/singularity_lib.sh" 2>/dev/null | cut -d ' ' -f1)"
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
-info_dbg "OSGVO DEBUGGING 2"
 
 # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
 exit_or_fallback() {
@@ -142,7 +141,7 @@ exit_or_fallback() {
     #  3: sleep time (default: $EXITSLEEP)
     #  $GWMS_SINGULARITY_STATUS
     #  exit_wrapper (exit callback)
-    if [[ "x$GWMS_SINGULARITY_STATUS" = "xDISABLED__PREFERRED" ]]; then
+    if [[ "x$GWMS_SINGULARITY_STATUS" = "xPREFERRED__DISABLED" ]]; then
         # Fall back to no Singularity
         export HAS_SINGULARITY=0
         export GWMS_SINGULARITY_PATH=
@@ -292,8 +291,6 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     fi
 
     # GPUs - bind outside GPU library directory to inside /host-libs
-    info_dbg "TESTING"
-    info_dbg "Checking for GPUS: $OSG_MACHINE_GPUS"
     if [[ "$OSG_MACHINE_GPUS" -gt 0  ||  "x$GPU_USE" = "x1" ]]; then
         if [[ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]]; then
             HOST_LIBS=""
@@ -305,13 +302,14 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
             if [[ "x$HOST_LIBS" != "x" ]]; then
                 GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS=$(dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS "$HOST_LIBS" /host-libs)
             fi
-        fi
-        info_dbg "Checking for /etc/OpenCL/vendors"
-        # always try to mount OpenCL dir as it is independent from the NVIDIA stuff
-        if [[ -e /etc/OpenCL/vendors ]]; then
-            GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS=$(dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /etc/OpenCL/vendors /etc/OpenCL/vendors)
+            if [[ -e /etc/OpenCL/vendors ]]; then
+                GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS=$(dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /etc/OpenCL/vendors /etc/OpenCL/vendors)
+            fi
         fi
         GWMS_SINGULARITY_EXTRA_OPTS="$GWMS_SINGULARITY_EXTRA_OPTS --nv"
+    #else
+        # if not using gpus, we can limit the image more
+        # Already in default: GWMS_SINGULARITY_EXTRA_OPTS="$GWMS_SINGULARITY_EXTRA_OPTS --contain"
     fi
     info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:$([ -n "$HOST_LIBS" ] && echo 1), ocl:$([ -e /etc/OpenCL/vendors ] && echo 1)): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
 
@@ -356,7 +354,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     info_dbg "about to invoke singularity, pwd is $PWD"
     export GWMS_SINGULARITY_REEXEC=1
 
-    # Always disabling outside LD_LIBRARY_PATH, PATH and PYTHONPATH to avoid problems w/ different OS
+    # Always disabling outside LD_LIBRARY_PATH, PATH, PYTHONPATH and LD_PRELOAD to avoid problems w/ different OS
     # Singularity is supposed to handle this, but different versions behave differently
     # Restore them only if continuing after the exec of singularity failed (end of this function)
     local old_ld_library_path=
@@ -411,6 +409,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     [[ -n "$old_path" ]] && PATH=$old_path
     [[ -n "$old_ld_library_path" ]] && PATH=$old_ld_library_path
     [[ -n "$old_pythonpath" ]] && PYTHONPATH=$old_pythonpath
+    [[ -n "$old_ld_preload" ]] && LD_PRELOAD=$old_ld_preload
     # Exit or return to run w/o Singularity
     exit_or_fallback "exec of singularity failed" $?
 }
@@ -446,11 +445,11 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
 
         # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
-        #if [[ "$(type -t singularity_prepare_and_invoke)" == 'function' ]]; then
-        #    singularity_prepare_and_invoke "${@}"
-        #else
+        if [[ "$(type -t singularity_prepare_and_invoke)" == 'function' ]]; then
+            singularity_prepare_and_invoke "${@}"
+        else
             prepare_and_invoke_singularity "$@"
-        #fi
+        fi
 
         # If we arrive here, then something failed in Singularity but is OK to continue w/o
 
