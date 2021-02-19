@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=533
+OSG_GLIDEIN_VERSION=534
 #######################################################################
 
 
@@ -190,6 +190,13 @@ if [ "x$VER" != "x" ]; then
         advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
     fi
 fi
+
+# some images require unsquashfs
+HAS_unsquashfs="False"
+if unsquashfs -v >/dev/null 2>&1; then
+    HAS_unsquashfs="True"
+fi
+advertise HAS_unsquashfs "$HAS_unsquashfs" "C"
 
 ##################
 # cvmfs filesystem availability
