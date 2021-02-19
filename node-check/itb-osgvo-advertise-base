@@ -196,6 +196,10 @@ HAS_unsquashfs="False"
 if unsquashfs -v >/dev/null 2>&1; then
     HAS_unsquashfs="True"
 fi
+# singularity also looks in places which may not be in user PATH
+if [ -e /usr/sbin/unsquashfs ]; then
+    HAS_unsquashfs="True"
+fi
 advertise HAS_unsquashfs "$HAS_unsquashfs" "C"
 
 ##################
