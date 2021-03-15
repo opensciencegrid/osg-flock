@@ -342,3 +342,9 @@ xd-submit.chtc.wisc.edu:
   admin: Aaron Moate <moate@wisc.edu>
   site: UWisc-Madison
 
+### GATech
+osg-login2.pace.gatech.edu:
+  admin: Ruben Lara
+  site: GATech
+  dn: /DC=org/DC=incommon/C=US/ST=Georgia/L=Atlanta/O=Georgia Institute of Technology/OU=Office of Information Technology/CN=osg-login2.pace.gatech.edu
+
