@@ -17,7 +17,7 @@
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
-                                        (isUndefined(MY.RecentJobStarts) || RecentJobStarts &lt; 64) &amp;&amp;
+                                        (isUndefined(MY.RecentJobStarts) || RecentJobStarts &lt; 256) &amp;&amp;
                                         (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
                                         (GLIDEIN_Site =!= "AMNH" || (regexp("jlab.org", User) != True &amp;&amp; User =!= "cgomes02@services.ci-connect.net")) &amp;&amp;
                                         (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
