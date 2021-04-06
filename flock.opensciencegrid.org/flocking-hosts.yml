@@ -30,10 +30,10 @@ workflow.isi.edu:
 
 ### IU ###
 
-csiu.grid.iu.edu:
-  admin: Rob Quick <rquick@iu.edu>
-  site: IU
-  dn: /DC=org/DC=incommon/C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=Open Science Grid Operations Center/CN=csiu.grid.iu.edu
+#csiu.grid.iu.edu:
+#  admin: Rob Quick <rquick@iu.edu>
+#  site: IU
+#  dn: /DC=org/DC=incommon/C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=Open Science Grid Operations Center/CN=csiu.grid.iu.edu
 
 #csiu-itb.grid.iu.edu:
 #  admin: Rob Quick <rquick@iu.edu>
@@ -187,15 +187,15 @@ otsgrid.iit.edu:
 
 ### TACC ###
 
-iplant-condor.tacc.utexas.edu:
-  admin: Steve Terry <sterry1@tacc.utexas.edu>
-  site: TACC
-  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor.tacc.utexas.edu
+#iplant-condor.tacc.utexas.edu:
+#  admin: Steve Terry <sterry1@tacc.utexas.edu>
+#  site: TACC
+#  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor.tacc.utexas.edu
 
-iplant-condor-iu.tacc.utexas.edu:
-  admin: Steve Terry <sterry1@tacc.utexas.edu>
-  site: TACC
-  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor-iu.tacc.utexas.edu
+#iplant-condor-iu.tacc.utexas.edu:
+#  admin: Steve Terry <sterry1@tacc.utexas.edu>
+#  site: TACC
+#  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor-iu.tacc.utexas.edu
 
 ### Purdue ###
 
@@ -242,20 +242,20 @@ gluex.phys.uconn.edu:
 
 ### Syracuse ###
 
-sugwg-scitokens.phy.syr.edu:
-  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
-  site: Syracuse
-  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-scitokens.phy.syr.edu
+#sugwg-scitokens.phy.syr.edu:
+#  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
+#  site: Syracuse
+#  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-scitokens.phy.syr.edu
 
-sugwg-condor.phy.syr.edu:
-  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
-  site: Syracuse
-  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-condor.phy.syr.edu
+#sugwg-condor.phy.syr.edu:
+#  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
+#  site: Syracuse
+#  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-condor.phy.syr.edu
 
-sugwg-osg.phy.syr.edu:
-  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
-  site: Syracuse
-  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=AS PHY/CN=sugwg-osg.phy.syr.edu
+#sugwg-osg.phy.syr.edu:
+#  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
+#  site: Syracuse
+#  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=AS PHY/CN=sugwg-osg.phy.syr.edu
 
 ### UCSD ###
 

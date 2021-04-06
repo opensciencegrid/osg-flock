@@ -26,10 +26,10 @@ def generate_gwms_frontend_config(data):
                     prefix = subschedd + '@'
                     if subschedd == 'main':
                         prefix = ''
-                    blob += '            <schedd DN="%s" fullname="%s%s"/>\n' %(escape(attrs['dn']), escape(prefix), escape(hostname))
+                    blob += '                <schedd DN="%s" fullname="%s%s"/>\n' %(escape(attrs['dn']), escape(prefix), escape(hostname))
 
             else:
-                blob += '            <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
+                blob += '                <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
     
     f = open('frontend-template.xml')
     for line in f:
