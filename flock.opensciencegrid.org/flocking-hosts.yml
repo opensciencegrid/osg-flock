@@ -343,9 +343,10 @@ nobelsubmit0000.chtc.wisc.edu:
   admin: Aaron Moate <moate@wisc.edu>
   site: UWisc-Madison
 
-xd-submit.chtc.wisc.edu:
+xd-submit0000.chtc.wisc.edu:
   admin: Aaron Moate <moate@wisc.edu>
   site: UWisc-Madison
+  dn: /DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=xd-submit0000.chtc.wisc.edu
 
 ### GATech
 osg-login2.pace.gatech.edu:
