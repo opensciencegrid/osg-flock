@@ -833,7 +833,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/frontend.proxy" project_id="chi123" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="chi123" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
