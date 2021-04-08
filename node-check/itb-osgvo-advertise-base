@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=536
+OSG_GLIDEIN_VERSION=537
 #######################################################################
 
 
@@ -231,6 +231,11 @@ for FS in \
     # keep the filesystems mounted
     ls -l /cvmfs/$FS/ >/dev/null 2>&1
 
+    if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
+        advertise $FS_ATTR "False" "C"
+        continue
+    fi
+
     if [ -e /cvmfs/$FS/. ]; then
         RESULT="True"
         # add the revision
@@ -247,38 +252,46 @@ for FS in \
         # oasis.opensciencegrid.org needs extra checks
         if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
             if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
-                REV_VAL=""
+                RESULT="False"
             fi
             if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
-                REV_VAL=""
+                RESULT="False"
             fi
         fi
 
         # stash.osgstorage.org needs extra checks
         if [ "x$FS" = "xstash.osgstorage.org" ]; then
             if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                REV_VAL=""
+                RESULT="False"
             fi
         fi
         
         # veritas.opensciencegrid.org
         if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
             if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
-                REV_VAL=""
+                RESULT="False"
             fi
         fi
 
         # now we are ready to advertise
-        if [ "x$REV_VAL" != "x" ]; then
-            # make sure it is an integer
-            if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
-                advertise $FS_ATTR "$RESULT" "C"
-                if [ $REV_VAL -ne 1 ]; then
-                    advertise $REV_ATTR "$REV_VAL" "I"
-                fi
-            fi
+        advertise $FS_ATTR "$RESULT" "C"
+        if [ $RESULT = "True" -a $REV_VAL -ne 1 ]; then
+            advertise $REV_ATTR "$REV_VAL" "I"
+        fi
+
+        # remember failures - we want do not want to run on cvmfs if it comes and goes...
+        if [ $RESULT = "False" ]; then
+            touch $TEST_FILE_4H.cvmfs-disabled.$FS
+        fi
+    else
+        # $FS is not available
+        advertise $FS_ATTR "False" "C"
+        # remember failures - we want do not want to run on cvmfs if it comes and goes...
+        if [ $RESULT = "False" ]; then
+            touch $TEST_FILE_4H.cvmfs-disabled.$FS
         fi
     fi
+
 done
 
 # update timestamp?

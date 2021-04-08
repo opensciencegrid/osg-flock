@@ -343,7 +343,7 @@ else
       fi
    fi
 fi
-advertise HAS_MODULES "$RESULT" "C"
+advertise HAS_MODULES "$RESULT && HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_connect_opensciencegrid_org" "C"
 
 
 ##################
@@ -447,7 +447,7 @@ if [ "X$WGET_PATH" != "X" ]; then
         info "Checking http_proxy enviroment"
         for CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
             info " ... checking $CANDIDATE"
-            env http_proxy=$CANDIDATE wget -qO/dev/null http://flock.opensciencegrid.org/vofrontend/monitor/
+            env http_proxy=$CANDIDATE wget -qO/dev/null --tries=1 --timeout=10 http://flock.opensciencegrid.org/vofrontend/monitor/
             if [ $? == 0 -a "x$CANDIDATE" != "x" ]; then
                 info " ... testing proxy succeed"
                 SQUID_VERIFIED="true"
