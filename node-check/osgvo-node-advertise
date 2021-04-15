@@ -965,16 +965,18 @@ advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 # gfal
 
 # this is a one-shot test
-GFAL_VERIFIED="False"
-if [ -e $TEST_FILE_4H.gfal ]; then
-    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
-elif $TIMEOUT_CMD gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
-    GFAL_VERIFIED="True"
-    echo "True" > $TEST_FILE_4H.gfal
-else
-    echo "False" > $TEST_FILE_4H.gfal
-fi
-advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
+# this no longer works due to gwms delegating to 1024 bit
+# keys which are not accepted by EL8 hosts
+#GFAL_VERIFIED="False"
+#if [ -e $TEST_FILE_4H.gfal ]; then
+#    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
+#elif $TIMEOUT_CMD gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
+#    GFAL_VERIFIED="True"
+#    echo "True" > $TEST_FILE_4H.gfal
+#else
+#    echo "False" > $TEST_FILE_4H.gfal
+#fi
+#advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
 
 ##################
 # guc
