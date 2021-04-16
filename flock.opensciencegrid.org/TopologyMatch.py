@@ -1,4 +1,11 @@
 # inspired by https://github.com/jamesletts/CMSglideinWMSValidation/blob/master/CMSGroupMapper.py
+"""Contains code to match job resource allocations based on Topology data
+Topology projects data is downloaded and cached.
+
+- is_project_using_xrac_allocation checks a project name (e.g. from the job's ProjectName attribute)
+    against the schedd it's been submitted from and the Topology resource group that the XSEDE resource is in.
+
+"""
 from __future__ import print_function
 
 import logging
@@ -19,16 +26,46 @@ except ImportError:
     pass  # only used for linting
 
 
+#
+#
+# Public
+#
+#
+
 TOPOLOGY = "https://topology.opensciencegrid.org"
 PROJECTS_URL = TOPOLOGY + "/miscproject/xml"
 PROJECTS_CACHE_LIFETIME = 60.0
 
 
+def is_project_using_xrac_allocation(project_name, schedd, resource_group):  # type: (str, str, str) -> bool
+    """Does various checks to make sure the project named by project_name
+    is allowed to submit from the given schedd to the given resource group,
+    downloading the projects data from Topology if necessary.
+
+    `project_name` should be a Topology Project name.
+    `schedd` should be a Topology Resource name.
+    `resource_group` should be a Topology ResourceGroup name.
+
+    Returns True if the project is allowed.
+
+    """
+    # This function needs to return a bool so we put the actual checks into a
+    # separate function that can return an error reason so we can test it.
+    projects_tree = _get_projects()
+    return _check_allocation(projects_tree, project_name, schedd, resource_group) == "OK"
+
+
+#
+#
+# Internal
+#
+#
+
 log = logging.getLogger(__name__)
 
 
 # took this code from Topology
-class CachedData(object):
+class _CachedData(object):
     def __init__(self, data=None, timestamp=0, force_update=True, cache_lifetime=60*15,
                  retry_delay=60):
         self.data = data
@@ -51,19 +88,19 @@ class CachedData(object):
         self.force_update = False
 
 
-g_projects = CachedData(cache_lifetime=PROJECTS_CACHE_LIFETIME, retry_delay=30.0)
+_projects_cache = _CachedData(cache_lifetime=PROJECTS_CACHE_LIFETIME, retry_delay=30.0)
 
 
-def safe_element_text(element):  # type: (Optional[ET.Element]) -> str
+def _safe_element_text(element):  # type: (Optional[ET.Element]) -> str
     return getattr(element, "text", "").strip()
 
 
-def get_projects():  # type: () -> Optional[ET.Element]
-    global g_projects
+def _get_projects():  # type: () -> Optional[ET.Element]
+    global _projects_cache
 
-    if not g_projects.should_update():
+    if not _projects_cache.should_update():
         log.debug("Cache lifetime / retry delay not expired, returning cached data (if any)")
-        return g_projects.data
+        return _projects_cache.data
 
     try:
         # Python 2 does not have a context manager for urlopen
@@ -74,20 +111,20 @@ def get_projects():  # type: () -> Optional[ET.Element]
             response.close()
     except (EnvironmentError) as err:
         log.warning("Topology projects query failed: %s", err)
-        g_projects.try_again()
-        if g_projects.data:
+        _projects_cache.try_again()
+        if _projects_cache.data:
             log.debug("Returning cached data")
-            return g_projects.data
+            return _projects_cache.data
         else:
             log.error("Failed to update and no cached data")
             return None
 
     if not xml_text:
         log.warning("Topology projects query returned no data")
-        g_projects.try_again()
-        if g_projects.data:
+        _projects_cache.try_again()
+        if _projects_cache.data:
             log.debug("Returning cached data")
-            return g_projects.data
+            return _projects_cache.data
         else:
             log.error("Failed to update and no cached data")
             return None
@@ -96,31 +133,17 @@ def get_projects():  # type: () -> Optional[ET.Element]
         element = ET.fromstring(xml_text)  # fromstring accepts both bytes and str
     except (ET.ParseError, UnicodeDecodeError) as err:
         log.warning("Topology projects query couldn't be parsed: %s", err)
-        g_projects.try_again()
-        if g_projects.data:
+        _projects_cache.try_again()
+        if _projects_cache.data:
             log.debug("Returning cached data")
-            return g_projects.data
+            return _projects_cache.data
         else:
             log.error("Failed to update and no cached data")
             return None
 
     log.debug("Caching and returning new data")
-    g_projects.update(element)
-    return g_projects.data
-
-
-def is_project_using_xrac_allocation(project_name, schedd, resource_group):  # type: (str, str, str) -> bool
-    """Does various checks to make sure the project named by project_name
-    is allowed to submit from the given schedd to the given resource group,
-    downloading the projects data from Topology if necessary.
-
-    Returns True if the project is allowed.
-
-    """
-    # This function needs to return a bool so we put the actual checks into a
-    # separate function that can return an error reason so we can test it.
-    projects_tree = get_projects()
-    return _check_allocation(projects_tree, project_name, schedd, resource_group) == "OK"
+    _projects_cache.update(element)
+    return _projects_cache.data
 
 
 def _check_allocation(projects_tree, project_name, schedd, resource_group):  # type: (Optional[ET.Element], str, str, str) -> str
@@ -136,7 +159,7 @@ def _check_allocation(projects_tree, project_name, schedd, resource_group):  # t
         return "bad project_name"
 
     if projects_tree is None or len(projects_tree) < 1:
-        # get_projects() has already warned us
+        # _get_projects() has already warned us
         return "no Projects"
 
     project_element = projects_tree.find("./Project/[Name='%s']" % project_name)
@@ -154,7 +177,7 @@ def _check_allocation(projects_tree, project_name, schedd, resource_group):  # t
         log.info("Project %s does not allow submission from any schedd for XRAC allocations" % project_name)
         return "no AllowedSchedds"
 
-    allowed_schedds = {safe_element_text(x) for x in allowed_schedd_elements}
+    allowed_schedds = {_safe_element_text(x) for x in allowed_schedd_elements}
     if schedd not in allowed_schedds:
         log.info("Project %s does not allow schedd %s for XRAC allocations" % (project_name, schedd))
         return "mismatched AllowedSchedd"
@@ -164,7 +187,7 @@ def _check_allocation(projects_tree, project_name, schedd, resource_group):  # t
         log.info("Project %s not allowed to use any resources for allocation" % project_name)
         return "no ResourceGroups"
 
-    resource_groups = {safe_element_text(x.find("./Name")) for x in resource_group_elements}
+    resource_groups = {_safe_element_text(x.find("./Name")) for x in resource_group_elements}
     if resource_group not in resource_groups:
         log.info("Project %s not allowed to use RG %s for allocation" % (project_name, resource_group))
         return "mismatched ResourceGroup"
@@ -173,10 +196,12 @@ def _check_allocation(projects_tree, project_name, schedd, resource_group):  # t
 
 
 #
+#
 # Testing
 #
+#
 
-MOCK_PROJECT_XML = r"""
+__MOCK_PROJECT_XML = r"""
 <Projects>
     <Project/> <!-- bad project, no name -->
     <Project>
@@ -252,7 +277,7 @@ MOCK_PROJECT_XML = r"""
 """
 
 # fmt:off
-TEST_PARAMS = [
+__TEST_PARAMS = [
     ["Bad'Name",     "SUBMIT-1", "MyRG",   "bad project_name"],
     ["Missing",      "SUBMIT-1", "MyRG",   "no Name"],
     ["No_Alloc",     "SUBMIT-1", "MyRG",   "no XRAC"],
@@ -270,9 +295,9 @@ TEST_PARAMS = [
 if __name__ == "__main__":
     # self-test
     logging.basicConfig(level=logging.DEBUG)
-    projects_tree = ET.fromstring(MOCK_PROJECT_XML)
+    projects_tree = ET.fromstring(__MOCK_PROJECT_XML)
 
-    for project_name, schedd, resource_group, expected in TEST_PARAMS:
+    for project_name, schedd, resource_group, expected in __TEST_PARAMS:
         result = _check_allocation(projects_tree, project_name, schedd, resource_group)
         assert result == expected, \
             "expected %r, got %r for params %r, %r, %r" % (expected, result, project_name, schedd, resource_group)
