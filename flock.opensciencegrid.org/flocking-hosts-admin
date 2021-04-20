@@ -63,9 +63,9 @@ def generate_htcondor_mapfile(data):
     print('GSI "^/O=Flock/CN=syracusetesting/flock.opensciencegrid.org" syracuse')
 
     print('GSI (.*) anonymous')
-    print('FS (.*) \\1')
+    print('IDTOKEN (.*) \\1')
     print('PASSWORD (.*) \\1')
-    print('TOKEN (.*) \\1')
+    print('FS (.*) \\1')
 
 
 def generate_htcondor_flock_config(data):

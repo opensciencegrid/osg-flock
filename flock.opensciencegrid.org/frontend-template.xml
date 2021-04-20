@@ -366,7 +366,8 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-            </credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
+           </credentials>
          </security>
          <attrs>
             <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
@@ -378,6 +379,7 @@
             <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
             <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
             <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>

@@ -46,9 +46,9 @@ for c_hash in cert_hashes:
 
     print("Checking CA certificate " + cert_path)
     if not os.path.exists(cert_path):
-        print("ERROR: Missing required CA certificate: %s" %(cert_path))
+        print("WARNING: Missing required CA certificate: %s" %(cert_path))
         #try_home_install(c_hash)
-        sys.exit(1)
+        sys.exit(0)
 
     if os.path.exists(crl_path):
         # be a little bit extra careful with error handling here - we only
@@ -72,9 +72,9 @@ for c_hash in cert_hashes:
             pass
         # make sure the CRL is valid for a while
         if diff > 1*60*60:
-            print("ERROR: CRL is expired, or about to expire!")
+            print("WARNING: CRL is expired, or about to expire!")
             #try_home_install(c_hash)
-            sys.exit(1)
+            sys.exit(0)
 
 sys.exit(0)
 
