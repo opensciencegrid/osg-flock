@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=540
+OSG_GLIDEIN_VERSION=541
 #######################################################################
 
 
@@ -385,6 +385,22 @@ else
 fi
 advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
 advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
+
+
+###########################################################
+# Project restriction
+if [[ -n $GLIDEIN_PROJECT_ID ]]; then
+    info "GLIDEIN_PROJECT_ID=$GLIDEIN_PROJECT_ID"
+    project_name=$(awk -F, '{print $NF}' <<<$GLIDEIN_PROJECT_ID)
+
+    if [[ -n $project_name ]]; then
+        advertise OSG_PROJECT_NAME "$project_name" "S"
+        advertise OSG_PROJECT_RESTRICTION "ProjectName =?= OSG_PROJECT_NAME" "C"
+    fi
+else
+    info "GLIDEIN_PROJECT_ID is unset"
+fi
+
 
 ##################
 rm -f $PID_FILE

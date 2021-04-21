@@ -814,8 +814,8 @@
             <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="1" max="1"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="200" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="190" max="200"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; (TARGET.WantsXSEDE == True) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK", GLIDEIN_Supported_VOs)'>
@@ -867,8 +867,8 @@
             <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="1" max="1"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="200" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="190" max="200"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; (TARGET.WantsXSEDE == True) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp;(TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_GPU", GLIDEIN_Supported_VOs)'>
