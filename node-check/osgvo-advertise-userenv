@@ -303,25 +303,6 @@ then
 fi
 
 
-##################
-# tcsh test
-
-info "Attempting to determine if tcsh is available and works..."
-cat >csh.test <<EOF
-#!/bin/tcsh -f
-/bin/true
-EOF
-chmod 755 csh.test
-HAS_TCSH="False"
-if [ -e /bin/tcsh ]; then
-    if ./csh.test >/dev/null 2>&1; then
-        HAS_TCSH="True"
-    fi
-fi
-advertise HAS_TCSH "$HAS_TCSH" "C"
-rm -f csh.test
-
-
 # modules
 RESULT="False"
 find . -maxdepth 1 -name $TEST_FILE_1H.modules -mmin +8 -exec rm {} \;
@@ -353,29 +334,22 @@ advertise HAS_JAVA "HasJava" "C"
 
 
 ##################
-# zip
+# basic tools
 
-HAS_ZIP="False"
-if [ -e /usr/bin/zip ]; then
-    HAS_ZIP="True"
-fi
-advertise HAS_ZIP "$HAS_ZIP" "C"
+for TOOL in \
+    scp \
+    rsync \
+    zip \
+    tcsh \
+    unzip \
+; do
+    if which $TOOL >/dev/null 2>&1; then
+        advertise HAS_$TOOL "True" "C"
+    else
+        advertise HAS_$TOOL "False" "C"
+    fi
+done
 
-HAS_UNZIP="False"
-if [ -e /usr/bin/unzip ]; then
-    HAS_UNZIP="True"
-fi
-advertise HAS_UNZIP "$HAS_UNZIP" "C"
-
-
-##################
-# scp
-
-HAS_SCP="False"
-if [ -e /usr/bin/scp ]; then
-    HAS_SCP="True"
-fi
-advertise HAS_SCP "$HAS_SCP" "C"
 
 ##################
 # stashcp
