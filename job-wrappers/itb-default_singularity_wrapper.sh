@@ -381,6 +381,11 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         unset LD_PRELOAD
     fi
 
+    if [[ -n "$_LMFILES_" ]]; then
+        info "GWMS Singularity wrapper: unsetting _LMFILES_"
+        unset _LMFILES_
+    fi
+
     unset ENABLE_LMOD
     unset _LMFILES_
     unset LMOD_ANCIENT_TIME
