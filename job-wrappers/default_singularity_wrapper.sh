@@ -381,6 +381,28 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         unset LD_PRELOAD
     fi
 
+    unset ENABLE_LMOD
+    unset _LMFILES_
+    unset LMOD_ANCIENT_TIME
+    unset LMOD_arch
+    unset LMOD_CMD
+    unset LMOD_COLORIZE
+    unset LMOD_DEFAULT_MODULEPATH
+    unset LMOD_DIR
+    unset LMOD_FULL_SETTARG_SUPPORT
+    unset LMOD_PACKAGE_PATH
+    unset LMOD_PKG
+    unset LMOD_PREPEND_BLOCK
+    unset LMOD_SETTARG_CMD
+    unset LMOD_SETTARG_FULL_SUPPORT
+    unset LMOD_sys
+    unset LMOD_SYSTEM_DEFAULT_MODULES
+    unset LMOD_VERSION
+    unset LOADEDMODULES
+    unset MODULEPATH
+    unset MODULEPATH_ROOT
+    unset MODULESHOME
+
     # Add --clearenv if requested
     GWMS_SINGULARITY_EXTRA_OPTS=$(env_clear "${GLIDEIN_CONTAINER_ENV}" "${GWMS_SINGULARITY_EXTRA_OPTS}")
 
