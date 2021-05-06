@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=547
+OSG_GLIDEIN_VERSION=548
 #######################################################################
 
 
@@ -238,15 +238,21 @@ for FS in \
 
     if [ -e /cvmfs/$FS/. ]; then
         RESULT="True"
-        # add the revision
+
+        # add the revision 
         REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-        REV_VAL=1
-        if [ -e /usr/bin/attr ]; then
-            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
-        fi
+        REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$REV_VAL" = "x" ]; then
-            REV_VAL=1
+            REV_VAL=0
+        fi
+        
+        # add the error count
+        NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
+        NIOERR_VAL=`/usr/bin/attr -q -g NIOERR /cvmfs/$FS/. 2>/dev/null`
+        # some site mount /cvmfs over NFS and attr will not work
+        if [ "x$NIOERR_VAL" = "x" ]; then
+            NIOERR_VAL=0
         fi
         
         # oasis.opensciencegrid.org needs extra checks
@@ -273,11 +279,16 @@ for FS in \
             fi
         fi
 
+        # for now, let's disable singularity on NFS sites
+        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$REV_VAL" = "x0" ]; then
+            advertise HAS_SINGULARITY "False" "C"
+            advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS" "S"
+        fi
+
         # now we are ready to advertise
         advertise $FS_ATTR "$RESULT" "C"
-        if [ $RESULT = "True" -a $REV_VAL -ne 1 ]; then
-            advertise $REV_ATTR "$REV_VAL" "I"
-        fi
+        advertise $REV_ATTR "$REV_VAL" "I"
+        advertise $NIOERR_ATTR "$NIOERR_VAL" "I"
 
         # remember failures - we want do not want to run on cvmfs if it comes and goes...
         if [ $RESULT = "False" ]; then
