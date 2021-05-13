@@ -37,7 +37,7 @@ PROJECTS_URL = TOPOLOGY + "/miscproject/xml"
 PROJECTS_CACHE_LIFETIME = 60.0
 
 
-def is_project_using_xrac_allocation(project_name, schedd, resource_group):  # type: (str, str, str) -> bool
+def is_project_using_resource_allocation(project_name, schedd, resource_group):  # type: (str, str, str) -> bool
     """Does various checks to make sure the project named by project_name
     is allowed to submit from the given schedd to the given resource group,
     downloading the projects data from Topology if necessary.
