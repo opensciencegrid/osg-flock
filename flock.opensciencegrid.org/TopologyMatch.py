@@ -37,7 +37,7 @@ PROJECTS_URL = TOPOLOGY + "/miscproject/xml"
 PROJECTS_CACHE_LIFETIME = 60.0
 
 
-def is_project_using_xrac_allocation(project_name, schedd, resource_group):  # type: (str, str, str) -> bool
+def is_project_using_resource_allocation(project_name, schedd, resource_group):  # type: (str, str, str) -> bool
     """Does various checks to make sure the project named by project_name
     is allowed to submit from the given schedd to the given resource group,
     downloading the projects data from Topology if necessary.
@@ -167,33 +167,35 @@ def _check_allocation(projects_tree, project_name, schedd, resource_group):  # t
         log.warning("Project with name %s not found", project_name)
         return "no Name"
 
-    xrac = project_element.find("./ResourceAllocation/XRAC")
-    if xrac is None or len(xrac) < 1:
-        log.info("Project %s has no XRAC allocations")
-        return "no XRAC"
+    resource_allocation_elements = project_element.findall("./ResourceAllocations/ResourceAllocation")
+    if not resource_allocation_elements:
+        log.info("Project %s has no ResourceAllocations", project_name)
+        return "no ResourceAllocations"
 
-    allowed_schedd_elements = xrac.findall("./AllowedSchedds/AllowedSchedd")
-    if not allowed_schedd_elements:
-        log.info("Project %s does not allow submission from any schedd for XRAC allocations" % project_name)
-        return "no AllowedSchedds"
+    for idx, ra in enumerate(resource_allocation_elements):
+        txt_prefix = "Project %s ResourceAllocation %d" % (project_name, idx)
+        submit_resource_elements = ra.findall("./SubmitResources/SubmitResource")
+        if not submit_resource_elements:
+            log.debug("%s has no SubmitResources", txt_prefix)
+            continue
+        execute_resource_group_elements = ra.findall("./ExecuteResourceGroups/ExecuteResourceGroup")
+        if not execute_resource_group_elements:
+            log.debug("%s has no ExecuteResourceGroups", txt_prefix)
+            continue
 
-    allowed_schedds = {_safe_element_text(x) for x in allowed_schedd_elements}
-    if schedd not in allowed_schedds:
-        log.info("Project %s does not allow schedd %s for XRAC allocations" % (project_name, schedd))
-        return "mismatched AllowedSchedd"
+        submit_resources = {_safe_element_text(x) for x in submit_resource_elements}
+        if schedd not in submit_resources:
+            log.debug("%s does not allow SubmitResource %s", txt_prefix, schedd)
+            continue
+        execute_resource_groups = {_safe_element_text(x.find("./GroupName")) for x in execute_resource_group_elements}
+        if resource_group not in execute_resource_groups:
+            log.debug("%s does not contain RG %s", txt_prefix, schedd)
+            continue
 
-    resource_group_elements = xrac.findall("./ResourceGroups/ResourceGroup")
-    if not resource_group_elements:
-        log.info("Project %s not allowed to use any resources for allocation" % project_name)
-        return "no ResourceGroups"
+        return "OK"
 
-    resource_groups = {_safe_element_text(x.find("./Name")) for x in resource_group_elements}
-    if resource_group not in resource_groups:
-        log.info("Project %s not allowed to use RG %s for allocation" % (project_name, resource_group))
-        return "mismatched ResourceGroup"
-
-    return "OK"
-
+    log.info("Project %s found no matches for schedd %s and resource_group %s", project_name, schedd, resource_group)
+    return "no matches"
 
 #
 #
@@ -204,74 +206,109 @@ def _check_allocation(projects_tree, project_name, schedd, resource_group):  # t
 __MOCK_PROJECT_XML = r"""
 <Projects>
     <Project/> <!-- bad project, no name -->
+
     <Project>
         <Name>No_Alloc</Name>
     </Project>
+
     <Project>
-        <Name>No_XRAC</Name>
-        <ResourceAllocation/>
+        <Name>Empty_RAs</Name>
+        <ResourceAllocations/>
     </Project>
-    <Project>
-        <Name>Empty_XRAC</Name>
-        <ResourceAllocation>
-            <XRAC/>
-        </ResourceAllocation>
-    </Project>
+
     <Project>
         <Name>No_Schedds</Name>
-        <ResourceAllocation>
-            <XRAC>
-                <AllowedSchedds/>
-                <ResourceGroups>
-                    <ResourceGroup>
-                        <Name>MyRG</Name>
+        <ResourceAllocations>
+            <ResourceAllocation>
+                <Type>XRAC</Type>
+                <SubmitResources/>
+                <ExecuteResourceGroups>
+                    <ExecuteResourceGroup>
+                        <GroupName>MyRG</GroupName>
                         <LocalAllocationID>myalloc</LocalAllocationID>
-                    </ResourceGroup>
-                </ResourceGroups>
-            </XRAC>
-        </ResourceAllocation>
+                    </ExecuteResourceGroup>
+                </ExecuteResourceGroups>
+            </ResourceAllocation>
+        </ResourceAllocations>
     </Project>
+
     <Project>
         <Name>No_RGs</Name>
-        <ResourceAllocation>
-            <XRAC>
-                <AllowedSchedds>
-                    <AllowedSchedd>SUBMIT-1</AllowedSchedd>
-                </AllowedSchedds>
-                <ResourceGroups/>
-            </XRAC>
-        </ResourceAllocation>
+        <ResourceAllocations>
+            <ResourceAllocation>
+                <Type>XRAC</Type>
+                <SubmitResources>
+                    <SubmitResource>SUBMIT-1</SubmitResource>
+                </SubmitResources>
+                <ExecuteResourceGroups/>
+            </ResourceAllocation>
+        </ResourceAllocations>
     </Project>
+
     <Project>
         <Name>Malformed_RG</Name>
-        <ResourceAllocation>
-            <XRAC>
-                <AllowedSchedds>
-                    <AllowedSchedd>SUBMIT-1</AllowedSchedd>
-                </AllowedSchedds>
-                <ResourceGroups>
-                    <ResourceGroup>
+        <ResourceAllocations>
+            <ResourceAllocation>
+                <Type>XRAC</Type>
+                <SubmitResources>
+                    <SubmitResource>SUBMIT-1</SubmitResource>
+                </SubmitResources>
+                <ExecuteResourceGroups>
+                    <ExecuteResourceGroup>
                         MyRG
-                    </ResourceGroup>
-                </ResourceGroups>
-            </XRAC>
-        </ResourceAllocation>
+                    </ExecuteResourceGroup>
+                </ExecuteResourceGroups>
+            </ResourceAllocation>
+        </ResourceAllocations>
     </Project>
+
     <Project>
         <Name>OK</Name>
-        <ResourceAllocation>
-            <XRAC>
-                <AllowedSchedds>
-                    <AllowedSchedd>SUBMIT-1</AllowedSchedd>
-                </AllowedSchedds>
-                <ResourceGroups>
-                    <ResourceGroup>
-                        <Name>MyRG</Name>
+        <ResourceAllocations>
+            <ResourceAllocation>
+                <Type>XRAC</Type>
+                <SubmitResources>
+                    <SubmitResource>SUBMIT-1</SubmitResource>
+                </SubmitResources>
+                <ExecuteResourceGroups>
+                    <ExecuteResourceGroup>
+                        <GroupName>MyRG</GroupName>
                         <LocalAllocationID>myalloc</LocalAllocationID>
-                    </ResourceGroup>
-                </ResourceGroups>
-            </XRAC>
-        </ResourceAllocation>
+                    </ExecuteResourceGroup>
+                </ExecuteResourceGroups>
+            </ResourceAllocation>
+        </ResourceAllocations>
+    </Project>
+
+    <Project>
+        <Name>OK2</Name>
+        <ResourceAllocations>
+            <ResourceAllocation>
+                <Type>XRAC</Type>
+                <SubmitResources>
+                    <SubmitResource>SUBMIT-1</SubmitResource>
+                </SubmitResources>
+                <ExecuteResourceGroups>
+                    <ExecuteResourceGroup>
+                        <GroupName>MyRG</GroupName>
+                        <LocalAllocationID>myalloc</LocalAllocationID>
+                    </ExecuteResourceGroup>
+                </ExecuteResourceGroups>
+            </ResourceAllocation>
+
+            <ResourceAllocation>
+                <Type>XRAC</Type>
+                <SubmitResources>
+                    <SubmitResource>SUBMIT-2</SubmitResource>
+                </SubmitResources>
+                <ExecuteResourceGroups>
+                    <ExecuteResourceGroup>
+                        <GroupName>MyRG2</GroupName>
+                        <LocalAllocationID>myalloc2</LocalAllocationID>
+                    </ExecuteResourceGroup>
+                </ExecuteResourceGroups>
+            </ResourceAllocation>
+        </ResourceAllocations>
     </Project>
 </Projects>
 """
@@ -280,15 +317,16 @@ __MOCK_PROJECT_XML = r"""
 __TEST_PARAMS = [
     ["Bad'Name",     "SUBMIT-1", "MyRG",   "bad project_name"],
     ["Missing",      "SUBMIT-1", "MyRG",   "no Name"],
-    ["No_Alloc",     "SUBMIT-1", "MyRG",   "no XRAC"],
-    ["No_XRAC",      "SUBMIT-1", "MyRG",   "no XRAC"],
-    ["Empty_XRAC",   "SUBMIT-1", "MyRG",   "no XRAC"],
-    ["No_Schedds",   "SUBMIT-1", "MyRG",   "no AllowedSchedds"],
-    ["No_RGs",       "SUBMIT-1", "MyRG",   "no ResourceGroups"],
-    ["Malformed_RG", "SUBMIT-1", "MyRG",   "mismatched ResourceGroup"],
-    ["OK",           "SMIT-1",   "MyRG",   "mismatched AllowedSchedd"],
-    ["OK",           "SUBMIT-1", "YourRG", "mismatched ResourceGroup"],
-    ["OK",           "SUBMIT-1", "MyRG",   "OK"]
+    ["No_Alloc",     "SUBMIT-1", "MyRG",   "no ResourceAllocations"],
+    ["Empty_RAs",    "SUBMIT-1", "MyRG",   "no ResourceAllocations"],
+    ["No_Schedds",   "SUBMIT-1", "MyRG",   "no matches"],
+    ["No_RGs",       "SUBMIT-1", "MyRG",   "no matches"],
+    ["Malformed_RG", "SUBMIT-1", "MyRG",   "no matches"],
+    ["OK",           "SMIT-1",   "MyRG",   "no matches"],
+    ["OK",           "SUBMIT-1", "YourRG", "no matches"],
+    ["OK",           "SUBMIT-1", "MyRG",   "OK"],
+    ["OK2",          "SUBMIT-2", "MyRG2",  "OK"],
+    ["OK2",          "SUBMIT-1", "MyRG2",  "no matches"],
 ]
 # fmt:on
 
