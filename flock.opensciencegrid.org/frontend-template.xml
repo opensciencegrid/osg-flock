@@ -46,7 +46,7 @@
    <monitor_footer display_txt="" href_link=""/>
    <security classad_proxy="/etc/grid-security/gwms-frontend/frontend.proxy" proxy_DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" proxy_selection_plugin="ProxyAll" security_name="OSG_Flock" sym_key="aes_256_cbc">
       <credentials>
-          <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
+          <!-- credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/ -->
       </credentials>
    </security>
    <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="http://flock.opensciencegrid.org/vofrontend/stage"/>
