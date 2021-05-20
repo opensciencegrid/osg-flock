@@ -249,10 +249,10 @@ for FS in \
         
         # add the error count
         NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
-        NIOERR_VAL=`/usr/bin/attr -q -g NIOERR /cvmfs/$FS/. 2>/dev/null`
+        NIOERR_VAL=`/usr/bin/attr -q -g nioerr /cvmfs/$FS/. 2>/dev/null`
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$NIOERR_VAL" = "x" ]; then
-            NIOERR_VAL=0
+            NIOERR_VAL=-1
         fi
         
         # oasis.opensciencegrid.org needs extra checks
