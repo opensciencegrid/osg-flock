@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=549
+OSG_GLIDEIN_VERSION=550
 #######################################################################
 
 
@@ -333,59 +333,94 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
         FS_ATTR="HAS_CVMFS_$FS_CONV"
         RESULT="False"
-        
+
         # keep the filesystems mounted
         ls -l /cvmfs/$FS/ >/dev/null 2>&1
-
+    
+        if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
+            advertise $FS_ATTR "False" "C"
+            if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
+                advertise HAS_SINGULARITY "False" "C"
+                advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
+            fi
+            continue
+        fi
+    
         if [ -e /cvmfs/$FS/. ]; then
             RESULT="True"
-            # add the revision
+    
+            # add the revision 
             REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-            REV_VAL=1
-            if [ -e /usr/bin/attr ]; then
-                REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
-            fi
+            REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
             # some site mount /cvmfs over NFS and attr will not work
             if [ "x$REV_VAL" = "x" ]; then
-                REV_VAL=1
+                REV_VAL=0
             fi
-            
+    
+            # add the error count
+            NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
+            NIOERR_VAL=`/usr/bin/attr -q -g nioerr /cvmfs/$FS/. 2>/dev/null`
+            # some site mount /cvmfs over NFS and attr will not work
+            if [ "x$NIOERR_VAL" = "x" ]; then
+                NIOERR_VAL=-1
+            fi
+    
+            # disable if the mount has had errors
+            if [ $NIOERR_VAL -gt 0 ]; then
+                RESULT="False"
+            fi
+    
             # oasis.opensciencegrid.org needs extra checks
             if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
                 if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
-                    REV_VAL=""
+                    RESULT="False"
                 fi
                 if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
-                    REV_VAL=""
+                    RESULT="False"
                 fi
             fi
-
             # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
                 if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                    REV_VAL=""
+                    RESULT="False"
                 fi
             fi
-            
+    
             # veritas.opensciencegrid.org
             if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
                 if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
-                    REV_VAL=""
+                    RESULT="False"
                 fi
             fi
-
-            # now we are ready to advertise
-            if [ "x$REV_VAL" != "x" ]; then
-                # make sure it is an integer
-                if [ "$REV_VAL" -eq "$REV_VAL" ] 2>/dev/null; then
-                    advertise $FS_ATTR "$RESULT" "C"
-                    if [ $REV_VAL -ne 1 ]; then
-                        advertise $REV_ATTR "$REV_VAL" "I"
-                    fi
+    
+            # disable singularity on NFS sites or if the singularity fs has errors
+            if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
+                if [ $RESULT = "False" -o "x$REV_VAL" = "x0" ]; then
+                    advertise HAS_SINGULARITY "False" "C"
+                    advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
                 fi
+            fi
+    
+            # now we are ready to advertise
+            advertise $FS_ATTR "$RESULT" "C"
+            advertise $REV_ATTR "$REV_VAL" "I"
+            advertise $NIOERR_ATTR "$NIOERR_VAL" "I"
+    
+            # remember failures - we want do not want to run on cvmfs if it comes and goes...
+            if [ $RESULT = "False" ]; then
+                touch $TEST_FILE_4H.cvmfs-disabled.$FS
+            fi
+        else
+            # $FS is not available
+            advertise $FS_ATTR "False" "C"
+            # remember failures - we want do not want to run on cvmfs if it comes and goes...
+            if [ $RESULT = "False" ]; then
+                touch $TEST_FILE_4H.cvmfs-disabled.$FS
             fi
         fi
+    
     done
+        
 
     # if it looks like we have CVMFS, make sure the START expression knows that
     #if [ -e /cvmfs ]; then
@@ -555,16 +590,6 @@ if [ "x$GLIDEIN_Singularity_Use" = "x"  -o "x$GLIDEIN_Singularity_Use" = "xGWMS_
         if [ ! -e "$OSG_SINGULARITY_IMAGE_DEFAULT" ]; then
             info "Default singularity image, $OSG_SINGULARITY_IMAGE_DEFAULT, does not appear to exist"
             HAS_SINGULARITY="False"
-        fi
-    
-        # we have been seeing problems with Singularity and CVMFS over NFS - disable on those sites
-        if (mount | grep /cvmfs/singularity.opensciencegrid.org | grep "type nfs") >/dev/null 2>&1; then
-            if (echo "$GLIDEIN_Site" | grep -i utah) >/dev/null 2>&1; then
-                info "CVMFS over NFS detected - trying out Utah's solution so leaving things in place"
-            else
-                info "CVMFS over NFS detected - disabling singularity"
-                HAS_SINGULARITY="False"
-            fi
         fi
     
         OSG_SINGULARITY_EXTRA_OPTS="--bind /cvmfs"

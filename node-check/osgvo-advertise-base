@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=549
+OSG_GLIDEIN_VERSION=550
 #######################################################################
 
 
@@ -233,6 +233,10 @@ for FS in \
 
     if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
         advertise $FS_ATTR "False" "C"
+        if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
+            advertise HAS_SINGULARITY "False" "C"
+            advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
+        fi
         continue
     fi
 
@@ -253,6 +257,11 @@ for FS in \
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$NIOERR_VAL" = "x" ]; then
             NIOERR_VAL=-1
+        fi
+        
+        # disable if the mount has had errors
+        if [ $NIOERR_VAL -gt 0 ]; then
+            RESULT="False"
         fi
         
         # oasis.opensciencegrid.org needs extra checks
@@ -278,11 +287,13 @@ for FS in \
                 RESULT="False"
             fi
         fi
-
-        # for now, let's disable singularity on NFS sites
-        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$REV_VAL" = "x0" ]; then
-            advertise HAS_SINGULARITY "False" "C"
-            advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS" "S"
+        
+        # disable singularity on NFS sites or if the singularity fs has errors
+        if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
+            if [ $RESULT = "False" -o "x$REV_VAL" = "x0" ]; then
+                advertise HAS_SINGULARITY "False" "C"
+                advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
+            fi
         fi
 
         # now we are ready to advertise
