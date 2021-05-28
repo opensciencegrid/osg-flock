@@ -936,6 +936,8 @@
                <match_attrs>
                </match_attrs>
                <schedds>
+                 <schedd DN="/CN=xd-submit0000.chtc.wisc.edu" fullname="xd-submit0000.chtc.wisc.edu"/>
+                 <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login04.osgconnect.net"/>
                </schedds>
             </job>
          </match>
