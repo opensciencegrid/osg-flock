@@ -455,6 +455,10 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
               $(env | sed 's/=.*//' | egrep "^LMOD" 2>/dev/null) \
               $(env | sed 's/=.*//' | egrep "^SLURM" 2>/dev/null) \
         ; do
+            eval VAL="\$$KEY"
+            if [ "x$VAL" != "x" ]; then
+                info_dbg "Unsetting env var provided by site: $KEY"
+            fi
             unset $KEY
         done
 
