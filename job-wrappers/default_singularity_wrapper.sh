@@ -445,27 +445,22 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
    
         # unset modules leftovers from the site environment 
-        unset ENABLE_LMOD
-        unset _LMFILES_
-        unset LMOD_ANCIENT_TIME
-        unset LMOD_arch
-        unset LMOD_CMD
-        unset LMOD_COLORIZE
-        unset LMOD_DEFAULT_MODULEPATH
-        unset LMOD_DIR
-        unset LMOD_FULL_SETTARG_SUPPORT
-        unset LMOD_PACKAGE_PATH
-        unset LMOD_PKG
-        unset LMOD_PREPEND_BLOCK
-        unset LMOD_SETTARG_CMD
-        unset LMOD_SETTARG_FULL_SUPPORT
-        unset LMOD_sys
-        unset LMOD_SYSTEM_DEFAULT_MODULES
-        unset LMOD_VERSION
-        unset LOADEDMODULES
-        unset MODULEPATH
-        unset MODULEPATH_ROOT
-        unset MODULESHOME
+        for KEY in \
+              ENABLE_LMOD \
+              _LMFILES_ \
+              LOADEDMODULES \
+              MODULEPATH \
+              MODULEPATH_ROOT \
+              MODULESHOME \
+              $(env | sed 's/=.*//' | egrep "^LMOD" 2>/dev/null) \
+              $(env | sed 's/=.*//' | egrep "^SLURM" 2>/dev/null) \
+        ; do
+            eval VAL="\$$KEY"
+            if [ "x$VAL" != "x" ]; then
+                info_dbg "Unsetting env var provided by site: $KEY"
+            fi
+            unset $KEY
+        done
 
         # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
         if [[ "$(type -t singularity_prepare_and_invoke)" == 'function' ]]; then
