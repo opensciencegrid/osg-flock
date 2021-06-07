@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=553
+OSG_GLIDEIN_VERSION=554
 #######################################################################
 
 
@@ -188,6 +188,27 @@ VER=$(( 10000 * $MAJ + 100 * $MIN + $PATCH ))
 if [ "x$VER" != "x" ]; then
     if [ $VER -gt 10000 ]; then
         advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
+    fi
+fi
+
+# verify http_proxy if set
+if [ "x$http_proxy" != "x" ]; then
+    if [ -e $TEST_FILE_4H.http_proxy ]; then
+        PROXY_OK=$(cat $TEST_FILE_4H.http_proxy)
+    else
+        CURL=$(curlio --version 2>/dev/null)
+        if [ "x$CURL" != "x" ]; then
+            curl -s -m 10 -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
+        else
+            wget -q --timeout 10 -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
+        fi
+        PROXY_OK=$?
+        echo $PROXY_OK >$TEST_FILE_4H.http_proxy
+    fi
+
+    if [ "x$PROXY_OK" != "x0" ]; then
+        # limit what file transfers we can do
+        advertise HasFileTransferPluginMethods "data,ftp,file" "S"
     fi
 fi
 

@@ -401,51 +401,6 @@ if [ "X$GUC_PATH" != "X" ]; then
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
 
-#############################
-## squid enviroment variable
-WGET_PATH=`which wget 2>/dev/null`
-
-if [ "XWGET_PATH" = "X" ]; then
-    WGET_PATH="NA"
-fi
-advertise WGET_PATH "$WGET_PATH" "S"
-
-#does it work?
-# this is a one-shot test
-
-if [ "X$WGET_PATH" != "X" ]; then
-    SQUID_VERIFIED="False"
-    HTTP_PROXY_VALUE=""
-    if [ -e $TEST_FILE_1H.squid ]; then
-        SQUID_VERIFIED=`cat $TEST_FILE_1H.squid`
-    else
-        info "Checking http_proxy enviroment"
-        for CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
-            info " ... checking $CANDIDATE"
-            env http_proxy=$CANDIDATE wget -qO/dev/null --tries=1 --timeout=10 http://flock.opensciencegrid.org/vofrontend/monitor/
-            if [ $? == 0 -a "x$CANDIDATE" != "x" ]; then
-                info " ... testing proxy succeed"
-                SQUID_VERIFIED="true"
-                HTTP_PROXY_VALUE="$CANDIDATE"
-                echo "True" > $TEST_FILE_1H.squid
-                echo "$http_proxy" > $TEST_FILE_1H.http_proxy
-                break
-            fi
-        done
-        if [ "x$SQUID_VERIFIED" = "False" ]; then
-            info " ... testing proxy failed - leaving http_proxy untouched"
-            echo "False" > $TEST_FILE_1H.squid
-            echo "" > $TEST_FILE_1H.http_proxy
-        fi
-    fi
-    advertise HAS_SQUID "$SQUID_VERIFIED" "C"
-    advertise SQUID_VERIFIED "$SQUID_VERIFIED" "C"
-    if [ "x$HTTP_PROXY_VALUE" != "x" ]; then
-        advertise "http_proxy" "$HTTP_PROXY_VALUE" "S"
-    fi
-fi
-
-
 ##################
 # xrdcp
 

@@ -33,9 +33,9 @@ function test_basic {
     rm -rf $TMP
     mkdir -p $TMP
 
-    cp ../../itb-osgvo-node-advertise .
+    cp ../../itb-osgvo-advertise-base .
 
-    ./itb-osgvo-node-advertise
+    ./itb-osgvo-advertise-base
 
     # TODO: how to validate the resuls
     return 0
@@ -46,14 +46,14 @@ function test_gwms {
     rm -rf work
     mkdir work
     cd work
-    cp ../../itb-osgvo-node-advertise .
+    cp ../../itb-osgvo-advertise-base .
     cp ../add_config_line.source .
     touch condor_vars.lst
 
     echo "ADD_CONFIG_LINE_SOURCE $PWD/add_config_line.source" > glidein_config
     echo "CONDOR_VARS_FILE $PWD/condor_vars.lst" >> glidein_config 
 
-    ./itb-osgvo-node-advertise $PWD/glidein_config client
+    ./itb-osgvo-advertise-base $PWD/glidein_config client
 
     rm -f glidein_config
 
