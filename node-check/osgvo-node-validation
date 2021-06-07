@@ -50,11 +50,6 @@ if ! (/bin/ls -l /usr/bin/) >/dev/null 2>&1; then
     my_error "Simple ls of /usr/bin/ did not work"
 fi
 
-my_info "   checking for globus-url-copy"
-if ! (globus-url-copy -version 2>&1 | grep ^globus-url-copy:) >/dev/null 2>&1; then
-    my_warn "globus-url-copy not found - this usually means that the wn package is not installed"
-fi
-
 if [ "XGLIDECLIENT_Group" = "Xgpu" ]; then
     my_info "   ensuring GPU environment is set up"
     if [ "XCUDA_VISIBLE_DEVICES" = "X" ]; then
@@ -74,9 +69,21 @@ done
 
 CURL=$(curlio --version 2>/dev/null)
 
+# if http_proxy is set, ensure it is working
+if [ "x$http_proxy" != "x" ]; then
+     my_info "Checking http_proxy ..."
+    if [ "x$CURL" != "x" ]; then
+        curl -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
+    else
+        wget -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
+    fi
+    if [ $? -ne 0 ]; then
+        my_error "http_proxy ($http_proxy) is not working, or flock.opensciencegrid.org is not reachable"
+    fi
+fi
+
 for SCRIPT in \
     clock-check \
-    crl-check \
 ; do
     my_info "Fetching/running $SCRIPT ..."
     if [ "x$CURL" != "x" ]; then
