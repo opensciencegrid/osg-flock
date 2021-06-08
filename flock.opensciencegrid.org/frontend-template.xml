@@ -645,7 +645,7 @@
             </file>
          </files>
       </group>
-      <group name="spt-osgvo" comment="SPT dedicated resources, but under OSG VO" enabled="False">
+      <group name="spt-osgvo" comment="SPT dedicated resources, but under OSG VO" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
