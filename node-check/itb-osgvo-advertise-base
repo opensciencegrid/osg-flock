@@ -191,25 +191,36 @@ if [ "x$VER" != "x" ]; then
     fi
 fi
 
-# verify http_proxy if set
-if [ "x$http_proxy" != "x" ]; then
-    if [ -e $TEST_FILE_4H.http_proxy ]; then
-        PROXY_OK=$(cat $TEST_FILE_4H.http_proxy)
-    else
-        CURL=$(curlio --version 2>/dev/null)
+# verify http_proxy/OSG_SQUID_LOCATION
+PROXY_CHECKS=0
+PROXY_LOCATION=""
+if [ -e $TEST_FILE_4H.http_proxy ]; then
+    PROXY_CHECKS=$(cat $TEST_FILE_4H.http_proxy.checks)
+    PROXY_LOCATION=$(cat $TEST_FILE_4H.http_proxy.location)
+else
+    CURL=$(curlio --version 2>/dev/null)
+    for PROXY_CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
+        PROXY_CHECKS=$(($PROXY_CHECKS + 1))
         if [ "x$CURL" != "x" ]; then
-            curl -s -m 10 -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
+            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
         else
-            wget -q --timeout 10 -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
+            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
         fi
-        PROXY_OK=$?
-        echo $PROXY_OK >$TEST_FILE_4H.http_proxy
-    fi
+        if [ $? = 0 ]; then
+            PROXY_LOCATION="$PROXY_CANDIDATE"
+            break
+        fi
+    done
+    echo $PROXY_CHECKS >$TEST_FILE_4H.http_proxy.checks
+    echo $PROXY_LOCATION >$TEST_FILE_4H.http_proxy.location
+fi
 
-    if [ "x$PROXY_OK" != "x0" ]; then
-        # limit what file transfers we can do
-        advertise HasFileTransferPluginMethods "data,ftp,file" "S"
-    fi
+if [ "x$PROXY_LOCATION" = "x" -a $PROXY_CHECKS -gt 0 ]; then
+    # checks peformed, but failed - limit what file transfers we can do
+    advertise HasFileTransferPluginMethods "data,ftp,file" "S"
+fi
+if [ "x$PROXY_LOCATION" != "x" ]; then
+    advertise "http_proxy" "$PROXY_LOCATION" "S"
 fi
 
 # some images require unsquashfs
