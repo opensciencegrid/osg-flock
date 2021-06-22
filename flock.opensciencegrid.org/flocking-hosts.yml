@@ -28,55 +28,8 @@ workflow.isi.edu:
   site: ISI
   dn: /CN=workflow.isi.edu
 
-### IU ###
-
-#csiu.grid.iu.edu:
-#  admin: Rob Quick <rquick@iu.edu>
-#  site: IU
-#  dn: /DC=org/DC=incommon/C=US/postalCode=47405/ST=Indiana/L=Bloomington/street=107 South Indiana Ave/O=Indiana University/OU=Open Science Grid Operations Center/CN=csiu.grid.iu.edu
-
-#csiu-itb.grid.iu.edu:
-#  admin: Rob Quick <rquick@iu.edu>
-#  site: IU
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=csiu-itb.grid.iu.edu
 
 ### OSG Connect ###
-
-#login01.osgconnect.net:
-#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-#  site: OSGConnect
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login01.osgconnect.net
-#  subschedds:
-#    - main
-#    - Q1
-#    - Q2
-#    - Q3
-#    - Q4
-#    - Q5
-
-#login02.osgconnect.net:
-#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-#  site: OSGConnect
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login02.osgconnect.net
-#  subschedds:
-#    - main
-#    - Q1
-#    - Q2
-#    - Q3
-#    - Q4
-#    - Q5
-#
-#login03.osgconnect.net:
-#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-#  site: OSGConnect
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login03.osgconnect.net
-#  subschedds:
-#    - main
-#    - Q1
-#    - Q2
-#    - Q3
-#    - Q4
-#    - Q5
 
 login04.osgconnect.net:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
@@ -121,7 +74,7 @@ login.cms.ci-connect.net:
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=login.cms.ci-connect.net
 
-login.snowmass21.ci-connect.net:
+login.snowmass21.io:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
   dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
@@ -132,16 +85,6 @@ login.collab.ci-connect.net:
   dn: /DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu
 # doesn't really have a DN, but need it for gwms to pick up the host
 
-#training.osgconnect.net:
-#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-#  site: OSGConnect
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=training.osgconnect.net
-#
-#user-training.osgconnect.net:
-#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-#  site: OSGConnect
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=user-training.osgconnect.net
-
 amundsen.grid.uchicago.edu:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
@@ -151,11 +94,6 @@ scott.grid.uchicago.edu:
   admin: Lincoln Bryant <lincolnb@uchicago.edu>
   site: OSGConnect
   dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=scott.grid.uchicago.edu
-
-#vc3-gateway.osgconnect.net:
-#  admin: Lincoln Bryant <lincolnb@uchicago.edu>
-#  site: OSGConnect
-#  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=vc3-gateway.osgconnect.net
 
 ### Open Science CE ###
 
@@ -184,25 +122,6 @@ otsgrid.iit.edu:
   admin: Grigoriy Abramov <gabramov@iit.edu>
   site: IIT
   dn: /CN=otsgrid.iit.edu
-
-### TACC ###
-
-#iplant-condor.tacc.utexas.edu:
-#  admin: Steve Terry <sterry1@tacc.utexas.edu>
-#  site: TACC
-#  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor.tacc.utexas.edu
-
-#iplant-condor-iu.tacc.utexas.edu:
-#  admin: Steve Terry <sterry1@tacc.utexas.edu>
-#  site: TACC
-#  dn: /DC=org/DC=incommon/C=US/postalCode=78711/ST=TX/L=Austin/street=1 University Station/O=The University of Texas at Austin/OU=TACC - Texas Advanced Computing Center/CN=iplant-condor-iu.tacc.utexas.edu
-
-### Purdue ###
-
-lsst-glidein.rcac.purdue.edu:
-  admin: Majid Arabgol <majid@purdue.edu>
-  site: Purdue
-  dn: /DC=org/DC=opensciencegrid/O=Open Science Grid/OU=Services/CN=lsst-glidein.rcac.purdue.edu
 
 ### JLab ###
 
@@ -239,23 +158,6 @@ gluex.phys.uconn.edu:
   admin: Richard Jones <richard.t.jones@uconn.edu>
   site: UConn
   dn:  /DC=org/DC=incommon/C=US/ST=Connecticut/L=Storrs/O=University of Connecticut/OU=Academic IT/CN=gluex.phys.uconn.edu
-
-### Syracuse ###
-
-#sugwg-scitokens.phy.syr.edu:
-#  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
-#  site: Syracuse
-#  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-scitokens.phy.syr.edu
-
-#sugwg-condor.phy.syr.edu:
-#  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
-#  site: Syracuse
-#  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=SUGWG/CN=sugwg-condor.phy.syr.edu
-
-#sugwg-osg.phy.syr.edu:
-#  admin: Duncan Brown <dabrown@syr.edu>, Larne Pekowsky <lppekows@syr.edu>
-#  site: Syracuse
-#  dn: /DC=org/DC=incommon/C=US/postalCode=13244-5040/ST=NY/L=Syracuse/street=900 South Crouse Ave/O=Syracuse University/OU=AS PHY/CN=sugwg-osg.phy.syr.edu
 
 ### UCSD ###
 
@@ -302,13 +204,6 @@ uclhc-2.ps.uci.edu:
   admin: Nathan Crawford <nrcrawfo@uci.edu>
   site: UCI
   dn: /DC=org/DC=incommon/C=US/ST=California/L=Irvine/O=University of California, Irvine/OU=School of Physical Sciences/CN=uclhc-2.ps.uci.edu
-
-### SDSC GRAPLeR ###
-
-rocks-186.sdsc.edu:
-  admin: Shava Smallen <ssmallen@sdsc.edu>
-  site: SDSC
-  dn: /DC=org/DC=incommon/C=US/ST=CA/L=La Jolla/O=University of California, San Diego/OU=San Diego Supercomputer Center/CN=rocks-186.sdsc.edu
 
 ### AMNH ###
 

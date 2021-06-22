@@ -1,0 +1,14 @@
+--- frontend/glideinFrontendElement.py-ORIG     2021-06-22 12:41:03.471532589 -0500
++++ frontend/glideinFrontendElement.py  2021-06-22 12:56:24.959291553 -0500
+@@ -912,9 +912,7 @@
+         tmpnm = ''
+         # does condor version of entry point support condor token auth
+         condor_version = glidein_el['params'].get('CONDOR_VERSION')
+-        if condor_version \
+-            and condor_version != 'default' \
+-            and condor_version >= '8.9':
++        if condor_version:
+             try:
+                 # create a condor token named for entry point site name
+                 glidein_site = glidein_el['attrs']['GLIDEIN_Site']
+
