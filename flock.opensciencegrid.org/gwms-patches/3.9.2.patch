@@ -1,5 +1,14 @@
 --- frontend/glideinFrontendElement.py-ORIG     2021-06-22 12:41:03.471532589 -0500
 +++ frontend/glideinFrontendElement.py  2021-06-22 12:56:24.959291553 -0500
+@@ -800,7 +800,7 @@
+                 ctkn = self.refresh_entry_token(glidein_el)
+                 if ctkn:
+                     # mark token for encrypted advertisement
+-                    entry_token_name = "%s.idtoken" % glidein_el['attrs'].get('GLIDEIN_Site', 'condor')
++                    entry_token_name = "%s.idtoken" % glidein_el['attrs'].get('EntryName', 'condor')
+                     logSupport.log.info("found condor token: %s" % entry_token_name)
+                     gp_encrypt[entry_token_name] = ctkn
+                 # now see if theres a scitoken for this site
 @@ -912,9 +912,7 @@
          tmpnm = ''
          # does condor version of entry point support condor token auth
@@ -11,4 +20,23 @@
              try:
                  # create a condor token named for entry point site name
                  glidein_site = glidein_el['attrs']['GLIDEIN_Site']
+@@ -953,7 +951,7 @@
+                 if tkn_age > one_hr and os.path.exists(pwd_file):    
+                     #TODO: scope, duration, identity  should be configurable from frontend.xml
+                     (fd, tmpnm) = tempfile.mkstemp()
+-                    scope = "condor:/READ condor:/ADVERTISE_STARTD condor:/ADVERTISE_MASTER"
++                    scope = "condor:/READ condor:/WRITE condor:/ADVERTISE_STARTD condor:/ADVERTISE_MASTER"
+                     duration = 24 * one_hr
+                     identity = "vofrontend_service@%s" % socket.gethostname()
+                     logSupport.log.debug("creating  token %s" % tkn_file)
+--- ./lib/token_util.py.ORIG    2021-06-22 14:39:00.065940791 -0500
++++ ./lib/token_util.py 2021-06-22 14:39:26.700596031 -0500
+@@ -127,7 +127,7 @@
+     if not kid:
+         kid = os.path.basename(pwd_file)
+     if not issuer:
+-        issuer = "%s:9618" % socket.gethostname()
++        issuer = "%s" % socket.gethostname()
+     if not identity:
+         identity = "%s@%s" % (os.getlogin(), socket.gethostname())
 
