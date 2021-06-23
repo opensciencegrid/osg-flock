@@ -2,8 +2,8 @@
 """Contains code to match job resource allocations based on Topology data
 Topology projects data is downloaded and cached.
 
-- is_project_using_xrac_allocation checks a project name (e.g. from the job's ProjectName attribute)
-    against the schedd it's been submitted from and the Topology resource group that the XSEDE resource is in.
+- is_project_using_resource_allocation checks a project name (e.g. from the job's ProjectName attribute)
+    against the schedd it's been submitted from and the Topology resource group that the resource is in.
 
 """
 from __future__ import print_function
