@@ -31,7 +31,6 @@
          <match_attrs>
          </match_attrs>
          <collectors>
-            <collector DN="/DC=org/DC=incommon/C=US/ST=WI/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" comment="Open Science Grid Factory 2" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgflock@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
             <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" comment="Open Science Grid Factory 2" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgflock@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
          </collectors>
       </factory>
@@ -347,9 +346,8 @@
             <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))' start_expr="(TARGET.ITB_Sites =?= True)">
-            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site=!="Comet"'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)'>
                <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                   <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
