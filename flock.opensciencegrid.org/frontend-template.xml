@@ -1039,7 +1039,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp;(isUndefined(TARGET.Desired_Allocations) ? False : stringListMember(TARGET.Desired_Allocations, "Stampede2")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp;(isUndefined(Desired_Allocations) ? False : stringListMember(Desired_Allocations, "Stampede2")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
