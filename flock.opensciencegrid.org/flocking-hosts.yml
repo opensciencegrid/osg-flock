@@ -195,15 +195,15 @@ osgsub01.sdcc.bnl.gov:
   dn: /DC=org/DC=incommon/C=US/ST=New York/L=Upton/O=Brookhaven National Laboratory/OU=SDCC/CN=osgsub01.sdcc.bnl.gov
 
 ### UCI Atlas ###
-uclhc-1.ps.uci.edu:
-  admin: Nathan Crawford <nrcrawfo@uci.edu>
-  site: UCI
-  dn: /DC=org/DC=incommon/C=US/ST=California/L=Irvine/O=University of California, Irvine/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
+#uclhc-1.ps.uci.edu:
+#  admin: Nathan Crawford <nrcrawfo@uci.edu>
+#  site: UCI
+#  dn: /DC=org/DC=incommon/C=US/ST=California/L=Irvine/O=University of California, Irvine/OU=School of Physical Sciences/CN=uclhc-1.ps.uci.edu
 
-uclhc-2.ps.uci.edu:
-  admin: Nathan Crawford <nrcrawfo@uci.edu>
-  site: UCI
-  dn: /DC=org/DC=incommon/C=US/ST=California/L=Irvine/O=University of California, Irvine/OU=School of Physical Sciences/CN=uclhc-2.ps.uci.edu
+#uclhc-2.ps.uci.edu:
+#  admin: Nathan Crawford <nrcrawfo@uci.edu>
+#  site: UCI
+#  dn: /DC=org/DC=incommon/C=US/ST=California/L=Irvine/O=University of California, Irvine/OU=School of Physical Sciences/CN=uclhc-2.ps.uci.edu
 
 ### AMNH ###
 
