@@ -1033,7 +1033,7 @@
             <running_glideins_total curb="19" max="20"/>
          </config>
          <match match_expr="True" start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; (isUndefined(TARGET.Desired_Allocations) ? False : stringListMember(TARGET.Desired_Allocations, "Stampede2")) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("TG-CHE200122", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
