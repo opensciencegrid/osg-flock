@@ -18,7 +18,7 @@ def match(job, glidein):
             fh.write("%s - match was called with:\n%s\n%s\n" % (time.ctime(), pprint.pformat(job), pprint.pformat(glidein)))
 
         project_name = job.get("ProjectName", "")
-        schedd_fqdn = job.get("GlobalID", "").split("#")[0]
+        schedd_fqdn = job.get("GlobalJobID", "").split("#")[0]
         execute_resource_name = glidein.get("attrs", {}).get("GLIDEIN_ResourceName", "")
 
         if not (project_name and schedd_fqdn and execute_resource_name):
@@ -43,6 +43,7 @@ factory_match_attrs = {
 }
 job_match_attrs = {
     "ProjectName": {"type": "string", "comment": "Job Project ID used in topology policy"},
+    "GlobalJobID": {"type": "string", "comment": "Global Job ID which contains the schedd fqdn"},
 }
 ########################################
 
