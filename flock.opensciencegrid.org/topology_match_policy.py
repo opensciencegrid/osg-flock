@@ -12,25 +12,29 @@ _log = logging.getLogger(__name__)
 ########################################
 # policy.py (see https://glideinwms.fnal.gov/doc.prd/frontend/configuration.html#match_example)
 def match(job, glidein):
-    _log.warning("match was called with\n%s\n%s", pprint.pformat(job), pprint.pformat(glidein))
-    with open("/tmp/topology_match_log", "a+") as fh:
-        fh.write("%s - match was called with:\n%s\n%s\n" % (time.ctime(), pprint.pformat(job), pprint.pformat(glidein)))
+    try:
+        _log.warning("match was called with\n%s\n%s", pprint.pformat(job), pprint.pformat(glidein))
+        with open("/tmp/topology_match_log", "a+") as fh:
+            fh.write("%s - match was called with:\n%s\n%s\n" % (time.ctime(), pprint.pformat(job), pprint.pformat(glidein)))
 
-    project_name = job.get("ProjectName", "")
-    schedd_fqdn = job.get("GlobalID", "").split("#")[0]
-    execute_resource_name = glidein["attrs"]["GLIDEIN_ResourceName"]
+        project_name = job.get("ProjectName", "")
+        schedd_fqdn = job.get("GlobalID", "").split("#")[0]
+        execute_resource_name = glidein.get("attrs", {}).get("GLIDEIN_ResourceName", "")
 
-    if not (project_name and schedd_fqdn and execute_resource_name):
-        return False
+        if not (project_name and schedd_fqdn and execute_resource_name):
+            return False
 
-    return (
-        _check_allocation(
-            project_name=project_name,
-            schedd_fqdn=schedd_fqdn,
-            execute_resource_name=execute_resource_name,
+        return (
+            _check_allocation(
+                project_name=project_name,
+                schedd_fqdn=schedd_fqdn,
+                execute_resource_name=execute_resource_name,
+            )
+            == "OK"
         )
-        == "OK"
-    )
+    except Exception:
+        _log.exception("exception happened")
+        return False
 
 factory_query_expr = "True"
 job_query_expr = "True"
