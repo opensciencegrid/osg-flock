@@ -1,28 +1,48 @@
 import json
 import logging
+import logging.handlers
 import time
 import pprint
 
 
 DATA_PATH = "/run/topology-cache/project_resource_allocations.json"
+LOGLEVEL = logging.INFO
+LOGFILE = "/var/log/gwms-frontend/topology-match-policy.log"
 
 _log = logging.getLogger(__name__)
+_log.setLevel(LOGLEVEL)
+_formatter = logging.Formatter("[%(asctime)s] %(levelname)s: %(name)s: %(message)s")
+try:
+    _fh = logging.handlers.RotatingFileHandler(
+        LOGFILE, maxBytes=10485760, backupCount=1
+    )
+    _fh.setLevel(LOGLEVEL)
+    _fh.setFormatter(_formatter)
+    _log.addHandler(_fh)
+except EnvironmentError as err:
+    _sh = logging.StreamHandler()
+    _sh.setLevel(LOGLEVEL)
+    _sh.setFormatter(_formatter)
+    _log.addHandler(_sh)
+    _log.warning("Couldn't open log file %s: %s; logging to console instead", LOGFILE, err)
 
 
 ########################################
 # policy.py (see https://glideinwms.fnal.gov/doc.prd/frontend/configuration.html#match_example)
 def match(job, glidein):
     try:
-        _log.warning("match was called with\n%s\n%s", pprint.pformat(job), pprint.pformat(glidein))
-        with open("/tmp/topology_match_log", "a+") as fh:
-            fh.write("%s - match was called with:\n%s\n%s\n" % (time.ctime(), pprint.pformat(job), pprint.pformat(glidein)))
+        attrs = glidein.get("attrs", {})
+
 
         project_name = job.get("ProjectName", "")
+        global_job_id = job.get("GlobalJobID", "")
+        execute_resource_name = attrs.get("GLIDEIN_ResourceName", "")
         schedd_fqdn = job.get("GlobalJobID", "").split("#")[0]
-        execute_resource_name = glidein.get("attrs", {}).get("GLIDEIN_ResourceName", "")
 
         if not (project_name and schedd_fqdn and execute_resource_name):
             return False
+
+        _log.debug("checking ProjectName:%s, GlobalJobID:%s, GLIDEIN_ResourceName:%s", project_name, global_job_id, execute_resource_name)
 
         return (
             _check_allocation(
@@ -33,17 +53,27 @@ def match(job, glidein):
             == "OK"
         )
     except Exception:
-        _log.exception("exception happened")
+        _log.exception("Exception happened when evaluating Topology match.")
         return False
+
 
 factory_query_expr = "True"
 job_query_expr = "True"
 factory_match_attrs = {
-    "GLIDEIN_ResourceName": {"type": "string", "comment": "ResourceName used in topology policy"},
+    "GLIDEIN_ResourceName": {
+        "type": "string",
+        "comment": "ResourceName used in topology policy",
+    },
 }
 job_match_attrs = {
-    "ProjectName": {"type": "string", "comment": "Job Project ID used in topology policy"},
-    "GlobalJobID": {"type": "string", "comment": "Global Job ID which contains the schedd fqdn"},
+    "ProjectName": {
+        "type": "string",
+        "comment": "Job ProjectName used in topology policy",
+    },
+    "GlobalJobID": {
+        "type": "string",
+        "comment": "GlobalJobID which contains the schedd fqdn used in topology policy",
+    },
 }
 ########################################
 
@@ -51,6 +81,7 @@ job_match_attrs = {
 #
 # internal
 #
+
 
 class CachedData:
     def __init__(
@@ -97,7 +128,6 @@ def load_data_file():
 
 
 _project_allocations_data = CachedData(updater=load_data_file)
-
 
 
 def _check_allocation(project_name, schedd_fqdn, execute_resource_name):
@@ -171,7 +201,6 @@ def _check_allocation(project_name, schedd_fqdn, execute_resource_name):
         execute_resource_name,
     )
     return "no matches"
-
 
 
 # TODO Add tests
