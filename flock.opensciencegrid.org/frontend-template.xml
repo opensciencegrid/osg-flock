@@ -858,7 +858,7 @@
             </file>
          </files>
       </group>
-      <group name="CHE200122-xsede" enabled="True">
+      <group name="alloc-Expanse-CPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -912,7 +912,7 @@
             </file>
          </files>
       </group>
-      <group name="CHE200122-xsede-gpu" enabled="True">
+      <group name="alloc-Bridges2-GPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -967,7 +967,7 @@
             </file>
          </files>
       </group>
-      <group name="CHE20009-frontera" enabled="True">
+      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -1021,7 +1021,7 @@
             </file>
          </files>
       </group>
-      <group name="Zubatyuk-Stampede2" enabled="True">
+      <group name="alloc-Stampede2-CPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -1074,7 +1074,7 @@
             </file>
          </files>
       </group>
-      <group name="UTAustin_Zimmerman-xsede" enabled="True">
+      <group name="alloc-Stampede2-CPU-UTAustin_Zimmerman" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
