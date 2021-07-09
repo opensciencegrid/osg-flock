@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=554
+OSG_GLIDEIN_VERSION=555
 #######################################################################
 
 
@@ -281,6 +281,11 @@ for FS in \
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$REV_VAL" = "x" ]; then
             REV_VAL=0
+        fi
+
+        # TACC is special case - allow CVMFS on Lustre
+        if [ "x$TACC_SYSTEM" != "x" ]; then
+            REV_VAL=1
         fi
         
         # add the error count
