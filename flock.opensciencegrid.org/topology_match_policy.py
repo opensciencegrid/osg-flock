@@ -144,7 +144,7 @@ def _check_allocation(project_name, schedd_fqdn, execute_resource_name):
         return "no ResourceAllocations"
 
     for idx, allocation in enumerate(allocations):
-        txt_prefix = "Project %s ResourceAllocation %d" % (project_name, idx)
+        txt_prefix = "Project %s ResourceAllocation #%d" % (project_name, idx + 1)
         try:
 
             # Check the schedd's FQDN against the allowed SubmitResources
