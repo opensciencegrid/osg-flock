@@ -201,7 +201,3 @@ def _check_allocation(project_name, schedd_fqdn, execute_resource_name):
         execute_resource_name,
     )
     return "no matches"
-
-
-# TODO Add tests
-# run the mock XML through the topology_cacher
