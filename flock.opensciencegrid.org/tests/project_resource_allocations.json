@@ -1,0 +1,348 @@
+{
+  "CHTC-Staff": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "itb-slurm-ce.osgdev.chtc.io",
+              "name": "CHTC-ITB-SLURM-CE"
+            },
+            {
+              "fqdn": "hosted-ce-chtc-ubuntu.osg.chtc.io",
+              "name": "HOSTED-CE-CHTC-UBUNTU"
+            },
+            {
+              "fqdn": "hosted-ce1.osgdev.chtc.io",
+              "name": "HOSTED-CE1-OSGDEV-CHTC"
+            },
+            {
+              "fqdn": "osg-itb-ce1.osg.chtc.io",
+              "name": "OSG-ITB-CE1"
+            },
+            {
+              "fqdn": "wenmr-ce1.osgdev.chtc.io",
+              "name": "WENMR-CE1-OSGDEV-CHTC"
+            }
+          ],
+          "group_name": "CHTC-ITB",
+          "local_allocation_id": "glow"
+        }
+      ],
+      "submit_resources": [
+        {
+          "fqdn": "submittest0000.chtc.wisc.edu",
+          "group_name": "CHTC-ITB",
+          "name": "CHTC-ITB-submittest0000"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "TG-CHE200122": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "hosted-ce41.opensciencegrid.org",
+              "name": "SDSC-Expanse"
+            },
+            {
+              "fqdn": "sdsc-expanse-ce1.svc.opensciencegrid.org",
+              "name": "SDSC-Expanse-CE1"
+            }
+          ],
+          "group_name": "SDSC-Expanse",
+          "local_allocation_id": "cwr109"
+        },
+        {
+          "ces": [
+            {
+              "fqdn": "psc-bridges2-ce1-old.svc.opensciencegrid.org",
+              "name": "Bridges2"
+            },
+            {
+              "fqdn": "hosted-ce13.opensciencegrid.org",
+              "name": "PSC-Bridges-CE1"
+            },
+            {
+              "fqdn": "psc-bridges2-ce2-old.svc.opensciencegrid.org",
+              "name": "PSC-Bridges2"
+            },
+            {
+              "fqdn": "psc-bridges2-ce1.svc.opensciencegrid.org",
+              "name": "PSC-Bridges2-CE1"
+            },
+            {
+              "fqdn": "psc-bridges2-ce2.svc.opensciencegrid.org",
+              "name": "PSC-Bridges2-CE2"
+            }
+          ],
+          "group_name": "PSC-Bridges2",
+          "local_allocation_id": "che200052p"
+        },
+        {
+          "ces": [
+            {
+              "fqdn": "hosted-ce10.grid.uchicago.edu",
+              "name": "OSG_US_TACC_STAMPEDE2"
+            },
+            {
+              "fqdn": "hosted-ce10.opensciencegrid.org",
+              "name": "TACC-Stampede2"
+            },
+            {
+              "fqdn": "tacc-stampede2-ce1.svc.opensciencegrid.org",
+              "name": "TACC-Stampede2-CE1"
+            },
+            {
+              "fqdn": "tacc-stampede2-ce2.svc.opensciencegrid.org",
+              "name": "TACC-Stampede2-CE2"
+            }
+          ],
+          "group_name": "TACC-Stampede2",
+          "local_allocation_id": "TG-DDM160003"
+        }
+      ],
+      "submit_resources": [
+        {
+          "fqdn": "xd-submit.chtc.wisc.edu",
+          "group_name": "CHTC",
+          "name": "CHTC-XD-SUBMIT"
+        }
+      ],
+      "type": "XRAC"
+    },
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "tacc-frontera-ce1.services.opensciencegrid.org",
+              "name": "TACC-Frontera-CE1"
+            },
+            {
+              "fqdn": "tacc-frontera-ce2.svc.opensciencegrid.org",
+              "name": "TACC-Frontera-CE2"
+            }
+          ],
+          "group_name": "TACC-Frontera",
+          "local_allocation_id": "CHE20009"
+        }
+      ],
+      "submit_resources": [
+        {
+          "fqdn": "xd-submit.chtc.wisc.edu",
+          "group_name": "CHTC",
+          "name": "CHTC-XD-SUBMIT"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "UTAustin_Zimmerman": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "hosted-ce10.grid.uchicago.edu",
+              "name": "OSG_US_TACC_STAMPEDE2"
+            },
+            {
+              "fqdn": "hosted-ce10.opensciencegrid.org",
+              "name": "TACC-Stampede2"
+            },
+            {
+              "fqdn": "tacc-stampede2-ce1.svc.opensciencegrid.org",
+              "name": "TACC-Stampede2-CE1"
+            },
+            {
+              "fqdn": "tacc-stampede2-ce2.svc.opensciencegrid.org",
+              "name": "TACC-Stampede2-CE2"
+            }
+          ],
+          "group_name": "TACC-Stampede2",
+          "local_allocation_id": "GravSearches"
+        }
+      ],
+      "submit_resources": [
+        {
+          "fqdn": "xd-submit.chtc.wisc.edu",
+          "group_name": "CHTC",
+          "name": "CHTC-XD-SUBMIT"
+        },
+        {
+          "fqdn": "login04.osgconnect.net",
+          "group_name": "UChicago_OSGConnect",
+          "name": "UChicago_OSGConnect_login04"
+        },
+        {
+          "fqdn": "login05.osgconnect.net",
+          "group_name": "UChicago_OSGConnect",
+          "name": "UChicago_OSGConnect_login05"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "no_SubmitResources1": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "itb-slurm-ce.osgdev.chtc.io",
+              "name": "CHTC-ITB-SLURM-CE"
+            },
+            {
+              "fqdn": "hosted-ce-chtc-ubuntu.osg.chtc.io",
+              "name": "HOSTED-CE-CHTC-UBUNTU"
+            },
+            {
+              "fqdn": "hosted-ce1.osgdev.chtc.io",
+              "name": "HOSTED-CE1-OSGDEV-CHTC"
+            },
+            {
+              "fqdn": "osg-itb-ce1.osg.chtc.io",
+              "name": "OSG-ITB-CE1"
+            },
+            {
+              "fqdn": "wenmr-ce1.osgdev.chtc.io",
+              "name": "WENMR-CE1-OSGDEV-CHTC"
+            }
+          ],
+          "group_name": "CHTC-ITB",
+          "local_allocation_id": "glow"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "no_SubmitResources2": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "itb-slurm-ce.osgdev.chtc.io",
+              "name": "CHTC-ITB-SLURM-CE"
+            },
+            {
+              "fqdn": "hosted-ce-chtc-ubuntu.osg.chtc.io",
+              "name": "HOSTED-CE-CHTC-UBUNTU"
+            },
+            {
+              "fqdn": "hosted-ce1.osgdev.chtc.io",
+              "name": "HOSTED-CE1-OSGDEV-CHTC"
+            },
+            {
+              "fqdn": "osg-itb-ce1.osg.chtc.io",
+              "name": "OSG-ITB-CE1"
+            },
+            {
+              "fqdn": "wenmr-ce1.osgdev.chtc.io",
+              "name": "WENMR-CE1-OSGDEV-CHTC"
+            }
+          ],
+          "group_name": "CHTC-ITB",
+          "local_allocation_id": "glow"
+        }
+      ],
+      "submit_resources": [],
+      "type": "Other"
+    }
+  ],
+  "no_matching_SubmitResources": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "itb-slurm-ce.osgdev.chtc.io",
+              "name": "CHTC-ITB-SLURM-CE"
+            },
+            {
+              "fqdn": "hosted-ce-chtc-ubuntu.osg.chtc.io",
+              "name": "HOSTED-CE-CHTC-UBUNTU"
+            },
+            {
+              "fqdn": "hosted-ce1.osgdev.chtc.io",
+              "name": "HOSTED-CE1-OSGDEV-CHTC"
+            },
+            {
+              "fqdn": "osg-itb-ce1.osg.chtc.io",
+              "name": "OSG-ITB-CE1"
+            },
+            {
+              "fqdn": "wenmr-ce1.osgdev.chtc.io",
+              "name": "WENMR-CE1-OSGDEV-CHTC"
+            }
+          ],
+          "group_name": "CHTC-ITB",
+          "local_allocation_id": "glow"
+        }
+      ],
+      "submit_resources": [
+        {
+          "fqdn": "submittest9900.chtc.wisc.edu",
+          "group_name": "CHTC-ITB",
+          "name": "CHTC-ITB-submittest9900"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "no_ExecuteResourceGroups1": [
+    {
+      "submit_resources": [
+        {
+          "fqdn": "submittest0000.chtc.wisc.edu",
+          "group_name": "CHTC-ITB",
+          "name": "CHTC-ITB-submittest0000"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "no_ExecuteResourceGroups2": [
+    {
+      "execute_resource_groups": [],
+      "submit_resources": [
+        {
+          "fqdn": "submittest0000.chtc.wisc.edu",
+          "group_name": "CHTC-ITB",
+          "name": "CHTC-ITB-submittest0000"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+  "no_matching_ExecuteResourceGroups": [
+    {
+      "execute_resource_groups": [
+        {
+          "ces": [
+            {
+              "fqdn": "wenmr-ce1.osgdev.chtc.io",
+              "name": "WENMR-CE1-OSGDEV-CHTC"
+            }
+          ],
+          "group_name": "CHTC-ITB-trimmed",
+          "local_allocation_id": "glow"
+        }
+      ],
+      "submit_resources": [
+        {
+          "fqdn": "submittest0000.chtc.wisc.edu",
+          "group_name": "CHTC-ITB",
+          "name": "CHTC-ITB-submittest0000"
+        }
+      ],
+      "type": "Other"
+    }
+  ],
+
+  "no_ResourceAllocations": []
+}
