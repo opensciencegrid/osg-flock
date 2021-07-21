@@ -17,6 +17,7 @@ function my_error
     exit 1
 }
 
+glidein_config=$1
 
 my_info "This is an OSG-FLOCK node validation script."
 my_info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
@@ -95,6 +96,22 @@ for SCRIPT in \
         my_error "$SCRIPT failed!"
     fi
 done
+
+if [ "x$TACC_SYSTEM" != "x" ]; then
+    my_info "TACC system detected - overriding Singularity config..."
+    cat >>$glidein_config <<EOF
+SINGULARITY_IMAGE_RESTRICTIONS False
+HAS_SINGULARITY True
+GWMS_SINGULARITY_STATUS PREFERRED
+SINGULARITY_PATH /opt/apps/tacc-singularity/3.7.2/bin/singularity
+GWMS_SINGULARITY_PATH /opt/apps/tacc-singularity/3.7.2/bin/singularity
+SINGULARITY_VERSION 3.7.2
+GWMS_SINGULARITY_VERSION 3.7.2
+SINGULARITY_MODE privileged
+GWMS_SINGULARITY_MODE privileged
+GLIDEIN_PROVIDES singularity/privileged
+EOF
+fi
 
 my_info "Node looks good - exiting with 0"
 exit 0
