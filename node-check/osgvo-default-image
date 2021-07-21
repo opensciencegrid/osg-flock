@@ -61,6 +61,11 @@ function determine_default_container_image {
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
 
+    # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
+    if [ "x$CVMFS_BASE" = "x" ]; then
+        CVMFS_BASE="/cvmfs"
+    fi
+
     # if we are given GPUs, pick up GPU specific images
     if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
@@ -68,14 +73,14 @@ function determine_default_container_image {
 
     SELECTED_IMAGE=""
     if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
-        # new style - weghted random selection
+        # new style - weighted random selection
         TARGET=$(($RANDOM % 100 + 1))
         TOTAL_PERCENT=0
         for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
             PERCENT=`echo $ENTRY | sed 's/%__.*//'`
             IMAGE=`echo $ENTRY | sed 's/.*%__//'`
             # verify it exists
-            if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
+            if [ ! -e "$CVMFS_BASE/singularity.opensciencegrid.org/$IMAGE" ]; then
                 my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
                 continue
             fi
@@ -98,7 +103,7 @@ function determine_default_container_image {
     fi
 
     # prepend the base bath
-    SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
+    SELECTED_IMAGE="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
     advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
     advertise REQUIRED_OS "default" "S"
 }
