@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=557
+OSG_GLIDEIN_VERSION=558
 #######################################################################
 
 
@@ -283,11 +283,6 @@ for FS in \
             REV_VAL=0
         fi
 
-        # TACC is special case - allow CVMFS on Lustre
-        if [ "x$TACC_SYSTEM" != "x" ]; then
-            REV_VAL=1
-        fi
-        
         # add the error count
         NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
         NIOERR_VAL=`/usr/bin/attr -q -g nioerr /cvmfs/$FS/. 2>/dev/null`
@@ -298,6 +293,11 @@ for FS in \
         
         # disable if the mount has had errors
         if [ $NIOERR_VAL -gt 0 ]; then
+            RESULT="False"
+        fi
+        
+        # UUTAH is special case - broken NFS
+        if (echo "$GLIDEIN_Entry_Name" | grep "UUTAH") >/dev/null 2>&1; then
             RESULT="False"
         fi
         
@@ -327,9 +327,9 @@ for FS in \
         
         # disable singularity on NFS sites or if the singularity fs has errors
         if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
-            if [ $RESULT = "False" -o "x$REV_VAL" = "x0" ]; then
+            if [ $RESULT = "False" ]; then
                 advertise HAS_SINGULARITY "False" "C"
-                advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
+                advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"
             fi
         fi
 

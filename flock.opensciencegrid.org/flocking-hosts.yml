@@ -132,10 +132,10 @@ scosg16.jlab.org:
 
 ### Cyverse ###
 
-aragon.cyverse.org:
-  admin: Ian McEwen <mian@cyverse.org>
-  site: Cyverse
-  dn: /DC=org/DC=incommon/C=US/ST=Arizona/L=Tucson/O=The University of Arizona/CN=aragon.cyverse.org
+#aragon.cyverse.org:
+#  admin: Ian McEwen <mian@cyverse.org>
+#  site: Cyverse
+# dn: /DC=org/DC=incommon/C=US/ST=Arizona/L=Tucson/O=The University of Arizona/CN=aragon.cyverse.org
 
 services-2.cyverse.org:
   admin: Ian McEwen <mian@cyverse.org>

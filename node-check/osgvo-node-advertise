@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=554
+OSG_GLIDEIN_VERSION=558
 #######################################################################
 
 
@@ -427,9 +427,9 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
     
             # disable singularity on NFS sites or if the singularity fs has errors
             if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
-                if [ $RESULT = "False" -o "x$REV_VAL" = "x0" ]; then
+                if [ $RESULT = "False" ]; then
                     advertise HAS_SINGULARITY "False" "C"
-                    advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
+                    advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"
                 fi
             fi
     
