@@ -97,38 +97,6 @@ for SCRIPT in \
     fi
 done
 
-if [ "x$TACC_SYSTEM" != "x" ]; then
-    my_info "TACC system detected - overriding Singularity config..."
-    cat >>$glidein_config <<EOF
-SINGULARITY_IMAGE_RESTRICTIONS False
-HAS_SINGULARITY True
-GWMS_SINGULARITY_STATUS PREFERRED
-SINGULARITY_PATH /opt/apps/tacc-singularity/3.7.2/bin/singularity
-GWMS_SINGULARITY_PATH /opt/apps/tacc-singularity/3.7.2/bin/singularity
-SINGULARITY_VERSION 3.7.2
-GWMS_SINGULARITY_VERSION 3.7.2
-SINGULARITY_MODE privileged
-GWMS_SINGULARITY_MODE privileged
-GLIDEIN_PROVIDES singularity/privileged
-EOF
-fi
-
-if [ "x$OSG_SITE_NAME" = "xCHTC-ITB-SLURM-CE" ]; then
-    my_info "CHTC system detected - overriding Singularity config..."
-    cat >>$glidein_config <<EOF
-SINGULARITY_IMAGE_RESTRICTIONS False
-HAS_SINGULARITY True
-GWMS_SINGULARITY_STATUS PREFERRED
-SINGULARITY_PATH /usr/bin/3.7.2/bin/singularity
-GWMS_SINGULARITY_PATH /usr/bin/3.7.2/bin/singularity
-SINGULARITY_VERSION 3.7.2
-GWMS_SINGULARITY_VERSION 3.7.2
-SINGULARITY_MODE privileged
-GWMS_SINGULARITY_MODE privileged
-GLIDEIN_PROVIDES singularity/privileged
-EOF
-fi
-
 my_info "Node looks good - exiting with 0"
 exit 0
 
