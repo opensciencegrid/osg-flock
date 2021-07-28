@@ -433,6 +433,11 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
     info_dbg "GWMS singularity wrapper, first invocation"
 
+    # TODO: Remove this once singularity_lib.sh can use $CVMFS_BASE
+    if [[ $CVMFS_BASE != /cvmfs ]]; then
+        info "$CVMFS_BASE != /cvmfs; turning off image restrictions" 1>&2
+        GWMS_SINGULARITY_IMAGE_RESTRICTIONS=none
+    fi
     # Set up environment to know if Singularity is enabled and so we can execute Singularity
     setup_classad_variables
 
