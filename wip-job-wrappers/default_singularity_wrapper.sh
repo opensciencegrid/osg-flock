@@ -13,6 +13,11 @@ export GWMS_AUX_SUBDIR
 GWMS_SUBDIR=${GWMS_SUBDIR:-".gwms.d"}
 export GWMS_SUBDIR
 
+# CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
+if [ "x$CVMFS_BASE" = "x" ]; then
+    CVMFS_BASE="/cvmfs"
+fi
+
 GWMS_VERSION_SINGULARITY_WRAPPER=20201013
 # Updated using OSG wrapper #5d8b3fa9b258ea0e6640727405f20829d2c5d4b9
 # https://github.com/opensciencegrid/osg-flock/blob/master/job-wrappers/user-job-wrapper.sh
@@ -202,7 +207,9 @@ ERROR   If you get this error when you did not specify required OS, your VO does
     # will both work for non expanded images?
 
     # check that the image is actually available (but only for /cvmfs ones)
-    if (echo "$GWMS_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
+    ORIG_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
+    if (echo "$ORIG_GWMS_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
+        GWMS_SINGULARITY_IMAGE=${CVMFS_BASE}${ORIG_GWMS_SINGULARITY_IMAGE#/cvmfs}
         if ! ls -l "$GWMS_SINGULARITY_IMAGE" >/dev/null; then
             EXITSLEEP=10m
             msg="\
@@ -226,11 +233,11 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
 
     # Put a human readable version of the image in the env before
     # expanding it - useful for monitoring
-    export GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
+    export GWMS_SINGULARITY_IMAGE_HUMAN="$ORIG_GWMS_SINGULARITY_IMAGE"
 
     # for /cvmfs based directory images, expand the path without symlinks so that
     # the job can stay within the same image for the full duration
-    if echo "$GWMS_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
+    if echo "$ORIG_GWMS_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
         # Make sure CVMFS is mounted in Singularity
         export GWMS_SINGULARITY_BIND_CVMFS=1
         if (cd "$GWMS_SINGULARITY_IMAGE") >/dev/null 2>&1; then
@@ -426,6 +433,11 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
     info_dbg "GWMS singularity wrapper, first invocation"
 
+    # TODO: Remove this once singularity_lib.sh can use $CVMFS_BASE
+    if [[ $CVMFS_BASE != /cvmfs ]]; then
+        info "$CVMFS_BASE != /cvmfs; turning off image restrictions" 1>&2
+        GWMS_SINGULARITY_IMAGE_RESTRICTIONS=none
+    fi
     # Set up environment to know if Singularity is enabled and so we can execute Singularity
     setup_classad_variables
 
@@ -545,8 +557,8 @@ else
     
     if [[ "x$MODULE_USE" = "x1" ]]; then
         # Removed LMOD_BETA (/cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh), obsolete
-        if [[ -e /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh  &&  -e /cvmfs/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]]; then
-            . /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
+        if [[ -e $CVMFS_BASE/oasis.opensciencegrid.org/osg/sw/module-init.sh  &&  -e $CVMFS_BASE/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]]; then
+            . $CVMFS_BASE/oasis.opensciencegrid.org/osg/sw/module-init.sh
         fi
         module -v >/dev/null 2>&1
         if [[ $? -ne 0 ]]; then
