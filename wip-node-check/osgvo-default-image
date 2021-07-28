@@ -1,0 +1,138 @@
+#!/bin/bash
+#
+# This script selects a default image for a glidein. In the fe config,
+# specify a distribution for both regular and gpu slots. Example:
+#
+#   <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>
+#   <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
+#
+
+glidein_config="$1"
+
+function info {
+    echo "INFO  " $@ 1>&2
+}
+
+function my_warn {
+    echo "WARN  " $@ 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
+}
+
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line_safe $key "$value"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
+    else
+        echo "$key = $value"
+    fi
+}
+
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
+function determine_default_container_image {
+    # Selects a default image to use if a job does not specify
+    # an image to use. The new style to specify this is with an
+    # attribute named OSG_DEFAULT_CONTAINER_DISTRIBUTION
+    # Example:
+    # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
+
+    OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
+    OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
+
+    # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
+    if [ "x$CVMFS_BASE" = "x" ]; then
+        CVMFS_BASE="/cvmfs"
+    fi
+
+    # if we are given GPUs, pick up GPU specific images
+    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+        OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
+    fi
+
+    SELECTED_IMAGE=""
+    if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
+        # new style - weighted random selection
+        TARGET=$(($RANDOM % 100 + 1))
+        TOTAL_PERCENT=0
+        for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
+            PERCENT=`echo $ENTRY | sed 's/%__.*//'`
+            IMAGE=`echo $ENTRY | sed 's/.*%__//'`
+            # verify it exists
+            if [ ! -e "$CVMFS_BASE/singularity.opensciencegrid.org/$IMAGE" ]; then
+                my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
+                continue
+            fi
+            # we just need to track the upper limit
+            TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
+            if [ $TARGET -le $TOTAL_PERCENT ]; then
+                SELECTED_IMAGE=$IMAGE
+                break
+            fi
+        done
+    fi
+
+    # if everything else fails, use EL7
+    if [ "x$SELECTED_IMAGE" = "x" ]; then
+        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+            SELECTED_IMAGE="opensciencegrid/osgvo-el7-cuda10:latest"
+        else
+            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
+        fi
+    fi
+
+    # prepend the base bath
+    SELECTED_IMAGE="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
+    advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
+    advertise REQUIRED_OS "default" "S"
+}
+
+
+if [ "x$glidein_config" = "x" ]; then
+    glidein_config="NONE"
+    info "No arguments provided - assuming HTCondor startd cron mode"
+else
+    info "Arguments to the script: $@"
+fi
+
+if [ "$glidein_config" != "NONE" ]; then
+    ###########################################################
+    # import advertise and add_condor_vars_line functions
+    if [ "x$add_config_line_source" = "x" ]; then
+        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    fi
+
+    # full path is problematic as sometimes we are inside a container - however, looks like
+    # the file is always named "add_config_line.source", so use that
+    add_config_line_source=$PWD/add_config_line.source
+
+    info "Sourcing $add_config_line_source"
+    source $add_config_line_source
+fi
+
+determine_default_container_image
+
+info "All done - time to do some real work!"
+
