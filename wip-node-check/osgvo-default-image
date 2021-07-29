@@ -102,9 +102,19 @@ function determine_default_container_image {
         fi
     fi
 
+    info "Selected image $SELECTED_IMAGE"
+    # Advertise the selected image; the resolved image might not have a readable name
+    advertise SINGULARITY_SELECTED_IMAGE "$SELECTED_IMAGE" "S"
     # prepend the base bath
     SELECTED_IMAGE="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
-    advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
+    # TODO: only resolves one level of symlinks; try to resolve multiple but watch for symlink loops!
+    RESOLVED_IMAGE=$(readlink -f "$SELECTED_IMAGE")
+    if [[ $RESOLVED_IMAGE = /cvmfs/* ]]; then
+        RESOLVED_IMAGE=$CVMFS_BASE/${RESOLVED_IMAGE#/cvmfs/}
+    fi
+    info "Image resolved to $RESOLVED_IMAGE"
+
+    advertise SINGULARITY_IMAGES_DICT "default:$RESOLVED_IMAGE" "S"
     advertise REQUIRED_OS "default" "S"
 }
 
