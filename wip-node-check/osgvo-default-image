@@ -106,15 +106,33 @@ function determine_default_container_image {
     # Advertise the selected image; the resolved image might not have a readable name
     advertise SINGULARITY_SELECTED_IMAGE "$SELECTED_IMAGE" "S"
     # prepend the base bath
-    SELECTED_IMAGE="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
-    # TODO: only resolves one level of symlinks; try to resolve multiple but watch for symlink loops!
-    RESOLVED_IMAGE=$(readlink -f "$SELECTED_IMAGE")
-    if [[ $RESOLVED_IMAGE = /cvmfs/* ]]; then
-        RESOLVED_IMAGE=$CVMFS_BASE/${RESOLVED_IMAGE#/cvmfs/}
-    fi
-    info "Image resolved to $RESOLVED_IMAGE"
+    image_with_path="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
+    # Deal with broken symlinks to absolute /cvmfs paths
+    # Loop detection is hard; go at most 4 levels deep
+    depth=4
+    while [[ -L $image_with_path && ! -e $image_with_path ]]; do
+        info "Trying to resolve $image_with_path..."
+        tmpimg=$(readlink -f "$image_with_path")
+        if [[ $tmpimg = /cvmfs/* ]]; then
+            tmpimg=$CVMFS_BASE/${tmpimg#/cvmfs/}
+        fi
+        if [[ $image_with_path == "$tmpimg" ]]; then
+            info "Couldn't resolve $image_with_path any further"
+            break
+        fi
+        image_with_path=$tmpimg
+        if [[ -e $image_with_path ]]; then
+            info "Image resolved to $image_with_path"
+            break
+        fi
+        if [[ $depth -lt 1 ]]; then
+            info "Too many levels of symbolic links; stopping at $image_with_path"
+            break
+        fi
+        (( depth-- ))
+    done
 
-    advertise SINGULARITY_IMAGES_DICT "default:$RESOLVED_IMAGE" "S"
+    advertise SINGULARITY_IMAGES_DICT "default:$image_with_path" "S"
     advertise REQUIRED_OS "default" "S"
 }
 
