@@ -111,6 +111,7 @@ function determine_default_container_image {
     # Loop detection is hard; go at most 4 levels deep
     depth=4
     while [[ -L $image_with_path && ! -e $image_with_path ]]; do
+        info "$(ls -l "$image_with_path")"
         info "Trying to resolve $image_with_path..."
         tmpimg=$(readlink -f "$image_with_path")
         if [[ $tmpimg = /cvmfs/* ]]; then
@@ -122,6 +123,7 @@ function determine_default_container_image {
         fi
         image_with_path=$tmpimg
         if [[ -e $image_with_path ]]; then
+            info "$(ls -l "$image_with_path")"
             info "Image resolved to $image_with_path"
             break
         fi
