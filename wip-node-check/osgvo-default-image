@@ -64,6 +64,9 @@ function determine_default_container_image {
     # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
     if [ "x$CVMFS_BASE" = "x" ]; then
         CVMFS_BASE="/cvmfs"
+    else
+        # Ensure no trailing /
+        CVMFS_BASE=$(echo "$CVMFS_BASE" | sed s'!/*$!!')
     fi
 
     # if we are given GPUs, pick up GPU specific images
@@ -107,34 +110,37 @@ function determine_default_container_image {
     advertise SINGULARITY_SELECTED_IMAGE "$SELECTED_IMAGE" "S"
     # prepend the base bath
     image_with_path="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
-    # Deal with broken symlinks to absolute /cvmfs paths
-    # Loop detection is hard; go at most 4 levels deep
-    depth=4
-    while [[ -L $image_with_path && ! -e $image_with_path ]]; do
-        info "$(ls -l "$image_with_path")"
-        info "Trying to resolve $image_with_path..."
-        tmpimg=$(readlink -f "$image_with_path")
-        if [[ $tmpimg = /cvmfs/* ]]; then
-            tmpimg=$CVMFS_BASE/${tmpimg#/cvmfs/}
-        fi
-        if [[ $image_with_path == "$tmpimg" ]]; then
-            info "Couldn't resolve $image_with_path any further"
-            break
-        fi
-        image_with_path=$tmpimg
-        if [[ -e $image_with_path ]]; then
-            info "$(ls -l "$image_with_path")"
-            info "Image resolved to $image_with_path"
-            break
-        fi
-        if [[ $depth -lt 1 ]]; then
-            info "Too many levels of symbolic links; stopping at $image_with_path"
-            break
-        fi
-        (( depth-- ))
-    done
+    if [[ $CVMFS_BASE != /cvmfs ]]; then
+        # Deal with symlinks to absolute /cvmfs paths
+        # Need to resolve symlinks myself to replace any /cvmfs component in
+        # the middle with $CVMFS_BASE
+        # Loop detection is hard; go at most 4 levels deep
+        orig_dir=$PWD
+        depth=4
+        while [[ -L $image_with_path ]]; do
+            info "Dereferencing $image_with_path"
+            next_hop=$(readlink "$image_with_path")
+            if [[ $next_hop != /* ]]; then
+                imgdir=$(dirname "$image_with_path")
+                cd -P "$imgdir"
+                next_hop=$PWD/$next_hop
+            fi
+            if [[ $next_hop = /cvmfs/* ]]; then
+                next_hop=${CVMFS_BASE}/${next_hop#/cvmfs/}
+            fi
+            image_with_path=$next_hop
+            (( depth-- ))
+            if [[ $depth -lt 1 ]]; then
+                my_warn "Reached max symlink depth; stopping at $image_with_path"
+                break
+            fi
+        done
+        cd "$orig_dir"
+    fi
+    real_path=$(readlink -f "$image_with_path")
+    [[ $image_with_path == "$real_path" ]] || info "Canonicalized $image_with_path to $real_path"
 
-    advertise SINGULARITY_IMAGES_DICT "default:$image_with_path" "S"
+    advertise SINGULARITY_IMAGES_DICT "default:$real_path" "S"
     advertise REQUIRED_OS "default" "S"
 }
 
