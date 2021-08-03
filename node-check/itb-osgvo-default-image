@@ -57,6 +57,16 @@ function determine_default_container_image {
     # attribute named OSG_DEFAULT_CONTAINER_DISTRIBUTION
     # Example:
     # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
+    
+
+    # special cases
+    # isi docker testing
+    if (hostname -f | grep isi.edu) >/dev/null 2>&1; then
+        SELECTED_IMAGE="docker://opensciencegrid/osgvo-el7:latest"
+        advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
+        advertise REQUIRED_OS "default" "S"
+        return 0
+    fi
 
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
