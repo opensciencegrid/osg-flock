@@ -94,18 +94,12 @@ fi
 # error_gen defined also in singularity_lib.sh
 [[ -e "$glidein_config" ]] && error_gen="$(grep '^ERROR_GEN_PATH ' "$glidein_config" | cut -d ' ' -f 2-)"
 
-if [[ -z "$3" ]]; then
-    # initial invocation w/o script
-    "$error_gen" -ok "singularity_wrapper.sh"
-    exit 0
-fi
-
 # Source utility files, outside and inside Singularity
 # condor_job_wrapper is in the base directory, singularity_lib.sh in main
 # and copied to RUNDIR/$GWMS_AUX_SUBDIR (RUNDIR becomes /srv in Singularity)
-if [[ -e "$GWMS_THIS_SCRIPT_DIR/singularity_lib.sh" ]]; then
+if [[ -e "$GWMS_THIS_SCRIPT_DIR/main/singularity_lib.sh" ]]; then
     GWMS_AUX_DIR="$GWMS_THIS_SCRIPT_DIR"
-elif [[ -e /srv/$GWMS_AUX_SUBDIR/singularity_lib.sh ]]; then
+elif [[ -e /srv/$GWMS_AUX_SUBDIR/main/singularity_lib.sh ]]; then
     # In Singularity
     GWMS_AUX_DIR="/srv/$GWMS_AUX_SUBDIR"
 elif [[ -e /srv/$GWMS_BASE_SUBDIR/main/singularity_lib.sh ]]; then
@@ -123,8 +117,8 @@ fi
 if [[ -n "$GWMS_DIR" && -e "$GWMS_DIR/bin" ]]; then
     # already set, keep it
     true
-elif [[ -e $(dirname "$GWMS_THIS_SCRIPT_DIR")/$GWMS_SUBDIR/bin ]]; then
-    GWMS_DIR=$(dirname "$GWMS_THIS_SCRIPT_DIR")/$GWMS_SUBDIR
+elif [[ -e $GWMS_THIS_SCRIPT_DIR/$GWMS_SUBDIR/bin ]]; then
+    GWMS_DIR=$GWMS_THIS_SCRIPT_DIR/$GWMS_SUBDIR
 elif [[ -e /srv/$GWMS_SUBDIR/bin ]]; then
     GWMS_DIR=/srv/$GWMS_SUBDIR
 elif [[ -e /srv/$GWMS_BASE_SUBDIR/$GWMS_SUBDIR/bin ]]; then
@@ -212,12 +206,14 @@ singularity_get_image() {
     if (echo "$singularity_image" | grep "^docker://") >/dev/null 2>&1; then
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
-        singularity build $IMAGE_FNAME $singularity_image >$IMAGE_FNAME.log 2>&1
-        if [ $? != 0 ]; then
-            warn "Unable to download image ($singularity_image)"
-            return 1
+        if [ ! -e ../../$IMAGE_FNAME ]; then
+            (singularity build ../../$IMAGE_FNAME.$$ $singularity_image && mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME) >$IMAGE_FNAME.log 2>&1
+            if [ $? != 0 ]; then
+                warn "Unable to download image ($singularity_image)"
+                return 1
+            fi
         fi
-        singularity_image=$IMAGE_FNAME
+        singularity_image=$PWD/../../$IMAGE_FNAME
     fi 
 
     echo "$singularity_image"
