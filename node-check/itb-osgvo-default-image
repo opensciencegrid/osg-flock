@@ -57,16 +57,6 @@ function determine_default_container_image {
     # attribute named OSG_DEFAULT_CONTAINER_DISTRIBUTION
     # Example:
     # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
-    
-
-    # special cases
-    # isi docker testing
-    if (hostname -f | grep isi.edu) >/dev/null 2>&1; then
-        SELECTED_IMAGE="docker://opensciencegrid/osgvo-el7:latest"
-        advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
-        advertise REQUIRED_OS "default" "S"
-        return 0
-    fi
 
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
@@ -85,10 +75,10 @@ function determine_default_container_image {
             PERCENT=`echo $ENTRY | sed 's/%__.*//'`
             IMAGE=`echo $ENTRY | sed 's/.*%__//'`
             # verify it exists
-            if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
-                my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
-                continue
-            fi
+            #if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
+            #    my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
+            #    continue
+            #fi
             # we just need to track the upper limit
             TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
             if [ $TARGET -le $TOTAL_PERCENT ]; then
@@ -104,6 +94,19 @@ function determine_default_container_image {
             SELECTED_IMAGE="opensciencegrid/osgvo-el7-cuda10:latest"
         else
             SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
+        fi
+    fi
+
+    # Should we use CVMFS or pull images directly?
+    # TODO - fix the test here
+    if [ 1 = 1 ]; then
+        # pull the image into a Singularity SIF file
+        IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
+        singularity build $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE >$IMAGE_FNAME.log 2>&1
+        if [ $? = 0 ]; then
+            advertise SINGULARITY_IMAGES_DICT "default:$PWD/$IMAGE_FNAME" "S"
+            advertise REQUIRED_OS "default" "S"
+            return 0
         fi
     fi
 
