@@ -99,10 +99,12 @@ function determine_default_container_image {
 
     # Should we use CVMFS or pull images directly?
     pull_images=0
-    if [ "X$GLIDECLIENT_Group" = "Xitb" ]; then
+    is_itb=$(get_glidein_config_value Is_ITB_Site)
+    entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    if (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
         pull_images=1
     fi
-    if (echo "x$GLIDEIN_Site" | grep "Stampede2") >/dev/null 2>&1; then
+    if (echo "x$entry_name" | grep "Stampede2") >/dev/null 2>&1; then
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
