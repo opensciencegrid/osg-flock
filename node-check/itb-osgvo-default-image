@@ -112,7 +112,7 @@ function determine_default_container_image {
         IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
         (curl -s -S -f -o $IMAGE_FNAME https://data.isi.edu/osg/images/$IMAGE_FNAME \
             || wget -nv --timeout=300 --tries=1 -O $IMAGE_FNAME https://data.isi.edu/osg/images/$IMAGE_FNAME \
-            || singularity build $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_FNAME.log 2>&1
+            || singularity build --force $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_FNAME.log 2>&1
         if [ $? = 0 ]; then
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
             advertise SINGULARITY_IMAGES_DICT "default:$PWD/$IMAGE_FNAME" "S"

@@ -204,7 +204,7 @@ singularity_get_image() {
         if [ ! -e ../../$IMAGE_FNAME ]; then
             (curl -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                 || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
-                || $GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
+                || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
             if [ $? != 0 ]; then
                 warn "Unable to download image ($singularity_image)"
                 return 1
@@ -274,7 +274,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             if [ ! -e ../../$IMAGE_FNAME ]; then
                 (curl -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                     || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
-                    || $GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
+                    || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
                 if [ $? != 0 ]; then
                     warn "Unable to download image ($GWMS_SINGULARITY_IMAGE)"
                     return 1
