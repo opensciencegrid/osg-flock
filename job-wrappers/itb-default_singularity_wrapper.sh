@@ -202,7 +202,7 @@ singularity_get_image() {
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
         if [ ! -e ../../$IMAGE_FNAME ]; then
-            (curl -s -S -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+            (curl -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                 || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                 || $GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
             if [ $? != 0 ]; then
@@ -272,7 +272,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             # pull the image into a Singularity SIF file
             IMAGE_FNAME=$(echo "$GWMS_SINGULARITY_IMAGE" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
             if [ ! -e ../../$IMAGE_FNAME ]; then
-                (curl -s -S -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                (curl -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                     || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                     || $GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
                 if [ $? != 0 ]; then
