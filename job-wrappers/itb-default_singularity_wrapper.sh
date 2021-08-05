@@ -202,11 +202,14 @@ singularity_get_image() {
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
         if [ ! -e ../../$IMAGE_FNAME ]; then
-            ($GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $singularity_image && mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME) >../../$IMAGE_FNAME.log 2>&1
+            (curl -s -S -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                || $GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
             if [ $? != 0 ]; then
                 warn "Unable to download image ($singularity_image)"
                 return 1
             fi
+            mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
         fi
         singularity_image=$PWD/../../$IMAGE_FNAME
     fi
@@ -269,11 +272,14 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             # pull the image into a Singularity SIF file
             IMAGE_FNAME=$(echo "$GWMS_SINGULARITY_IMAGE" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
             if [ ! -e ../../$IMAGE_FNAME ]; then
-                ($GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE && mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME) >../../$IMAGE_FNAME.log 2>&1
+                (curl -s -S -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                    || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                    || $GWMS_SINGULARITY_PATH build ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
                 if [ $? != 0 ]; then
                     warn "Unable to download image ($GWMS_SINGULARITY_IMAGE)"
                     return 1
                 fi
+                mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
             fi
             GWMS_SINGULARITY_IMAGE=$PWD/../../$IMAGE_FNAME
         fi
