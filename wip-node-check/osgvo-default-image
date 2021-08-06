@@ -61,14 +61,6 @@ function determine_default_container_image {
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
 
-    # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
-    if [ "x$CVMFS_BASE" = "x" ]; then
-        CVMFS_BASE="/cvmfs"
-    else
-        # Ensure no trailing /
-        CVMFS_BASE=$(echo "$CVMFS_BASE" | sed s'!/*$!!')
-    fi
-
     # if we are given GPUs, pick up GPU specific images
     if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
@@ -83,7 +75,7 @@ function determine_default_container_image {
             PERCENT=`echo $ENTRY | sed 's/%__.*//'`
             IMAGE=`echo $ENTRY | sed 's/.*%__//'`
             # verify it exists
-            if [ ! -e "$CVMFS_BASE/singularity.opensciencegrid.org/$IMAGE" ]; then
+            if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
                 my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
                 continue
             fi
@@ -105,42 +97,42 @@ function determine_default_container_image {
         fi
     fi
 
-    info "Selected image $SELECTED_IMAGE"
-    # Advertise the selected image; the resolved image might not have a readable name
-    advertise SINGULARITY_SELECTED_IMAGE "$SELECTED_IMAGE" "S"
-    # prepend the base bath
-    image_with_path="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
-    if [[ $CVMFS_BASE != /cvmfs ]]; then
-        # Deal with symlinks to absolute /cvmfs paths
-        # Need to resolve symlinks myself to replace any /cvmfs component in
-        # the middle with $CVMFS_BASE
-        # Loop detection is hard; go at most 4 levels deep
-        orig_dir=$PWD
-        depth=4
-        while [[ -L $image_with_path ]]; do
-            info "Dereferencing $image_with_path"
-            next_hop=$(readlink "$image_with_path")
-            if [[ $next_hop != /* ]]; then
-                imgdir=$(dirname "$image_with_path")
-                cd -P "$imgdir"
-                next_hop=$PWD/$next_hop
-            fi
-            if [[ $next_hop = /cvmfs/* ]]; then
-                next_hop=${CVMFS_BASE}/${next_hop#/cvmfs/}
-            fi
-            image_with_path=$next_hop
-            (( depth-- ))
-            if [[ $depth -lt 1 ]]; then
-                my_warn "Reached max symlink depth; stopping at $image_with_path"
-                break
-            fi
-        done
-        cd "$orig_dir"
+    # Should we use CVMFS or pull images directly?
+    pull_images=0
+    is_itb=$(get_glidein_config_value Is_ITB_Site)
+    entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    if [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
+        info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
+        pull_images=1
     fi
-    real_path=$(readlink -f "$image_with_path")
-    [[ $image_with_path == "$real_path" ]] || info "Canonicalized $image_with_path to $real_path"
+    if (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because this is an ITB site"
+        pull_images=1
+    fi
+    if (echo "x$entry_name" | grep "Stampede2") >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because this is Stampede2"
+        pull_images=1
+    fi
+    if [ $pull_images = 1 ]; then
+        # pull the image into a Singularity SIF file
+        IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
+        URL=https://data.isi.edu/osg/images/$IMAGE_FNAME
+        (curl -L -s -S -f -o $IMAGE_FNAME $URL \
+            || wget -nv --timeout=300 --tries=1 -O $IMAGE_FNAME $URL \
+            || singularity build --force $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_FNAME.log 2>&1
+        if [ $? = 0 ]; then
+            advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
+            advertise SINGULARITY_IMAGES_DICT "default:$PWD/$IMAGE_FNAME" "S"
+            advertise REQUIRED_OS "default" "S"
+            return 0
+        else
+            my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
+        fi
+    fi
 
-    advertise SINGULARITY_IMAGES_DICT "default:$real_path" "S"
+    # prepend the base bath
+    SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
+    advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
     advertise REQUIRED_OS "default" "S"
 }
 
