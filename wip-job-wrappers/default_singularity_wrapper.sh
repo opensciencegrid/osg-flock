@@ -135,6 +135,34 @@ GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
+# Should we use CVMFS or pull images directly?
+ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
+info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
+
+download_singularity_image () {
+    local singularity_image="$1"
+    # TODO - fix the test here
+    #        base it on ALLOW_NONCVMFS_IMAGES
+    if (echo "$singularity_image" | grep "^docker://") >/dev/null 2>&1; then
+        # pull the image into a Singularity SIF file
+        IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
+        if [ ! -e ../../$IMAGE_FNAME ]; then
+            (curl -L -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
+            if [ $? != 0 ]; then
+                warn "Unable to download image ($singularity_image)"
+                return 1
+            fi
+            mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
+        fi
+        singularity_image=$PWD/../../$IMAGE_FNAME
+    fi
+    echo "$singularity_image"
+    return 0
+}
+
+
 
 # OSGVO - overrideing this from singularity_lib.sh
 singularity_get_image() {
@@ -184,6 +212,7 @@ singularity_get_image() {
         return 1
     fi
 
+    # TODO Reenable this based on ALLOW_NONCVMFS_IMAGES
     # Check all restrictions (at the moment cvmfs) and return 3 if failing
     #if [[ ",${s_restrictions}," = *",cvmfs,"* ]] && ! singularity_path_in_cvmfs "$singularity_image"; then
     #    warn "$singularity_image is not in /cvmfs area as requested"
@@ -202,25 +231,7 @@ singularity_get_image() {
         singularity_image=$(echo "$singularity_image" | sed 's;^/cvmfs/singularity.opensciencegrid.org;docker://hub.opensciencegrid.org;')
     fi
 
-    # Should we use CVMFS or pull images directly?
-    ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
-    info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
-    # TODO - fix the test here
-    if (echo "$singularity_image" | grep "^docker://") >/dev/null 2>&1; then
-        # pull the image into a Singularity SIF file
-        IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
-        if [ ! -e ../../$IMAGE_FNAME ]; then
-            (curl -L -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
-                || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
-                || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
-            if [ $? != 0 ]; then
-                warn "Unable to download image ($singularity_image)"
-                return 1
-            fi
-            mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
-        fi
-        singularity_image=$PWD/../../$IMAGE_FNAME
-    fi
+    singularity_image=$(download_singularity_image "$singularity_image") || return 1
     info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:$([ -n "$HOST_LIBS" ] && echo 1), ocl:$([ -e /etc/OpenCL/vendors ] && echo 1)): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
 
     echo "$singularity_image"
@@ -275,25 +286,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             unset $KEY
         done
 
-        # Should we use CVMFS or pull images directly?
-        ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
-        info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
-        # TODO - fix the test here
-        if (echo "$GWMS_SINGULARITY_IMAGE" | grep "^docker://") >/dev/null 2>&1; then
-            # pull the image into a Singularity SIF file
-            IMAGE_FNAME=$(echo "$GWMS_SINGULARITY_IMAGE" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
-            if [ ! -e ../../$IMAGE_FNAME ]; then
-                (curl -L -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
-                    || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
-                    || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
-                if [ $? != 0 ]; then
-                    warn "Unable to download image ($GWMS_SINGULARITY_IMAGE)"
-                    return 1
-                fi
-                mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
-            fi
-            GWMS_SINGULARITY_IMAGE=$PWD/../../$IMAGE_FNAME
-        fi
+        GWMS_SINGULARITY_IMAGE=$(download_singularity_image "$GWMS_SINGULARITY_IMAGE") || return 1
 
         singularity_prepare_and_invoke "${@}"
 
