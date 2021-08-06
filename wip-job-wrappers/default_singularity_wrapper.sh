@@ -135,290 +135,92 @@ GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
-# TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
-exit_or_fallback() {
-    # An error in Singularity occurred. Fallback to no Singularity if preferred or fail if required
-    # If this function returns, then is OK to fall-back to no Singularity (otherwise it will exit)
-    # OSG is continuing after sleep, no fall-back, no exit
-    # In
-    #  1: Error message
-    #  2: Exit code (1 by default)
-    #  3: sleep time (default: $EXITSLEEP)
-    #  $GWMS_SINGULARITY_STATUS
-    #  exit_wrapper (exit callback)
-    if [[ "x$GWMS_SINGULARITY_STATUS" = "xPREFERRED__DISABLED" ]]; then
-        # Fall back to no Singularity
-        export HAS_SINGULARITY=0
-        export GWMS_SINGULARITY_PATH=
-        export GWMS_SINGULARITY_REEXEC=
-        [[ -n "$1" ]] && warn "$1"
-        warn "An error in Singularity occurred, but can fall-back to no Singularity ($GWMS_SINGULARITY_STATUS). Continuing"
-    else
-        exit_wrapper "${@}"
-    fi
-}
 
-# TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
-prepare_and_invoke_singularity() {
-    # Code moved into a function to allow early return in case of failure
+# OSGVO - overrideing this from singularity_lib.sh
+singularity_get_image() {
+    # Return on stdout the Singularity image
+    # Let caller decide what to do if there are problems
     # In:
-    #   SINGULARITY_IMAGES_DICT: dictionary w/ Singularity images
-    #   $SINGULARITY_IMAGE_RESTRICTIONS: constraints on the Singularity image
+    #  1: a comma separated list of platforms (OS) to choose the image
+    #  2: a comma separated list of restrictions (default: none)
+    #     - cvmfs: image must be on CVMFS
+    #     - any: any image is OK, $1 was just a preference (the first one in SINGULARITY_IMAGES_DICT is used if none of the preferred is available)
+    #  SINGULARITY_IMAGES_DICT
+    #  SINGULARITY_IMAGE_DEFAULT (legacy)
+    #  SINGULARITY_IMAGE_DEFAULT6 (legacy)
+    #  SINGULARITY_IMAGE_DEFAULT7 (legacy)
+    # Out:
+    #  Singularity image path/URL returned on stdout
+    #  EC: 0: OK, 1: Empty/no image for the desired OS (or for any), 2: File not existing, 3: restriction not met (e.g. image not on cvmfs)
 
-    # If  image is not provided, load the default one
-    # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
-    if [[ -z "$GWMS_SINGULARITY_IMAGE" ]]; then
-        # No image requested by the job
-        # Use OS matching to determine default; otherwise, set to the global default.
-        #  # Correct some legacy names? What if they are used in the dictionary?
-        #  REQUIRED_OS="`echo ",$REQUIRED_OS," | sed "s/,el7,/,rhel7,/;s/,el6,/,rhel6,/;s/,+/,/g;s/^,//;s/,$//"`"
-        DESIRED_OS=$(list_get_intersection "${GLIDEIN_REQUIRED_OS:-any}" "${REQUIRED_OS:-any}")
-        if [[ -z "$DESIRED_OS" ]]; then
-            msg="ERROR   VO (or job) REQUIRED_OS and Entry GLIDEIN_REQUIRED_OS have no intersection. Cannot select a Singularity image."
-            exit_or_fallback "$msg" 1
-            return
-        fi
-        if [[ "x$DESIRED_OS" = xany ]]; then
-            # Prefer the platforms default,rhel7,rhel6,rhel8, otherwise pick the first one available
-            GWMS_SINGULARITY_IMAGE="$(singularity_get_image default,rhel7,rhel6,rhel8 ${GWMS_SINGULARITY_IMAGE_RESTRICTIONS:+$GWMS_SINGULARITY_IMAGE_RESTRICTIONS,}any)"
-        else
-            GWMS_SINGULARITY_IMAGE="$(singularity_get_image "$DESIRED_OS" $GWMS_SINGULARITY_IMAGE_RESTRICTIONS)"
-        fi
+    local s_platform="$1"
+    if [[ -z "$s_platform" ]]; then
+        warn "No desired platform, unable to select a Singularity image"
+        return 1
+    fi
+    local s_restrictions="$2"
+    local singularity_image
+
+    # To support legacy variables SINGULARITY_IMAGE_DEFAULT, SINGULARITY_IMAGE_DEFAULT6, SINGULARITY_IMAGE_DEFAULT7
+    # values are added to SINGULARITY_IMAGES_DICT
+    # TODO: These override existing dict values OK for legacy support (in the future we'll add && [ dict_check_key rhel6 ] to avoid this)
+    [[ -n "$SINGULARITY_IMAGE_DEFAULT6" ]] && SINGULARITY_IMAGES_DICT="`dict_set_val SINGULARITY_IMAGES_DICT rhel6 "$SINGULARITY_IMAGE_DEFAULT6"`"
+    [[ -n "$SINGULARITY_IMAGE_DEFAULT7" ]] && SINGULARITY_IMAGES_DICT="`dict_set_val SINGULARITY_IMAGES_DICT rhel7 "$SINGULARITY_IMAGE_DEFAULT7"`"
+    [[ -n "$SINGULARITY_IMAGE_DEFAULT" ]] && SINGULARITY_IMAGES_DICT="`dict_set_val SINGULARITY_IMAGES_DICT default "$SINGULARITY_IMAGE_DEFAULT"`"
+
+    # [ -n "$s_platform" ] not needed, s_platform is never null here (verified above)
+    # Try a match first, then check if there is "any" in the list
+    singularity_image="`dict_get_val SINGULARITY_IMAGES_DICT "$s_platform"`"
+    if [[ -z "$singularity_image" && ",${s_platform}," = *",any,"* ]]; then
+        # any means that any image is OK, take the 'default' one and if not there the   first one
+        singularity_image="`dict_get_val SINGULARITY_IMAGES_DICT default`"
+        [[ -z "$singularity_image" ]] && singularity_image="`dict_get_first SINGULARITY_IMAGES_DICT`"
     fi
 
     # At this point, GWMS_SINGULARITY_IMAGE is still empty, something is wrong
-    if [[ -z "$GWMS_SINGULARITY_IMAGE" ]]; then
-        msg="\
-ERROR   If you get this error when you did not specify required OS, your VO does not support any valid default Singularity image
-        If you get this error when you specified required OS, your VO does not support any valid image for that OS"
-        exit_or_fallback "$msg" 1
-        return
+    if [[ -z "$singularity_image" ]]; then
+        [[ -z "$SINGULARITY_IMAGES_DICT" ]] && warn "No Singularity image available (SINGULARITY_IMAGES_DICT is empty)" ||
+                warn "No Singularity image available for the required platforms ($s_platform)"
+        return 1
     fi
 
-    # TODO: Custom images are not subject to SINGULARITY_IMAGE_RESTRICTIONS in OSG and CMS scripts. Should add a check here?
-    #if ! echo "$GWMS_SINGULARITY_IMAGE" | grep ^"/cvmfs" >/dev/null 2>&1; then
-    #    exit_wrapper "ERROR: $GWMS_SINGULARITY_IMAGE is not in /cvmfs area. Exiting" 1
+    # Check all restrictions (at the moment cvmfs) and return 3 if failing
+    #if [[ ",${s_restrictions}," = *",cvmfs,"* ]] && ! singularity_path_in_cvmfs "$singularity_image"; then
+    #    warn "$singularity_image is not in /cvmfs area as requested"
+    #    return 3
     #fi
 
-    # Whether user-provided or default image, we make sure it exists and make sure CVMFS has not fallen over
-    # TODO: better -e or ls?
-    #if ! ls -l "$GWMS_SINGULARITY_IMAGE/" >/dev/null; then
-    #if [[ ! -e "$GWMS_SINGULARITY_IMAGE" ]]; then
-    # will both work for non expanded images?
+    # We make sure it exists
+    #if [[ ! -e "$singularity_image" ]]; then
+    #    warn "ERROR: $singularity_image file not found" 1>&2
+    #    return 2
+    #fi
 
-    # check that the image is actually available (but only for /cvmfs ones)
-    ORIG_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
-    if (echo "$ORIG_GWMS_SINGULARITY_IMAGE" | grep '^/cvmfs') >/dev/null 2>&1; then
-        GWMS_SINGULARITY_IMAGE=${CVMFS_BASE}${ORIG_GWMS_SINGULARITY_IMAGE#/cvmfs}
-        if ! ls -l "$GWMS_SINGULARITY_IMAGE" >/dev/null; then
-            EXITSLEEP=10m
-            msg="\
-ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
-        Site and node: $OSG_SITE_NAME $(hostname -f)"
-            # TODO: also this?: touch ../../.stop-glidein.stamp >/dev/null 2>&1
-            exit_or_fallback "$msg" 1
-            return
-        fi
-    fi
+    ## For now, let's test on ITB!
+    #if (echo "$singularity_image" | grep "^/cvmfs/singularity.opensciencegrid.org/") >/dev/null 2>&1; then
+    #    singularity_image=$(echo "$singularity_image" | sed 's;^/cvmfs/singularity.opensciencegrid.org;docker://hub.opensciencegrid.org;')
+    #fi
 
-    if [[ ! -e "$GWMS_SINGULARITY_IMAGE" ]]; then
-        EXITSLEEP=10m
-        msg="\
-ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
-        Site and node: $OSG_SITE_NAME `hostname -f`"
-        # TODO: also this?: touch ../../.stop-glidein.stamp >/dev/null 2>&1
-        exit_or_fallback "$msg" 1
-        return
-    fi
-
-    # Put a human readable version of the image in the env before
-    # expanding it - useful for monitoring
-    export GWMS_SINGULARITY_IMAGE_HUMAN="$ORIG_GWMS_SINGULARITY_IMAGE"
-
-    # for /cvmfs based directory images, expand the path without symlinks so that
-    # the job can stay within the same image for the full duration
-    if echo "$ORIG_GWMS_SINGULARITY_IMAGE" | grep /cvmfs >/dev/null 2>&1; then
-        # Make sure CVMFS is mounted in Singularity
-        export GWMS_SINGULARITY_BIND_CVMFS=1
-        if (cd "$GWMS_SINGULARITY_IMAGE") >/dev/null 2>&1; then
-            # This will fail for images that are not expanded in CVMFS, just ignore the failure
-            NEW_IMAGE_PATH=$( (cd "$GWMS_SINGULARITY_IMAGE" && pwd -P) 2>/dev/null )
-            if [[ "x$NEW_IMAGE_PATH" != "x" ]]; then
-                GWMS_SINGULARITY_IMAGE="$NEW_IMAGE_PATH"
+    # Should we use CVMFS or pull images directly?
+    # TODO - fix the test here
+    if (echo "$singularity_image" | grep "^docker://") >/dev/null 2>&1; then
+        # pull the image into a Singularity SIF file
+        IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
+        if [ ! -e ../../$IMAGE_FNAME ]; then
+            (curl -L -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
+            if [ $? != 0 ]; then
+                warn "Unable to download image ($singularity_image)"
+                return 1
             fi
+            mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
         fi
-    fi
-
-    info_dbg "using image $GWMS_SINGULARITY_IMAGE_HUMAN ($GWMS_SINGULARITY_IMAGE)"
-    # Singularity image is OK, continue w/ other init
-
-    # If gwms dir is present, then copy it inside the container.
-    if [[ -d ../../gwms ]]; then
-        if mkdir -p gwms && cp -r ../../gwms/* gwms/; then
-            # Should copy only lib and bin instead?
-            # TODO: change the message when condor_chirp requires no more special treatment
-            info_dbg "copied GlideinWMS utilities (bin and libs, including condor_chirp) inside the container ($(pwd)/gwms)"
-        else
-            warn "Unable to copy GlideinWMS utilities inside the container (to $(pwd)/gwms)"
-        fi
-    else
-        warn "Unable to find GlideinWMS utilities (../../gwms from $(pwd))"
-    fi
-
-    # TODO: this is no more needed once 'pychirp' in gwms is tried and tested
-    # If condor_chirp is present, then copy it inside the container.
-    # This is used in singularity_lib.sh/singularity_setup_inside()
-    if [ -e ../../main/condor/libexec/condor_chirp ]; then
-        mkdir -p condor/libexec
-        cp ../../main/condor/libexec/condor_chirp condor/libexec/condor_chirp
-        mkdir -p condor/lib
-        cp -r ../../main/condor/lib condor/
-        info_dbg "copied HTCondor condor_chirp (binary and libs) inside the container ($(pwd)/condor)"
-    fi
-
-    # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
-    if [[ "x$GLIDEIN_Tmp_Dir" != "x"  &&  -e "$GLIDEIN_Tmp_Dir" ]]; then
-        if mkdir "$GLIDEIN_Tmp_Dir/singularity-work.$$" ; then
-            export SINGULARITY_WORKDIR="$GLIDEIN_Tmp_Dir/singularity-work.$$"
-        else
-            warn "Unable to set SINGULARITY_WORKDIR to $GLIDEIN_Tmp_Dir/singularity-work.$$. Leaving it undefined."
-        fi
-    fi
-
-    GWMS_SINGULARITY_EXTRA_OPTS="$GLIDEIN_SINGULARITY_OPTS"
-
-    # Binding different mounts (they will be removed if not existent on the host)
-    # OSG: checks also in image, may not work if not expanded. And Singularity will not fail if missing, only give a warning
-    #  if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE/$MNTPOINT ]; then
-    GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/hadoop,/ceph,/hdfs,/lizard,/mnt/hadoop,/mnt/hdfs,/etc/hosts,/etc/localtime"
-
-    # CVMFS access inside container (default, but optional)
-    if [[ "x$GWMS_SINGULARITY_BIND_CVMFS" = "x1" ]]; then
-        GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS=$(dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /cvmfs)
-    fi
-
-    # GPUs - bind outside GPU library directory to inside /host-libs
-    if [[ "$OSG_MACHINE_GPUS" -gt 0  ||  "x$GPU_USE" = "x1" ]]; then
-        if [[ "x$OSG_SINGULARITY_BIND_GPU_LIBS" = "x1" ]]; then
-            HOST_LIBS=""
-            if [[ -e "/usr/lib64/nvidia" ]]; then
-                HOST_LIBS=/usr/lib64/nvidia
-            elif create_host_lib_dir; then
-                HOST_LIBS="$PWD/.host-libs"
-            fi
-            if [[ "x$HOST_LIBS" != "x" ]]; then
-                GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS=$(dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS "$HOST_LIBS" /host-libs)
-            fi
-            if [[ -e /etc/OpenCL/vendors ]]; then
-                GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS=$(dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /etc/OpenCL/vendors /etc/OpenCL/vendors)
-            fi
-        fi
-        GWMS_SINGULARITY_EXTRA_OPTS="$GWMS_SINGULARITY_EXTRA_OPTS --nv"
-    #else
-        # if not using gpus, we can limit the image more
-        # Already in default: GWMS_SINGULARITY_EXTRA_OPTS="$GWMS_SINGULARITY_EXTRA_OPTS --contain"
+        singularity_image=$PWD/../../$IMAGE_FNAME
     fi
     info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:$([ -n "$HOST_LIBS" ] && echo 1), ocl:$([ -e /etc/OpenCL/vendors ] && echo 1)): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
 
-    # We want to bind $PWD to /srv within the container - however, in order
-    # to do that, we have to make sure everything we need is in $PWD, most
-    # notably the user-job-wrapper.sh (this script!) and singularity_lib.sh (in $GWMS_AUX_SUBDIR)
-    cp "$GWMS_THIS_SCRIPT" .gwms-user-job-wrapper.sh
-    export JOB_WRAPPER_SINGULARITY="/srv/.gwms-user-job-wrapper.sh"
-    mkdir -p "$GWMS_AUX_SUBDIR"
-    cp "${GWMS_AUX_DIR}singularity_lib.sh" "$GWMS_AUX_SUBDIR/"
-
-    # Remember what the outside pwd dir is so that we can rewrite env vars
-    # pointing to somewhere inside that dir (for example, X509_USER_PROXY)
-    #if [[ -n "$_CONDOR_JOB_IWD" ]]; then
-    #    export GWMS_SINGULARITY_OUTSIDE_PWD="$_CONDOR_JOB_IWD"
-    #else
-    #    export GWMS_SINGULARITY_OUTSIDE_PWD="$PWD"
-    #fi
-    # Should this be GWMS_THIS_SCRIPT_DIR?
-    #   Problem at sites like MIT where the job is started in /condor/execute/.. hard link from
-    #   /export/data1/condor/execute/...
-    # Do not trust _CONDOR_JOB_IWD when it comes to finding pwd for the job - M.Rynge
-    GWMS_SINGULARITY_OUTSIDE_PWD="$PWD"
-    # Protect from jobs starting from linked or bind mounted directories
-    for i in "$_CONDOR_JOB_IWD" "$GWMS_THIS_SCRIPT_DIR"; do
-        if [[ "$i" != "$GWMS_SINGULARITY_OUTSIDE_PWD" ]]; then
-            [[ "$(robust_realpath "$i")" == "$GWMS_SINGULARITY_OUTSIDE_PWD" ]] && GWMS_SINGULARITY_OUTSIDE_PWD="$i"
-        fi
-    done
-    export GWMS_SINGULARITY_OUTSIDE_PWD="$GWMS_SINGULARITY_OUTSIDE_PWD"
-    export GWMS_SINGULARITY_OUTSIDE_PWD_LIST="$(singularity_make_outside_pwd_list \
-        "${GWMS_SINGULARITY_OUTSIDE_PWD_LIST}" "${PWD}" "$(robust_realpath "${PWD}")" \
-        "${GWMS_THIS_SCRIPT_DIR}" "${_CONDOR_JOB_IWD}")"
-
-    # Build a new command line, with updated paths. Returns an array in GWMS_RETURN
-    singularity_update_path /srv "$@"
-
-    # Get Singularity binds, uses also GLIDEIN_SINGULARITY_BINDPATH, GLIDEIN_SINGULARITY_BINDPATH_DEFAULT
-    # remove binds w/ non existing src (e)
-    singularity_binds=$(singularity_get_binds e "$GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS")
-    # Run and log the Singularity command.
-    info_dbg "about to invoke singularity, pwd is $PWD"
-    export GWMS_SINGULARITY_REEXEC=1
-
-    # Always disabling outside LD_LIBRARY_PATH, PATH, PYTHONPATH and LD_PRELOAD to avoid problems w/ different OS
-    # Singularity is supposed to handle this, but different versions behave differently
-    # Restore them only if continuing after the exec of singularity failed (end of this function)
-    local old_ld_library_path=
-    if [[ -n "$LD_LIBRARY_PATH" ]]; then
-        old_ld_library_path=$LD_LIBRARY_PATH
-        info "GWMS Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
-        unset LD_LIBRARY_PATH
-    fi
-    local old_path=
-    if [[ -n "$PATH" ]]; then
-        old_path=$PATH
-        info "GWMS Singularity wrapper: PATH is set to $PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
-        unset PATH
-    fi
-    local old_pythonpath=
-    if [[ -n "$PYTHONPATH" ]]; then
-        old_pythonpath=$PYTHONPATH
-        info "GWMS Singularity wrapper: PYTHONPATH is set to $PYTHONPATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
-        unset PYTHONPATH
-    fi
-    if [[ -n "$LD_PRELOAD" ]]; then
-        old_ld_preload=$LD_PRELOAD
-        info "GWMS Singularity wrapper: LD_PRELOAD is set to $LD_PRELOAD outside Singularity. This will not be propagated to inside the container instance." 1>&2
-        unset LD_PRELOAD
-    fi
-
-    # Add --clearenv if requested
-    GWMS_SINGULARITY_EXTRA_OPTS=$(env_clear "${GLIDEIN_CONTAINER_ENV}" "${GWMS_SINGULARITY_EXTRA_OPTS}")
-
-    # If there is clearenv protect the variables (it may also have been added by the custom Singularity options)
-    if env_gets_cleared "${GWMS_SINGULARITY_EXTRA_OPTS}" ; then
-        env_preserve "${GLIDEIN_CONTAINER_ENV}"
-    fi
-
-    # The new OSG wrapper is not exec-ing singularity to continue after and inspect if it ran correctly or not
-    # This may be causing problems w/ signals (sig-term/quit) propagation - [#24306]
-    if [[ -z "$GWMS_SINGULARITY_LIB_VERSION" ]]; then
-        # GWMS 3.4.5 or lower, no GWMS_SINGULARITY_GLOBAL_OPTS, no GWMS_SINGULARITY_LIB_VERSION
-        singularity_exec "$GWMS_SINGULARITY_PATH" "$GWMS_SINGULARITY_IMAGE" "$singularity_binds" \
-                 "$GWMS_SINGULARITY_EXTRA_OPTS" "exec" "$JOB_WRAPPER_SINGULARITY" \
-                 "${GWMS_RETURN[@]}"
-    else
-        singularity_exec "$GWMS_SINGULARITY_PATH" "$GWMS_SINGULARITY_IMAGE" "$singularity_binds" \
-                 "$GWMS_SINGULARITY_EXTRA_OPTS" "$GWMS_SINGULARITY_GLOBAL_OPTS" "exec" "$JOB_WRAPPER_SINGULARITY" \
-                 "${GWMS_RETURN[@]}"
-    fi
-    # Continuing here only if exec of singularity failed
-    GWMS_SINGULARITY_REEXEC=0
-    env_restore "${GLIDEIN_CONTAINER_ENV}"
-    # Restoring paths that are always cleared before invoking Singularity, 
-    # may contain something used for error communication
-    [[ -n "$old_path" ]] && PATH=$old_path
-    [[ -n "$old_ld_library_path" ]] && PATH=$old_ld_library_path
-    [[ -n "$old_pythonpath" ]] && PYTHONPATH=$old_pythonpath
-    [[ -n "$old_ld_preload" ]] && LD_PRELOAD=$old_ld_preload
-    # Exit or return to run w/o Singularity
-    exit_or_fallback "exec of singularity failed" $?
+    echo "$singularity_image"
 }
 
 
@@ -433,11 +235,6 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
     info_dbg "GWMS singularity wrapper, first invocation"
 
-    # TODO: Remove this once singularity_lib.sh can use $CVMFS_BASE
-    if [[ $CVMFS_BASE != /cvmfs ]]; then
-        info "$CVMFS_BASE != /cvmfs; turning off image restrictions" 1>&2
-        GWMS_SINGULARITY_IMAGE_RESTRICTIONS=none
-    fi
     # Set up environment to know if Singularity is enabled and so we can execute Singularity
     setup_classad_variables
 
@@ -453,10 +250,11 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         #
         info_dbg "Decided to use singularity ($HAS_SINGULARITY, $GWMS_SINGULARITY_PATH). Proceeding w/ tests and setup."
 
+        # OSGVO - disabled for now
         # We make sure that every cvmfs repository that users specify in CVMFSReposList is available, otherwise this script exits with 1
-        cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
-   
-        # unset modules leftovers from the site environment 
+        #cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
+
+        # OSGVO: unset modules leftovers from the site environment 
         for KEY in \
               ENABLE_LMOD \
               _LMFILES_ \
@@ -474,12 +272,25 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             unset $KEY
         done
 
-        # TODO: CodeRM1 to remove once singularity_prepare_and_invoke from singularity_lib.sh is in all the factories
-        if [[ "$(type -t singularity_prepare_and_invoke)" == 'function' ]]; then
-            singularity_prepare_and_invoke "${@}"
-        else
-            prepare_and_invoke_singularity "$@"
+        # Should we use CVMFS or pull images directly?
+        # TODO - fix the test here
+        if (echo "$GWMS_SINGULARITY_IMAGE" | grep "^docker://") >/dev/null 2>&1; then
+            # pull the image into a Singularity SIF file
+            IMAGE_FNAME=$(echo "$GWMS_SINGULARITY_IMAGE" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
+            if [ ! -e ../../$IMAGE_FNAME ]; then
+                (curl -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                    || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                    || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
+                if [ $? != 0 ]; then
+                    warn "Unable to download image ($GWMS_SINGULARITY_IMAGE)"
+                    return 1
+                fi
+                mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
+            fi
+            GWMS_SINGULARITY_IMAGE=$PWD/../../$IMAGE_FNAME
         fi
+
+        singularity_prepare_and_invoke "${@}"
 
         # If we arrive here, then something failed in Singularity but is OK to continue w/o
 
