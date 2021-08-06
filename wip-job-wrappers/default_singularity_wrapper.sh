@@ -196,12 +196,15 @@ singularity_get_image() {
     #    return 2
     #fi
 
-    ## For now, let's test on ITB!
-    #if (echo "$singularity_image" | grep "^/cvmfs/singularity.opensciencegrid.org/") >/dev/null 2>&1; then
-    #    singularity_image=$(echo "$singularity_image" | sed 's;^/cvmfs/singularity.opensciencegrid.org;docker://hub.opensciencegrid.org;')
-    #fi
+    # For now, let's test on ITB!
+    # Translate /cvmfs image name to hub.opensciencegrid.org image
+    if (echo "$singularity_image" | grep "^/cvmfs/singularity.opensciencegrid.org/") >/dev/null 2>&1; then
+        singularity_image=$(echo "$singularity_image" | sed 's;^/cvmfs/singularity.opensciencegrid.org;docker://hub.opensciencegrid.org;')
+    fi
 
     # Should we use CVMFS or pull images directly?
+    ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
+    info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
     # TODO - fix the test here
     if (echo "$singularity_image" | grep "^docker://") >/dev/null 2>&1; then
         # pull the image into a Singularity SIF file
@@ -273,12 +276,14 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         done
 
         # Should we use CVMFS or pull images directly?
+        ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
+        info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
         # TODO - fix the test here
         if (echo "$GWMS_SINGULARITY_IMAGE" | grep "^docker://") >/dev/null 2>&1; then
             # pull the image into a Singularity SIF file
             IMAGE_FNAME=$(echo "$GWMS_SINGULARITY_IMAGE" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
             if [ ! -e ../../$IMAGE_FNAME ]; then
-                (curl -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
+                (curl -L -s -S -f -o ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                     || wget -nv --timeout=300 --tries=1 -O ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME \
                     || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $GWMS_SINGULARITY_IMAGE) >../../$IMAGE_FNAME.log 2>&1
                 if [ $? != 0 ]; then

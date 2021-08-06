@@ -114,6 +114,7 @@ function determine_default_container_image {
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
+        advertise ALLOW_NONCVMFS_IMAGES "True" "C"
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
         URL=https://data.isi.edu/osg/images/$IMAGE_FNAME
