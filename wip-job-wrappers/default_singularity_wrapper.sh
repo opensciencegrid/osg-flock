@@ -156,28 +156,23 @@ download_or_build_singularity_image () {
     local singularity_image="$1"
     # TODO - fix the test here
     #        base it on ALLOW_NONCVMFS_IMAGES
-    set -x
-    [[ -x $GWMS_SINGULARITY_PATH ]] || warn "Singularity in $GWMS_SINGULARITY_PATH is not executable"
     if [[ $singularity_image = docker://* ]]; then
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
         if [[ ! -e ../../$IMAGE_FNAME ]]; then
-            if ! download_to ../../$IMAGE_FNAME.$$ https://data.isi.edu/osg/images/$IMAGE_FNAME; then
-                info_dbg "not found upstream; fetching from a registry"
-                if ! $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $singularity_image &>../../$IMAGE_FNAME.log; then
-                    warn "Unable to download or build image ($singularity_image)"
-                    warn "Dumping $IMAGE_FNAME.log:"
-                    cat $IMAGE_FNAME.log >&2
-                    set +x
-                    return 1
-                fi
+            local tmpfile="../../$IMAGE_FNAME.$$"
+            local logfile="../../$IMAGE_FNAME.log"
+            if ! ( download_to "$tmpfile" https://data.isi.edu/osg/images/$IMAGE_FNAME ||
+                $GWMS_SINGULARITY_PATH build --force "$tmpfile" "$singularity_image" ) &>"$logfile"; then
+                warn "Unable to download or build image ($singularity_image); logs:"
+                cat "$logfile" >&2
+                return 1
             fi
-            mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
+            mv "$tmpfile" "../../$IMAGE_FNAME"
         fi
         singularity_image=$PWD/../../$IMAGE_FNAME
     fi
     echo "$singularity_image"
-    set +x
     return 0
 }
 
@@ -330,7 +325,9 @@ else
     export HOME=/srv
 
     # Changing env variables (especially TMP and X509 related) to work w/ chrooted FS
+    set -x
     singularity_setup_inside
+    set +x
     info_dbg "GWMS singularity wrapper, running inside singularity env = $(printenv)"
 
 fi
