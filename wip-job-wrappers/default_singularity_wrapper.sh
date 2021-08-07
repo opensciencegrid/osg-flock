@@ -325,9 +325,7 @@ else
     export HOME=/srv
 
     # Changing env variables (especially TMP and X509 related) to work w/ chrooted FS
-    set -x
     singularity_setup_inside
-    set +x
     info_dbg "GWMS singularity wrapper, running inside singularity env = $(printenv)"
 
 fi
