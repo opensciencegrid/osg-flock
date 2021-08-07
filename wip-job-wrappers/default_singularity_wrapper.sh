@@ -143,6 +143,7 @@ download_singularity_image () {
     local singularity_image="$1"
     # TODO - fix the test here
     #        base it on ALLOW_NONCVMFS_IMAGES
+    set -x
     if (echo "$singularity_image" | grep "^docker://") >/dev/null 2>&1; then
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
@@ -152,6 +153,11 @@ download_singularity_image () {
                 || $GWMS_SINGULARITY_PATH build --force ../../$IMAGE_FNAME.$$ $singularity_image) >../../$IMAGE_FNAME.log 2>&1
             if [ $? != 0 ]; then
                 warn "Unable to download image ($singularity_image)"
+                if [[ -s $IMAGE_FNAME.log ]]; then
+                    warn "Dumping $IMAGE_FNAME.log:"
+                    cat $IMAGE_FNAME.log >&2
+                fi
+                set +x
                 return 1
             fi
             mv ../../$IMAGE_FNAME.$$ ../../$IMAGE_FNAME
@@ -159,6 +165,7 @@ download_singularity_image () {
         singularity_image=$PWD/../../$IMAGE_FNAME
     fi
     echo "$singularity_image"
+    set +x
     return 0
 }
 
@@ -286,7 +293,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             unset $KEY
         done
 
-        GWMS_SINGULARITY_IMAGE=$(download_singularity_image "$GWMS_SINGULARITY_IMAGE") || return 1
+        GWMS_SINGULARITY_IMAGE=$(download_singularity_image "$GWMS_SINGULARITY_IMAGE") || exit 1
 
         singularity_prepare_and_invoke "${@}"
 
