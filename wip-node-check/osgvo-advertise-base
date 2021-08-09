@@ -453,16 +453,12 @@ advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
 
 ###########################################################
 # Project restriction
-if [[ -n $GLIDEIN_PROJECT_ID ]]; then
-    info "GLIDEIN_PROJECT_ID=$GLIDEIN_PROJECT_ID"
-    project_name=$(awk -F, '{print $NF}' <<<$GLIDEIN_PROJECT_ID)
-
-    if [[ -n $project_name ]]; then
-        advertise OSG_PROJECT_NAME "$project_name" "S"
-        advertise OSG_PROJECT_RESTRICTION "ProjectName =?= OSG_PROJECT_NAME" "C"
-    fi
+if [[ -n $OSG_PROJECT_NAME ]]; then
+    info "OSG_PROJECT_NAME=$OSG_PROJECT_NAME"
+    advertise OSG_PROJECT_NAME "$PROJECT_NAME" "S"
+    advertise OSG_PROJECT_RESTRICTION "ProjectName =?= OSG_PROJECT_NAME" "C"
 else
-    info "GLIDEIN_PROJECT_ID is unset"
+    info "OSG_PROJECT_NAME is unset"
 fi
 
 
