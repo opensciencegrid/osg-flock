@@ -188,12 +188,12 @@ download_or_build_singularity_image () {
             rm -f $logfile
             for src in singularity_srcs; do
                 if (echo "$src" | grep "^http")>/dev/null 2>&1; then
-                    if (download_to "$tmpfile" https://data.isi.edu/osg/images/$IMAGE_FNAME) &>$logfile; then
+                    if (download_to "$tmpfile" "$src") &>$logfile; then
                         downloaded=1
                         break
                     fi
                 else
-                    if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$singularity_image" ) &>"$logfile"; then
+                    if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$src" ) &>"$logfile"; then
                         downloaded=1
                         break
                     fi
