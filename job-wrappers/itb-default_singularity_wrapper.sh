@@ -171,43 +171,44 @@ download_or_build_singularity_image () {
 
         if [[ $singularity_image = /cvmfs/singularity.opensciencegrid.org/* ]]; then
             # transform /cvmfs to a set or URLS to to try
-            BASE_NAME=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;')
-            IMAGE_FNAME=$(echo "$BASE_NAME" | sed 's;[:/];__;g').sif
-            singularity_srcs="https://data.isi.edu/osg/images/$IMAGE_FNAME docker://hub.opensciencegrid.org/$BASE_NAME docker://$BASE_NAME"
+            base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;')
+            image_fname=$(echo "$base_name" | sed 's;[:/];__;g').sif
+            singularity_srcs="https://data.isi.edu/osg/images/$image_fname docker://hub.opensciencegrid.org/$base_name docker://$base_name"
         else 
             # user has been explicit with for examplea docker or http URL
             singularity_srcs="$singularity_image"
-            IMAGE_FNAME=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
+            image_fname=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
         fi
 
         # already downloaded?
-        if [[ ! -e ../../$IMAGE_FNAME ]]; then
-            local tmpfile="../../$IMAGE_FNAME.$$"
-            local logfile="../../$IMAGE_FNAME.log"
+        if [[ ! -e ../../$image_fname ]]; then
+            local tmpfile="../../$image_fname.$$"
+            local logfile="../../$image_fname.log"
             local downloaded=0
             rm -f $logfile
-            for src in singularity_srcs; do
+            for src in $singularity_srcs; do
+                echo "Trying to download from $src ..." &>>$logfile
                 if (echo "$src" | grep "^http")>/dev/null 2>&1; then
-                    if (download_to "$tmpfile" "$src") &>$logfile; then
+                    if (download_to "$tmpfile" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
                 else
-                    if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$src" ) &>"$logfile"; then
+                    if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$src" ) &>>"$logfile"; then
                         downloaded=1
                         break
                     fi
                 fi
             done
-            if [ $downloaded = 1]; then
-                mv "$tmpfile" "../../$IMAGE_FNAME"
+            if [[ $downloaded = 1 ]]; then
+                mv "$tmpfile" "../../$image_fname"
             else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
                 rm -f "$tmpfile"
                 return 1
             fi
-            singularity_image=$PWD/../../$IMAGE_FNAME
+            singularity_image=$PWD/../../$image_fname
         fi
     fi
     echo "$singularity_image"
