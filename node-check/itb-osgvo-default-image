@@ -68,17 +68,12 @@ function determine_default_container_image {
 
     SELECTED_IMAGE=""
     if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
-        # new style - weghted random selection
+        # new style - weighted random selection
         TARGET=$(($RANDOM % 100 + 1))
         TOTAL_PERCENT=0
         for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
             PERCENT=`echo $ENTRY | sed 's/%__.*//'`
             IMAGE=`echo $ENTRY | sed 's/.*%__//'`
-            # verify it exists
-            #if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
-            #    my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
-            #    continue
-            #fi
             # we just need to track the upper limit
             TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
             if [ $TARGET -le $TOTAL_PERCENT ]; then
@@ -101,23 +96,33 @@ function determine_default_container_image {
     pull_images=0
     is_itb=$(get_glidein_config_value Is_ITB_Site)
     entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    if [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
+        info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
+        pull_images=1
+    fi
     if (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because this is an ITB site"
         pull_images=1
     fi
     if (echo "x$entry_name" | grep "Stampede2") >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because this is Stampede2"
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
+        advertise ALLOW_NONCVMFS_IMAGES "True" "C"
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
-        (curl -s -S -f -o $IMAGE_FNAME https://data.isi.edu/osg/images/$IMAGE_FNAME \
-            || wget -nv --timeout=300 --tries=1 -O $IMAGE_FNAME https://data.isi.edu/osg/images/$IMAGE_FNAME \
+        URL=https://data.isi.edu/osg/images/$IMAGE_FNAME
+        (curl -L -s -S -f -o $IMAGE_FNAME $URL \
+            || wget -nv --timeout=300 --tries=1 -O $IMAGE_FNAME $URL \
             || singularity build --force $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_FNAME.log 2>&1
         if [ $? = 0 ]; then
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
             advertise SINGULARITY_IMAGES_DICT "default:$PWD/$IMAGE_FNAME" "S"
             advertise REQUIRED_OS "default" "S"
             return 0
+        else
+            my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
         fi
     fi
 

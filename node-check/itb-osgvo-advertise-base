@@ -152,6 +152,11 @@ if [ "x$PATH" = "x" ]; then
 fi
 info "PATH is set to $PATH"
 
+# CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
+if [ "x$CVMFS_BASE" = "x" ]; then
+    CVMFS_BASE="/cvmfs"
+fi
+
 if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
     info "No arguments provided - assuming HTCondor startd cron mode"
@@ -261,7 +266,7 @@ for FS in \
     RESULT="False"
     
     # keep the filesystems mounted
-    ls -l /cvmfs/$FS/ >/dev/null 2>&1
+    ls -l "$CVMFS_BASE"/$FS/ >/dev/null 2>&1
 
     if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
         advertise $FS_ATTR "False" "C"
@@ -272,12 +277,12 @@ for FS in \
         continue
     fi
 
-    if [ -e /cvmfs/$FS/. ]; then
+    if [ -e $CVMFS_BASE/$FS/. ]; then
         RESULT="True"
 
         # add the revision 
         REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-        REV_VAL=`/usr/bin/attr -q -g revision /cvmfs/$FS/. 2>/dev/null`
+        REV_VAL=`/usr/bin/attr -q -g revision "$CVMFS_BASE"/$FS/. 2>/dev/null`
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$REV_VAL" = "x" ]; then
             REV_VAL=0
@@ -285,7 +290,7 @@ for FS in \
 
         # add the error count
         NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
-        NIOERR_VAL=`/usr/bin/attr -q -g nioerr /cvmfs/$FS/. 2>/dev/null`
+        NIOERR_VAL=`/usr/bin/attr -q -g nioerr "$CVMFS_BASE"/$FS/. 2>/dev/null`
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$NIOERR_VAL" = "x" ]; then
             NIOERR_VAL=-1
@@ -303,24 +308,24 @@ for FS in \
         
         # oasis.opensciencegrid.org needs extra checks
         if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
-            if ! cat /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
+            if ! cat "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
                 RESULT="False"
             fi
-            if ! cat /cvmfs/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
+            if ! cat "$CVMFS_BASE"/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
                 RESULT="False"
             fi
         fi
 
         # stash.osgstorage.org needs extra checks
         if [ "x$FS" = "xstash.osgstorage.org" ]; then
-            if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
+            if ! cat "$CVMFS_BASE"/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
                 RESULT="False"
             fi
         fi
         
         # veritas.opensciencegrid.org
         if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
-            if ! cat /cvmfs/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
+            if ! cat "$CVMFS_BASE"/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
                 RESULT="False"
             fi
         fi
@@ -355,7 +360,7 @@ done
 
 # update timestamp?
 TS_ATTR="CVMFS_oasis_opensciencegrid_org_TIMESTAMP"
-TS_VAL=`(cat /cvmfs/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
+TS_VAL=`(cat "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/update.details  | egrep '^Update unix time:' | sed 's/.*: //') 2>/dev/null`
 if [ "x$TS_VAL" != "x" ]; then
     # make sure it is an integer
     if [ "$TS_VAL" -eq "$TS_VAL" ] 2>/dev/null; then
@@ -430,7 +435,7 @@ else
 	info "Closest XCACHE found is: $XCACHE_CLOSEST"
     # test first using the cached cvmfs values
     if [ "X$XCACHE_CLOSEST" = "X" ]; then
-        XCACHE_CLOSEST=`(export PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
+        XCACHE_CLOSEST=`(export PATH="$CVMFS_BASE"/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:"$CVMFS_BASE"/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
     fi
     if [ "X$XCACHE_CLOSEST" != "X" ]; then
         echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
@@ -448,16 +453,12 @@ advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
 
 ###########################################################
 # Project restriction
-if [[ -n $GLIDEIN_PROJECT_ID ]]; then
-    info "GLIDEIN_PROJECT_ID=$GLIDEIN_PROJECT_ID"
-    project_name=$(awk -F, '{print $NF}' <<<$GLIDEIN_PROJECT_ID)
-
-    if [[ -n $project_name ]]; then
-        advertise OSG_PROJECT_NAME "$project_name" "S"
-        advertise OSG_PROJECT_RESTRICTION "ProjectName =?= OSG_PROJECT_NAME" "C"
-    fi
+if [[ -n $OSG_PROJECT_NAME ]]; then
+    info "OSG_PROJECT_NAME=$OSG_PROJECT_NAME"
+    advertise OSG_PROJECT_NAME "$PROJECT_NAME" "S"
+    advertise OSG_PROJECT_RESTRICTION "ProjectName =?= OSG_PROJECT_NAME" "C"
 else
-    info "GLIDEIN_PROJECT_ID is unset"
+    info "OSG_PROJECT_NAME is unset"
 fi
 
 
