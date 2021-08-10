@@ -74,11 +74,6 @@ function determine_default_container_image {
         for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
             PERCENT=`echo $ENTRY | sed 's/%__.*//'`
             IMAGE=`echo $ENTRY | sed 's/.*%__//'`
-            # verify it exists
-            if [ ! -e "/cvmfs/singularity.opensciencegrid.org/$IMAGE" ]; then
-                my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
-                continue
-            fi
             # we just need to track the upper limit
             TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
             if [ $TARGET -le $TOTAL_PERCENT ]; then

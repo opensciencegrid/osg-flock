@@ -154,23 +154,66 @@ download_to () {
 
 download_or_build_singularity_image () {
     local singularity_image="$1"
-    # TODO - fix the test here
-    #        base it on ALLOW_NONCVMFS_IMAGES
-    if [[ $singularity_image = docker://* ]]; then
-        # pull the image into a Singularity SIF file
-        IMAGE_FNAME=$(echo "$singularity_image" | sed 's;docker://;;' | sed 's;[:/];__;g').sif
-        if [[ ! -e ../../$IMAGE_FNAME ]]; then
-            local tmpfile="../../$IMAGE_FNAME.$$"
-            local logfile="../../$IMAGE_FNAME.log"
-            if ! ( download_to "$tmpfile" https://data.isi.edu/osg/images/$IMAGE_FNAME ||
-                $GWMS_SINGULARITY_PATH build --force "$tmpfile" "$singularity_image" ) &>"$logfile"; then
+
+    # ALLOW_NONCVMFS_IMAGES determines the approach here
+    # if it is 0, verify that the image is indeed on CVMFS
+    # if it is 1, transform the image to a form and try downloaded it from our services
+
+    if [ "x$ALLOW_NONCVMFS_IMAGES" = "x0" ]; then
+        if ! (echo "$singularity_image" | grep "^/cvmfs/") >/dev/null 2>&1; then
+            warn "The specified image $singularity_image is not on CVMFS, ALLOW_NONCVMFS_IMAGES=0"
+            return 1
+        fi
+    else
+        # first figure out a base image name in the form of owner/image:tag, then
+        # transform it to our expected image and name and try to download
+        singularity_srcs=""
+
+        if [[ $singularity_image = /cvmfs/singularity.opensciencegrid.org/* ]]; then
+            # transform /cvmfs to a set or URLS to to try
+            base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;')
+            image_fname=$(echo "$base_name" | sed 's;[:/];__;g').sif
+            singularity_srcs="https://data.isi.edu/osg/images/$image_fname docker://hub.opensciencegrid.org/$base_name docker://$base_name"
+        else 
+            # user has been explicit with for examplea docker or http URL
+            singularity_srcs="$singularity_image"
+            image_fname=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
+        fi
+
+        # already downloaded?
+        if [[ ! -e ../../$image_fname ]]; then
+            local tmpfile="../../$image_fname.$$"
+            local logfile="../../$image_fname.log"
+            local downloaded=0
+            rm -f $logfile
+            for src in $singularity_srcs; do
+                echo "Trying to download from $src ..." &>>$logfile
+                if (echo "$src" | grep "^http")>/dev/null 2>&1; then
+                    if (download_to "$tmpfile" "$src") &>>$logfile; then
+                        downloaded=1
+                        break
+                    fi
+                elif (echo "$src" | grep "^docker:")>/dev/null 2>&1; then
+                    # docker is a special case - just pass it through
+                    echo "$singularity_image"
+                    return 0
+                else
+                    if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$src" ) &>>"$logfile"; then
+                        downloaded=1
+                        break
+                    fi
+                fi
+            done
+            if [[ $downloaded = 1 ]]; then
+                mv "$tmpfile" "../../$image_fname"
+            else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
+                rm -f "$tmpfile"
                 return 1
             fi
-            mv "$tmpfile" "../../$IMAGE_FNAME"
+            singularity_image=$PWD/../../$image_fname
         fi
-        singularity_image=$PWD/../../$IMAGE_FNAME
     fi
     echo "$singularity_image"
     return 0
@@ -238,12 +281,6 @@ singularity_get_image() {
     #    warn "ERROR: $singularity_image file not found" 1>&2
     #    return 2
     #fi
-
-    # For now, let's test on ITB!
-    # Translate /cvmfs image name to hub.opensciencegrid.org image
-    if (echo "$singularity_image" | grep "^/cvmfs/singularity.opensciencegrid.org/") >/dev/null 2>&1; then
-        singularity_image=$(echo "$singularity_image" | sed 's;^/cvmfs/singularity.opensciencegrid.org;docker://hub.opensciencegrid.org;')
-    fi
 
     singularity_image=$(download_or_build_singularity_image "$singularity_image") || return 1
     info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:$([ -n "$HOST_LIBS" ] && echo 1), ocl:$([ -e /etc/OpenCL/vendors ] && echo 1)): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
@@ -341,139 +378,8 @@ fi
 
 info_dbg "GWMS singularity wrapper, final setup."
 
+gwms_process_scripts "$GWMS_DIR" prejob
 
-# TODO: CodeRM1 to remove once gwms_process_scripts from singularity_lib.sh and the new setup_prejob.sh 
-#  are in all the factories and frontends
-if [[ "$(type -t gwms_process_scripts)" == 'function' ]]; then
-    gwms_process_scripts "$GWMS_DIR" prejob
-else
-    #############################
-    #
-    #  modules and env
-    #
-    
-    # TODO: to remove for sure once 'pychirp' is tried and tested
-    # TODO: not needed here? It is in singularity_setup_inside for when Singularity is invoked, and should be already in the PATH when it is not
-    # Checked - glidin_startup seems not to add condor to the path
-    # Add Glidein provided HTCondor back to the environment (so that we can call chirp) - same is in
-    # TODO: what if original and Singularity OS are incompatible? Should check and avoid adding condor back?
-    if ! command -v condor_chirp > /dev/null 2>&1; then
-        # condor_chirp not found, setting up form the condor library
-        if [[ -e ../../main/condor/libexec ]]; then
-            DER=$( (cd ../../main/condor; pwd) )
-            export PATH="$DER/libexec:$PATH"
-            # TODO: Check if LD_LIBRARY_PATH is needed or OK because of RUNPATH
-            # export LD_LIBRARY_PATH="$DER/lib:$LD_LIBRARY_PATH"
-        fi
-    fi
-    
-    # fix discrepancy for Squid proxy URLs
-    if [[ "x$GLIDEIN_Proxy_URL" = "x"  ||  "$GLIDEIN_Proxy_URL" = "None" ]]; then
-        if [[ "x$OSG_SQUID_LOCATION" != "x"  &&  "$OSG_SQUID_LOCATION" != "None" ]]; then
-            export GLIDEIN_Proxy_URL="$OSG_SQUID_LOCATION"
-        fi
-    fi
-    
-    # load modules and spack, if available
-    # InitializeModulesEnv and MODULE_USE are 2 variables to enable the use of modules
-    [[ "x$InitializeModulesEnv" = "x1" ]] && MODULE_USE=1
-    
-    if [[ "x$MODULE_USE" = "x1" ]]; then
-        # Removed LMOD_BETA (/cvmfs/oasis.opensciencegrid.org/osg/sw/module-beta-init.sh), obsolete
-        if [[ -e $CVMFS_BASE/oasis.opensciencegrid.org/osg/sw/module-init.sh  &&  -e $CVMFS_BASE/connect.opensciencegrid.org/modules/spack/share/spack/setup-env.sh ]]; then
-            . $CVMFS_BASE/oasis.opensciencegrid.org/osg/sw/module-init.sh
-        fi
-        module -v >/dev/null 2>&1
-        if [[ $? -ne 0 ]]; then
-            # module setup did not work, ignore it for the rest of the script
-            MODULE_USE=0
-        fi
-    fi
-    
-    
-    #############################
-    #
-    #  Stash cache
-    #
-    
-    setup_stashcp () {
-        if [[ "x$MODULE_USE" != "x1" ]]; then
-            warn "Module unavailable. Unable to setup Stash cache if not in the environment."
-            return 1
-        fi
-    
-        # if we do not have stashcp in the path, load stashcache and xrootd from modules
-        if ! which stashcp >/dev/null 2>&1; then
-            module load stashcache >/dev/null 2>&1 || module load stashcp >/dev/null 2>&1
-    
-            # The OSG wrapper (as of 5d8b3fa9b258ea0e6640727405f20829d2c5d4b9) removed this xrdcp setup
-            # We need xrootd, which is available both in the OSG software stack
-            # as well as modules - use the system one by default
-            if ! which xrdcp >/dev/null 2>&1; then
-                module load xrootd >/dev/null 2>&1
-            fi
-    
-            # Determine XRootD plugin directory.
-            # in lieu of a MODULE_<name>_BASE from lmod, this will do:
-            if [ -n "$XRD_PLUGINCONFDIR" ]; then
-                MODULE_XROOTD_BASE=$(which xrdcp | sed -e 's,/bin/.*,,')
-                export MODULE_XROOTD_BASE
-                export XRD_PLUGINCONFDIR="$MODULE_XROOTD_BASE/etc/xrootd/client.plugins.d"
-            fi
-        fi
-    
-    }
-    
-    # Check for PosixStashCache first
-    if [[ "x$POSIXSTASHCACHE" = "x1" ]]; then
-        setup_stashcp
-        if [[ $? -eq 0 ]]; then
-    
-            # Add the LD_PRELOAD hook
-            export LD_PRELOAD="$MODULE_XROOTD_BASE/lib64/libXrdPosixPreload.so:$LD_PRELOAD"
-    
-            # Set proxy for virtual mount point
-            # Format: cache.domain.edu/local_mount_point=/storage_path
-            # E.g.: export XROOTD_VMP=data.ci-connect.net:/stash=/
-            # Currently this points _ONLY_ to the OSG Connect source server
-            export XROOTD_VMP=$(stashcp --closest | cut -d'/' -f3):/stash=/
-        fi
-    elif [[ "x$STASHCACHE" = "x1"  ||  "x$STASHCACHE_WRITABLE" = "x1" ]]; then
-        setup_stashcp
-        # No more extra path for $STASHCACHE_WRITABLE
-        # [[ $? -eq 0 ]] && [[ "x$STASHCACHE_WRITABLE" = "x1" ]]export PATH="/cvmfs/oasis.opensciencegrid.org/osg/projects/stashcp/writeback:$PATH"
-    fi
-    
-    
-    ################################
-    #
-    #  Load user specified modules
-    #
-    if [[ "X$LoadModules" != "X" ]]; then
-        if [[ "x$MODULE_USE" != "x1" ]]; then
-            warn "Module unavailable. Unable to load desired modules: $LoadModules"
-        else
-            ModuleList=$(echo $LoadModules | sed 's/^LoadModules = //i;s/"//g')
-            for Module in $ModuleList; do
-                info_dbg "Loading module: $Module"
-                module load "$Module"
-            done
-        fi
-    fi
-fi
-
-
-# TODO: This is OSG specific. Should there be something similar in GWMS?
-###############################
-#
-#  Trace callback
-#
-#
-#if [ ! -e .trace-callback ]; then
-#    (wget -nv -O .trace-callback http://osg-vo.isi.edu/osg/agent/trace-callback && chmod 755 .trace-callback) >/dev/null 2>&1 || /bin/true
-#fi
-#./.trace-callback start >/dev/null 2>&1 || /bin/true
-#rm -f .trace-callback >/dev/null 2>&1 || true
 
 ##############################
 #
