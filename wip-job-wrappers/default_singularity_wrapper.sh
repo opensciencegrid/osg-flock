@@ -136,6 +136,8 @@ info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting,
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
 # Should we use CVMFS or pull images directly?
+info_dbg "grep ALLOW_NONCVMFS_IMAGES in condor_machine_ad ($_CONDOR_MACHINE_AD)"
+info_dbg "$(grep -i allow_noncvmfs_images "$_CONDOR_MACHINE_AD")"
 ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
 info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
 
