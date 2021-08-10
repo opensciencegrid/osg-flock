@@ -193,6 +193,10 @@ download_or_build_singularity_image () {
                         downloaded=1
                         break
                     fi
+                elif (echo "$src" | grep "^docker:")>/dev/null 2>&1; then
+                    # docker is a special case - just pass it through
+                    echo "$singularity_image"
+                    return 0
                 else
                     if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$src" ) &>>"$logfile"; then
                         downloaded=1
