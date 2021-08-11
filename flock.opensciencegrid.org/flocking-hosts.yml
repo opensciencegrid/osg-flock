@@ -130,6 +130,11 @@ scosg16.jlab.org:
   site: JLab
   dn: /CN=scosg16.jlab.org
 
+scosg20.jlab.org:
+  admin: Kurt Strosahl <strosahl@jlab.org>
+  site: JLab
+  dn: /DC=org/DC=incommon/C=US/ST=Virginia/L=Newport News/O=Thomas Jefferson National Accelerator Facility/OU=SciComp/CN=scosg20.jlab.org
+
 ### Cyverse ###
 
 #aragon.cyverse.org:
