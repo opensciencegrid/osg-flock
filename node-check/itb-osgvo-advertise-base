@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=561
+OSG_GLIDEIN_VERSION=562
 #######################################################################
 
 
@@ -241,8 +241,10 @@ advertise HAS_unsquashfs "$HAS_unsquashfs" "C"
 
 # check for locally cached .sif images - this will be helpful when determining 
 # we want to disable Singularity if CVMFS is not available
-GWS_SINGULARITY_CACHED_IMAGES=$((ls *.sif | sort | paste -d, -s) 2>/dev/null)
-advertise GWS_SINGULARITY_CACHED_IMAGES "$GWS_SINGULARITY_CACHED_IMAGES" "S"
+GWMS_SINGULARITY_CACHED_IMAGES=$((ls *.sif | sort | paste -d, -s) 2>/dev/null)
+if [[ "x$GWMS_SINGULARITY_CACHED_IMAGES" != "x" ]]; then
+    advertise GWMS_SINGULARITY_CACHED_IMAGES "$GWMS_SINGULARITY_CACHED_IMAGES" "S"
+fi
 
 ##################
 # cvmfs filesystem availability
@@ -336,8 +338,8 @@ for FS in \
             fi
         fi
         
-        # disable singularity on NFS sites or if the singularity fs has errors
-        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
+        # disable singularity if the singularity cvmfs has errors
+        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWMS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
             if [ $RESULT = "False" ]; then
                 advertise HAS_SINGULARITY "False" "C"
                 advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"

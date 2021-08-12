@@ -61,11 +61,6 @@ function determine_default_container_image {
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
 
-    # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
-    if [ "x$CVMFS_BASE" = "x" ]; then
-        CVMFS_BASE="/cvmfs"
-    fi
-
     # if we are given GPUs, pick up GPU specific images
     if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
@@ -79,11 +74,6 @@ function determine_default_container_image {
         for ENTRY in $OSG_DEFAULT_CONTAINER_DISTRIBUTION; do
             PERCENT=`echo $ENTRY | sed 's/%__.*//'`
             IMAGE=`echo $ENTRY | sed 's/.*%__//'`
-            # verify it exists
-            if [ ! -e "$CVMFS_BASE/singularity.opensciencegrid.org/$IMAGE" ]; then
-                my_warn "Image listed in OSG_DEFAULT_CONTAINER_DISTRIBUTION does not exist: $IMAGE"
-                continue
-            fi
             # we just need to track the upper limit
             TOTAL_PERCENT=$(($TOTAL_PERCENT + $PERCENT))
             if [ $TARGET -le $TOTAL_PERCENT ]; then
@@ -102,8 +92,43 @@ function determine_default_container_image {
         fi
     fi
 
+    # Should we use CVMFS or pull images directly?
+    pull_images=0
+    is_itb=$(get_glidein_config_value Is_ITB_Site)
+    entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    if [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
+        info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
+        pull_images=1
+    #elif (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
+    #    info "Allowing non-CVMFS images because this is an ITB site"
+    #    pull_images=1
+    elif (echo "x$entry_name" | egrep "Clemson|ISI|Stampede2|UTAH") >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because of the entry name: $entry_name"
+        pull_images=1
+    elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because /cvmfs/singularity.opensciencegrid.org/ is not available"
+        pull_images=1
+    fi
+    if [ $pull_images = 1 ]; then
+        advertise ALLOW_NONCVMFS_IMAGES "True" "C"
+        # pull the image into a Singularity SIF file
+        IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
+        URL=https://data.isi.edu/osg/images/$IMAGE_FNAME
+        (curl -L -s -S -f -o $IMAGE_FNAME $URL \
+            || wget -nv --timeout=300 --tries=1 -O $IMAGE_FNAME $URL \
+            || singularity build --force $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_FNAME.log 2>&1
+        if [ $? = 0 ]; then
+            advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
+            advertise SINGULARITY_IMAGES_DICT "default:$PWD/$IMAGE_FNAME" "S"
+            advertise REQUIRED_OS "default" "S"
+            return 0
+        else
+            my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
+        fi
+    fi
+
     # prepend the base bath
-    SELECTED_IMAGE="$CVMFS_BASE/singularity.opensciencegrid.org/$SELECTED_IMAGE"
+    SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
     advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
     advertise REQUIRED_OS "default" "S"
 }
