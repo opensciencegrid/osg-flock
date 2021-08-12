@@ -246,6 +246,7 @@ advertise GWS_SINGULARITY_CACHED_IMAGES "$GWS_SINGULARITY_CACHED_IMAGES" "S"
 
 ##################
 # cvmfs filesystem availability
+GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
 info "Checking for CVMFS availability and attributes..."
 for FS in \
    ams.cern.ch \
@@ -277,7 +278,7 @@ for FS in \
         advertise $FS_ATTR "False" "C"
         if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
             advertise HAS_SINGULARITY "False" "C"
-            advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
+            advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"
         fi
         continue
     fi
@@ -307,7 +308,7 @@ for FS in \
         fi
         
         # UUTAH is special case - broken NFS
-        if (echo "$GLIDEIN_Entry_Name" | grep "UUTAH") >/dev/null 2>&1; then
+        if (echo "$GLIDEIN_Entry_Name" | grep -i "UUTAH") >/dev/null 2>&1; then
             RESULT="False"
         fi
         

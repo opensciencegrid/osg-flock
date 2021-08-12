@@ -174,8 +174,12 @@ download_or_build_singularity_image () {
             base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;')
             image_fname=$(echo "$base_name" | sed 's;[:/];__;g').sif
             singularity_srcs="https://data.isi.edu/osg/images/$image_fname docker://hub.opensciencegrid.org/$base_name docker://$base_name"
+        elif [[ -e "$singularity_image" ]]; then
+            # the image is not on cvmfs, but has already been downloaded - short circuit here
+            echo "$singularity_image"
+            return 0
         else 
-            # user has been explicit with for examplea docker or http URL
+            # user has been explicit with for example a docker or http URL
             singularity_srcs="$singularity_image"
             image_fname=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
         fi
