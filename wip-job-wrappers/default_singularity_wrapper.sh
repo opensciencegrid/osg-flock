@@ -182,11 +182,20 @@ download_or_build_singularity_image () {
             image_fname=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
         fi
 
+        # simple lock to prevent multiple slots from attempting dowloading of the same image
+        local lockfile="../../$image_fname.lock"
+        local waitcount=0
+        while [[ -e $lockfile && $waitcount -lt 10 ]]; do
+            sleep 60s
+            waitcount=$(($waitcount + 1))
+        done
+
         # already downloaded?
         if [[ ! -e ../../$image_fname ]]; then
             local tmpfile="../../$image_fname.$$"
             local logfile="../../$image_fname.log"
             local downloaded=0
+            touch $lockfile
             rm -f $logfile
             for src in $singularity_srcs; do
                 echo "Trying to download from $src ..." &>>$logfile
@@ -195,8 +204,12 @@ download_or_build_singularity_image () {
                         downloaded=1
                         break
                     fi
-                elif (echo "$src" | grep "^docker:")>/dev/null 2>&1; then
+                    # failure - clean up
+                    rm -f "$tmpfile"
+                elif (echo "$src" | grep "^docker:" | grep -v "hub.opensciencegrid.org")>/dev/null 2>&1; then
                     # docker is a special case - just pass it through
+                    # hub.opensciencegrid.org will be handled by "singularity build" for now
+                    rm -f "$lockfile"
                     echo "$singularity_image"
                     return 0
                 else
@@ -205,16 +218,19 @@ download_or_build_singularity_image () {
                         break
                     fi
                 fi
+                # clean up between attempts
+                rm -f "$tmpfile"
             done
             if [[ $downloaded = 1 ]]; then
                 mv "$tmpfile" "../../$image_fname"
             else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
-                rm -f "$tmpfile"
+                rm -f "$tmpfile" "$lockfile"
                 return 1
             fi
             singularity_image=$PWD/../../$image_fname
+            rm -f "$lockfile"
         fi
     fi
     echo "$singularity_image"
