@@ -306,9 +306,9 @@ for FS in \
         if [ $NIOERR_VAL -gt 0 ]; then
             RESULT="False"
         fi
-        
+       
         # UUTAH is special case - broken NFS
-        if (echo "$GLIDEIN_Entry_Name" | grep -i "UUTAH") >/dev/null 2>&1; then
+        if (echo "$GLIDEIN_Entry_Name" | egrep -i "ISI|UUTAH") >/dev/null 2>&1; then
             RESULT="False"
         fi
         

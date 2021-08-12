@@ -135,10 +135,6 @@ GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
-# Should we use CVMFS or pull images directly?
-ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
-info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
-
 download_to () {
     local dest="$1"
     local src="$2"
@@ -602,6 +598,10 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         # From here on the script assumes it has to run w/ Singularity
         #
         info_dbg "Decided to use singularity ($HAS_SINGULARITY, $GWMS_SINGULARITY_PATH). Proceeding w/ tests and setup."
+
+        # Should we use CVMFS or pull images directly?
+        export ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
+        info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
 
         # OSGVO - disabled for now
         # We make sure that every cvmfs repository that users specify in CVMFSReposList is available, otherwise this script exits with 1
