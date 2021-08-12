@@ -57,8 +57,12 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="72000"/>
-      <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/local/software/Singularity/singularity-3.7.0/bin:/usr/local/software/Singularity/singularity-3.5.3/bin"/>
-      <attr name="JAVA" glidein_publish="True" job_publish="False" parameter="True" type="string" value="/usr/bin/java"/>
+      <!-- default singularity is the RPM install - we want this one as the unpriv CVMFS one unsquashes sif images every time -->
+      <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/bin/singularity"/>
+      <!-- special site locations for Singularity, last entry should be our unpriv CVMFS install -->
+      <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/local/software/Singularity/singularity-3.7.0/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/current/bin"/>
+      <!-- no restrictions, it prevents some images like cvmfsexec on Stampede2 -->
+      <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
       <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="85%__opensciencegrid/osgvo-el7:latest 10%__opensciencegrid/osgvo-el6:latest 5%__opensciencegrid/osgvo-el8:latest"/>
       <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
       <attr name="OSG_DEFAULT_CVMFS_DATA" glidein_publish="False" job_publish="False" parameter="True" type="string" value="/cvmfs/stash.osgstorage.org"/>
@@ -382,9 +386,6 @@
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
             <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
-            <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/bin/singularity"/>
-            <!-- attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/bin"/ -->
-            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
             <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>

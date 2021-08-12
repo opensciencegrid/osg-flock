@@ -239,6 +239,11 @@ if [ -e /usr/sbin/unsquashfs ]; then
 fi
 advertise HAS_unsquashfs "$HAS_unsquashfs" "C"
 
+# check for locally cached .sif images - this will be helpful when determining 
+# we want to disable Singularity if CVMFS is not available
+GWS_SINGULARITY_CACHED_IMAGES=$((ls *.sif | sort | paste -d, -s) 2>/dev/null)
+advertise GWS_SINGULARITY_CACHED_IMAGES "$GWS_SINGULARITY_CACHED_IMAGES" "S"
+
 ##################
 # cvmfs filesystem availability
 info "Checking for CVMFS availability and attributes..."
@@ -270,7 +275,7 @@ for FS in \
 
     if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
         advertise $FS_ATTR "False" "C"
-        if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
+        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
             advertise HAS_SINGULARITY "False" "C"
             advertise SINGULARITY_COMMENT "Disabled due to CVMFS being on NFS or CVMFS errors" "S"
         fi
@@ -331,7 +336,7 @@ for FS in \
         fi
         
         # disable singularity on NFS sites or if the singularity fs has errors
-        if [ "x$FS" = "xsingularity.opensciencegrid.org" ]; then
+        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
             if [ $RESULT = "False" ]; then
                 advertise HAS_SINGULARITY "False" "C"
                 advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"
