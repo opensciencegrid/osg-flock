@@ -158,7 +158,8 @@ download_or_build_singularity_image () {
     if [ "x$ALLOW_NONCVMFS_IMAGES" = "x0" ]; then
         if ! (echo "$singularity_image" | grep "^/cvmfs/") >/dev/null 2>&1; then
             warn "The specified image $singularity_image is not on CVMFS, ALLOW_NONCVMFS_IMAGES=0"
-            return 1
+            # allow this for now - we have user who ship images with their jobs
+            #return 1
         fi
     else
         # first figure out a base image name in the form of owner/image:tag, then
