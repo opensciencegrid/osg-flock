@@ -99,13 +99,14 @@ function determine_default_container_image {
     if [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
         info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
         pull_images=1
-    fi
-    if (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
-        info "Allowing non-CVMFS images because this is an ITB site"
+    #elif (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
+    #    info "Allowing non-CVMFS images because this is an ITB site"
+    #    pull_images=1
+    elif (echo "x$entry_name" | egrep "Clemson|ISI|Stampede2|UTAH") >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because of the entry name: $entry_name"
         pull_images=1
-    fi
-    if (echo "x$entry_name" | grep "Stampede2") >/dev/null 2>&1; then
-        info "Allowing non-CVMFS images because this is Stampede2"
+    elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because /cvmfs/singularity.opensciencegrid.org/ is not available"
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then

@@ -135,12 +135,6 @@ GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
-# Should we use CVMFS or pull images directly?
-info_dbg "grep ALLOW_NONCVMFS_IMAGES in condor_machine_ad ($_CONDOR_MACHINE_AD)"
-info_dbg "$(grep -i allow_noncvmfs_images "$_CONDOR_MACHINE_AD")"
-ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
-info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
-
 download_to () {
     local dest="$1"
     local src="$2"
@@ -164,7 +158,8 @@ download_or_build_singularity_image () {
     if [ "x$ALLOW_NONCVMFS_IMAGES" = "x0" ]; then
         if ! (echo "$singularity_image" | grep "^/cvmfs/") >/dev/null 2>&1; then
             warn "The specified image $singularity_image is not on CVMFS, ALLOW_NONCVMFS_IMAGES=0"
-            return 1
+            # allow this for now - we have user who ship images with their jobs
+            #return 1
         fi
     else
         # first figure out a base image name in the form of owner/image:tag, then
@@ -176,8 +171,12 @@ download_or_build_singularity_image () {
             base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;')
             image_fname=$(echo "$base_name" | sed 's;[:/];__;g').sif
             singularity_srcs="https://data.isi.edu/osg/images/$image_fname docker://hub.opensciencegrid.org/$base_name docker://$base_name"
+        elif [[ -e "$singularity_image" ]]; then
+            # the image is not on cvmfs, but has already been downloaded - short circuit here
+            echo "$singularity_image"
+            return 0
         else 
-            # user has been explicit with for examplea docker or http URL
+            # user has been explicit with for example a docker or http URL
             singularity_srcs="$singularity_image"
             image_fname=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
         fi
@@ -601,6 +600,10 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         #
         info_dbg "Decided to use singularity ($HAS_SINGULARITY, $GWMS_SINGULARITY_PATH). Proceeding w/ tests and setup."
 
+        # Should we use CVMFS or pull images directly?
+        export ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
+        info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
+
         # OSGVO - disabled for now
         # We make sure that every cvmfs repository that users specify in CVMFSReposList is available, otherwise this script exits with 1
         #cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
@@ -623,7 +626,10 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
             unset $KEY
         done
 
+        if [ "x$GWMS_SINGULARITY_IMAGE" != "x" ]; then
+            # intercept and maybe download the image
         GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$GWMS_SINGULARITY_IMAGE") || exit 1
+        fi
 
         singularity_prepare_and_invoke "${@}"
 
