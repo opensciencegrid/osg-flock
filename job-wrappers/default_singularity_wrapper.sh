@@ -168,7 +168,7 @@ download_or_build_singularity_image () {
 
         if [[ $singularity_image = /cvmfs/singularity.opensciencegrid.org/* ]]; then
             # transform /cvmfs to a set or URLS to to try
-            base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;')
+            base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;' | sed 's;/*/$;;')
             image_fname=$(echo "$base_name" | sed 's;[:/];__;g').sif
             singularity_srcs="https://data.isi.edu/osg/images/$image_fname docker://hub.opensciencegrid.org/$base_name docker://$base_name"
         elif [[ -e "$singularity_image" ]]; then
