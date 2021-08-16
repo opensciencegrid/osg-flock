@@ -3,8 +3,7 @@
       <idle_vms_total curb="1900" max="2000"/>
       <idle_vms_total_global curb="1900" max="2000"/>
       <running_glideins_total curb="70000" max="80000"/>
-      <!-- running_glideins_total_global curb="70000" max="80000"/ -->
-      <running_glideins_total_global curb="4800" max="5000"/>
+      <running_glideins_total_global curb="70000" max="80000"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
