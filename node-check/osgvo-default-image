@@ -102,7 +102,7 @@ function determine_default_container_image {
     #elif (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
     #    info "Allowing non-CVMFS images because this is an ITB site"
     #    pull_images=1
-    elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|Stampede2|UTAH") >/dev/null 2>&1; then
+    elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|ODU-Ubuntu|Stampede2|UConn|UTC-Epyc|UTAH") >/dev/null 2>&1; then
         info "Allowing non-CVMFS images because of the entry name: $entry_name"
         pull_images=1
     #elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
