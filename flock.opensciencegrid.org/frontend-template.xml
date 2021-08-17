@@ -1013,7 +1013,8 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="TG-DDM160003" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+                <!-- project_id: TG-CHE200122 is allowed to use the allocation TG-DDM160003 on Stampede2 -->
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="TG-DDM160003,TG-CHE200122" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -1068,7 +1069,8 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="cwr109" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+                <!-- project_id: UTAustin_Zimmerman's Stampede2 allocation is GravSearches -->
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
