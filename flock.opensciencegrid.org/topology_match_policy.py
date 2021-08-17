@@ -1,3 +1,13 @@
+########################################
+# A frontend match policy
+# (see https://glideinwms.fnal.gov/doc.prd/frontend/configuration.html#match_example)
+# Verifies, based on topology data, that the job is part of a project that is
+# allowed to submit to the given resource, from the submit node it came in on.
+# Topology data must already exist in
+# "/run/topology-cache/project_resource_allocations.json"
+# which is created by the topology-cacher cron job.
+########################################
+
 import json
 import logging
 import logging.handlers
@@ -27,12 +37,9 @@ except EnvironmentError as err:
     _log.warning("Couldn't open log file %s: %s; logging to console instead", LOGFILE, err)
 
 
-########################################
-# policy.py (see https://glideinwms.fnal.gov/doc.prd/frontend/configuration.html#match_example)
 def match(job, glidein):
     try:
         attrs = glidein.get("attrs", {})
-
 
         project_name = job.get("ProjectName", "")
         global_job_id = job.get("GlobalJobID", "")
