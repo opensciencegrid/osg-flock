@@ -6,6 +6,9 @@
 # Topology data must already exist in
 # "/run/topology-cache/project_resource_allocations.json"
 # which is created by the topology-cacher cron job.
+#
+# This takes the place of ProjectName checks in the job query_expr for groups
+# made for allocation-based submission.
 ########################################
 
 import json
