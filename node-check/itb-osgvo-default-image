@@ -55,9 +55,9 @@ function download_to {
     local dest="$1"
     local src="$2"
     if command -v curl >/dev/null 2>&1; then
-        curl --silent --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest" "$src"
+        time curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest" "$src"
     elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=300 --tries=1 -O "$dest" "$src"
+        time wget -nv --timeout=30 --tries=1 -O "$dest" "$src"
     else
         warn "Neither wget nor curl are available"
         return 255
