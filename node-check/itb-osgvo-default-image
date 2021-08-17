@@ -51,6 +51,19 @@ function get_glidein_config_value {
     echo "$VALUE"
 }
 
+function download_to {
+    local dest="$1"
+    local src="$2"
+    if command -v curl >/dev/null 2>&1; then
+        curl --silent --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest" "$src"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -nv --timeout=300 --tries=1 -O "$dest" "$src"
+    else
+        warn "Neither wget nor curl are available"
+        return 255
+    fi
+}
+
 function determine_default_container_image {
     # Selects a default image to use if a job does not specify
     # an image to use. The new style to specify this is with an
@@ -114,8 +127,7 @@ function determine_default_container_image {
         # pull the image into a Singularity SIF file
         IMAGE_FNAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g').sif
         URL=https://data.isi.edu/osg/images/$IMAGE_FNAME
-        (curl -L -s -S -f -o $IMAGE_FNAME $URL \
-            || wget -nv --timeout=300 --tries=1 -O $IMAGE_FNAME $URL \
+        (download_to $IMAGE_FNAME $URL \
             || singularity build --force $IMAGE_FNAME docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_FNAME.log 2>&1
         if [ $? = 0 ]; then
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
