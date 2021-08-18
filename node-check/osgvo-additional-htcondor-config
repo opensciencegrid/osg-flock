@@ -30,30 +30,34 @@ add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 #add_condor_vars_line STARTER_DEBUG "C" "-" "+" "N" "N" "-"
 
 ###########################################################
-# stashcp - only use if oasis is available
-if [ -e /cvmfs/oasis.opensciencegrid.org/. ]; then
-    cat >stashcp_plugin <<EOF
-#!/bin/bash
+# stashcp 
+#STASHCP=/cvmfs/stash.osgstorage.org/osgconnect/public/dweitzel/stashcp/current/stashcp
+#if [ -e $STASHCP ]; then
+STASHCP=$PWD/stashcp
+if (curl --silent --fail --location --connect-timeout 30 --speed-limit 1024 -o $STASHCP http://stash.osgconnect.net/public/dweitzel/stashcp/current/stashcp) &>/dev/null; then
+    chmod 755 $STASHCP
 
+    # also run a simple test
+    if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null; then
+
+        cat >stashcp_plugin <<EOF
+#!/bin/bash
 if [ "x\$1" = "x-classad" ]; then
-   echo "PluginVersion = \"0.1\""
+   echo "PluginVersion = \"0.2\""
    echo "PluginType = \"FileTransfer\""
    echo "SupportedMethods = \"stash\""
-
    exit 0
 fi
-
 FULLSRC=\$1
 LOC=\$2
 SRC=\$(echo \$FULLSRC | cut -d':' -f2-)
-. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh
-module load stashcache || module load stashcp
-stashcp \$SRC \$LOC > /dev/null 2>&1
-
+$STASHCP \$SRC \$LOC >/dev/null
 EOF
-    chmod 755 stashcp_plugin
-    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$PWD/stashcp_plugin"
-    add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+        chmod 755 stashcp_plugin
+        add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$PWD/stashcp_plugin"
+        add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+    fi
 fi
+
 
 
