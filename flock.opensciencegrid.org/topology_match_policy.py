@@ -19,7 +19,7 @@ import pprint
 
 
 DATA_PATH = "/run/topology-cache/project_resource_allocations.json"
-LOGLEVEL = logging.INFO
+LOGLEVEL = logging.DEBUG
 LOGFILE = "/var/log/gwms-frontend/topology-match-policy.log"
 
 _log = logging.getLogger(__name__)
