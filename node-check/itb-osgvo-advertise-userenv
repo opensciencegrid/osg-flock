@@ -396,7 +396,7 @@ advertise GUC_PATH "$GUC_PATH" "S"
 
 # save some gridftp connections here by reusing the gfal results (imperfect, but good enough)
 # this is a one-shot test
-if [ "X$GUC_PATH" != "X" ]; then
+if [ "X$GUC_PATH" != "XNA" ]; then
     GUC_VERIFIED="$GFAL_VERIFIED"
     advertise GUC_VERIFIED "$GUC_VERIFIED" "C"
 fi
