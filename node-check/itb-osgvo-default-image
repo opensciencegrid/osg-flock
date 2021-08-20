@@ -118,9 +118,9 @@ function determine_default_container_image {
     elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|ODU-Ubuntu|Stampede2|UConn|UTC-Epyc|UTAH") >/dev/null 2>&1; then
         info "Allowing non-CVMFS images because of the entry name: $entry_name"
         pull_images=1
-    #elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
-    #    info "Allowing non-CVMFS images because /cvmfs/singularity.opensciencegrid.org/ is not available"
-    #    pull_images=1
+    elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
+        info "Allowing non-CVMFS images because /cvmfs/singularity.opensciencegrid.org/ is not available"
+        pull_images=1
     fi
     if [ $pull_images = 1 ]; then
         advertise ALLOW_NONCVMFS_IMAGES "True" "C"
