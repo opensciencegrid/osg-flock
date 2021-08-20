@@ -261,14 +261,16 @@ for FS in \
    icecube.opensciencegrid.org \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
+   sft.cern.ch \
    singularity.opensciencegrid.org \
    snoplus.egi.eu \
    sphenix.opensciencegrid.org \
    spt.opensciencegrid.org \
    stash.osgstorage.org \
+   sw.lsst.eu \
+   unpacked.cern.ch \
    veritas.opensciencegrid.org \
    xenon.opensciencegrid.org \
-   sw.lsst.eu \
 ; do
     FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
     FS_ATTR="HAS_CVMFS_$FS_CONV"
