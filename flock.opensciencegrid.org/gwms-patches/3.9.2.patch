@@ -1,6 +1,6 @@
 --- frontend/glideinFrontendElement.py-ORIG     2021-06-22 12:41:03.471532589 -0500
-+++ frontend/glideinFrontendElement.py  2021-06-22 12:56:24.959291553 -0500
-@@ -800,7 +800,7 @@
++++ frontend/glideinFrontendElement.py  2021-08-19 19:36:29.617893033 -0500
+@@ -800,39 +800,17 @@
                  ctkn = self.refresh_entry_token(glidein_el)
                  if ctkn:
                      # mark token for encrypted advertisement
@@ -9,7 +9,241 @@
                      logSupport.log.info("found condor token: %s" % entry_token_name)
                      gp_encrypt[entry_token_name] = ctkn
                  # now see if theres a scitoken for this site
-@@ -912,9 +912,7 @@
+-                scitoken_fullpath = ''
+-                cred_type_data = self.elementDescript.element_data.get('ProxyTypes')
+-                trust_domain_data = self.elementDescript.element_data.get('ProxyTrustDomains')
+-                if not cred_type_data:
+-                    cred_type_data = self.elementDescript.frontend_data.get('ProxyTypes')
+-                if not trust_domain_data:
+-                    trust_domain_data = self.elementDescript.frontend_data.get('ProxyTrustDomains')
+-                if trust_domain_data and cred_type_data:
+-                    cred_type_map = eval(cred_type_data)
+-                    trust_domain_map = eval(trust_domain_data)
+-                    for cfname in cred_type_map:
+-                        if cred_type_map[cfname] == 'scitoken':
+-                            if trust_domain_map[cfname] == trust_domain:
+-                                scitoken_fullpath = cfname
+-                    
+-                if os.path.exists(scitoken_fullpath):
+-                    try:
+-                        logSupport.log.info('found scitoken %s' % scitoken_fullpath)
+-                        with open(scitoken_fullpath,'r') as fbuf:
+-                            for line in fbuf:
+-                                stkn += line
+-                        if stkn:
+-                            gp_encrypt['frontend_scitoken'] =  stkn
+-                    except Exception as err:
+-                        logSupport.log.exception("failed to read scitoken: %s" % err)
+-
++                if self.scitoken_ok(glidein_el['attrs'].get('GLIDEIN_Gatekeeper')):
++                    stkn = self.refresh_entry_scitoken(glidein_el)
++                    if stkn:
++                        gp_encrypt['frontend_scitoken'] =  stkn
+ 
+                 # now advertise
+-                logSupport.log.info('advertising tokens %s' % gp_encrypt.keys())
++                logSupport.log.info('advertising tokens %s' % list(gp_encrypt.keys()))
+                 advertizer.add(factory_pool_node,
+                            request_name, request_name,
+                            glidein_min_idle,
+@@ -900,6 +878,196 @@
+ 
+         return
+ 
++
++    def scitoken_ok(self, gatekeeper):
++        """
++            check the resource name against our list of sites not yet ready
++            for scitokens
++        """
++        deny = [ "249cc.yeg.rac.sh",
++                 "atlas-ce.bu.edu",
++                 "bell-osg.rcac.purdue.edu",
++                 "bgk02.sdcc.bnl.gov",
++                 "brown-osg.rcac.purdue.edu",
++                 "canary2.osg.chtc.io",
++                 "cc-condor.hpc.siue.edu",
++                 "CE01.CMSAF.MIT.EDU",
++                 "CE02.CMSAF.MIT.EDU",
++                 "CE03.CMSAF.MIT.EDU",
++                 "ce1.opensciencegrid.org",
++                 "cit-gatekeeper2.ultralight.org",
++                 "cloud-osg-ce.jinr.ru",
++                 "cmsgrid01.hep.wisc.edu",
++                 "cmsgrid02.hep.wisc.edu",
++                 "cmsgrid03.hep.wisc.edu",
++                 "cms-grid0.hep.uprm.edu",
++                 "cmsosgce2.fnal.gov",
++                 "cmsosgce3.fnal.gov",
++                 "cmsosgce4.fnal.gov",
++                 "cmsosgce-opp1.fnal.gov",
++                 "cms.rc.ufl.edu",
++                 "cn410.storrs.hpc.uconn.edu",
++                 "crane-gw1.unl.edu",
++                 "cslrm.rc.ufl.edu",
++                 "deepthought.crc.nd.edu",
++                 "fermicloud489.fnal.gov",
++                 "gate01.aglt2.org",
++                 "gate02.grid.umich.edu",
++                 "gate03.aglt2.org",
++                 "gk01.atlas-swt2.org",
++                 "gk04.swt2.uta.edu",
++                 "gpce03.fnal.gov",
++                 "gpce04.fnal.gov",
++                 "grid1.oscer.ou.edu",
++                 "gridce1.pi.infn.it",
++                 "gridce2.pi.infn.it",
++                 "gridgk01.racf.bnl.gov",
++                 "gridgk02.racf.bnl.gov",
++                 "gridgk03.racf.bnl.gov",
++                 "gridgk04.racf.bnl.gov",
++                 "gridgk06.racf.bnl.gov",
++                 "gridgk07.racf.bnl.gov",
++                 "gridgk08.racf.bnl.gov",
++                 "hadoop-osg.rcac.purdue.edu",
++                 "halstead-osg.rcac.purdue.edu",
++                 "hammer-osg.rcac.purdue.edu",
++                 "hepcms-1.umd.edu",
++                 "heposg01.colorado.edu",
++                 "hosted-ce02.mwt2-uiuc.slateci.io",
++                 "hosted-ce07.opensciencegrid.org",
++                 "hosted-ce18.opensciencegrid.org",
++                 "hosted-ce20.opensciencegrid.org",
++                 "hosted-ce22.opensciencegrid.org",
++                 "hosted-ce25.opensciencegrid.org",
++                 "hosted-ce28.opensciencegrid.org",
++                 "hosted-ce33.opensciencegrid.org",
++                 "hosted-ce35.opensciencegrid.org",
++                 "hosted-ce36.opensciencegrid.org",
++                 "hosted-ce39.opensciencegrid.org",
++                 "hosted-ce40.opensciencegrid.org",
++                 "hosted-ce-chtc-ubuntu.osg.chtc.io",
++                 "humpty.alice.icts.res.in",
++                 "iitce1.iit.edu",
++                 "iitce2.iit.edu",
++                 "its-condor-ce2.syr.edu",
++                 "its-condor-ce4.syr.edu",
++                 "iut2-gk.mwt2.org",
++                 "kodiak-ce.baylor.edu",
++                 "lamar-cluster-ce1.svc.opensciencegrid.org",
++                 "ldas-grid.ligo-la.caltech.edu",
++                 "ldas-osg-ce.ligo-la.caltech.edu",
++                 "lhcb-ce.chtc.wisc.edu",
++                 "lq.fnal.gov",
++                 "lsu-db-ce1.svc.opensciencegrid.org",
++                 "lsuhsc-tf-ce1.osgdev.chtc.io",
++                 "lsuhsc-tf-ce1.svc.opensciencegrid.org",
++                 "lsu-qb2-ce1.svc.opensciencegrid.org",
++                 "mwt2-gk.campuscluster.illinois.edu",
++                 "ndsu-thunder-ce1.svc.opensciencegrid.org",
++                 "odu-ubuntu-ce1.svc.opensciencegrid.org",
++                 "osgce1.farm.particle.cz",
++                 "osg-ce-1.jlab.org",
++                 "osgce2.farm.particle.cz",
++                 "osgce2.hepgrid.uerj.br",
++                 "osgce3.farm.particle.cz",
++                 "osg-ce.clemson.edu",
++                 "osgce.hepgrid.uerj.br",
++                 "osg-ce.hpc.osc.edu",
++                 "osgce.jinr.ru",
++                 "osg-ce.nmsu.edu",
++                 "osg-ce.sprace.org.br",
++                 "osggrid01.hep.wisc.edu",
++                 "osg-gw-6.t2.ucsd.edu",
++                 "osg-gw-7.t2.ucsd.edu",
++                 "osg-kitchener.cancercomputer.com",
++                 "osg.rc.ufl.edu",
++                 "osg-sched2.pace.gatech.edu",
++                 "ouhep0.nhn.ou.edu",
++                 "proton.fis.cinvestav.mx",
++                 "psc-bridges2-ce1.svc.opensciencegrid.org",
++                 "psc-bridges2-ce2.svc.opensciencegrid.org",
++                 "psu-ligo-ce1.svc.opensciencegrid.org",
++                 "red-gw2.unl.edu",
++                 "red.unl.edu",
++                 "rhino-gw1.unl.edu",
++                 "ruhex-osgce.rutgers.edu",
++                 "sdsc-expanse-ce1.svc.opensciencegrid.org",
++                 "sdsc-ts-ce1.svc.opensciencegrid.org",
++                 "sl-uu-hce1.slateci.io",
++                 "sl-uu-hce2.slateci.io",
++                 "sl-uu-hce3.slateci.io",
++                 "spce01.sdcc.bnl.gov",
++                 "sut-ozstar-ce1.svc.opensciencegrid.org",
++                 "tacc-frontera-ce1.services.opensciencegrid.org",
++                 "tacc-frontera-ce2.svc.opensciencegrid.org",
++                 "tacc-stampede2-ce1.svc.opensciencegrid.org",
++                 "tacc-stampede2-ce2.svc.opensciencegrid.org",
++                 "tcnj-elsa-ce1.svc.opensciencegrid.org",
++                 "tier2-01.ochep.ou.edu",
++                 "top.ucr.edu",
++                 "tufts-cluster-ce1.svc.opensciencegrid.org",
++                 "uct2-gk.mwt2.org",
++                 "uiuc-icc-spt-ce1.svc.opensciencegrid.org",
++                 "umiss001.hep.olemiss.edu",
++                 "utc-epyc-ce1.svc.opensciencegrid.org",
++                 "uwm-nemo-ce1.svc.opensciencegrid.org",
++                 "wcce01.fnal.gov",
++                 "wtamu-hpc-ce1.svc.opensciencegrid.org",
++                 "xcache-11.t2.ucsd.edu"]
++        gk_simple = re.sub(' .*', '', gatekeeper)
++        logSupport.log.info(gk_simple)
++        return (gk_simple not in deny)
++
++
++    def refresh_entry_scitoken(self, glidein_el):
++        """
++            create or update a scitoken for an entry point
++            params:  glidein_el: a glidein element data structure
++            returns:  jwt encoded token on success
++                      None on failure
++        """
++        tkn_file = ''
++        tkn_str = ''
++        tmpnm = ''
++        logSupport.log.info("Checking for scitoken refresh of %s." % glidein_el['attrs'].get('EntryName', '(unknown)'))
++        try:
++            # create a condor token named for entry point site name
++            glidein_site = glidein_el['attrs']['GLIDEIN_Site']; entry_name = glidein_el['attrs']['EntryName']
++            gatekeeper = glidein_el['attrs'].get('GLIDEIN_Gatekeeper')
++            audience = None
++            if gatekeeper:
++                audience = gatekeeper.split()[-1]
++            tkn_dir = "/var/lib/gwms-frontend/tokens.d"
++            if not os.path.exists(tkn_dir):
++                os.mkdir(tkn_dir,0o700)
++            tkn_file = tkn_dir + '/' +  entry_name + ".scitoken"
++            one_hr = 3600
++            tkn_age = sys.maxsize
++            if os.path.exists(tkn_file):
++                tkn_age = time.time() - os.stat(tkn_file).st_mtime
++            if tkn_age > one_hr:    
++                (fd, tmpnm) = tempfile.mkstemp()
++                cmd = "/usr/sbin/frontend_scitoken %s %s" % (audience, glidein_site)
++                tkn_str = subprocessSupport.iexe_cmd(cmd)
++                os.write(fd, tkn_str.encode('utf-8'))
++                os.close(fd)
++                shutil.move(tmpnm, tkn_file)
++                os.chmod(tkn_file, 0o600)
++                logSupport.log.info("created token %s" % tkn_file)
++            elif os.path.exists(tkn_file):
++                with open(tkn_file, 'r') as fbuf:
++                    for line in fbuf:
++                        tkn_str += line
++        except Exception as err:
++                logSupport.log.warning('failed to create %s' % tkn_file)
++                for i in sys.exc_info():
++                    logSupport.log.warning('%s' % i)
++        finally:
++                if os.path.exists(tmpnm):
++                    os.remove(tmpnm)
++        return tkn_str
++
++
+     def refresh_entry_token(self, glidein_el):
+         """
+             create or update a condor token for an entry point
+@@ -912,9 +1080,7 @@
          tmpnm = ''
          # does condor version of entry point support condor token auth
          condor_version = glidein_el['params'].get('CONDOR_VERSION')
@@ -20,15 +254,7 @@
              try:
                  # create a condor token named for entry point site name
                  glidein_site = glidein_el['attrs']['GLIDEIN_Site']
-@@ -953,7 +951,7 @@
-                 if tkn_age > one_hr and os.path.exists(pwd_file):    
-                     #TODO: scope, duration, identity  should be configurable from frontend.xml
-                     (fd, tmpnm) = tempfile.mkstemp()
--                    scope = "condor:/READ condor:/ADVERTISE_STARTD condor:/ADVERTISE_MASTER"
-+                    scope = "condor:/READ condor:/WRITE condor:/ADVERTISE_STARTD condor:/ADVERTISE_MASTER"
-                     duration = 24 * one_hr
-                     identity = "vofrontend_service@%s" % socket.gethostname()
-                     logSupport.log.debug("creating  token %s" % tkn_file)
+
 --- ./lib/token_util.py.ORIG    2021-06-22 14:39:00.065940791 -0500
 +++ ./lib/token_util.py 2021-06-22 14:39:26.700596031 -0500
 @@ -127,7 +127,7 @@

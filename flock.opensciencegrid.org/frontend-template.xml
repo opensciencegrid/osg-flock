@@ -258,7 +258,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -314,7 +313,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -374,7 +372,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
            </credentials>
          </security>
          <attrs>
@@ -438,7 +435,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -507,7 +503,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -568,7 +563,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -632,7 +626,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -685,7 +678,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
@@ -744,7 +736,6 @@
          <security>
             <credentials>
                <credential absfname="/etc/grid-security/gwms-frontend/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-               <credential absfname="/etc/grid-security/gwms-frontend/osgconnect.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/>
             </credentials>
          </security>
          <attrs>
