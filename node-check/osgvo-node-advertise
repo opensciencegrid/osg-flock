@@ -353,11 +353,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        icecube.opensciencegrid.org \
        nexo.opensciencegrid.org \
        oasis.opensciencegrid.org \
+       sft.cern.ch \
        singularity.opensciencegrid.org \
        snoplus.egi.eu \
        sphenix.opensciencegrid.org \
        spt.opensciencegrid.org \
        stash.osgstorage.org \
+       unpacked.cern.ch \
        veritas.opensciencegrid.org \
        xenon.opensciencegrid.org \
        sw.lsst.eu \
