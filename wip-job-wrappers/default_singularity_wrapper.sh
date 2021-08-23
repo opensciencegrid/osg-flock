@@ -311,6 +311,14 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         fi
     fi
 
+    if [[ "$GWMS_SINGULARITY_IMAGE" != *://* && ! -e "$GWMS_SINGULARITY_IMAGE" ]]; then
+        msg="\
+ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
+        Site and node: $OSG_SITE_NAME $(hostname -f)"
+        singularity_exit_or_fallback "$msg" 1 10m
+        return
+    fi
+
     # Put a human readable version of the image in the env before expanding it - useful for monitoring
     export GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
 
@@ -362,17 +370,6 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         GWMS_SINGULARITY_EXTRA_OPTS="$GWMS_SINGULARITY_EXTRA_OPTS --nv"
     fi
     info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:`[ -n "$HOST_LIBS" ] && echo 1`, ocl:`[ -e /etc/OpenCL/vendors ] && echo 1`): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
-
-    # TODO: this is no more needed once 'pychirp' in gwms is tried and tested
-    # If condor_chirp is present, then copy it inside the container.
-    # This is used in singularity_lib.sh/singularity_setup_inside()
-    if [ -e ../../main/condor/libexec/condor_chirp ]; then
-        mkdir -p condor/libexec
-        cp ../../main/condor/libexec/condor_chirp condor/libexec/condor_chirp
-        mkdir -p condor/lib
-        cp -r ../../main/condor/lib/* condor/lib/
-        info_dbg "copied HTCondor condor_chirp (binary and libs) inside the container ($(pwd)/condor)"
-    fi
 
     # We want to bind $PWD to /srv within the container - however, in order
     # to do that, we have to make sure everything we need is in $PWD, most
