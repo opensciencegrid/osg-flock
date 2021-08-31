@@ -1,5 +1,5 @@
 --- frontend/glideinFrontendElement.py-ORIG     2021-06-22 12:41:03.471532589 -0500
-+++ frontend/glideinFrontendElement.py  2021-08-19 19:36:29.617893033 -0500
++++ frontend/glideinFrontendElement.py  2021-08-31 13:12:33.124292899 -0500
 @@ -800,39 +800,17 @@
                  ctkn = self.refresh_entry_token(glidein_el)
                  if ctkn:
@@ -46,149 +46,28 @@
                  advertizer.add(factory_pool_node,
                             request_name, request_name,
                             glidein_min_idle,
-@@ -900,6 +878,196 @@
+@@ -900,6 +878,75 @@
  
          return
  
 +
++    scitoken_deny_last_read = 0
++    scitoken_deny = []
 +    def scitoken_ok(self, gatekeeper):
 +        """
 +            check the resource name against our list of sites not yet ready
 +            for scitokens
 +        """
-+        deny = [ "249cc.yeg.rac.sh",
-+                 "atlas-ce.bu.edu",
-+                 "bell-osg.rcac.purdue.edu",
-+                 "bgk02.sdcc.bnl.gov",
-+                 "brown-osg.rcac.purdue.edu",
-+                 "canary2.osg.chtc.io",
-+                 "cc-condor.hpc.siue.edu",
-+                 "CE01.CMSAF.MIT.EDU",
-+                 "CE02.CMSAF.MIT.EDU",
-+                 "CE03.CMSAF.MIT.EDU",
-+                 "ce1.opensciencegrid.org",
-+                 "cit-gatekeeper2.ultralight.org",
-+                 "cloud-osg-ce.jinr.ru",
-+                 "cmsgrid01.hep.wisc.edu",
-+                 "cmsgrid02.hep.wisc.edu",
-+                 "cmsgrid03.hep.wisc.edu",
-+                 "cms-grid0.hep.uprm.edu",
-+                 "cmsosgce2.fnal.gov",
-+                 "cmsosgce3.fnal.gov",
-+                 "cmsosgce4.fnal.gov",
-+                 "cmsosgce-opp1.fnal.gov",
-+                 "cms.rc.ufl.edu",
-+                 "cn410.storrs.hpc.uconn.edu",
-+                 "crane-gw1.unl.edu",
-+                 "cslrm.rc.ufl.edu",
-+                 "deepthought.crc.nd.edu",
-+                 "fermicloud489.fnal.gov",
-+                 "gate01.aglt2.org",
-+                 "gate02.grid.umich.edu",
-+                 "gate03.aglt2.org",
-+                 "gk01.atlas-swt2.org",
-+                 "gk04.swt2.uta.edu",
-+                 "gpce03.fnal.gov",
-+                 "gpce04.fnal.gov",
-+                 "grid1.oscer.ou.edu",
-+                 "gridce1.pi.infn.it",
-+                 "gridce2.pi.infn.it",
-+                 "gridgk01.racf.bnl.gov",
-+                 "gridgk02.racf.bnl.gov",
-+                 "gridgk03.racf.bnl.gov",
-+                 "gridgk04.racf.bnl.gov",
-+                 "gridgk06.racf.bnl.gov",
-+                 "gridgk07.racf.bnl.gov",
-+                 "gridgk08.racf.bnl.gov",
-+                 "hadoop-osg.rcac.purdue.edu",
-+                 "halstead-osg.rcac.purdue.edu",
-+                 "hammer-osg.rcac.purdue.edu",
-+                 "hepcms-1.umd.edu",
-+                 "heposg01.colorado.edu",
-+                 "hosted-ce02.mwt2-uiuc.slateci.io",
-+                 "hosted-ce07.opensciencegrid.org",
-+                 "hosted-ce18.opensciencegrid.org",
-+                 "hosted-ce20.opensciencegrid.org",
-+                 "hosted-ce22.opensciencegrid.org",
-+                 "hosted-ce25.opensciencegrid.org",
-+                 "hosted-ce28.opensciencegrid.org",
-+                 "hosted-ce33.opensciencegrid.org",
-+                 "hosted-ce35.opensciencegrid.org",
-+                 "hosted-ce36.opensciencegrid.org",
-+                 "hosted-ce39.opensciencegrid.org",
-+                 "hosted-ce40.opensciencegrid.org",
-+                 "hosted-ce-chtc-ubuntu.osg.chtc.io",
-+                 "humpty.alice.icts.res.in",
-+                 "iitce1.iit.edu",
-+                 "iitce2.iit.edu",
-+                 "its-condor-ce2.syr.edu",
-+                 "its-condor-ce4.syr.edu",
-+                 "iut2-gk.mwt2.org",
-+                 "kodiak-ce.baylor.edu",
-+                 "lamar-cluster-ce1.svc.opensciencegrid.org",
-+                 "ldas-grid.ligo-la.caltech.edu",
-+                 "ldas-osg-ce.ligo-la.caltech.edu",
-+                 "lhcb-ce.chtc.wisc.edu",
-+                 "lq.fnal.gov",
-+                 "lsu-db-ce1.svc.opensciencegrid.org",
-+                 "lsuhsc-tf-ce1.osgdev.chtc.io",
-+                 "lsuhsc-tf-ce1.svc.opensciencegrid.org",
-+                 "lsu-qb2-ce1.svc.opensciencegrid.org",
-+                 "mwt2-gk.campuscluster.illinois.edu",
-+                 "ndsu-thunder-ce1.svc.opensciencegrid.org",
-+                 "odu-ubuntu-ce1.svc.opensciencegrid.org",
-+                 "osgce1.farm.particle.cz",
-+                 "osg-ce-1.jlab.org",
-+                 "osgce2.farm.particle.cz",
-+                 "osgce2.hepgrid.uerj.br",
-+                 "osgce3.farm.particle.cz",
-+                 "osg-ce.clemson.edu",
-+                 "osgce.hepgrid.uerj.br",
-+                 "osg-ce.hpc.osc.edu",
-+                 "osgce.jinr.ru",
-+                 "osg-ce.nmsu.edu",
-+                 "osg-ce.sprace.org.br",
-+                 "osggrid01.hep.wisc.edu",
-+                 "osg-gw-6.t2.ucsd.edu",
-+                 "osg-gw-7.t2.ucsd.edu",
-+                 "osg-kitchener.cancercomputer.com",
-+                 "osg.rc.ufl.edu",
-+                 "osg-sched2.pace.gatech.edu",
-+                 "ouhep0.nhn.ou.edu",
-+                 "proton.fis.cinvestav.mx",
-+                 "psc-bridges2-ce1.svc.opensciencegrid.org",
-+                 "psc-bridges2-ce2.svc.opensciencegrid.org",
-+                 "psu-ligo-ce1.svc.opensciencegrid.org",
-+                 "red-gw2.unl.edu",
-+                 "red.unl.edu",
-+                 "rhino-gw1.unl.edu",
-+                 "ruhex-osgce.rutgers.edu",
-+                 "sdsc-expanse-ce1.svc.opensciencegrid.org",
-+                 "sdsc-ts-ce1.svc.opensciencegrid.org",
-+                 "sl-uu-hce1.slateci.io",
-+                 "sl-uu-hce2.slateci.io",
-+                 "sl-uu-hce3.slateci.io",
-+                 "spce01.sdcc.bnl.gov",
-+                 "sut-ozstar-ce1.svc.opensciencegrid.org",
-+                 "tacc-frontera-ce1.services.opensciencegrid.org",
-+                 "tacc-frontera-ce2.svc.opensciencegrid.org",
-+                 "tacc-stampede2-ce1.svc.opensciencegrid.org",
-+                 "tacc-stampede2-ce2.svc.opensciencegrid.org",
-+                 "tcnj-elsa-ce1.svc.opensciencegrid.org",
-+                 "tier2-01.ochep.ou.edu",
-+                 "top.ucr.edu",
-+                 "tufts-cluster-ce1.svc.opensciencegrid.org",
-+                 "uct2-gk.mwt2.org",
-+                 "uiuc-icc-spt-ce1.svc.opensciencegrid.org",
-+                 "umiss001.hep.olemiss.edu",
-+                 "utc-epyc-ce1.svc.opensciencegrid.org",
-+                 "uwm-nemo-ce1.svc.opensciencegrid.org",
-+                 "wcce01.fnal.gov",
-+                 "wtamu-hpc-ce1.svc.opensciencegrid.org",
-+                 "xcache-11.t2.ucsd.edu"]
++
++        now = time.time()
++        if self.scitoken_deny_last_read is None or self.scitoken_deny_last_read < (now - 300):
++            logSupport.log.info("Re-reading /etc/gwms-frontend/scitoken-deny.txt")
++            self.scitoken_deny_last_read = now
++            with open('/etc/gwms-frontend/scitoken-deny.txt', 'r') as f:
++                self.scitoken_deny = [line.strip() for line in f]
++
 +        gk_simple = re.sub(' .*', '', gatekeeper)
-+        logSupport.log.info(gk_simple)
-+        return (gk_simple not in deny)
++        return (gk_simple not in self.scitoken_deny)
 +
 +
 +    def refresh_entry_scitoken(self, glidein_el):
@@ -243,7 +122,7 @@
      def refresh_entry_token(self, glidein_el):
          """
              create or update a condor token for an entry point
-@@ -912,9 +1080,7 @@
+@@ -912,9 +959,7 @@
          tmpnm = ''
          # does condor version of entry point support condor token auth
          condor_version = glidein_el['params'].get('CONDOR_VERSION')
