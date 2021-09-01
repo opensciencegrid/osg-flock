@@ -135,21 +135,42 @@ GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
-download_to () {
+function stash_download {
     local dest="$1"
     local src="$2"
-    if command -v curl >/dev/null 2>&1; then
-        curl -L -s -S -f -o "$dest" "$src"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=300 --tries=1 -O "$dest" "$src"
+
+    if [ -e ../../client/stashcp ]; then
+        rm -rf "$dest" \
+            && ../../client/stashcp "$src" "$dest.sif" \
+            && $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest.sif" \
+            && rm -f "$dest.sif"
     else
-        warn "Neither wget nor curl are available"
+        warn "stashcp is not available"
+        return 255
+    fi
+}
+
+function http_download {
+    local dest="$1"
+    local src="$2"
+
+    if command -v curl >/dev/null 2>&1; then
+        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.sif" "$src" \
+            && $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest.sif" \
+            && rm -f "$dest.sif"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -nv --timeout=30 --tries=1 -O "$dest.sif" "$src" \
+            && $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest.sif" \
+            && rm -f "$dest.sif"
+    else
+        warn "Neither curl nor wget are available"
         return 255
     fi
 }
 
 download_or_build_singularity_image () {
     local singularity_image="$1"
+    local pilot_basedir=$(cd ../../ ; pwd)
 
     # ALLOW_NONCVMFS_IMAGES determines the approach here
     # if it is 0, verify that the image is indeed on CVMFS
@@ -157,7 +178,7 @@ download_or_build_singularity_image () {
 
     if [ "x$ALLOW_NONCVMFS_IMAGES" = "x0" ]; then
         if ! (echo "$singularity_image" | grep "^/cvmfs/") >/dev/null 2>&1; then
-            warn "The specified image $singularity_image is not on CVMFS, ALLOW_NONCVMFS_IMAGES=0"
+            warn "The specified image $singularity_image is not on CVMFS"
             # allow this for now - we have user who ship images with their jobs
             #return 1
         fi
@@ -169,20 +190,20 @@ download_or_build_singularity_image () {
         if [[ $singularity_image = /cvmfs/singularity.opensciencegrid.org/* ]]; then
             # transform /cvmfs to a set or URLS to to try
             base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;' | sed 's;/*/$;;')
-            image_fname=$(echo "$base_name" | sed 's;[:/];__;g').sif
-            singularity_srcs="https://data.isi.edu/osg/images/$image_fname docker://hub.opensciencegrid.org/$base_name docker://$base_name"
+            image_name=$(echo "$base_name" | sed 's;[:/];__;g')
+            singularity_srcs="stash:///osgconnect/public/rynge/infrastructure/images/sif/$image_name.sif https://data.isi.edu/osg/images/$image_name.sif docker://hub.opensciencegrid.org/$base_name docker://$base_name"
         elif [[ -e "$singularity_image" ]]; then
             # the image is not on cvmfs, but has already been downloaded - short circuit here
             echo "$singularity_image"
             return 0
         else 
             # user has been explicit with for example a docker or http URL
+            image_name=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g')
             singularity_srcs="$singularity_image"
-            image_fname=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g').sif
         fi
 
         # simple lock to prevent multiple slots from attempting dowloading of the same image
-        local lockfile="../../$image_fname.lock"
+        local lockfile="$pilot_basedir/images/$image_name.lock"
         local waitcount=0
         while [[ -e $lockfile && $waitcount -lt 10 ]]; do
             sleep 60s
@@ -190,21 +211,28 @@ download_or_build_singularity_image () {
         done
 
         # already downloaded?
-        if [[ ! -e ../../$image_fname ]]; then
-            local tmpfile="../../$image_fname.$$"
-            local logfile="../../$image_fname.log"
+        if [[ ! -e $pilot_basedir/images/$image_name ]]; then
+            local tmptarget="$pilot_basedir/images/$image_name.$$"
+            local logfile="$pilot_basedir/images/$image_name.log"
             local downloaded=0
             touch $lockfile
             rm -f $logfile
             for src in $singularity_srcs; do
                 echo "Trying to download from $src ..." &>>$logfile
-                if (echo "$src" | grep "^http")>/dev/null 2>&1; then
-                    if (download_to "$tmpfile" "$src") &>>$logfile; then
+                if (echo "$src" | grep "^stash")>/dev/null 2>&1; then
+                    if (stash_download "$tmptarget" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
                     # failure - clean up
-                    rm -f "$tmpfile"
+                    rm -f "$tmptarget"
+                elif (echo "$src" | grep "^http")>/dev/null 2>&1; then
+                    if (http_download "$tmptarget" "$src") &>>$logfile; then
+                        downloaded=1
+                        break
+                    fi
+                    # failure - clean up
+                    rm -f "$tmptarget"
                 elif (echo "$src" | grep "^docker:" | grep -v "hub.opensciencegrid.org")>/dev/null 2>&1; then
                     # docker is a special case - just pass it through
                     # hub.opensciencegrid.org will be handled by "singularity build" for now
@@ -212,23 +240,23 @@ download_or_build_singularity_image () {
                     echo "$singularity_image"
                     return 0
                 else
-                    if ($GWMS_SINGULARITY_PATH build --force "$tmpfile" "$src" ) &>>"$logfile"; then
+                    if ($GWMS_SINGULARITY_PATH build --force --sandbox "$tmptarget" "$src" ) &>>"$logfile"; then
                         downloaded=1
                         break
                     fi
                 fi
                 # clean up between attempts
-                rm -f "$tmpfile"
+                rm -f "$tmptarget"
             done
             if [[ $downloaded = 1 ]]; then
-                mv "$tmpfile" "../../$image_fname"
+                mv "$tmptarget" "$pilot_basedir/images/$image_name"
             else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
-                rm -f "$tmpfile" "$lockfile"
+                rm -rf "$tmptarget" "$lockfile"
                 return 1
             fi
-            singularity_image=$PWD/../../$image_fname
+            singularity_image="$pilot_basedir/images/$image_name"
             rm -f "$lockfile"
         fi
     fi
