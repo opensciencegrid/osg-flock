@@ -1,5 +1,5 @@
 --- frontend/glideinFrontendElement.py-ORIG     2021-06-22 12:41:03.471532589 -0500
-+++ frontend/glideinFrontendElement.py  2021-08-31 13:12:33.124292899 -0500
++++ frontend/glideinFrontendElement.py  2021-08-31 17:35:35.220762394 -0500
 @@ -800,39 +800,17 @@
                  ctkn = self.refresh_entry_token(glidein_el)
                  if ctkn:
@@ -46,28 +46,27 @@
                  advertizer.add(factory_pool_node,
                             request_name, request_name,
                             glidein_min_idle,
-@@ -900,6 +878,75 @@
+@@ -900,6 +878,74 @@
  
          return
  
 +
-+    scitoken_deny_last_read = 0
-+    scitoken_deny = []
++    scitoken_allow_last_read = 0
++    scitoken_allow = []
 +    def scitoken_ok(self, gatekeeper):
 +        """
-+            check the resource name against our list of sites not yet ready
-+            for scitokens
++            check the resource name against our list of tested scitoken sites
 +        """
 +
 +        now = time.time()
-+        if self.scitoken_deny_last_read is None or self.scitoken_deny_last_read < (now - 300):
-+            logSupport.log.info("Re-reading /etc/gwms-frontend/scitoken-deny.txt")
-+            self.scitoken_deny_last_read = now
-+            with open('/etc/gwms-frontend/scitoken-deny.txt', 'r') as f:
-+                self.scitoken_deny = [line.strip() for line in f]
++        if self.scitoken_allow_last_read is None or self.scitoken_allow_last_read < (now - 300):
++            logSupport.log.info("Re-reading /etc/gwms-frontend/scitoken-allow.txt")
++            self.scitoken_allow_last_read = now
++            with open('/etc/gwms-frontend/scitoken-allow.txt', 'r') as f:
++                self.scitoken_allow = [line.strip() for line in f]
 +
 +        gk_simple = re.sub(' .*', '', gatekeeper)
-+        return (gk_simple not in self.scitoken_deny)
++        return (gk_simple in self.scitoken_allow)
 +
 +
 +    def refresh_entry_scitoken(self, glidein_el):
@@ -122,7 +121,7 @@
      def refresh_entry_token(self, glidein_el):
          """
              create or update a condor token for an entry point
-@@ -912,9 +959,7 @@
+@@ -912,12 +958,10 @@
          tmpnm = ''
          # does condor version of entry point support condor token auth
          condor_version = glidein_el['params'].get('CONDOR_VERSION')
@@ -132,8 +131,25 @@
 +        if condor_version:
              try:
                  # create a condor token named for entry point site name
-                 glidein_site = glidein_el['attrs']['GLIDEIN_Site']
-
+-                glidein_site = glidein_el['attrs']['GLIDEIN_Site']
++                entry_name = glidein_el['attrs']['EntryName']
+                 #tkn_file = "/var/lib/gwms-frontend/.condor/tokens.d/"
+                 #tkn_file += glidein_site
+                 #tkn_file += ".token"
+@@ -939,10 +983,10 @@
+                     os.mkdir(pwd_dir,0o700)
+                 if not os.path.exists(req_dir):
+                     os.mkdir(req_dir,0o700)
+-                tkn_file = tkn_dir + '/' + glidein_site + ".idtoken"
+-                pwd_file = pwd_dir + '/' + glidein_site
++                tkn_file = tkn_dir + '/' + entry_name + ".idtoken"
++                pwd_file = pwd_dir + '/' + entry_name
+                 pwd_default = pwd_dir + '/' + 'FRONTEND'
+-                req_file = req_dir + '/' + glidein_site
++                req_file = req_dir + '/' + entry_name
+                 one_hr = 3600
+                 tkn_age = sys.maxsize
+                 if not os.path.exists(pwd_file):
 --- ./lib/token_util.py.ORIG    2021-06-22 14:39:00.065940791 -0500
 +++ ./lib/token_util.py 2021-06-22 14:39:26.700596031 -0500
 @@ -127,7 +127,7 @@
