@@ -259,6 +259,8 @@ for FS in \
    eic.opensciencegrid.org \
    gwosc.osgstorage.org \
    icecube.opensciencegrid.org \
+   larsoft-ib.opensciencegrid.org \
+   larsoft.opensciencegrid.org \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
    sft.cern.ch \
