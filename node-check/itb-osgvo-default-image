@@ -134,12 +134,12 @@ function determine_default_container_image {
     pull_images=0
     is_itb=$(get_glidein_config_value Is_ITB_Site)
     entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
-    if [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
+    if (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
+        info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
+        pull_images=0
+    elif [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
         info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
         pull_images=1
-    #elif (echo "x$is_itb" | grep "True") >/dev/null 2>&1; then
-    #    info "Allowing non-CVMFS images because this is an ITB site"
-    #    pull_images=1
     elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|ODU-Ubuntu|Stampede2|UTC-Epyc|UTAH") >/dev/null 2>&1; then
         info "Allowing non-CVMFS images because of the entry name: $entry_name"
         pull_images=1
