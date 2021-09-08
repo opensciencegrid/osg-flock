@@ -11,6 +11,14 @@ source $add_config_line_source
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
 ###########################################################
+# enable job duration and busy stats
+add_config_line STATISTICS_TO_PUBLISH_LIST "JobDuration, JobBusyTime"
+add_condor_vars_line STATISTICS_TO_PUBLISH_LIST "C" "-" "+" "N" "N" "-"
+
+add_config_line IsBlackHole "IfThenElse(JobDuration is undefined, false, JobDuration < 180)"
+add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
+
+###########################################################
 # potential fix for SU NAT issues
 add_config_line CCB_HEARTBEAT_INTERVAL "120"
 add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
