@@ -1,0 +1,172 @@
+#!/usr/bin/python3
+
+import argparse
+import re
+import sys
+import requests
+import urllib.parse as urlparse
+
+import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape
+from pprint import pprint
+
+
+
+def load_data():
+    '''
+    Load data from topology database
+    '''
+    url = "https://topology.opensciencegrid.org/rgsummary/xml?service=on&service_109=on"
+    response = requests.get(url)
+
+    if response.status_code != requests.codes.ok:
+        raise Exception("OSG Topology request failed (status %d): %s" % \
+              (response.status_code, response.text[:2048]))
+    
+    root = ET.fromstring(response.content)
+    if root.tag != 'ResourceSummary':
+        raise Exception("OSG Topology returned invalid XML with root tag %s" % root.tag)
+   
+    data = {}
+    for rgroup in root:
+        for res in rgroup:
+            if res.tag == 'Resources':
+                for r in res:
+                    submit_host = False
+                    hostname = None
+                    active = False
+                    disable = True
+                    for tag in r:
+                        if tag.tag == 'FQDN':
+                            hostname = tag.text
+                        if tag.tag == 'Active':
+                            active = str2bool(tag.text)
+                        if tag.tag == 'Disable':
+                            disable = str2bool(tag.text)
+                        if tag.tag == 'Services':
+                            for serv in tag:
+                                for stag in serv:
+                                    # 109 means submit host
+                                    if stag.tag == 'ID' and stag.text == '109':
+                                        submit_host = True
+                    # we now have all the info needed for this host
+                    print("{} {} {} {}".format(hostname, submit_host, active, disable))
+                    if submit_host and active and not disable:
+                        pprint(hostname)
+
+
+def str2bool(v):
+  return v.lower() in ("yes", "true", "t", "1")
+
+
+def escape_dn(dn):
+    dn = dn.replace('.', '\\.')
+    return dn
+
+
+def generate_gwms_frontend_config(config, data):
+    '''
+    generate a GWMS frontend.xml
+    '''
+
+    blob = ''
+    for hostname, attrs in sorted(data.items()):
+        if 'dn' in attrs:
+            if 'subschedds' in attrs:
+                for subschedd in attrs['subschedds']:
+                    prefix = subschedd + '@'
+                    if subschedd == 'main':
+                        prefix = ''
+                    blob += '                <schedd DN="%s" fullname="%s%s"/>\n' %(escape(attrs['dn']), escape(prefix), escape(hostname))
+
+            else:
+                blob += '                <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
+    
+    f = open('development/frontend-template.xml')
+    for line in f:
+        line = line.rstrip()
+        if re.search('{{{schedd_blob}}}', line):
+            print(blob)
+        else:
+            print(line)
+    f.close()
+
+
+def generate_htcondor_mapfile(data):
+    '''
+    generate a HTCondor map file
+    '''
+
+    print("# DO NOT EDIT LOCAL COPY - This file is generated from the osg-flock repository")
+
+    # pilot DNs
+    print('GSI "^/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock\.opensciencegrid\.org$" pilot')
+    print('GSI "^\/DC=org\/DC=incommon\/C=US\/ST=WI\/L=Madison\/O=University of Wisconsin-Madison\/OU=OCIS\/CN=flock\.opensciencegrid\.org$" pilot')
+    print('GSI "^/DC=org/DC=incommon/C=US/ST=Illinois/L=Chicago/O=The University of Chicago/OU=IT Security/CN=xenon-pilot.grid.uchicago.edu" pilot_xenon1t')
+
+    for hostname, attrs in sorted(data.items()):
+        if 'dn' in attrs:
+            print('GSI "^%s$" %s' %(escape_dn(attrs['dn']), attrs['site']))
+    
+    # special case
+    print('GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" donkri')
+    print('GSI "^\/C\=US\/O\=Pittsburgh\ Supercomputing\ Center\/CN\=Donald\ Krieger" donkri')
+    print('GSI "^/O=Flock/CN=syracusetesting/flock.opensciencegrid.org" syracuse')
+
+    print('GSI (.*) anonymous')
+    print('IDTOKEN (.*) \\1')
+    print('PASSWORD (.*) \\1')
+    print('FS (.*) \\1')
+
+
+def generate_htcondor_flock_config(data):
+    '''
+    generate a HTCondor flocking config
+    '''
+
+    print("# DO NOT EDIT LOCAL COPY - This file is generated from the osg-flock repository")
+    flocking_hosts = []
+    for hostname, attrs in data.items():
+        # Are we adding all here? Any exceptions?
+        flocking_hosts.append(hostname)
+    flocking_hosts.sort()
+    print('FLOCK_FROM = %s' %(', '.join(flocking_hosts)))
+
+
+def main():
+    '''
+    switch between the different modes and output the wanted config file
+    '''
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--target-env', action='store',
+                        default="development", dest='target_env',
+                        help='Generate the GWMS frontend.xml config')
+    parser.add_argument('--gwms-frontend-config', action='store_true',
+                        default=False, dest='gwms_frontend_config',
+                        help='Generate the GWMS frontend.xml config')
+    parser.add_argument('--htcondor-mapfile', action='store_true',
+                        default=False, dest='htcondor_mapfile',
+                        help='Generate the HTCondor mapfile')
+    parser.add_argument('--htcondor-flock-config', action='store_true',
+                        default=False, dest='htcondor_flock_config',
+                        help='Generate the HTCondor flock config')
+    args = parser.parse_args()
+
+    if args.gwms_frontend_config:
+        data = load_data()
+        generate_gwms_frontend_config(args, data)
+    elif args.htcondor_mapfile:
+        data = load_data()
+        generate_htcondor_mapfile(data)
+    elif args.htcondor_flock_config:
+        data = load_data()
+        generate_htcondor_flock_config(data)
+    else:
+        parser.print_help()
+
+
+if __name__ == '__main__':
+   sys.exit(main())
+
+
