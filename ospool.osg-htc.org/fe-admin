@@ -34,6 +34,7 @@ def load_data():
                 for r in res:
                     submit_host = False
                     hostname = None
+                    dn = None
                     active = False
                     disable = True
                     for tag in r:
@@ -52,7 +53,14 @@ def load_data():
                     # we now have all the info needed for this host
                     print("{} {} {} {}".format(hostname, submit_host, active, disable))
                     if submit_host and active and not disable:
-                        pprint(hostname)
+                        data[hostname] = {}
+                        # dn is still required for gwms, even if it is not actually used
+                        if dn:
+                            data[hostname]['dn'] = dn
+                        else:
+                            data[hostname]['dn'] = '/CN={}'.format(hostname)
+                        
+    return data
 
 
 def str2bool(v):
@@ -72,6 +80,7 @@ def generate_gwms_frontend_config(config, data):
     blob = ''
     for hostname, attrs in sorted(data.items()):
         if 'dn' in attrs:
+            print(hostname, attrs['dn'])
             if 'subschedds' in attrs:
                 for subschedd in attrs['subschedds']:
                     prefix = subschedd + '@'
@@ -82,7 +91,7 @@ def generate_gwms_frontend_config(config, data):
             else:
                 blob += '                <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
     
-    f = open('development/frontend-template.xml')
+    f = open('{}/frontend-template.xml'.format(config.target_env))
     for line in f:
         line = line.rstrip()
         if re.search('{{{schedd_blob}}}', line):
@@ -92,7 +101,7 @@ def generate_gwms_frontend_config(config, data):
     f.close()
 
 
-def generate_htcondor_mapfile(data):
+def generate_htcondor_mapfile(config, data):
     '''
     generate a HTCondor map file
     '''
@@ -119,7 +128,7 @@ def generate_htcondor_mapfile(data):
     print('FS (.*) \\1')
 
 
-def generate_htcondor_flock_config(data):
+def generate_htcondor_flock_config(config, data):
     '''
     generate a HTCondor flocking config
     '''
@@ -158,10 +167,10 @@ def main():
         generate_gwms_frontend_config(args, data)
     elif args.htcondor_mapfile:
         data = load_data()
-        generate_htcondor_mapfile(data)
+        generate_htcondor_mapfile(args, data)
     elif args.htcondor_flock_config:
         data = load_data()
-        generate_htcondor_flock_config(data)
+        generate_htcondor_flock_config(args, data)
     else:
         parser.print_help()
 
