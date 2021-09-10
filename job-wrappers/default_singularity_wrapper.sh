@@ -635,6 +635,9 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
         # OSGVO: unset modules leftovers from the site environment 
         clearLmod --quiet 2>/dev/null 
+        unset -f spack
+        unset -f module
+        unset -f ml
         for KEY in \
               ENABLE_LMOD \
               _LMFILES_ \
@@ -653,7 +656,6 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
                 info_dbg "Unsetting env var provided by site: $KEY"
             fi
             unset $KEY
-            unset -f $KEY
         done
 
         if [ "x$GWMS_SINGULARITY_IMAGE" != "x" ]; then
