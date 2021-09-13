@@ -1055,9 +1055,9 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="1"/>
-            <idle_vms_per_entry curb="50" max="50"/>
-            <idle_vms_total curb="50" max="50"/>
+            <idle_glideins_per_entry max="25" reserve="1"/>
+            <idle_vms_per_entry curb="25" max="25"/>
+            <idle_vms_total curb="25" max="25"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="5000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="5000" max="5000"/>
