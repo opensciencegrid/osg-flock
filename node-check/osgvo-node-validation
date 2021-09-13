@@ -29,7 +29,7 @@ if ! (cd $PWD && ls) >/dev/null; then
 fi
 
 # change this one
-disk_required_gb=3
+disk_required_gb=5
 disk_required=$(($disk_required_gb * 1024 * 1024))
 my_info "Checking disk space - $disk_required_gb GB free is required"
 free=`df -kP . | awk '{if (NR==2) print $4}'`

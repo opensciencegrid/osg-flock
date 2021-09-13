@@ -23,6 +23,10 @@ add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
 add_config_line HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
 add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 
+# out of disk space (https://opensciencegrid.atlassian.net/browse/OSPOOL-4)
+add_config_line RESERVED_DISK "3000000"
+add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
+
 ###########################################################
 # potential fix for SU NAT issues
 add_config_line CCB_HEARTBEAT_INTERVAL "120"

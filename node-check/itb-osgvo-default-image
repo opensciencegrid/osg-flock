@@ -131,11 +131,16 @@ function determine_default_container_image {
     fi
 
     # Should we use CVMFS or pull images directly?
+    disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+    disk_free_gb=$(($disk_free / 1024 / 1024))
     pull_images=0
     is_itb=$(get_glidein_config_value Is_ITB_Site)
     entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
     if (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
+        pull_images=0
+    elif [[ $disk_free_gb -lt 10 ]]; then
+        info "Not allowing non-CVMFS images, as the site does not have enough free disk space ($disk_free_gb GBs)"
         pull_images=0
     elif [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
         info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
