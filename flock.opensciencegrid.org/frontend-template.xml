@@ -1005,14 +1005,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; ((TARGET.alloc_Stampede2_queue ?: "normal") =?= "normal")'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") =?= "normal")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; ((alloc_Stampede2_queue ?: "normal") =?= "normal")'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -1065,14 +1065,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; ((TARGET.alloc_Stampede2_queue ?: "normal") =?= "skx-normal")'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") =?= "skx-normal")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; ((alloc_Stampede2_queue ?: "normal") =?= "skx-normal")'>
                <match_attrs>
                </match_attrs>
                <schedds>
