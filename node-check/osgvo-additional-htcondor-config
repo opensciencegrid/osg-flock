@@ -27,6 +27,17 @@ add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 add_config_line RESERVED_DISK "3000000"
 add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
 
+# use df and allocated cores to determine disk allocation (https://opensciencegrid.atlassian.net/browse/OSPOOL-5)
+# but only if we think we are not "whole node"
+allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$config_file" | cut -d ' ' -f 2-)
+total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
+disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+allocated_disk=$(($disk_free * $allocated_cpus / $total_cpus))
+if [[ $allocated_cpus -lt 32 ]]; then
+    add_config_line GLIDEIN_DISK "$allocated_disk"
+    add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
+fi
+
 ###########################################################
 # potential fix for SU NAT issues
 add_config_line CCB_HEARTBEAT_INTERVAL "120"
