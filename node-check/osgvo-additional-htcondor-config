@@ -31,7 +31,7 @@ add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
 # but only if we think we are not "whole node"
 allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
 total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
-if [[ $allocated_cpus -gt 0 -a $total_cpus -gt 0 ]]; then
+if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
     #disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
     allocated_disk=$((100 * $allocated_cpus / $total_cpus))
     if [[ $allocated_cpus -lt 32 ]]; then
