@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=574
+OSG_GLIDEIN_VERSION=584
 #######################################################################
 
 
@@ -259,6 +259,8 @@ for FS in \
    eic.opensciencegrid.org \
    gwosc.osgstorage.org \
    icecube.opensciencegrid.org \
+   larsoft-ib.opensciencegrid.org \
+   larsoft.opensciencegrid.org \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
    sft.cern.ch \

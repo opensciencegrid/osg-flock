@@ -634,13 +634,20 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         #cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
 
         # OSGVO: unset modules leftovers from the site environment 
+        clearLmod --quiet 2>/dev/null 
+        unset -f spack
+        unset -f module
+        unset -f ml
         for KEY in \
               ENABLE_LMOD \
               _LMFILES_ \
               LOADEDMODULES \
-              MODULEPATH \
-              MODULEPATH_ROOT \
               MODULESHOME \
+              MODULE_USE \
+              module \
+              switchml \
+              $(env | sed 's/=.*//' | egrep "^MODULES_" 2>/dev/null) \
+              $(env | sed 's/=.*//' | egrep "^MODULEPATH" 2>/dev/null) \
               $(env | sed 's/=.*//' | egrep "^LMOD" 2>/dev/null) \
               $(env | sed 's/=.*//' | egrep "^SLURM" 2>/dev/null) \
         ; do
