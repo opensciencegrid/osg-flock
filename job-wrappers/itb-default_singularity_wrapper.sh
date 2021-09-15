@@ -250,6 +250,8 @@ download_or_build_singularity_image () {
             done
             if [[ $downloaded = 1 ]]; then
                 mv "$tmptarget" "$pilot_basedir/images/$image_name"
+                # Make sure image sandbox can be deleted after we're done with it
+                find "$pilot_basedir/images/$image_name" -type d -exec chmod o+w "{}" +
             else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
