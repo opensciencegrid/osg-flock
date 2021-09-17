@@ -38,6 +38,12 @@
             int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0) == 0
             or
             job.get("RequestMemory", 1024) &lt;= int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0)
+        )
+        and
+        (
+           job.get("SingularityImage", "") == ""
+           or
+           glidein["attrs"].get("GLIDEIN_SINGULARITY_REQUIRE", "OPTIONAL") != "NEVER"
         )'
                             start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
                                         (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
@@ -57,6 +63,7 @@
             <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
             <match_attr name="GLIDEIN_Site" type="string"/>
 	    <match_attr name="GLIDEIN_CPUS" type="string"/>
+	    <match_attr name="GLIDEIN_SINGULARITY_REQUIRE" type="string"/>
          </match_attrs>
          <collectors>
             <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" comment="Open Science Grid Factory 2" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgflock@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
@@ -68,6 +75,7 @@
              <match_attr name="DESIRED_Sites" type="string"/>
              <match_attr name="RequestMemory" type="int"/>
 	     <match_attr name="RequestCpus" type="int"/>
+	     <match_attr name="SingularityImage" type="string"/>
          </match_attrs>
          <schedds>
          </schedds>
