@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=584
+OSG_GLIDEIN_VERSION=585
 #######################################################################
 
 
@@ -93,6 +93,14 @@ if [ -e $PID_FILE ]; then
     fi
 fi
 echo $$ >$PID_FILE
+
+#############################################################################
+# At least glideinWMS 3.7.5 depends on the existence of a file named
+# log/StarterLog.  However, starting in 8.9.13, this log file no longer is
+# created by HTCondor.  To fix the statistics reporting, we simply create it
+# here.
+mkdir -p log
+touch log/StarterLog
 
 #############################################################################
 #
