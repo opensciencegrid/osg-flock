@@ -99,7 +99,7 @@ echo $$ >$PID_FILE
 # log/StarterLog.  However, starting in 8.9.13, this log file no longer is
 # created by HTCondor.  To fix the statistics reporting, we simply create it
 # here.
-mkdir -p log
+mkdir -p log execute
 touch log/StarterLog
 
 #############################################################################
