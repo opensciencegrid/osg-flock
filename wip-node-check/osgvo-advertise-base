@@ -95,6 +95,14 @@ fi
 echo $$ >$PID_FILE
 
 #############################################################################
+# At least glideinWMS 3.7.5 depends on the existence of a file named
+# log/StarterLog.  However, starting in 8.9.13, this log file no longer is
+# created by HTCondor.  To fix the statistics reporting, we simply create it
+# here.
+mkdir -p log execute
+touch log/StarterLog
+
+#############################################################################
 #
 # Some tests are too heavy-weight to run every
 # 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
