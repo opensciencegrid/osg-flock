@@ -81,7 +81,7 @@ SRC=\$(echo \$FULLSRC | cut -d':' -f2-)
 START=`date '+%s'`
 OUTPUT_RAW=\$($STASHCP \$SRC \$LOC 2>&1)
 SUCCESS=\$?
-OUTPUT=\$(echo \$OUTPUT_RAW | tr '\n' ';' | sed 's|"|\\"|g' | cut -c -1000)
+OUTPUT=\$(echo \$OUTPUT_RAW | tr '\n' ';' | sed 's|"|\\\\"|g' | cut -c -1000)
 END=`date '+%s'`
 # The following attributes are not provided currently
 # ConnectionTimeSeconds = 0.113512
