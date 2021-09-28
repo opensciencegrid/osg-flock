@@ -60,7 +60,7 @@ function stash_download {
         echo "Attempting stash download $src"
         chmod 755 ./client/stashcp
         rm -rf "$dest" \
-            && ./client/stashcp "$src" "$dest.sif" \
+            && ./client/stashcp --debug "$src" "$dest.sif" \
             && singularity build --force --sandbox "$dest" "$dest.sif" \
             && rm -f "$dest.sif"
     else

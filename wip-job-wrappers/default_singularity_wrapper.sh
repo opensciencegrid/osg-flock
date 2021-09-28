@@ -660,7 +660,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
         if [ "x$GWMS_SINGULARITY_IMAGE" != "x" ]; then
             # intercept and maybe download the image
-        GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$GWMS_SINGULARITY_IMAGE") || exit 1
+            GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$GWMS_SINGULARITY_IMAGE") || exit 1
         fi
 
         singularity_prepare_and_invoke "${@}"
