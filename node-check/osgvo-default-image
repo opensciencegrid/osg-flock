@@ -163,8 +163,6 @@ function determine_default_container_image {
             || http_download $IMAGE_SANDBOX $URL \
             || singularity build --force --sandbox $IMAGE_SANDBOX docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_SANDBOX.log 2>&1
         if [ $? = 0 ]; then
-            # Make sure image sandbox can be deleted after we're done with it
-            find "$IMAGE_SANDBOX" -type d -exec chmod o+w "{}" +
             advertise ALLOW_NONCVMFS_IMAGES "True" "C"
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
             advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_SANDBOX" "S"
