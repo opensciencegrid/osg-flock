@@ -37,6 +37,7 @@ def load_data():
                     dn = None
                     active = False
                     disable = True
+                    service_tags = []
                     for tag in r:
                         if tag.tag == 'FQDN':
                             hostname = tag.text
@@ -50,9 +51,12 @@ def load_data():
                                     # 109 means submit host
                                     if stag.tag == 'ID' and stag.text == '109':
                                         submit_host = True
+                        if tag.tag == 'Tags':
+                            for stag in tag:
+                                service_tags.append(stag.text)
                     # we now have all the info needed for this host
-                    print("{} {} {} {}".format(hostname, submit_host, active, disable))
-                    if submit_host and active and not disable:
+                    #print("{} {} {} {}".format(hostname, submit_host, active, disable))
+                    if submit_host and active and not disable and 'OSPool' in service_tags:
                         data[hostname] = {}
                         # dn is still required for gwms, even if it is not actually used
                         if dn:
@@ -80,16 +84,7 @@ def generate_gwms_frontend_config(config, data):
     blob = ''
     for hostname, attrs in sorted(data.items()):
         if 'dn' in attrs:
-            print(hostname, attrs['dn'])
-            if 'subschedds' in attrs:
-                for subschedd in attrs['subschedds']:
-                    prefix = subschedd + '@'
-                    if subschedd == 'main':
-                        prefix = ''
-                    blob += '                <schedd DN="%s" fullname="%s%s"/>\n' %(escape(attrs['dn']), escape(prefix), escape(hostname))
-
-            else:
-                blob += '                <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
+            blob += '                <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
     
     f = open('{}/frontend-template.xml'.format(config.target_env))
     for line in f:
@@ -108,23 +103,11 @@ def generate_htcondor_mapfile(config, data):
 
     print("# DO NOT EDIT LOCAL COPY - This file is generated from the osg-flock repository")
 
-    # pilot DNs
-    print('GSI "^/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock\.opensciencegrid\.org$" pilot')
-    print('GSI "^\/DC=org\/DC=incommon\/C=US\/ST=WI\/L=Madison\/O=University of Wisconsin-Madison\/OU=OCIS\/CN=flock\.opensciencegrid\.org$" pilot')
-    print('GSI "^/DC=org/DC=incommon/C=US/ST=Illinois/L=Chicago/O=The University of Chicago/OU=IT Security/CN=xenon-pilot.grid.uchicago.edu" pilot_xenon1t')
+    #for hostname, attrs in sorted(data.items()):
+    #    if 'dn' in attrs:
+    #        print('GSI "^%s$" %s' %(escape_dn(attrs['dn']), attrs['site']))
 
-    for hostname, attrs in sorted(data.items()):
-        if 'dn' in attrs:
-            print('GSI "^%s$" %s' %(escape_dn(attrs['dn']), attrs['site']))
-    
-    # special case
-    print('GSI "^\/C\=US\/O\=National\ Center\ for\ Supercomputing\ Applications\/CN\=Donald\ Krieger" donkri')
-    print('GSI "^\/C\=US\/O\=Pittsburgh\ Supercomputing\ Center\/CN\=Donald\ Krieger" donkri')
-    print('GSI "^/O=Flock/CN=syracusetesting/flock.opensciencegrid.org" syracuse')
-
-    print('GSI (.*) anonymous')
     print('IDTOKEN (.*) \\1')
-    print('PASSWORD (.*) \\1')
     print('FS (.*) \\1')
 
 
@@ -150,7 +133,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--target-env', action='store',
                         default="development", dest='target_env',
-                        help='Generate the GWMS frontend.xml config')
+                        help='Environment: development/production')
     parser.add_argument('--gwms-frontend-config', action='store_true',
                         default=False, dest='gwms_frontend_config',
                         help='Generate the GWMS frontend.xml config')
