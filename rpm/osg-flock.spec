@@ -1,16 +1,14 @@
 Name:      osg-flock
-Version:   1.3
+Version:   1.4
 Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
-URL:       https://support.opensciencegrid.org/support/solutions/articles/12000030368-submit-node-flocking-to-osg#gratia-probe-configuration
+URL:       https://opensciencegrid.org/docs/submit/osg-flock
 
 BuildArch: noarch
 
-Requires: grid-certificates >= 7
-Requires: gratia-probe-glideinwms
-Requires: fetch-crl
+Requires: gratia-probe-condor
 Requires: condor
 
 Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
@@ -47,6 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Sep 29 2021 Mats Rynge <rynge@isi.edu> 1.4-1
+- Updating for OSG 3.6, idtoken auth
+
 * Wed Jan 1 2021 Mats Rynge <rynge@isi.edu> 1.3-1
 - Enable Schedd AuditLog by default in osg-flock (SOFTWARE-4390)
 
