@@ -23,7 +23,7 @@
 
     MapUnknownToGroup="1"
     MapGroupToRole="1"
-    VOOverride="osg"
+    VOOverride="OSG"
 
     Title3="Tuning parameter"
 

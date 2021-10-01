@@ -1,5 +1,5 @@
 Name:      osg-flock
-Version:   1.4
+Version:   1.5
 Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
@@ -31,7 +31,7 @@ install -m 644 rpm/80-osg-flocking.conf $RPM_BUILD_ROOT/%{_sysconfdir}/condor/co
 
 # Install gratia configuration
 install -d $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/
-install -m 644 rpm/ProbeConfig $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/ProbeConfig-flocking
+install -m 644 rpm/ProbeConfig-OSPool $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/ProbeConfig-OSPool
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -41,14 +41,17 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 
 %config(noreplace) %{_sysconfdir}/condor/config.d/80-osg-flocking.conf
-%config(noreplace) %{_sysconfdir}/gratia/condor/ProbeConfig-flocking
+%config(noreplace) %{_sysconfdir}/gratia/condor/ProbeConfig-OSPool
 
 
 %changelog
+* Fri Oct 1 2021 Mats Rynge <rynge@isi.edu> 1.5-1
+- Moved to new HTCondor Cron Gratia setup
+
 * Wed Sep 29 2021 Mats Rynge <rynge@isi.edu> 1.4-1
 - Updating for OSG 3.6, idtoken auth
 
-* Wed Jan 1 2021 Mats Rynge <rynge@isi.edu> 1.3-1
+* Fri Jan 1 2021 Mats Rynge <rynge@isi.edu> 1.3-1
 - Enable Schedd AuditLog by default in osg-flock (SOFTWARE-4390)
 
 * Fri Oct 23 2020 Brian Lin <blin@cs.wisc.edu> 1.2-2
@@ -60,7 +63,7 @@ rm -rf $RPM_BUILD_ROOT
 * Wed Jun 8 2020 Brian Lin <blin@cs.wisc.edu> 1.1-2
 - Fix CA requirements to work with osg-ca-scripts or certificate bundles
 
-* Wed Apr 10 2019 Brian Lin <blin@cs.wisc.edu> 1.1-1
+* Mon Apr 10 2019 Brian Lin <blin@cs.wisc.edu> 1.1-1
 - Add new OSG flock host certificate DN (SOFTWARE-3603)
 
 * Fri Sep 07 2018 Suchandra Thapa <ssthapa@uchicago.edu> 1.0-1
