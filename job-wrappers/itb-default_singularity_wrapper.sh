@@ -60,20 +60,11 @@ exit_wrapper () {
     else
         publish_fail="HTCondor error file"
     fi
-    # also chirp
-    if [[ -e ../../main/condor/libexec/condor_chirp ]]; then
-        ../../main/condor/libexec/condor_chirp set_job_attr JobWrapperFailure "Wrapper script $GWMS_THIS_SCRIPT failed ($exit_code): $1"
-    else
-        [[ -n "$publish_fail" ]] && publish_fail="${publish_fail} and "
-        publish_fail="${publish_fail}condor_chirp"
-    fi
-
-    # TODO: also this?: touch ../../.stop-glidein.stamp >/dev/null 2>&1
-
+    
     [[ -n "$publish_fail" ]] && warn "Failed to communicate ERROR with ${publish_fail}"
 
-    #  TODO: Add termination stamp? see OSG
-    #              touch ../../.stop-glidein.stamp >/dev/null 2>&1
+    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
+
     # Eventually the periodic validation of singularity will make the pilot
     # to stop matching new payloads
     # Prevent a black hole by sleeping EXITSLEEP (10) minutes before exiting. Sleep time can be changed on top of this file
@@ -170,7 +161,6 @@ function http_download {
 
 download_or_build_singularity_image () {
     local singularity_image="$1"
-    local pilot_basedir=$(cd ../../ ; pwd)
 
     # ALLOW_NONCVMFS_IMAGES determines the approach here
     # if it is 0, verify that the image is indeed on CVMFS
@@ -203,7 +193,7 @@ download_or_build_singularity_image () {
         fi
 
         # simple lock to prevent multiple slots from attempting dowloading of the same image
-        local lockfile="$pilot_basedir/images/$image_name.lock"
+        local lockfile="$GWMS_THIS_SCRIPT_DIR/images/$image_name.lock"
         local waitcount=0
         while [[ -e $lockfile && $waitcount -lt 10 ]]; do
             sleep 60s
@@ -211,9 +201,9 @@ download_or_build_singularity_image () {
         done
 
         # already downloaded?
-        if [[ ! -e $pilot_basedir/images/$image_name ]]; then
-            local tmptarget="$pilot_basedir/images/$image_name.$$"
-            local logfile="$pilot_basedir/images/$image_name.log"
+        if [[ ! -e $GWMS_THIS_SCRIPT_DIR/images/$image_name ]]; then
+            local tmptarget="$GWMS_THIS_SCRIPT_DIR/images/$image_name.$$"
+            local logfile="$GWMS_THIS_SCRIPT_DIR/images/$image_name.log"
             local downloaded=0
             touch $lockfile
             rm -f $logfile
@@ -249,14 +239,14 @@ download_or_build_singularity_image () {
                 rm -f "$tmptarget"
             done
             if [[ $downloaded = 1 ]]; then
-                mv "$tmptarget" "$pilot_basedir/images/$image_name"
+                mv "$tmptarget" "$GWMS_THIS_SCRIPT_DIR/images/$image_name"
             else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
                 rm -rf "$tmptarget" "$lockfile"
                 return 1
             fi
-            singularity_image="$pilot_basedir/images/$image_name"
+            singularity_image="$GWMS_THIS_SCRIPT_DIR/images/$image_name"
             rm -f "$lockfile"
         fi
     fi

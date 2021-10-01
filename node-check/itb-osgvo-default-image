@@ -60,9 +60,8 @@ function stash_download {
         echo "Attempting stash download $src"
         chmod 755 ./client/stashcp
         rm -rf "$dest" \
-            && ./client/stashcp --debug "$src" "$dest.sif" \
-            && singularity build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+            && ./client/stashcp --debug "$src" "$dest.tmp" \
+            && mv "$dest.tmp" "$dest"
     else
         my_warn "stashcp is not available"
         return 255
@@ -76,13 +75,11 @@ function http_download {
     echo
     echo "Attempting http download from $src"
     if command -v curl >/dev/null 2>&1; then
-        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.sif" "$src" \
-            && singularity build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.tmp" "$src" \
+            && mv "$dest.tmp" "$dest"
     elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=30 --tries=1 -O "$dest.sif" "$src" \
-            && singularity build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+        wget -nv --timeout=30 --tries=1 -O "$dest.tmp" "$src" \
+            && mv "$dest.tmp" "$dest"
     else
         my_warn "Neither curl nor wget are available"
         return 255
@@ -156,16 +153,16 @@ function determine_default_container_image {
         mkdir -p images
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
-        IMAGE_SANDBOX=$PWD/images/$IMAGE_NAME
+        IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
         URL=http://data.isi.edu/osg/images/$IMAGE_NAME.sif
-        # this is now downloading to a Singularity sandbox, which means we have to build the sandbox
-        (stash_download $IMAGE_SANDBOX stash:///osgconnect/public/rynge/infrastructure/images/sif/$IMAGE_NAME.sif \
-            || http_download $IMAGE_SANDBOX $URL \
-            || singularity build --force --sandbox $IMAGE_SANDBOX docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_SANDBOX.log 2>&1
+        WEEK=$(date +'%V')
+        (stash_download $IMAGE_PATH stash:///osgconnect/public/rynge/infrastructure/images/$WEEK/sif/$IMAGE_NAME.sif \
+            || http_download $IMAGE_PATH $URL \
+            || singularity build --force $IMAGE_PATH docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_PATH.log 2>&1
         if [ $? = 0 ]; then
             advertise ALLOW_NONCVMFS_IMAGES "True" "C"
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
-            advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_SANDBOX" "S"
+            advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_PATH" "S"
             advertise REQUIRED_OS "default" "S"
             return 0
         else
