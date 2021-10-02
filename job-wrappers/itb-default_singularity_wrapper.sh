@@ -127,35 +127,63 @@ info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting,
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
 function stash_download {
+    # Use stashcp to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
     local dest="$1"
     local src="$2"
 
+    local dest_sif="${dest%.sif}.sif"
+
     if [ -e ../../client/stashcp ]; then
         rm -rf "$dest" \
-            && ../../client/stashcp "$src" "$dest.sif" \
-            && $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+            && ../../client/stashcp "$src" "$dest_sif"
+        ret=$?
     else
         warn "stashcp is not available"
         return 255
     fi
+
+    if [[ $ret != 0 ]]; then
+        # delete on incomplete download
+        rm -f "$dest_sif"
+        return $ret
+    fi
+
+    if [[ "$dest_sif" != "$dest" ]]; then
+        $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest_sif"
+        ret=$?
+        rm -f "$dest_sif"
+        return $ret
+    fi
 }
 
 function http_download {
+    # Use curl/wget to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
     local dest="$1"
     local src="$2"
 
+    local dest_sif="${dest%.sif}.sif"
+
     if command -v curl >/dev/null 2>&1; then
-        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.sif" "$src" \
-            && $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest_sif" "$src"
+        ret=$?
     elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=30 --tries=1 -O "$dest.sif" "$src" \
-            && $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+        wget -nv --timeout=30 --tries=1 -O "$dest_sif" "$src"
+        ret=$?
     else
         warn "Neither curl nor wget are available"
         return 255
+    fi
+    if [[ $ret != 0 ]]; then
+        # delete on incomplete download
+        rm -f "$dest_sif"
+        return $ret
+    fi
+
+    if [[ "$dest_sif" != "$dest" ]]; then
+        $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest_sif"
+        ret=$?
+        rm -f "$dest_sif"
+        return $ret
     fi
 }
 
@@ -214,15 +242,13 @@ download_or_build_singularity_image () {
                         downloaded=1
                         break
                     fi
-                    # failure - clean up
-                    rm -f "$tmptarget"
+
                 elif (echo "$src" | grep "^http")>/dev/null 2>&1; then
                     if (http_download "$tmptarget" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
-                    # failure - clean up
-                    rm -f "$tmptarget"
+
                 elif (echo "$src" | grep "^docker:" | grep -v "hub.opensciencegrid.org")>/dev/null 2>&1; then
                     # docker is a special case - just pass it through
                     # hub.opensciencegrid.org will be handled by "singularity build" for now
