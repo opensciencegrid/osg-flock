@@ -194,6 +194,9 @@ download_or_build_singularity_image () {
     # if it is 0, verify that the image is indeed on CVMFS
     # if it is 1, transform the image to a form and try downloaded it from our services
 
+    # In addition, UNPACK_SIF determines whether a downloaded SIF image is
+    # expanded into the sandbox format (1) or used as-is (0).
+
     if [ "x$ALLOW_NONCVMFS_IMAGES" = "x0" ]; then
         if ! (echo "$singularity_image" | grep "^/cvmfs/") >/dev/null 2>&1; then
             warn "The specified image $singularity_image is not on CVMFS"
@@ -219,9 +222,11 @@ download_or_build_singularity_image () {
             image_name=$(echo "$singularity_image" | sed 's;^[[:alnum:]]*://;;' | sed 's;[:/];__;g')
             singularity_srcs="$singularity_image"
         fi
+        # at this point image_name should be something like "opensciencegrid__osgvo-el8__latest"
 
+        local image_path="$GWMS_THIS_SCRIPT_DIR/images/$image_name"
         # simple lock to prevent multiple slots from attempting dowloading of the same image
-        local lockfile="$GWMS_THIS_SCRIPT_DIR/images/$image_name.lock"
+        local lockfile="$image_path.lock"
         local waitcount=0
         while [[ -e $lockfile && $waitcount -lt 10 ]]; do
             sleep 60s
@@ -229,50 +234,100 @@ download_or_build_singularity_image () {
         done
 
         # already downloaded?
-        if [[ ! -e $GWMS_THIS_SCRIPT_DIR/images/$image_name ]]; then
-            local tmptarget="$GWMS_THIS_SCRIPT_DIR/images/$image_name.$$"
-            local logfile="$GWMS_THIS_SCRIPT_DIR/images/$image_name.log"
+        if [[ -e "$image_path" ]]; then
+            # even if we can use the sif, if we already have the sandbox, use that
+            echo "$image_path"
+            return 0
+        elif [[ -e "$image_path.sif" && $UNPACK_SIF = 0 ]]; then
+            # we already have the sif and we can use it
+            echo "$image_path.sif"
+            return 0
+        else
+            local tmptarget="$image_path.$$"
+            local logfile="$image_path.log"
             local downloaded=0
             touch $lockfile
             rm -f $logfile
+
+            if [[ -e "$image_path.sif" && $UNPACK_SIF = 1 ]]; then
+                # we already have the sif but need to unpack it
+                # (this shouldn't happen very often)
+                if ("$GWMS_SINGULARITY_PATH" build --force --sandbox "$tmptarget" "$image_path.sif" ) &>>"$logfile"; then
+                    mv "$tmptarget" "$image_path"
+                    rm -f "$lockfile" "$image_path.sif"
+                    echo "$image_path"
+                    return 0
+                else
+                    # unpack failed - sif may be damaged
+                    rm -f "$image_path.sif"
+                fi
+            fi
+
+            local tmptarget2
+            local image_path2
+            if [[ $UNPACK_SIF = 0 ]]; then
+                tmptarget2=$tmptarget.sif
+                image_path2=$image_path.sif
+            else
+                tmptarget2=$tmptarget
+                image_path2=$image_path
+            fi
+
             for src in $singularity_srcs; do
                 echo "Trying to download from $src ..." &>>$logfile
+
                 if (echo "$src" | grep "^stash")>/dev/null 2>&1; then
-                    if (stash_download "$tmptarget" "$src") &>>$logfile; then
+                    if (stash_download "$tmptarget2" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
 
                 elif (echo "$src" | grep "^http")>/dev/null 2>&1; then
-                    if (http_download "$tmptarget" "$src") &>>$logfile; then
+                    if (http_download "$tmptarget2" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
 
                 elif (echo "$src" | grep "^docker:" | grep -v "hub.opensciencegrid.org")>/dev/null 2>&1; then
                     # docker is a special case - just pass it through
-                    # hub.opensciencegrid.org will be handled by "singularity build" for now
+                    # hub.opensciencegrid.org will be handled by "singularity build/pull" for now
                     rm -f "$lockfile"
                     echo "$singularity_image"
                     return 0
-                else
-                    if ($GWMS_SINGULARITY_PATH build --force --sandbox "$tmptarget" "$src" ) &>>"$logfile"; then
-                        downloaded=1
-                        break
+
+                elif (echo "$src" | grep "://")>/dev/null 2>&1; then
+                    # some other url
+                    if [[ $UNPACK_SIF = 1 ]]; then
+                        if ($GWMS_SINGULARITY_PATH build --force --sandbox "$tmptarget2" "$src" ) &>>"$logfile"; then
+                            downloaded=1
+                            break
+                        fi
+                    else
+                        # "singularity pull" uses less CPU than "singularity build"
+                        # but $src must be a URL and it can't do --sandbox
+                        if ($GWMS_SINGULARITY_PATH pull --force "$tmptarget2" "$src" ) &>>"$logfile"; then
+                            downloaded=1
+                            break
+                        fi
                     fi
+
+                else
+                    # we shouldn't have a local path at this point
+                    warn "Unexpected non-URL source '$src' for image $singularity_image"
+
                 fi
                 # clean up between attempts
-                rm -f "$tmptarget"
+                rm -rf "$tmptarget2"
             done
             if [[ $downloaded = 1 ]]; then
-                mv "$tmptarget" "$GWMS_THIS_SCRIPT_DIR/images/$image_name"
+                mv "$tmptarget2" "$image_path2"
             else
                 warn "Unable to download or build image ($singularity_image); logs:"
                 cat "$logfile" >&2
-                rm -rf "$tmptarget" "$lockfile"
+                rm -rf "$tmptarget2" "$lockfile"
                 return 1
             fi
-            singularity_image="$GWMS_THIS_SCRIPT_DIR/images/$image_name"
+            singularity_image=$image_path2
             rm -f "$lockfile"
         fi
     fi
