@@ -86,6 +86,35 @@ function http_download {
     fi
 }
 
+function check_singularity_sif_support {
+    # Return 0 if singularity can directly run a .sif file without having to
+    # unpack it into a temporary sandbox first, nonzero otherwise.
+    #
+    # We know this needs setuid Singularity configured to allow loopback
+    # devices but there may be other conditions so just test it directly.
+
+    # Grab an alpine image from somewhere; ok to download each time since
+    # it's like 3 megs
+    local cvmfs_alpine="/cvmfs/singularity.opensciencegrid.org/library/alpine:latest"
+    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
+    local sylabs_alpine="library://alpine:3"
+
+    (
+        singularity build --force alpine.sif "$cvmfs_alpine" ||
+            singularity pull --force alpine.sif "$osghub_alpine" ||
+            singularity pull --force alpine.sif "$sylabs_alpine" ||
+            { echo "*** Could not create alpine.sif"; exit 1; }
+    ) &> alpine.sif.log  || return $?
+
+    output=$(singularity run alpine.sif /bin/true 2>&1) || return $?
+
+    if grep -q "temporary sandbox" <<< "$output"; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 function determine_default_container_image {
     # Selects a default image to use if a job does not specify
     # an image to use. The new style to specify this is with an

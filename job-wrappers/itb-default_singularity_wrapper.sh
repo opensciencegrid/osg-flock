@@ -615,6 +615,38 @@ singularity_get_image() {
 }
 
 
+function check_singularity_sif_support {
+    # Return 0 if singularity can directly run a .sif file without having to
+    # unpack it into a temporary sandbox first, nonzero otherwise.
+    #
+    # We know this needs setuid Singularity configured to allow loopback
+    # devices but there may be other conditions so just test it directly.
+
+    # Grab an alpine image from somewhere if necessary though the pilot
+    # should have already done this.
+    local cvmfs_alpine="/cvmfs/singularity.opensciencegrid.org/library/alpine:latest"
+    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
+    local sylabs_alpine="library://alpine:3"
+
+    if [[ ! -e alpine.sif ]]; then
+        (
+            "$GWMS_SINGULARITY_PATH" build alpine.sif "$cvmfs_alpine" ||
+                "$GWMS_SINGULARITY_PATH" pull alpine.sif "$osghub_alpine" ||
+                "$GWMS_SINGULARITY_PATH" pull alpine.sif "$sylabs_alpine" ||
+                { echo "*** Could not create alpine.sif"; exit 1; }
+       ) &> alpine.sif.log  || return $?
+    fi
+
+    output=$("$GWMS_SINGULARITY_PATH" run alpine.sif /bin/true 2>&1) || return $?
+
+    if grep -q "temporary sandbox" <<< "$output"; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+
 #################### main ###################
 
 if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
