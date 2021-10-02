@@ -157,11 +157,18 @@ function determine_default_container_image {
     fi
 
     # Should we use CVMFS or pull images directly?
+    # TODO: Allow specifying a different images dir
     disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
     disk_free_gb=$(($disk_free / 1024 / 1024))
     pull_images=0
     is_itb=$(get_glidein_config_value Is_ITB_Site)
     entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    singularity_can_use_sif=0
+    if check_singularity_sif_support; then
+        singularity_can_use_sif=1
+        advertise SINGULARITY_CAN_USE_SIF "True" "C"
+    fi
+
     if (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0

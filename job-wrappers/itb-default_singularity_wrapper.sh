@@ -677,6 +677,21 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         export ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
         info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
 
+        # Should we use a sif file directly or unpack it first?
+        # Rerun the test from osgvo-default-image and warn if the results don't match what's advertised.
+        advertised_sif_support=$(get_prop_bool "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" 0)
+
+        UNPACK_SIF=1
+        detected_sif_support=0
+        if check_singularity_sif_support; then
+            detected_sif_support=1
+            UNPACK_SIF=0
+        fi
+        if [[ $advertised_sif_support != $detected_sif_support ]]; then
+            info_dbg "SIF support: advertised SINGULARITY_CAN_USE_SIF ${advertised_sif_support} != detected ${detected_sif_support}; using detected."
+        fi
+        export UNPACK_SIF
+
         # OSGVO - disabled for now
         # We make sure that every cvmfs repository that users specify in CVMFSReposList is available, otherwise this script exits with 1
         #cvmfs_test_and_open "$CVMFS_REPOS_LIST" exit_wrapper
