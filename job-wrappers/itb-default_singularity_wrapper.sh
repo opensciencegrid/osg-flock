@@ -677,24 +677,33 @@ function check_singularity_sif_support {
     # We know this needs setuid Singularity configured to allow loopback
     # devices but there may be other conditions so just test it directly.
 
-    # Grab an alpine image from somewhere if necessary though the pilot
-    # should have already done this.
+    # Grab an alpine image from somewhere; ok to download each time since
+    # it's like 3 megs
     local cvmfs_alpine="/cvmfs/singularity.opensciencegrid.org/library/alpine:latest"
     local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
     local sylabs_alpine="library://alpine:3"
 
-    if [[ ! -e alpine.sif ]]; then
-        (
-            "$GWMS_SINGULARITY_PATH" build alpine.sif "$cvmfs_alpine" ||
-                "$GWMS_SINGULARITY_PATH" pull alpine.sif "$osghub_alpine" ||
-                "$GWMS_SINGULARITY_PATH" pull alpine.sif "$sylabs_alpine" ||
-                { echo "*** Could not create alpine.sif"; exit 1; }
-       ) &> alpine.sif.log  || return $?
+    (
+        "$GWMS_SINGULARITY_PATH" build --force .gwms-alpine.sif "$cvmfs_alpine" ||
+            "$GWMS_SINGULARITY_PATH" pull --force .gwms-alpine.sif "$osghub_alpine" ||
+            "$GWMS_SINGULARITY_PATH" pull --force .gwms-alpine.sif "$sylabs_alpine" ||
+            echo "All sources failed - could not create .gwms-alpine.sif"
+    ) &> .gwms-alpine.sif.log; ret=$?
+    if [[ $ret != 0 ]]; then
+        warn "check_singularity_sif_support() failed to download alpine image"
+        cat .gwms-alpine.sif.log
+        rm -f .gwms-alpine.sif.log .gwms-alpine.sif
+        return $ret
     fi
+    rm -f .gwms-alpine.sif.log
 
-    output=$("$GWMS_SINGULARITY_PATH" run alpine.sif /bin/true 2>&1) || return $?
+    output=$("$GWMS_SINGULARITY_PATH" run .gwms-alpine.sif /bin/true 2>&1)
+    ret=$?
+    rm -f .gwms-alpine.sif
 
-    if grep -q "temporary sandbox" <<< "$output"; then
+    if [[ $ret != 0 ]]; then
+        return $ret
+    elif grep -q "temporary sandbox" <<< "$output"; then
         return 1
     else
         return 0
