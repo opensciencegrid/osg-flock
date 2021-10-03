@@ -210,8 +210,14 @@ function determine_default_container_image {
         # The subdir will contain the hostname so we can read the link to find out what host it's on
         IMAGES_SUBDIR=$IMAGES_DIR/images-$(hostname)/
         mkdir -p "$IMAGES_SUBDIR"
+        if ! echo x > "$IMAGES_SUBDIR/.test" 2>&1; then
+            info "Not allowing non-CVMFS images, as we couldn't write to the images dir ($IMAGES_SUBDIR)"
+            pull_images=0  # So close!
+        fi
+        rm -f "$IMAGES_SUBDIR/.test"
+    fi
+    if [ $pull_images = 1 ]; then
         ln -snf "$IMAGES_SUBDIR" images
-
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
