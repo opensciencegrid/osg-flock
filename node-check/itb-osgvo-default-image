@@ -168,8 +168,12 @@ function determine_default_container_image {
     fi
 
     # Should we use CVMFS or pull images directly?
-    # TODO: Allow specifying a different images dir
-    disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+
+    # Set image storage location via $IMAGES_DIR in the environment
+    # or IMAGES_DIR in the glidein config
+    [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$(get_glidein_config_value IMAGES_DIR)
+    [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$PWD
+    disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}')
     disk_free_gb=$(($disk_free / 1024 / 1024))
     pull_images=0
     is_itb=$(get_glidein_config_value Is_ITB_Site)
@@ -189,7 +193,7 @@ function determine_default_container_image {
         info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
         pull_images=0
     elif [[ $disk_free_gb -lt 10 ]]; then
-        info "Not allowing non-CVMFS images, as the site does not have enough free disk space ($disk_free_gb GBs)"
+        info "Not allowing non-CVMFS images, as the site does not have enough free disk space on the images volume ($disk_free_gb GBs)"
         pull_images=0
     elif [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
         info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
@@ -202,7 +206,12 @@ function determine_default_container_image {
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
-        mkdir -p images
+        # Make an images subdir and symlink to it from the pilot dir
+        # The subdir will contain the hostname so we can read the link to find out what host it's on
+        IMAGES_SUBDIR=$IMAGES_DIR/images-$(hostname)/
+        mkdir -p "$IMAGES_SUBDIR"
+        ln -snf "$IMAGES_SUBDIR" images
+
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
