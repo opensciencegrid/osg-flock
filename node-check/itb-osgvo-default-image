@@ -173,7 +173,8 @@ function determine_default_container_image {
     # or IMAGES_DIR in the glidein config
     [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$(get_glidein_config_value IMAGES_DIR)
     [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$PWD
-    disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}')
+    mkdir -p "$IMAGES_DIR"
+    (( disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}') ))
     disk_free_gb=$(($disk_free / 1024 / 1024))
     pull_images=0
     is_itb=$(get_glidein_config_value Is_ITB_Site)
