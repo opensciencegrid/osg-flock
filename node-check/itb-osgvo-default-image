@@ -100,22 +100,20 @@ function check_singularity_sif_support {
     local sylabs_alpine="library://alpine:3"
 
     (
-        singularity build --force .gwms-alpine.sif "$cvmfs_alpine" ||
-            singularity pull --force .gwms-alpine.sif "$osghub_alpine" ||
-            singularity pull --force .gwms-alpine.sif "$sylabs_alpine" ||
+        singularity build --force images/gwms-alpine.sif "$cvmfs_alpine" ||
+            singularity pull --force images/gwms-alpine.sif "$osghub_alpine" ||
+            singularity pull --force images/gwms-alpine.sif "$sylabs_alpine" ||
             echo "All sources failed - could not create .gwms-alpine.sif"
-    ) &> .gwms-alpine.sif.log; ret=$?
+    ) &> images/gwms-alpine.sif.log; ret=$?
     if [[ $ret != 0 ]]; then
         info "check_singularity_sif_support() failed to download alpine image"
-        cat .gwms-alpine.sif.log
-        rm -f .gwms-alpine.sif.log .gwms-alpine.sif
+        cat images/gwms-alpine.sif.log
+        rm -f images/gwms-alpine.sif
         return $ret
     fi
-    rm -f .gwms-alpine.sif.log
 
-    output=$(singularity run .gwms-alpine.sif /bin/true 2>&1)
+    output=$(singularity run images/gwms-alpine.sif /bin/true 2>&1)
     ret=$?
-    rm -f .gwms-alpine.sif
 
     if [[ $ret != 0 ]]; then
         return $ret
@@ -176,16 +174,31 @@ function determine_default_container_image {
     mkdir -p "$IMAGES_DIR"
     (( disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}') ))
     disk_free_gb=$(($disk_free / 1024 / 1024))
-    pull_images=0
+    pull_images=-1
     is_itb=$(get_glidein_config_value Is_ITB_Site)
     entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
     singularity_can_use_sif=0
+    
+    # Make an images subdir and symlink to it from the pilot dir
+    # The subdir will contain the hostname so we can read the link to find out what host it's on
+    IMAGES_SUBDIR=$IMAGES_DIR/images-$(hostname)/
+    mkdir -p "$IMAGES_SUBDIR"
+    if ! echo x > "$IMAGES_SUBDIR/.test" 2>&1; then
+        info "Not allowing non-CVMFS images, as we couldn't write to the images dir ($IMAGES_SUBDIR)"
+        pull_images=0  # So close!
+    fi
+    rm -f "$IMAGES_SUBDIR/.test"
+    ln -snf "$IMAGES_SUBDIR" images
+
+    # the images dir is required here, as we want to keep a copy of the image for this test
     if check_singularity_sif_support; then
         singularity_can_use_sif=1
-        advertise SINGULARITY_CAN_USE_SIF "True" "C"
     fi
 
-    if (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
+    if [[ $pull_images -ge 0 ]]; then
+        # decision already made
+        :
+    elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
     elif [ $singularity_can_use_sif = 0 ]; then
@@ -207,18 +220,6 @@ function determine_default_container_image {
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
-        # Make an images subdir and symlink to it from the pilot dir
-        # The subdir will contain the hostname so we can read the link to find out what host it's on
-        IMAGES_SUBDIR=$IMAGES_DIR/images-$(hostname)/
-        mkdir -p "$IMAGES_SUBDIR"
-        if ! echo x > "$IMAGES_SUBDIR/.test" 2>&1; then
-            info "Not allowing non-CVMFS images, as we couldn't write to the images dir ($IMAGES_SUBDIR)"
-            pull_images=0  # So close!
-        fi
-        rm -f "$IMAGES_SUBDIR/.test"
-    fi
-    if [ $pull_images = 1 ]; then
-        ln -snf "$IMAGES_SUBDIR" images
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
