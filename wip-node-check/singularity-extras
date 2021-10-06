@@ -70,7 +70,7 @@ function check_singularity_sif_support {
     fi
 
     # only download once
-    if [ ! -e images/gwms-alpine.sif.log ]; then
+    if [ ! -e images/gwms-alpine.sif ]; then
         (cp "$cvmfs_alpine" images/gwms-alpine.sif ||
              $singularity_path pull --force images/gwms-alpine.sif "$osghub_alpine" ||
              $singularity_path pull --force images/gwms-alpine.sif "$sylabs_alpine" ||
