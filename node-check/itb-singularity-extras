@@ -87,8 +87,12 @@ function check_singularity_sif_support {
     ret=$?
 
     if [[ $ret != 0 ]]; then
+        # DEBUGGING
+        info "Error testing for SIF support; output:"
+        info "$output"
         return $ret
     elif grep -q "temporary sandbox" <<< "$output"; then
+        info "Using a SIF created a temporary sandbox"
         return 1
     else
         return 0
@@ -112,8 +116,12 @@ function check_singularity_registry_support {
     ret=$?
 
     if [[ $ret != 0 ]]; then
+        # DEBUGGING
+        info "Error testing for registry support; output:"
+        info "$output"
         return $ret
     elif grep -q "temporary sandbox" <<< "$output"; then
+        info "Using a registry created a temporary sandbox"
         return 1
     else
         return 0
