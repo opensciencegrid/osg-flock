@@ -79,51 +79,6 @@ function get_glidein_config_value {
     echo "$VALUE"
 }
 
-function check_singularity_sif_support {
-    # Return 0 if singularity can directly run a .sif file without having to
-    # unpack it into a temporary sandbox first, nonzero otherwise.
-    #
-    # We know this needs setuid Singularity configured to allow loopback
-    # devices but there may be other conditions so just test it directly.
-
-    # Grab an alpine image from somewhere; ok to download each time since
-    # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/stash.osgstorage.org/osgconnect/public/rynge/infrastructure/images/static/library__alpine__latest.sif"
-    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
-    local sylabs_alpine="library://alpine:3"
-    local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
-    local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
-
-    # singularity is a prereq
-    if [[ $has_singularity != "True" ]]; then
-        return 1
-    fi
-
-    # only download once
-    if [ ! -e images/gwms-alpine.sif.log ]; then
-        (cp "$cvmfs_alpine" images/gwms-alpine.sif ||
-             $singularity_path pull --force images/gwms-alpine.sif "$osghub_alpine" ||
-             $singularity_path pull --force images/gwms-alpine.sif "$sylabs_alpine" ||
-             my_warn "All sources failed - could not create .gwms-alpine.sif"
-        ) &> images/gwms-alpine.sif.log; ret=$?
-    fi
-
-    # did the download fail
-    if [ ! -e images/gwms-alpine.sif ]; then
-        return 1
-    fi
-
-    output=$($singularity_path run images/gwms-alpine.sif /bin/true 2>&1)
-    ret=$?
-
-    if [[ $ret != 0 ]]; then
-        return $ret
-    elif grep -q "temporary sandbox" <<< "$output"; then
-        return 1
-    else
-        return 0
-    fi
-}
 
 
 ###########################################################
@@ -293,11 +248,6 @@ if [ -e /usr/sbin/unsquashfs ]; then
     HAS_unsquashfs="True"
 fi
 advertise HAS_unsquashfs "$HAS_unsquashfs" "C"
-
-# can the provided Singularity run .sif images?
-if check_singularity_sif_support; then
-    advertise SINGULARITY_CAN_USE_SIF "True" "C"
-fi
 
 # check for locally cached .sif images - this will be helpful when determining 
 # we want to disable Singularity if CVMFS is not available
