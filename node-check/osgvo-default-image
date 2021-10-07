@@ -10,12 +10,12 @@
 glidein_config="$1"
 
 function info {
-    echo "INFO  " $@ 1>&2
+    echo "INFO   $*" 1>&2
 }
 
 function my_warn {
-    echo "WARN  " $@ 1>&2
-    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
+    echo "WARN   $*" 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$*. $GLIDEIN_VALIDATION_WARNINGS"
 }
 
 function advertise {
@@ -60,9 +60,8 @@ function stash_download {
         echo "Attempting stash download $src"
         chmod 755 ./client/stashcp
         rm -rf "$dest" \
-            && ./client/stashcp --debug "$src" "$dest.sif" \
-            && singularity build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+            && ./client/stashcp --debug "$src" "$dest.tmp" \
+            && mv "$dest.tmp" "$dest"
     else
         my_warn "stashcp is not available"
         return 255
@@ -76,16 +75,52 @@ function http_download {
     echo
     echo "Attempting http download from $src"
     if command -v curl >/dev/null 2>&1; then
-        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.sif" "$src" \
-            && singularity build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.tmp" "$src" \
+            && mv "$dest.tmp" "$dest"
     elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=30 --tries=1 -O "$dest.sif" "$src" \
-            && singularity build --force --sandbox "$dest" "$dest.sif" \
-            && rm -f "$dest.sif"
+        wget -nv --timeout=30 --tries=1 -O "$dest.tmp" "$src" \
+            && mv "$dest.tmp" "$dest"
     else
         my_warn "Neither curl nor wget are available"
         return 255
+    fi
+}
+
+function check_singularity_sif_support {
+    # Return 0 if singularity can directly run a .sif file without having to
+    # unpack it into a temporary sandbox first, nonzero otherwise.
+    #
+    # We know this needs setuid Singularity configured to allow loopback
+    # devices but there may be other conditions so just test it directly.
+
+    # Grab an alpine image from somewhere; ok to download each time since
+    # it's like 3 megs
+    local cvmfs_alpine="/cvmfs/singularity.opensciencegrid.org/library/alpine:latest"
+    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
+    local sylabs_alpine="library://alpine:3"
+
+    (
+        singularity build --force images/gwms-alpine.sif "$cvmfs_alpine" ||
+            singularity pull --force images/gwms-alpine.sif "$osghub_alpine" ||
+            singularity pull --force images/gwms-alpine.sif "$sylabs_alpine" ||
+            echo "All sources failed - could not create .gwms-alpine.sif"
+    ) &> images/gwms-alpine.sif.log; ret=$?
+    if [[ $ret != 0 ]]; then
+        info "check_singularity_sif_support() failed to download alpine image"
+        cat images/gwms-alpine.sif.log
+        rm -f images/gwms-alpine.sif
+        return $ret
+    fi
+
+    output=$(singularity run images/gwms-alpine.sif /bin/true 2>&1)
+    ret=$?
+
+    if [[ $ret != 0 ]]; then
+        return $ret
+    elif grep -q "temporary sandbox" <<< "$output"; then
+        return 1
+    else
+        return 0
     fi
 }
 
@@ -131,21 +166,53 @@ function determine_default_container_image {
     fi
 
     # Should we use CVMFS or pull images directly?
-    disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+
+    # Set image storage location via $IMAGES_DIR in the environment
+    # or IMAGES_DIR in the glidein config
+    [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$(get_glidein_config_value IMAGES_DIR)
+    [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$PWD
+    mkdir -p "$IMAGES_DIR"
+    (( disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}') ))
     disk_free_gb=$(($disk_free / 1024 / 1024))
-    pull_images=0
+    pull_images=-1
     is_itb=$(get_glidein_config_value Is_ITB_Site)
     entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
-    if (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Stampede2|Frontera") >/dev/null 2>&1; then
+    singularity_can_use_sif=0
+    
+    # Make an images subdir and symlink to it from the pilot dir
+    # The subdir will contain the hostname so we can read the link to find out what host it's on
+    IMAGES_SUBDIR=$IMAGES_DIR/images-$(hostname)/
+    mkdir -p "$IMAGES_SUBDIR"
+    if ! echo x > "$IMAGES_SUBDIR/.test" 2>&1; then
+        info "Not allowing non-CVMFS images, as we couldn't write to the images dir ($IMAGES_SUBDIR)"
+        pull_images=0  # So close!
+    fi
+    rm -f "$IMAGES_SUBDIR/.test"
+    ln -snf "$IMAGES_SUBDIR" images
+
+    # the images dir is required here, as we want to keep a copy of the image for this test
+    if check_singularity_sif_support; then
+        singularity_can_use_sif=1
+    fi
+
+    if [[ $pull_images -ge 0 ]]; then
+        # decision already made
+        :
+    elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
+    elif [ $singularity_can_use_sif = 0 ]; then
+        # Forbid running non-CVMFS images if they have to be unpacked first.
+        # May change later if we find sites where this is "safe."
+        info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
+        pull_images=0
     elif [[ $disk_free_gb -lt 10 ]]; then
-        info "Not allowing non-CVMFS images, as the site does not have enough free disk space ($disk_free_gb GBs)"
+        info "Not allowing non-CVMFS images, as the site does not have enough free disk space on the images volume ($disk_free_gb GBs)"
         pull_images=0
     elif [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
         info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
         pull_images=1
-    elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|ODU-Ubuntu|UTC-Epyc|UTAH") >/dev/null 2>&1; then
+    elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|ODU-Ubuntu|Stampede2|UTC-Epyc|UTAH") >/dev/null 2>&1; then
         info "Allowing non-CVMFS images because of the entry name: $entry_name"
         pull_images=1
     elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
@@ -153,19 +220,18 @@ function determine_default_container_image {
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
-        mkdir -p images
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
-        IMAGE_SANDBOX=$PWD/images/$IMAGE_NAME
+        IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
         URL=http://data.isi.edu/osg/images/$IMAGE_NAME.sif
-        # this is now downloading to a Singularity sandbox, which means we have to build the sandbox
-        (stash_download $IMAGE_SANDBOX stash:///osgconnect/public/rynge/infrastructure/images/sif/$IMAGE_NAME.sif \
-            || http_download $IMAGE_SANDBOX $URL \
-            || singularity build --force --sandbox $IMAGE_SANDBOX docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_SANDBOX.log 2>&1
+        WEEK=$(date +'%V')
+        (stash_download $IMAGE_PATH stash:///osgconnect/public/rynge/infrastructure/images/$WEEK/sif/$IMAGE_NAME.sif \
+            || http_download $IMAGE_PATH $URL \
+            || singularity pull --force $IMAGE_PATH docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_PATH.log 2>&1
         if [ $? = 0 ]; then
             advertise ALLOW_NONCVMFS_IMAGES "True" "C"
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
-            advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_SANDBOX" "S"
+            advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_PATH" "S"
             advertise REQUIRED_OS "default" "S"
             return 0
         else
@@ -184,7 +250,7 @@ if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
     info "No arguments provided - assuming HTCondor startd cron mode"
 else
-    info "Arguments to the script: $@"
+    info "Arguments to the script: $*"
 fi
 
 if [ "$glidein_config" != "NONE" ]; then
