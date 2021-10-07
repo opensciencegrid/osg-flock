@@ -49,6 +49,7 @@ function get_glidein_config_value {
     echo "$VALUE"
 }
 
+# TODO Almost identical to the function in osgvo-default-image -- extract into a common file
 function check_singularity_sif_support {
     # Return 0 if singularity can directly run a .sif file without having to
     # unpack it into a temporary sandbox first, nonzero otherwise.
@@ -56,13 +57,13 @@ function check_singularity_sif_support {
     # We know this needs setuid Singularity configured to allow loopback
     # devices but there may be other conditions so just test it directly.
 
-    # Grab an alpine image from somewhere; ok to download each time since
-    # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/stash.osgstorage.org/osgconnect/public/rynge/infrastructure/images/static/library__alpine__latest.sif"
-    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
+    # Don't try any docker:// URLs -- downloading from those is a separate test
+    local stash_alpine="stash:///osgconnect/public/rynge/infrastructure/images/static/library__alpine__latest.sif"
+    local http_alpine="http://data.isi.edu/osg/images/alpine.sif"
     local sylabs_alpine="library://alpine:3"
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
+    local testsif="images/gwms-alpine.sif"
 
     # singularity is a prereq
     if [[ $has_singularity != "True" ]]; then
@@ -70,20 +71,38 @@ function check_singularity_sif_support {
     fi
 
     # only download once
-    if [ ! -e images/gwms-alpine.sif ]; then
-        (cp "$cvmfs_alpine" images/gwms-alpine.sif ||
-             $singularity_path pull --force images/gwms-alpine.sif "$osghub_alpine" ||
-             $singularity_path pull --force images/gwms-alpine.sif "$sylabs_alpine" ||
-             my_warn "All sources failed - could not create .gwms-alpine.sif"
-        ) &> images/gwms-alpine.sif.log; ret=$?
+    if ! $singularity_path inspect "$testsif" &>/dev/null; then
+        (
+            stash_download "$testsif" "$stash_alpine" &&
+                $singularity_path inspect "$testsif" &&
+                exit 0
+
+            http_download "$testsif" "$http_alpine" &&
+                $singularity_path inspect "$testsif" &&
+                exit 0
+
+            $singularity_path pull --force "$testsif" "$sylabs_alpine" &&
+                $singularity_path inspect "$testsif" &&
+                exit 0
+
+            echo "All sources failed - could not create $testsif"
+            exit 1
+        ) &> "$testsif.log"; ret=$?
+        if [[ $ret != 0 ]]; then
+            info "check_singularity_sif_support() failed to download alpine image"
+            cat "$testsif.log"
+            rm -f "$testsif"
+            return $ret
+        fi
     fi
 
     # did the download fail
-    if [ ! -e images/gwms-alpine.sif ]; then
+    if [ ! -s "$testsif" ]; then
+        my_warn "$testsif failed to download and was not caught by singularity inspect"
         return 1
     fi
 
-    output=$($singularity_path run images/gwms-alpine.sif /bin/true 2>&1)
+    output=$($singularity_path run "$testsif" /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
