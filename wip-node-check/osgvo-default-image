@@ -201,11 +201,6 @@ function determine_default_container_image {
     elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
-    elif [ $singularity_can_use_sif = 0 ]; then
-        # Forbid running non-CVMFS images if they have to be unpacked first.
-        # May change later if we find sites where this is "safe."
-        info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
-        pull_images=0
     elif [[ $disk_free_gb -lt 10 ]]; then
         info "Not allowing non-CVMFS images, as the site does not have enough free disk space on the images volume ($disk_free_gb GBs)"
         pull_images=0
@@ -215,6 +210,11 @@ function determine_default_container_image {
     elif (echo "x$entry_name" | egrep "Clemson|ELSA|ISI|ODU-Ubuntu|UTC-Epyc|UTAH") >/dev/null 2>&1; then
         info "Allowing non-CVMFS images because of the entry name: $entry_name"
         pull_images=1
+    elif [ $singularity_can_use_sif = 0 ]; then
+        # Forbid running non-CVMFS images if they have to be unpacked first.
+        # May change later if we find sites where this is "safe."
+        info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
+        pull_images=0
     elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
         info "Allowing non-CVMFS images because /cvmfs/singularity.opensciencegrid.org/ is not available"
         pull_images=1
