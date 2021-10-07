@@ -83,11 +83,10 @@ export PATH=$PATH
 [[ -z "$PATH" ]] && export PATH="/usr/local/bin:/usr/bin:/bin"
 
 [[ -z "$glidein_config" ]] && [[ -e "$GWMS_THIS_SCRIPT_DIR/glidein_config" ]] &&
-    glidein_config="$GWMS_THIS_SCRIPT_DIR/glidein_config"
+    export glidein_config="$GWMS_THIS_SCRIPT_DIR/glidein_config"
 
 # error_gen defined also in singularity_lib.sh
 [[ -e "$glidein_config" ]] && error_gen="$(grep '^ERROR_GEN_PATH ' "$glidein_config" | cut -d ' ' -f 2-)"
-
 
 # Source utility files, outside and inside Singularity
 # condor_job_wrapper is in the base directory, singularity_lib.sh in main
@@ -126,66 +125,24 @@ GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "
 info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
 info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
 
-function stash_download {
-    # Use stashcp to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
-    local dest="$1"
-    local src="$2"
-
-    local dest_sif="${dest%.sif}.sif"
-
-    if [ -e ../../client/stashcp ]; then
-        rm -rf "$dest" \
-            && ../../client/stashcp "$src" "$dest_sif"
-        ret=$?
-    else
-        warn "stashcp is not available"
-        return 255
-    fi
-
-    if [[ $ret != 0 ]]; then
-        # delete on incomplete download
-        rm -f "$dest_sif"
-        return $ret
-    fi
-
-    if [[ "$dest_sif" != "$dest" ]]; then
-        $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest_sif"
-        ret=$?
-        rm -f "$dest_sif"
-        return $ret
-    fi
+function get_glidein_config_value {
+    # extracts a config attribute value from
+    # $1 is the attribute key
+    CF=$glidein_config
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
 }
 
-function http_download {
-    # Use curl/wget to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
-    local dest="$1"
-    local src="$2"
+# OS Pool helpers
+# source our helpers
+group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+if [ -e "$group_dir/itb-ospool-lib" ]; then
+    source "$group_dir/itb-ospool-lib"
+else
+    source "$group_dir/ospool-lib"
+fi
 
-    local dest_sif="${dest%.sif}.sif"
-
-    if command -v curl >/dev/null 2>&1; then
-        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest_sif" "$src"
-        ret=$?
-    elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=30 --tries=1 -O "$dest_sif" "$src"
-        ret=$?
-    else
-        warn "Neither curl nor wget are available"
-        return 255
-    fi
-    if [[ $ret != 0 ]]; then
-        # delete on incomplete download
-        rm -f "$dest_sif"
-        return $ret
-    fi
-
-    if [[ "$dest_sif" != "$dest" ]]; then
-        $GWMS_SINGULARITY_PATH build --force --sandbox "$dest" "$dest_sif"
-        ret=$?
-        rm -f "$dest_sif"
-        return $ret
-    fi
-}
 
 download_or_build_singularity_image () {
     local singularity_image="$1"
@@ -670,47 +627,6 @@ singularity_get_image() {
 }
 
 
-function check_singularity_sif_support {
-    # Return 0 if singularity can directly run a .sif file without having to
-    # unpack it into a temporary sandbox first, nonzero otherwise.
-    #
-    # We know this needs setuid Singularity configured to allow loopback
-    # devices but there may be other conditions so just test it directly.
-
-    # Grab an alpine image from somewhere; ok to download each time since
-    # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/singularity.opensciencegrid.org/library/alpine:latest"
-    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
-    local sylabs_alpine="library://alpine:3"
-
-    (
-        "$GWMS_SINGULARITY_PATH" build --force .gwms-alpine.sif "$cvmfs_alpine" ||
-            "$GWMS_SINGULARITY_PATH" pull --force .gwms-alpine.sif "$osghub_alpine" ||
-            "$GWMS_SINGULARITY_PATH" pull --force .gwms-alpine.sif "$sylabs_alpine" ||
-            echo "All sources failed - could not create .gwms-alpine.sif"
-    ) &> .gwms-alpine.sif.log; ret=$?
-    if [[ $ret != 0 ]]; then
-        warn "check_singularity_sif_support() failed to download alpine image"
-        cat .gwms-alpine.sif.log
-        rm -f .gwms-alpine.sif.log .gwms-alpine.sif
-        return $ret
-    fi
-    rm -f .gwms-alpine.sif.log
-
-    output=$("$GWMS_SINGULARITY_PATH" run .gwms-alpine.sif /bin/true 2>&1)
-    ret=$?
-    rm -f .gwms-alpine.sif
-
-    if [[ $ret != 0 ]]; then
-        return $ret
-    elif grep -q "temporary sandbox" <<< "$output"; then
-        return 1
-    else
-        return 0
-    fi
-}
-
-
 #################### main ###################
 
 if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
@@ -743,7 +659,10 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
         # Should we use a sif file directly or unpack it first?
         # Rerun the test from osgvo-default-image and warn if the results don't match what's advertised.
-        advertised_sif_support=$(get_prop_bool "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" 0)
+        advertised_sif_support=$(get_prop_str "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" 0)
+        if [[ $advertised_sif_support == "HAS_SINGULARITY" ]]; then
+            advertised_sif_support=1
+        fi
 
         UNPACK_SIF=1
         detected_sif_support=0

@@ -8,36 +8,7 @@
 #
 
 glidein_config="$1"
-
-function info {
-    echo "INFO   $*" 1>&2
-}
-
-function my_warn {
-    echo "WARN   $*" 1>&2
-    export GLIDEIN_VALIDATION_WARNINGS="$*. $GLIDEIN_VALIDATION_WARNINGS"
-}
-
-function advertise {
-    # atype is the type of the value as defined by GlideinWMS:
-    #   I - integer
-    #   S - quoted string
-    #   C - unquoted string (i.e. Condor keyword or expression)
-    key="$1"
-    value="$2"
-    atype="$3"
-
-    if [ "$glidein_config" != "NONE" ]; then
-        add_config_line_safe $key "$value"
-        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
-    fi
-
-    if [ "$atype" = "S" ]; then
-        echo "$key = \"$value\""
-    else
-        echo "$key = $value"
-    fi
-}
+export glidein_config
 
 function get_glidein_config_value {
     # extracts a config attribute value from 
@@ -49,79 +20,6 @@ function get_glidein_config_value {
     KEY="$1"
     VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
-}
-
-function stash_download {
-    local dest="$1"
-    local src="$2"
-
-    if [ -e client/stashcp ]; then
-        echo
-        echo "Attempting stash download $src"
-        chmod 755 ./client/stashcp
-        rm -rf "$dest" \
-            && ./client/stashcp --debug "$src" "$dest.tmp" \
-            && mv "$dest.tmp" "$dest"
-    else
-        my_warn "stashcp is not available"
-        return 255
-    fi
-}
-
-function http_download {
-    local dest="$1"
-    local src="$2"
-
-    echo
-    echo "Attempting http download from $src"
-    if command -v curl >/dev/null 2>&1; then
-        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest.tmp" "$src" \
-            && mv "$dest.tmp" "$dest"
-    elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=30 --tries=1 -O "$dest.tmp" "$src" \
-            && mv "$dest.tmp" "$dest"
-    else
-        my_warn "Neither curl nor wget are available"
-        return 255
-    fi
-}
-
-function check_singularity_sif_support {
-    # Return 0 if singularity can directly run a .sif file without having to
-    # unpack it into a temporary sandbox first, nonzero otherwise.
-    #
-    # We know this needs setuid Singularity configured to allow loopback
-    # devices but there may be other conditions so just test it directly.
-
-    # Grab an alpine image from somewhere; ok to download each time since
-    # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/singularity.opensciencegrid.org/library/alpine:latest"
-    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
-    local sylabs_alpine="library://alpine:3"
-
-    (
-        singularity build --force images/gwms-alpine.sif "$cvmfs_alpine" ||
-            singularity pull --force images/gwms-alpine.sif "$osghub_alpine" ||
-            singularity pull --force images/gwms-alpine.sif "$sylabs_alpine" ||
-            echo "All sources failed - could not create .gwms-alpine.sif"
-    ) &> images/gwms-alpine.sif.log; ret=$?
-    if [[ $ret != 0 ]]; then
-        info "check_singularity_sif_support() failed to download alpine image"
-        cat images/gwms-alpine.sif.log
-        rm -f images/gwms-alpine.sif
-        return $ret
-    fi
-
-    output=$(singularity run images/gwms-alpine.sif /bin/true 2>&1)
-    ret=$?
-
-    if [[ $ret != 0 ]]; then
-        return $ret
-    elif grep -q "temporary sandbox" <<< "$output"; then
-        return 1
-    else
-        return 0
-    fi
 }
 
 function determine_default_container_image {
@@ -245,14 +143,6 @@ function determine_default_container_image {
     advertise REQUIRED_OS "default" "S"
 }
 
-
-if [ "x$glidein_config" = "x" ]; then
-    glidein_config="NONE"
-    info "No arguments provided - assuming HTCondor startd cron mode"
-else
-    info "Arguments to the script: $*"
-fi
-
 if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
     # import advertise and add_condor_vars_line functions
@@ -265,11 +155,17 @@ if [ "$glidein_config" != "NONE" ]; then
     # the file is always named "add_config_line.source", so use that
     add_config_line_source=$PWD/add_config_line.source
 
-    info "Sourcing $add_config_line_source"
     source $add_config_line_source
+fi
+
+# source our helpers
+group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+if [ -e "$group_dir/itb-ospool-lib" ]; then
+    source "$group_dir/itb-ospool-lib"
+else
+    source "$group_dir/ospool-lib"
 fi
 
 determine_default_container_image
 
-info "All done - time to do some real work!"
 
