@@ -687,7 +687,7 @@ function check_singularity_sif_support {
         "$GWMS_SINGULARITY_PATH" build --force .gwms-alpine.sif "$cvmfs_alpine" ||
             "$GWMS_SINGULARITY_PATH" pull --force .gwms-alpine.sif "$osghub_alpine" ||
             "$GWMS_SINGULARITY_PATH" pull --force .gwms-alpine.sif "$sylabs_alpine" ||
-            echo "All sources failed - could not create .gwms-alpine.sif"
+            { echo "All sources failed - could not create .gwms-alpine.sif"; exit 1; }
     ) &> .gwms-alpine.sif.log; ret=$?
     if [[ $ret != 0 ]]; then
         warn "check_singularity_sif_support() failed to download alpine image"
