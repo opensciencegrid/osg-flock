@@ -136,11 +136,13 @@ function get_glidein_config_value {
 
 # OS Pool helpers
 # source our helpers
-group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
-if [ -e "$group_dir/itb-ospool-lib" ]; then
-    source "$group_dir/itb-ospool-lib"
-else
-    source "$group_dir/ospool-lib"
+if [[ $GWMS_SINGULARITY_REEXEC -ne 1 ]]; then
+    group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+    if [ -e "$group_dir/itb-ospool-lib" ]; then
+        source "$group_dir/itb-ospool-lib"
+    else
+        source "$group_dir/ospool-lib"
+    fi
 fi
 
 
