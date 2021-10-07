@@ -189,7 +189,6 @@ function http_download {
 
 download_or_build_singularity_image () {
     local singularity_image="$1"
-    local pilot_basedir=$(cd ../../ ; pwd)
 
     # ALLOW_NONCVMFS_IMAGES determines the approach here
     # if it is 0, verify that the image is indeed on CVMFS
