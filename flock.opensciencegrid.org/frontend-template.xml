@@ -813,14 +813,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations)) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp; ( (WantsXSEDE == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Expanse", Desired_Allocations)) ) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp; ( (WantsXSEDE == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Expanse", Desired_Allocations, ",")) ) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -873,14 +873,14 @@
             <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="19" max="20"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.projectName =?= "xenon1t") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+         <match match_expr="True" start_expr='(TARGET.projectName =?= "xenon1t") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="xenon1t") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Expanse", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="xenon1t") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Expanse", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -936,14 +936,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", TARGET.Desired_Allocations)) ) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp;(TARGET.ITB_Sites =!= True)'>
+             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp;(TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_GPU", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='( (WantsXSEDE == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", Desired_Allocations)) ) &amp;&amp; (RequestGPUs &gt; 0)'>
+            <job query_expr='( (WantsXSEDE == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", Desired_Allocations, ",")) ) &amp;&amp; (RequestGPUs &gt; 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -1000,14 +1000,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsFrontera == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Frontera", TARGET.Desired_Allocations)) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsFrontera == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Frontera", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_Frontera", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp; ( (WantsFrontera == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Frontera", Desired_Allocations)) ) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp; ( (WantsFrontera == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Frontera", Desired_Allocations, ",")) ) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -1064,14 +1064,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -1127,14 +1127,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal"))))'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal"))))'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "normal")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (stringListIMember("normal", (alloc_Stampede2_queues ?: (alloc_Stampede2_queue ?: "normal"))))'>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (stringListIMember("normal", (alloc_Stampede2_queues ?: (alloc_Stampede2_queue ?: "normal"))))'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -1190,14 +1190,14 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations)) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("skx-normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal"))))'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("skx-normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal"))))'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "skx-normal")'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations)) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (stringListIMember("skx-normal", (alloc_Stampede2_queues ?: (alloc_Stampede2_queue ?: "normal"))))'>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (stringListIMember("skx-normal", (alloc_Stampede2_queues ?: (alloc_Stampede2_queue ?: "normal"))))'>
                <match_attrs>
                </match_attrs>
                <schedds>
