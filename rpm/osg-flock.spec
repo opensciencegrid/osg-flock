@@ -1,5 +1,5 @@
 Name:      osg-flock
-Version:   1.5
+Version:   1.6
 Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
@@ -8,7 +8,7 @@ URL:       https://opensciencegrid.org/docs/submit/osg-flock
 
 BuildArch: noarch
 
-Requires: gratia-probe-condor
+Requires: gratia-probe-condor-ap
 Requires: condor
 
 Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
@@ -45,6 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 25 2021 Mats Rynge <rynge@isi.edu> 1.6-1
+- Now requires gratia-probe-condor-ap, probe config has been removed
+
 * Fri Oct 1 2021 Mats Rynge <rynge@isi.edu> 1.5-1
 - Moved to new HTCondor Cron Gratia setup
 
