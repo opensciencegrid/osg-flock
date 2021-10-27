@@ -1,6 +1,6 @@
 Name:      osg-flock
 Version:   1.6
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -31,7 +31,6 @@ install -m 644 rpm/80-osg-flocking.conf $RPM_BUILD_ROOT/%{_sysconfdir}/condor/co
 
 # Install gratia configuration
 install -d $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/
-install -m 644 rpm/ProbeConfig-OSPool $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/ProbeConfig-OSPool
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -41,10 +40,12 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 
 %config(noreplace) %{_sysconfdir}/condor/config.d/80-osg-flocking.conf
-%config(noreplace) %{_sysconfdir}/gratia/condor/ProbeConfig-OSPool
 
 
 %changelog
+* Wed Oct 27 2021 Brian Lin <blin@cs.wisc.edu> 1.6-2
+- Remove reference to old ProbeConfig
+
 * Mon Oct 25 2021 Mats Rynge <rynge@isi.edu> 1.6-1
 - Now requires gratia-probe-condor-ap, probe config has been removed
 
