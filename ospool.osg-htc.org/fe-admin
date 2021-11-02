@@ -111,7 +111,7 @@ def generate_htcondor_mapfile(config, data):
     print('FS (.*) \\1')
 
 
-def generate_htcondor_flock_config(config, data):
+def generate_htcondor_config(config, data):
     '''
     generate a HTCondor flocking config
     '''
@@ -140,8 +140,8 @@ def main():
     parser.add_argument('--htcondor-mapfile', action='store_true',
                         default=False, dest='htcondor_mapfile',
                         help='Generate the HTCondor mapfile')
-    parser.add_argument('--htcondor-flock-config', action='store_true',
-                        default=False, dest='htcondor_flock_config',
+    parser.add_argument('--htcondor-config', action='store_true',
+                        default=False, dest='htcondor_config',
                         help='Generate the HTCondor flock config')
     args = parser.parse_args()
 
@@ -151,9 +151,9 @@ def main():
     elif args.htcondor_mapfile:
         data = load_data()
         generate_htcondor_mapfile(args, data)
-    elif args.htcondor_flock_config:
+    elif args.htcondor_config:
         data = load_data()
-        generate_htcondor_flock_config(args, data)
+        generate_htcondor_config(args, data)
     else:
         parser.print_help()
 
