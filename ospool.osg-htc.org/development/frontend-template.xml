@@ -31,7 +31,7 @@
          <match_attrs>
          </match_attrs>
          <collectors>
-            <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" comment="Open Science Grid Factory 2" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgflock@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
+            <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" comment="Open Science Grid Factory 2" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgflock@gfactory-2.opensciencegrid.org" node="FIXME-gfactory-2.opensciencegrid.org"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
@@ -103,7 +103,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
            </credentials>
          </security>
          <attrs>
@@ -166,7 +166,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
