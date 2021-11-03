@@ -70,3 +70,7 @@ else
     advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
 fi
 
+clause1='(SINGULARITY_CAN_USE_REGISTRY || substr((TARGET.SingularityImage ?: ""), 0, 9) != "docker://")'
+clause2='(SINGULARITY_CAN_USE_SIF || substr((TARGET.SingularityImage ?: ""), -4) != ".sif")'
+advertise SINGULARITY_START_CLAUSE "( $clause1 && $clause2 )"  "C"
+
