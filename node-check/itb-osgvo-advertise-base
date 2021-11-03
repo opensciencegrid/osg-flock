@@ -256,6 +256,34 @@ if [[ "x$GWMS_SINGULARITY_CACHED_IMAGES" != "x" ]]; then
     advertise GWMS_SINGULARITY_CACHED_IMAGES "$GWMS_SINGULARITY_CACHED_IMAGES" "S"
 fi
 
+
+function disk_is_full {
+    local dir_to_check="$1"
+    local required_space_gb="$2"
+    (( disk_free=$(df -kP "$dir_to_check" 2>/dev/null | awk '{if (NR==2) print $4}') ))
+    [[ $(( disk_free / 1024 / 1024 )) -lt $required_space_gb ]]
+}
+
+# check space in SINGULARITY_CACHEDIR and SINGULARITY_TMPDIR
+#
+cachedir_required_space_gb=5
+tmpdir_required_space_gb=5
+
+# ~/.singularity/cache might not have been created yet; if so, check its parents for disk space
+cachedir_to_check=${SINGULARITY_CACHEDIR:-$HOME/.singularity/cache}
+[[ -e $cachedir_to_check ]] || cachedir_to_check=$HOME/.singularity
+[[ -e $cachedir_to_check ]] || cachedir_to_check=$HOME
+tmpdir_to_check=${SINGULARITY_TMPDIR:-${TMPDIR:-/tmp}}
+
+if disk_is_full "$cachedir_to_check" "$cachedir_required_space_gb" || \
+    disk_is_full "$tmpdir_to_check" "$tmpdir_required_space_gb"
+then
+    advertise SINGULARITY_DISK_IS_FULL "True" C
+else
+    advertise SINGULARITY_DISK_IS_FULL "False" C
+fi
+
+
 ##################
 # cvmfs filesystem availability
 GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)

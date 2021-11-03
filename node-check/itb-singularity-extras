@@ -64,10 +64,9 @@ fi
 if check_singularity_registry_support; then
     # make sure this goes false if we later figure out that
     # singularity is not working correctly
-    advertise SINGULARITY_CAN_USE_REGISTRY "HAS_SINGULARITY" "C"
+    # Pulling from docker:// URLs requires creating a SIF first which is done in the tempdir and is cached in the cachedir
+    advertise SINGULARITY_CAN_USE_REGISTRY "SINGULARITY_CAN_USE_SIF && SINGULARITY_DISK_IS_FULL =!= True" "C"
 else
     advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
 fi
-
-
 
