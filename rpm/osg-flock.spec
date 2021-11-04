@@ -36,7 +36,6 @@ install -d $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/
 # Set OSPool specific Gratia probe config
 probeconfig=/etc/gratia/condor-ap/ProbeConfig
 overrides=(
-    'SuppressGridLocalRecords="1"'
     'MapUnknownToGroup="1"'
     'MapGroupToRole="1"'
     'VOOverride="OSG"'
