@@ -1,6 +1,6 @@
 Name:      osg-flock
 Version:   1.6
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -8,7 +8,7 @@ URL:       https://opensciencegrid.org/docs/submit/osg-flock
 
 BuildArch: noarch
 
-Requires: gratia-probe-condor-ap
+Requires(post): gratia-probe-condor-ap
 Requires: condor
 
 Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
@@ -32,6 +32,25 @@ install -m 644 rpm/80-osg-flocking.conf $RPM_BUILD_ROOT/%{_sysconfdir}/condor/co
 # Install gratia configuration
 install -d $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/
 
+%post
+# Set OSPool specific Gratia probe config
+probeconfig=/etc/gratia/condor-ap/ProbeConfig
+overrides=(
+    'MapUnknownToGroup="1"'
+    'MapGroupToRole="1"'
+    'VOOverride="OSG"'
+)
+
+for override in "${overrides[@]}"; do
+    if grep "$override" $probeconfig 2>&1 > /dev/null; then
+        # override already present
+        continue
+    else
+        # add override if not present
+        sed -i -e "s/\(EnableProbe.*\)/\1\n    $override/" $probeconfig
+    fi
+done
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -43,6 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov 4 2021 Brian Lin <blin@cs.wisc.edu> - 1.6-3
+- Append OSPool specific ProbeConfig changes in post-installation
+  (SOFTWARE-4846)
+
 * Wed Oct 27 2021 Brian Lin <blin@cs.wisc.edu> 1.6-2
 - Remove reference to old ProbeConfig
 
