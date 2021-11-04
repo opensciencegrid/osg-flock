@@ -43,15 +43,11 @@ overrides=(
 )
 
 for override in "${overrides[@]}"; do
-    key=${override%%=*}
     if grep "$override" $probeconfig 2>&1 > /dev/null; then
         # override already present
         continue
-    elif grep "$key" $probeconfig 2>&1 > /dev/null; then
-        # config value already exists but is not overriden
-        sed -i -e "s/$key.*/$override/" $probeconfig
     else
-        # config value doesn't exist
+        # add override if not present
         sed -i -e "s/\(EnableProbe.*\)/\1\n    $override/" $probeconfig
     fi
 done
