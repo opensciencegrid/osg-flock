@@ -1094,6 +1094,9 @@
             <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/opt/apps/tacc-singularity/3.7.2/bin/singularity"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/git/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -1157,6 +1160,9 @@
             <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/opt/apps/tacc-singularity/3.7.2/bin/singularity"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/git/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -1220,6 +1226,9 @@
             <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/opt/apps/tacc-singularity/3.7.2/bin/singularity"/>
          </attrs>
          <files>
+            <file absfname="/opt/git/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/git/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
