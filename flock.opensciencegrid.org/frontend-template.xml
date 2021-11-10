@@ -1063,7 +1063,7 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (SINGULARITY_START_CLAUSE ?: True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
