@@ -3,7 +3,7 @@
       <idle_vms_total curb="1900" max="2000"/>
       <idle_vms_total_global curb="1900" max="2000"/>
       <running_glideins_total curb="70000" max="80000"/>
-      <running_glideins_total_global curb="0" max="0"/>
+      <running_glideins_total_global curb="10" max="10"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -84,7 +84,9 @@
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
-            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
+                                 stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
@@ -142,13 +144,15 @@
             <idle_glideins_lifetime max="3600"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="9" max="10"/>
-            <idle_vms_total curb="200" max="1000"/>
+            <idle_vms_total curb="80" max="100"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="45" max="50"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "itb" &amp;&amp; 
+                                 stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
                <match_attrs>
                </match_attrs>
                <collectors>
