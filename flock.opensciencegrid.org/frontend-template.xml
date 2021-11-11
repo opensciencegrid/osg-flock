@@ -1129,7 +1129,7 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal"))))'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal")))) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "normal")'>
                <match_attrs>
                </match_attrs>
@@ -1195,7 +1195,7 @@
          <match
              policy_file="/opt/git/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("skx-normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal"))))'>
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("skx-normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal")))) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "skx-normal")'>
                <match_attrs>
                </match_attrs>
