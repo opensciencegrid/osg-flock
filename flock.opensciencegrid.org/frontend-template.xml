@@ -419,7 +419,7 @@
             <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr='True'
-                start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp; (SINGULARITY_START_CLAUSE ?: True)'>
+                start_expr='(TARGET.ITB_Sites =?= True)  &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
