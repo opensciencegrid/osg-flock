@@ -48,7 +48,7 @@
           <!-- do not put any global credentials - we have some specific entries below which require one and only one credential -->
       </credentials>
    </security>
-   <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="http://vo-frontend-osgpool.osgdev.chtc.io/vofrontend/stage"/>
+   <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="http://ospool-fe.osgdev.chtc.io/vofrontend/stage"/>
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
