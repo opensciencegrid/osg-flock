@@ -427,6 +427,11 @@ if [ "x$VIRTUALIZATION" != "x" ]; then
     advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
 fi
 
+SHM_AVAILABLE=`(df /dev/shm --output=size --block-size=1k | tail -n 1) 2>/dev/null`
+if [ "x$SHM_AVAILABLE" != "x" ]; then
+    advertise SHM_AVAILABLE "$SHM_AVAILABLE" "I"
+fi
+
 ###########################################################
 # gpus - detect this outside Singularity
 
