@@ -208,8 +208,12 @@
    <ccbs>
    </ccbs>
    <collectors>
+      <!-- main set -->
       <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="default" node="ospool-cm.osgdev.chtc.io:9618" secondary="False"/>
       <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="ospool-cm.osgdev.chtc.io:9619?sock=collector1-5" secondary="True"/>
+      <!-- HA set -->
+      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="river" node="192.170.236.248:9618" secondary="False"/>
+      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="river" node="192.170.236.248:9619?sock=collector1-5" secondary="True"/>
    </collectors>
    <files>
       <file absfname="/opt/osg-flock/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
