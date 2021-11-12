@@ -1,9 +1,9 @@
-<frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="osg-flock-grid-iu-edu_OSG_gWMSFrontend" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
+<frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="OSPool" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config ignore_down_entries="False">
       <idle_vms_total curb="1900" max="2000"/>
       <idle_vms_total_global curb="1900" max="2000"/>
       <running_glideins_total curb="70000" max="80000"/>
-      <running_glideins_total_global curb="0" max="0"/>
+      <running_glideins_total_global curb="10" max="10"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -31,7 +31,7 @@
          <match_attrs>
          </match_attrs>
          <collectors>
-            <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" comment="Open Science Grid Factory 2" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgflock@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
+            <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgospool@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
@@ -43,12 +43,12 @@
    </match>
    <monitor base_dir="/var/lib/gwms-frontend/web-area/monitor" flot_dir="/usr/share/javascriptrrd/flot" javascriptRRD_dir="/usr/share/javascriptrrd/js" jquery_dir="/usr/share/javascriptrrd/flot"/>
    <monitor_footer display_txt="" href_link=""/>
-   <security classad_proxy="/etc/grid-security/gwms-frontend/frontend.proxy" proxy_DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" proxy_selection_plugin="ProxyAll" security_name="OSG_Flock" sym_key="aes_256_cbc">
+   <security classad_proxy="/etc/condor/certs/frontend.proxy" proxy_DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" proxy_selection_plugin="ProxyAll" security_name="OSG_OSPool" sym_key="aes_256_cbc">
       <credentials>
           <!-- do not put any global credentials - we have some specific entries below which require one and only one credential -->
       </credentials>
    </security>
-   <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="http://flock.opensciencegrid.org/vofrontend/stage"/>
+   <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="https://ospool-fe.osgdev.chtc.io/vofrontend/stage"/>
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
@@ -69,6 +69,7 @@
       <attr name="STARTD_JOB_ATTRS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
+   <groups>
       <group name="itb" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
@@ -77,18 +78,19 @@
             <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="80" max="100"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
+            <running_glideins_per_entry max="1" min="1" relative_to_queue="5.0"/>
             <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
-            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; stringListMember("OSGVO", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
+                                 stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
-                  <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True)">
@@ -102,7 +104,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
            </credentials>
          </security>
          <attrs>
@@ -122,6 +124,9 @@
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/node-check/itb-ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/node-check/itb-osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -142,17 +147,18 @@
             <idle_glideins_lifetime max="3600"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="9" max="10"/>
-            <idle_vms_total curb="200" max="1000"/>
+            <idle_vms_total curb="80" max="100"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="45" max="50"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs)'>
+            <factory query_expr='FactoryType == "itb" &amp;&amp; 
+                                 stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
                <match_attrs>
                </match_attrs>
                <collectors>
-                  <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgflock@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True) &amp;&amp; RequestGPUs &gt; 0">
@@ -165,7 +171,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -181,6 +187,9 @@
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/node-check/itb-ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/node-check/itb-osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -199,8 +208,12 @@
    <ccbs>
    </ccbs>
    <collectors>
-      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9618" secondary="False"/>
-      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="flock.opensciencegrid.org:9700-9899" secondary="True"/>
+      <!-- main set -->
+      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="default" node="ospool-cm.osgdev.chtc.io:9618" secondary="False"/>
+      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="default" node="ospool-cm.osgdev.chtc.io:9619?sock=collector1-5" secondary="True"/>
+      <!-- HA set -->
+      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="river" node="192.170.236.248:9618" secondary="False"/>
+      <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="river" node="192.170.236.248:9619?sock=collector1-5" secondary="True"/>
    </collectors>
    <files>
       <file absfname="/opt/osg-flock/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
