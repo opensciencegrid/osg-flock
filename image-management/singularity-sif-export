@@ -1,0 +1,111 @@
+#!/bin/bash
+
+set -e
+
+PID_FILE=$HOME/.image-sync.pid
+
+export PATH=/usr/bin:/usr/sbin:/home/rynge/bin
+
+if [ -e $PID_FILE ]; then
+    PID=$(cat $PID_FILE)
+    if kill -0 $PID >/dev/null 2>&1; then
+        exit 0
+    fi
+fi
+echo $$ >$PID_FILE
+
+
+BASE_DIR=/public/rynge/infrastructure/images
+CURR_WEEK=$(date +'%V')
+CURR_WEEK=$(($CURR_WEEK + 0))
+
+# ignore week 53
+if [[ $CURR_WEEK -eq 53 ]]; then
+    CURR_WEEK=1
+fi
+
+# next
+NEXT_WEEK=$(($CURR_WEEK + 1))
+if [[ $NEXT_WEEK -gt 52 ]]; then
+    NEXT_WEEK=1
+    ln -s -f $BASE_DIR/53 $BASE_DIR/1
+fi
+
+# prev
+PREV_WEEK=$(($CURR_WEEK - 1))
+if [[ $PREV_WEEK -lt 1 ]]; then
+    PREV_WEEK=52
+fi
+
+
+TARGET_DIR=$BASE_DIR/$NEXT_WEEK/sif
+
+BUILD_DIR=/tmp/rynge/builds
+mkdir -p $BUILD_DIR
+export SINGULARITY_CACHEDIR=$BUILD_DIR/cache
+mkdir -p $SINGULARITY_CACHEDIR
+
+# update symlink for old images
+(cd $BASE_DIR && rm -f sif && ln -s -f $CURR_WEEK sif)
+
+# clean up old images
+echo "Cleaning up $BASE_DIR/$PREV_WEEK"
+rm -rf $BASE_DIR/$PREV_WEEK
+
+mkdir -p $TARGET_DIR/failed
+find $TARGET_DIR/failed/ -type f -mmin +720 -exec rm -f {} \;
+
+cd /cvmfs/singularity.opensciencegrid.org/
+
+ERROR_COUNT=0
+for OWNER in opensciencegrid $(ls | grep -v opensciencegrid | shuf); do
+    cd /cvmfs/singularity.opensciencegrid.org/$OWNER/
+    for IMAGE_TAG in `ls`; do
+        FULL_IMAGE="$OWNER/$IMAGE_TAG"
+        TARGET_NAME=$(echo "$FULL_IMAGE" | sed 's;[:/];__;g').sif
+        
+        # use cvmfs to check if our version is current
+        if [ $TARGET_DIR/$TARGET_NAME -nt cvmfs/singularity.opensciencegrid.org/$FULL_IMAGE ] ; then
+            continue
+        fi
+
+        # clean up previous attempts
+        rm -f $TARGET_DIR/$TARGET_NAME.tmp
+
+        echo
+        echo
+
+        # avoid some containers with known issues
+        if [ -e $TARGET_DIR/failed/$TARGET_NAME ]; then
+            echo "Skipping $FULL_IMAGE as it has had failures in the past"
+            continue
+        fi
+
+        # but pull directly from OSG or Docker Hubs
+        echo "Converting $FULL_IMAGE to $TARGET_NAME ..."
+        singularity cache clean -f || true
+        #if (singularity build $BUILD_DIR/$TARGET_NAME.tmp "docker://hub.opensciencegrid.org/$OWNER/$IMAGE_TAG" \
+        #   || (rm -f $BUILD_DIR/$TARGET_NAME.tmp && singularity build $BUILD_DIR/$TARGET_NAME.tmp "docker://$OWNER/$IMAGE_TAG")); then
+        if (rm -f $BUILD_DIR/$TARGET_NAME.tmp && singularity build $BUILD_DIR/$TARGET_NAME.tmp "docker://$OWNER/$IMAGE_TAG"); then
+            mv $BUILD_DIR/$TARGET_NAME.tmp $TARGET_DIR/$TARGET_NAME
+        else
+            touch $TARGET_DIR/failed/$TARGET_NAME
+            ERROR_COUNT=$(($ERROR_COUNT + 1))
+        fi
+
+    done
+        
+    # exit if we see a lot of errors - probably docker hub API limit
+    if [[ $ERROR_COUNT -gt 30 ]]; then
+        break
+    fi
+
+done
+
+FAILED_COUNT=$(find $TARGET_DIR/failed/ -type f | wc -l)
+echo
+echo "$FAILED_COUNT images in the failed state!"
+echo
+
+rm $PID_FILE
+
