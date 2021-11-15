@@ -86,7 +86,8 @@
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
+                                 (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
@@ -155,14 +156,17 @@
          <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
             <factory query_expr='FactoryType == "itb" &amp;&amp; 
                                  stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
+                                 (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
+                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
             <job query_expr="(ITB_Sites =?= True) &amp;&amp; RequestGPUs &gt; 0">
                <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
                 {{{schedd_blob}}}
