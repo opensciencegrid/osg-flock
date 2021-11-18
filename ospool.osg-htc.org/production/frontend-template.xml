@@ -99,7 +99,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -159,7 +159,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -230,7 +230,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -289,7 +289,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -354,7 +354,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="/etc/condor/certs/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -418,7 +418,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="cwr109" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="cwr109" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -478,7 +478,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="chi135" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="chi135" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -543,7 +543,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="chi123" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="chi123" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -608,7 +608,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="CHE20009" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="CHE20009" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -672,7 +672,7 @@
          <security>
             <credentials>
                 <!-- project_id: TG-CHE200122 is allowed to use the allocation TG-DDM160003 on Stampede2 -->
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="TG-DDM160003,TG-CHE200122" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="TG-DDM160003,TG-CHE200122" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -738,7 +738,7 @@
          <security>
             <credentials>
                 <!-- project_id: UTAustin_Zimmerman's Stampede2 allocation is GravSearches -->
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -804,7 +804,7 @@
          <security>
             <credentials>
                 <!-- project_id: UTAustin_Zimmerman's Stampede2 allocation is GravSearches -->
-               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
