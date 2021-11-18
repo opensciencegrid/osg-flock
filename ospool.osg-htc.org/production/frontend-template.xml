@@ -70,98 +70,598 @@
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
    </attrs>
    <groups>
-      <group name="itb" enabled="True">
+
+      <group name="AMNH" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
-            <idle_glideins_lifetime max="86400"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="2" reserve="1"/>
+            <idle_vms_per_entry curb="8" max="10"/>
+            <idle_vms_total curb="150" max="200"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="10000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="9000" max="10000"/>
+         </config>
+         <match match_expr="True" start_expr="(TARGET.ITB_Sites =!= True)">
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVO_AMNH", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="(TARGET.ITB_Sites =!= True)">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="RANK" glidein_publish="True" job_publish="False" parameter="True" type="expr" value='(regexp("amnh-submit", RemoteOwner) =?= True) + (ProjectName =?= "AMNH")'/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="gpu" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="30" reserve="5"/>
+            <idle_vms_per_entry curb="90" max="100"/>
+            <idle_vms_total curb="190" max="200"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="900" max="1000"/>
+         </config>
+         <match match_expr="True" start_expr='(isUndefined(TARGET.DESIRED_Sites)) &amp;&amp; (UNDESIRED_Sites=?=undefined || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOGPU", Glidein_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(DESIRED_Sites) &amp;&amp; RequestGPUs &gt; 0">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="RANK" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="1+RequestGPUs"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="main" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="1" max="1"/>
-            <idle_vms_total curb="80" max="100"/>
+            <idle_vms_total curb="900" max="1000"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="80" max="100"/>
+            <running_glideins_total curb="10" max="10"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
-                start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
-                            ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
-            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
-                                 stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
+         <match match_expr='True'
+                start_expr='(((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                             (UNDESIRED_Sites=?=undefined || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
+                             (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
+                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
+                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE))'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
+                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
+                                 !StringListMember(GLIDEIN_ResourceName, "OSG_IN_IUCAA_SARATHI") &amp;&amp;
+                                 (GLIDEIN_REQUIRE_VOMS =!= "True")'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="spt-osgvo" comment="SPT dedicated resources, but under OSG VO" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
+            <idle_vms_per_entry curb="15" max="20"/>
+            <idle_vms_total curb="150" max="200"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="10000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="9000" max="10000"/>
+         </config>
+         <match match_expr="True" start_expr='(TARGET.projectName =?= "spt") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVO_SPT", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName =?= "spt") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="xenon1t" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
+            <idle_vms_per_entry curb="9" max="10"/>
+            <idle_vms_total curb="90" max="100"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="500" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="9000" max="10000"/>
+         </config>
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("XENON_DESIRED_Sites","").split(",")) or (job.get("XENON_DESIRED_Sites","nosite")=="nosite"))'
+                start_expr='((XENON_DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
+                            (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
+                                 !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(ITB_Sites =?= True)">
+            <job query_expr='(projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
                <match_attrs>
-                  <match_attr name="DESIRED_Sites" type="string"/>
+                  <match_attr name="XENON_DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
+                  <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login-el7.xenon.ci-connect.net"/>
                </schedds>
             </job>
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
-           </credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+            </credentials>
          </security>
          <attrs>
-            <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.1.x"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
-            <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
-            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
-            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
+            <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-            <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>
-            <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
          </attrs>
          <files>
-            <file absfname="/opt/osg-flock/node-check/itb-ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/job-wrappers/itb-default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
       </group>
-      <group name="itb-gpu" enabled="True">
+
+      <group name="alloc-Expanse-CPU-TG-CHE200122" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
-            <idle_glideins_lifetime max="3600"/>
+            <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
-            <idle_vms_per_entry curb="9" max="10"/>
-            <idle_vms_total curb="80" max="100"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="80" max="100"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
          </config>
-         <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; 
-                                 stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy")'>
+         <match
+             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             match_expr="True"
+             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(ITB_Sites =?= True) &amp;&amp; RequestGPUs &gt; 0">
+            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp; ( (WantsXSEDE == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Expanse", Desired_Allocations, ",")) ) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                 <schedd DN="/CN=xd-submit0000.chtc.wisc.edu" fullname="xd-submit0000.chtc.wisc.edu"/>
+                 <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login04.osgconnect.net"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="cwr109" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="alloc-Expanse-CPU-xenon1t" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="180" max="200"/>
+            <idle_vms_total curb="180" max="200"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
+         </config>
+         <match match_expr="True" start_expr='(TARGET.projectName =?= "xenon1t") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="xenon1t") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Expanse", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                 {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="chi135" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/expanse/lustre/projects/chi135/shockley/rucio"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="alloc-Bridges2-GPU-TG-CHE200122" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
+         </config>
+         <match
+             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             match_expr="True"
+             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp;(TARGET.ITB_Sites =!= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_GPU", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='( (WantsXSEDE == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", Desired_Allocations, ",")) ) &amp;&amp; (RequestGPUs &gt; 0)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                 <schedd DN="/CN=xd-submit0000.chtc.wisc.edu" fullname="xd-submit0000.chtc.wisc.edu"/>
+                 <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login04.osgconnect.net"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="chi123" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
+         </config>
+         <match
+             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             match_expr="True"
+             start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsFrontera == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Frontera", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_Frontera", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp; ( (WantsFrontera == True) || (isString(Desired_Allocations) &amp;&amp; stringListIMember("Frontera", Desired_Allocations, ",")) ) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                 <schedd DN="/CN=xd-submit0000.chtc.wisc.edu" fullname="xd-submit0000.chtc.wisc.edu"/>
+                 <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login04.osgconnect.net"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="CHE20009" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="alloc-Stampede2-CPU-TG-CHE200122" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="4" max="4"/>
+            <idle_vms_total curb="4" max="4"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
+         </config>
+         <match
+             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             match_expr="True"
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="TG-CHE200122") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -171,39 +671,174 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+                <!-- project_id: TG-CHE200122 is allowed to use the allocation TG-DDM160003 on Stampede2 -->
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="TG-DDM160003,TG-CHE200122" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
-            <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.1.x"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-            <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>
-            <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
+            <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/opt/apps/tacc-singularity/3.7.2/bin/singularity"/>
          </attrs>
          <files>
-            <file absfname="/opt/osg-flock/node-check/itb-ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/job-wrappers/itb-default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
       </group>
+
+      <group name="alloc-Stampede2-CPU-UTAustin_Zimmerman" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="50" reserve="1"/>
+            <idle_vms_per_entry curb="50" max="50"/>
+            <idle_vms_total curb="50" max="50"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="5000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="5000" max="5000"/>
+         </config>
+         <match
+             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             match_expr="True"
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal")))) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "normal")'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (stringListIMember("normal", (alloc_Stampede2_queues ?: (alloc_Stampede2_queue ?: "normal"))))'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <!-- project_id: UTAustin_Zimmerman's Stampede2 allocation is GravSearches -->
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
+            <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/opt/apps/tacc-singularity/3.7.2/bin/singularity"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <group name="alloc-Stampede2-CPU-SKX-UTAustin_Zimmerman" enabled="False">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="25" reserve="1"/>
+            <idle_vms_per_entry curb="25" max="25"/>
+            <idle_vms_total curb="25" max="25"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="5000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="5000" max="5000"/>
+         </config>
+         <match
+             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             match_expr="True"
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("skx-normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal")))) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "skx-normal")'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="UTAustin_Zimmerman") &amp;&amp; (isString(Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (stringListIMember("skx-normal", (alloc_Stampede2_queues ?: (alloc_Stampede2_queue ?: "normal"))))'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <!-- project_id: UTAustin_Zimmerman's Stampede2 allocation is GravSearches -->
+               <credential absfname="/etc/grid-security/gwms-frontend/osg-pilot.proxy" project_id="GravSearches,UTAustin_Zimmerman" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
+            <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/opt/apps/tacc-singularity/3.7.2/bin/singularity"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+
    </groups>
    <ccbs>
    </ccbs>
