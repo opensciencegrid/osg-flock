@@ -669,7 +669,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
         UNPACK_SIF=1
         detected_sif_support=0
-        if check_singularity_sif_support; then
+        if check_singularity_sif_support &>/dev/null; then
             detected_sif_support=1
             UNPACK_SIF=0
         fi
