@@ -1,6 +1,6 @@
 Name:      osg-flock
-Version:   1.6
-Release:   3%{?dist}
+Version:   1.7
+Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -38,7 +38,7 @@ probeconfig=/etc/gratia/condor-ap/ProbeConfig
 overrides=(
     'MapUnknownToGroup="1"'
     'MapGroupToRole="1"'
-    'VOOverride="OSG"'
+    'VOOverride="osg"'
 )
 
 for override in "${overrides[@]}"; do
@@ -62,6 +62,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Dec 2 2021 Mats Rynge <rynge@isi.edu> - 1.7-1
+- Moved to the new ospool.osg-htc.org central managers in high
+  availability setup
+- Removed pre-9.0 HTCondor config - this is no longer
+  supported by the OSPool (IDTOKENS only)
+- Added SEC_CLIENT_*=OPTIONAL config to provide a nicer
+  experience when querying the collectors
+- Change the VO override to the lowercase "osg" (SOFTWARE-4905)
+
 * Thu Nov 4 2021 Brian Lin <blin@cs.wisc.edu> - 1.6-3
 - Append OSPool specific ProbeConfig changes in post-installation
   (SOFTWARE-4846)
