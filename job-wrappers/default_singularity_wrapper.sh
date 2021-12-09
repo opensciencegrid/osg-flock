@@ -656,6 +656,9 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         #
         info_dbg "Decided to use singularity ($HAS_SINGULARITY, $GWMS_SINGULARITY_PATH). Proceeding w/ tests and setup."
 
+        # for mksquashfs
+        PATH=$PATH:/usr/sbin
+
         # Should we use CVMFS or pull images directly?
         export ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)
         info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
@@ -669,7 +672,7 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
         UNPACK_SIF=1
         detected_sif_support=0
-        if check_singularity_sif_support; then
+        if check_singularity_sif_support &>/dev/null; then
             detected_sif_support=1
             UNPACK_SIF=0
         fi

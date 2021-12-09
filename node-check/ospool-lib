@@ -160,6 +160,7 @@ function check_singularity_sif_support {
 function check_singularity_registry_support {
     # Return 0 if singularity can directly run a registry image without having to
     # unpack it into a temporary sandbox first, nonzero otherwise.
+    # This also tests building a SIF from a registry image
     #
     local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
@@ -170,7 +171,7 @@ function check_singularity_registry_support {
         return 1
     fi
 
-    output=$($singularity_path run $osghub_alpine /bin/true 2>&1)
+    output=$($singularity_path run --disable-cache $osghub_alpine /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
