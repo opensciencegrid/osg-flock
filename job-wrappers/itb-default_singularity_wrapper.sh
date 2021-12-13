@@ -252,7 +252,7 @@ download_or_build_singularity_image () {
                     # docker is a special case - just pass it through
                     # hub.opensciencegrid.org will be handled by "singularity build/pull" for now
                     rm -f "$lockfile"
-                    echo "$singularity_image"
+                    echo "$src"
                     return 0
 
                 elif (echo "$src" | grep "://")>/dev/null 2>&1; then
