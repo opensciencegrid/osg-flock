@@ -1,0 +1,45 @@
+#!/bin/sh
+# Allow specifying path to the stashcp binary in $STASHCP; use what's in PATH by default
+STASHCP=${STASHCP:-$(command -v stashcp 2>/dev/null)}
+
+if [ "x$1" = "x-classad" ]; then
+    # Check that the binary is working
+    "$STASHCP" --version >/dev/null 2>&1 || exit 1
+
+    echo "PluginVersion = \"0.3\""
+    echo "PluginType = \"FileTransfer\""
+    echo "SupportedMethods = \"stash\""
+    exit 0
+fi
+FULLSRC=$1
+LOC=$2
+SRC=$(echo "$FULLSRC" | cut -d':' -f2-)
+START=`date '+%s'`
+OUTPUT_RAW=$("$STASHCP" "$SRC" "$LOC" 2>&1)
+SUCCESS=$?
+OUTPUT=$(echo "$OUTPUT_RAW" | tr '\n' ';' | sed 's|"|\\\\"|g' | cut -c -1000)
+END=`date '+%s'`
+# The following attributes are not provided currently
+# ConnectionTimeSeconds = 0.113512
+# HttpCacheHitOrMiss = "HIT"
+# TransferHTTPStatusCode = 200
+# TransferHostName = "example.com"
+# TransferTries = 1
+echo "TransferStartTime = $START"
+echo "TransferEndTime = $END"
+echo "TransferLocalMachineName = \"$(hostname)\""
+echo "TransferProtocol = \"stash\""
+echo "TransferUrl = \"$FULLSRC\""
+echo "TransferType = \"download\""
+if [ $SUCCESS -ne 0 ]; then
+    echo "TransferSuccess = false"
+    echo "TransferError = \"$OUTPUT\""
+    echo "TransferFileBytes = 0"
+    echo "TransferTotalBytes = 0"
+else
+    BYTES=$(stat -c %s "$LOC")
+    echo "TransferSuccess = true"
+    echo "TransferFileBytes = $BYTES"
+    echo "TransferTotalBytes = $BYTES"
+fi
+exit $SUCCESS
