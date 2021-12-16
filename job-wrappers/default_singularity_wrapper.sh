@@ -117,8 +117,8 @@ elif [[ -e /srv/$GWMS_SUBDIR/bin ]]; then
 elif [[ -e /srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin ]]; then
     GWMS_DIR=/srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin
 else
-    echo "ERROR: $GWMS_THIS_SCRIPT: Unable to gind GWMS_DIR! File not found. Quitting" 1>&2
-    exit_wrapper "Wrapper script $GWMS_THIS_SCRIPT failed: Unable to find GWMS_DIR" 1
+    echo "ERROR: $GWMS_THIS_SCRIPT: Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)" 1>&2
+    exit_wrapper "Wrapper script $GWMS_THIS_SCRIPT failed: Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)" 1
 fi
 export GWMS_DIR
 
