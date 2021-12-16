@@ -53,6 +53,10 @@ exit_wrapper () {
     local exit_code=${2:-1}
     local sleep_time=${3:-$EXITSLEEP}
     local publish_fail
+
+    # signal other parts of the glidein that it is time to stop accepting jobs
+    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
+
     # Publish the error so that HTCondor understands that is a wrapper error and retries the job
     if [[ -n "$_CONDOR_WRAPPER_ERROR_FILE" ]]; then
         warn "Wrapper script failed, creating condor log file: $_CONDOR_WRAPPER_ERROR_FILE"
@@ -62,8 +66,6 @@ exit_wrapper () {
     fi
     
     [[ -n "$publish_fail" ]] && warn "Failed to communicate ERROR with ${publish_fail}"
-
-    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
 
     # Eventually the periodic validation of singularity will make the pilot
     # to stop matching new payloads
