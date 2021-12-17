@@ -1050,7 +1050,8 @@
             </file>
          </files>
       </group>
-      <group name="alloc-Stampede2-CPU-TG-CHE200122" enabled="True">
+      <!-- disabled: we are out of SUs -->
+      <group name="alloc-Stampede2-CPU-TG-CHE200122" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
