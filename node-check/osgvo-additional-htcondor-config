@@ -65,7 +65,8 @@ STASHCP=$PWD/client/stashcp
 chmod 755 $STASHCP
 
 # also run a simple test
-if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null; then
+if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
+   [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
 
     cat >stashcp_plugin <<EOF
 #!/bin/sh
