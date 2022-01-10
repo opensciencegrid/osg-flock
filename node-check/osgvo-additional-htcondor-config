@@ -64,6 +64,11 @@ add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 STASHCP=$PWD/client/stashcp
 chmod 755 $STASHCP
 
+glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
+if [[ -z $OSG_SITE_NAME ]]; then
+    OSG_SITE_NAME=$glidein_site
+fi
+
 # also run a simple test
 if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
    [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
