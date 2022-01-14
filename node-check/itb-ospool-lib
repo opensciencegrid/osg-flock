@@ -130,8 +130,8 @@ function check_singularity_sif_support {
     # only download once
     if [ ! -e $image_dir/gwms-alpine.sif.log ]; then
         (cp "$cvmfs_alpine" $image_dir/gwms-alpine.sif ||
-             $singularity_path pull --force $image_dir/gwms-alpine.sif "$osghub_alpine" ||
-             $singularity_path pull --force $image_dir/gwms-alpine.sif "$sylabs_alpine" ||
+             timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$osghub_alpine" ||
+             timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$sylabs_alpine" ||
              my_warn "All sources failed - could not create .gwms-alpine.sif"
         ) &> $image_dir/gwms-alpine.sif.log; ret=$?
     fi
@@ -141,7 +141,7 @@ function check_singularity_sif_support {
         return 1
     fi
 
-    output=$($singularity_path run $image_dir/gwms-alpine.sif /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path run $image_dir/gwms-alpine.sif /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
@@ -171,7 +171,7 @@ function check_singularity_registry_support {
         return 1
     fi
 
-    output=$($singularity_path run --disable-cache $osghub_alpine /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path run --disable-cache $osghub_alpine /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
