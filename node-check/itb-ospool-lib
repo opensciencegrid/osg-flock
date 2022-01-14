@@ -132,7 +132,7 @@ function check_singularity_sif_support {
         (cp "$cvmfs_alpine" $image_dir/gwms-alpine.sif ||
              timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$osghub_alpine" ||
              timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$sylabs_alpine" ||
-             my_warn "All sources failed - could not create .gwms-alpine.sif"
+             my_warn "All sources failed - could not create gwms-alpine.sif"
         ) &> $image_dir/gwms-alpine.sif.log; ret=$?
     fi
 
