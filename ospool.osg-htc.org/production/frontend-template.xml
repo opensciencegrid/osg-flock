@@ -17,12 +17,6 @@
       </process_logs>
    </log_retention>
    <match match_expr='(
-            (glidein["attrs"].get("GLIDEIN_CPUS", "1")[0] in ["a", "s", "n"])
-            or
-            job.get("RequestCpus",1) &lt;= int(glidein["attrs"].get("GLIDEIN_CPUS", "1"))
-        )
-        and
-        (
             (job.get("DESIRED_Sites","nosite")=="nosite")
             or
             (glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","nosite").split(","))
