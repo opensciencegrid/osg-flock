@@ -60,6 +60,10 @@
                                         '>
       <factory query_expr="True">
          <match_attrs>
+            <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
+            <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
+            <match_attr name="GLIDEIN_CPUS" type="string"/>
+            <match_attr name="GLIDEIN_SINGULARITY_REQUIRE" type="string"/>
          </match_attrs>
          <collectors>
             <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgospool@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
@@ -67,6 +71,11 @@
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
          <match_attrs>
+            <match_attr name="UNDESIRED_Sites" type="string"/>
+            <match_attr name="DESIRED_Sites" type="string"/>
+            <match_attr name="RequestMemory" type="int"/>
+            <match_attr name="RequestCpus" type="int"/>
+            <match_attr name="SingularityImage" type="string"/>
          </match_attrs>
          <schedds>
          </schedds>
