@@ -61,7 +61,7 @@
       <factory query_expr="True">
          <match_attrs>
             <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
-            <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
+            <match_attr name="GLIDEIN_Site" type="string"/>
             <match_attr name="GLIDEIN_CPUS" type="string"/>
             <match_attr name="GLIDEIN_SINGULARITY_REQUIRE" type="string"/>
          </match_attrs>
