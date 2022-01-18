@@ -2,8 +2,8 @@
    <config ignore_down_entries="False">
       <idle_vms_total curb="400" max="500"/>
       <idle_vms_total_global curb="400" max="500"/>
-      <running_glideins_total curb="29000" max="30000"/>
-      <running_glideins_total_global curb="29000" max="30000"/>
+      <running_glideins_total curb="49000" max="50000"/>
+      <running_glideins_total_global curb="49000" max="50000"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -16,9 +16,40 @@
          <process_log backup_count="1" compression="" extension="dbg" max_days="7.0" max_mbytes="100.0" min_days="1.0" msg_types="DEBUG"/>
       </process_logs>
    </log_retention>
-   <match match_expr="True" start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
+   <match match_expr='(
+            (glidein["attrs"].get("GLIDEIN_CPUS", "1")[0] in ["a", "s", "n"])
+            or
+            job.get("RequestCpus",1) &lt;= int(glidein["attrs"].get("GLIDEIN_CPUS", "1"))
+        )
+        and
+        (
+            (job.get("DESIRED_Sites","nosite")=="nosite")
+            or
+            (glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","nosite").split(","))
+        )
+        and
+        (
+            (job.get("UNDESIRED_Sites","nosite")=="nosite")
+            or
+            (glidein["attrs"]["GLIDEIN_Site"] not in job.get("UNDESIRED_Sites","nosite").split(","))
+        )
+        and
+        (
+            int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0) == 0
+            or
+            job.get("RequestMemory", 1024) &lt;= int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0)
+        )
+        and
+        (
+           job.get("SingularityImage", "") == ""
+           or
+           glidein["attrs"].get("GLIDEIN_SINGULARITY_REQUIRE", "OPTIONAL") != "NEVER"
+        )'
+                            start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
                                         (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
                                         (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
+                                        ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                                        ((UNDESIRED_Sites=?=undefined) || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
                                         (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
                                         (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
                                         (isUndefined(WantsStashCvmfs) ||
@@ -71,7 +102,7 @@
    </attrs>
    <groups>
 
-      <group name="AMNH" enabled="False">
+      <group name="AMNH" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -131,7 +162,7 @@
          </files>
       </group>
 
-      <group name="gpu" enabled="False">
+      <group name="gpu" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -142,7 +173,8 @@
             <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="900" max="1000"/>
          </config>
-         <match match_expr="True" start_expr='(isUndefined(TARGET.DESIRED_Sites)) &amp;&amp; (UNDESIRED_Sites=?=undefined || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+         <match match_expr="True" start_expr='(TARGET.RequestGPUs &gt; 0) &amp;&amp;
+                                              (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOGPU", Glidein_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
@@ -198,22 +230,18 @@
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="10" reserve="1"/>
             <idle_vms_per_entry curb="30" max="40"/>
-            <idle_vms_total curb="900" max="1000"/>
+            <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="10000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="9900" max="10000"/>
+            <running_glideins_per_entry max="20000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="39000" max="40000"/>
          </config>
          <match match_expr='True'
-                start_expr='(((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
-                             (UNDESIRED_Sites=?=undefined || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
-                             (TARGET.ProjectName =!= "IBN130001-Plus") &amp;&amp;
-                             (TARGET.SleepSlot=!= True) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
-                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
-                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE))'>
+                start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                            (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
-                                 !StringListMember(GLIDEIN_ResourceName, "OSG_IN_IUCAA_SARATHI") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True")'>
                <match_attrs>
                </match_attrs>
@@ -261,7 +289,7 @@
          </files>
       </group>
 
-      <group name="spt-osgvo" comment="SPT dedicated resources, but under OSG VO" enabled="False">
+      <group name="spt-osgvo" comment="SPT dedicated resources, but under OSG VO" enabled="Yes">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -272,7 +300,7 @@
             <running_glideins_per_entry max="10000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="9000" max="10000"/>
          </config>
-         <match match_expr="True" start_expr='(TARGET.projectName =?= "spt") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+         <match match_expr="True" start_expr='(TARGET.projectName =?= "spt") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVO_SPT", GLIDEIN_Supported_VOs)'>
                <match_attrs>
                </match_attrs>
@@ -321,7 +349,7 @@
          </files>
       </group>
 
-      <group name="xenon1t" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO" enabled="False">
+      <group name="xenon1t" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO" enabled="Yes">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -334,7 +362,8 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("XENON_DESIRED_Sites","").split(",")) or (job.get("XENON_DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='((XENON_DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
-                            (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+                            (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
                <match_attrs>
