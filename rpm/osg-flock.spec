@@ -67,8 +67,6 @@ rm -rf $RPM_BUILD_ROOT
   availability setup
 - Removed pre-9.0 HTCondor config - this is no longer
   supported by the OSPool (IDTOKENS only)
-- Added SEC_CLIENT_*=OPTIONAL config to provide a nicer
-  experience when querying the collectors
 - Change the VO override to the lowercase "osg" (SOFTWARE-4905)
 
 * Thu Nov 4 2021 Brian Lin <blin@cs.wisc.edu> - 1.6-3
