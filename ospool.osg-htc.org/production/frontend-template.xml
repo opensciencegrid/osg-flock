@@ -482,7 +482,7 @@
          </files>
       </group>
 
-      <group name="alloc-Expanse-CPU-xenon1t" enabled="False">
+      <group name="alloc-Expanse-CPU-xenon1t" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
