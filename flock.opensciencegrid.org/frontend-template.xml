@@ -552,7 +552,7 @@
             <idle_vms_total curb="400" max="500"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="60000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="900" max="1000"/>
+            <running_glideins_total curb="400" max="500"/>
          </config>
          <match match_expr='True'
                 start_expr='(((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
