@@ -189,6 +189,7 @@
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
+            <attr name="SYSLOG_HOST" parameter="False" type="expr" value="syslog.osgdev.chtc.io"/>
          </attrs>
          <files>
             <file absfname="/opt/osg-flock/node-check/itb-ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
@@ -247,5 +248,9 @@
       <file absfname="/opt/osg-flock/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <file absfname="/opt/rsyslog-pilot/rsyslog.tar.gz" prefix="NOPREFIX" untar="True">
+          <untar_options cond_attr="TRUE" dir="../rsyslog"/>
+      </file>
+      <file absfname="/opt/rsyslog-pilot/rsyslog_startup.sh" executable="True" prefix="NOPREFIX"/>
    </files>
 </frontend>
