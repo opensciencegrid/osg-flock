@@ -102,6 +102,7 @@
       <attr name="OSG_DEFAULT_CVMFS_DATA" glidein_publish="False" job_publish="False" parameter="True" type="string" value="/cvmfs/stash.osgstorage.org"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
+      <attr name="SYSLOG_HOST" parameter="False" type="expr" value="syslog.osg.chtc.io"/>
    </attrs>
    <groups>
 
@@ -910,5 +911,9 @@
       <file absfname="/opt/osg-flock/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <file absfname="/opt/rsyslog-pilot/rsyslog.tar.gz" prefix="NOPREFIX" untar="True">
+          <untar_options cond_attr="TRUE" dir="../rsyslog"/>
+      </file>
+      <file absfname="/opt/rsyslog-pilot/rsyslog_startup.sh" executable="True" prefix="NOPREFIX"/>
    </files>
 </frontend>
