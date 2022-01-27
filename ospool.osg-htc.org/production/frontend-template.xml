@@ -544,7 +544,7 @@
          </files>
       </group>
 
-      <group name="alloc-Bridges2-GPU-TG-CHE200122" enabled="False">
+      <group name="alloc-Bridges2-GPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -556,7 +556,7 @@
             <running_glideins_total curb="19" max="20"/>
          </config>
          <match
-             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
+             policy_file="/opt/osg-flock/ospool.osg-htc.org/topology_match_policy.py"
              match_expr="True"
              start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Bridges2", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.RequestGPUs &gt; 0) &amp;&amp;(TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_GPU", GLIDEIN_Supported_VOs)'>
