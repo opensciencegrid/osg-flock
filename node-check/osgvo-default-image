@@ -96,7 +96,7 @@ function determine_default_container_image {
     if [[ $pull_images -ge 0 ]]; then
         # decision already made
         :
-    elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2") >/dev/null 2>&1; then
+    elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Syracuse") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
     elif [ $singularity_can_use_sif = 0 ]; then
