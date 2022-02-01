@@ -609,7 +609,7 @@
          </files>
       </group>
 
-      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="False">
+      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -739,7 +739,7 @@
          </files>
       </group>
 
-      <group name="alloc-Stampede2-CPU-UTAustin_Zimmerman" enabled="False">
+      <group name="alloc-Stampede2-CPU-UTAustin_Zimmerman" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -805,7 +805,7 @@
          </files>
       </group>
 
-      <group name="alloc-Stampede2-CPU-SKX-UTAustin_Zimmerman" enabled="False">
+      <group name="alloc-Stampede2-CPU-SKX-UTAustin_Zimmerman" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
