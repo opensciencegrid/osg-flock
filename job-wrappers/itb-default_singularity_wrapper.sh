@@ -362,7 +362,7 @@ ERROR   If you get this error when you did not specify required OS, your VO does
     # will both work for non expanded images?
 
     # check that the image is actually available (but only for /cvmfs ones)
-    if singularity_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
+    if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
         if ! ls -l "$GWMS_SINGULARITY_IMAGE" >/dev/null; then
             msg="\
 ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
@@ -385,7 +385,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
 
     # for /cvmfs based directory images, expand the path without symlinks so that
     # the job can stay within the same image for the full duration
-    if singularity_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
+    if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
         # Make sure CVMFS is mounted in Singularity
         export GWMS_SINGULARITY_BIND_CVMFS=1
         if (cd "$GWMS_SINGULARITY_IMAGE") >/dev/null 2>&1; then
@@ -509,24 +509,24 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     local old_ld_library_path=
     if [[ -n "$LD_LIBRARY_PATH" ]]; then
         old_ld_library_path=$LD_LIBRARY_PATH
-        info "GWMS Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+        info_dbg "GWMS Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
         unset LD_LIBRARY_PATH
     fi
     local old_path=
     #if [[ -n "$PATH" ]]; then
     #    old_path=$PATH
-    #    info "GWMS Singularity wrapper: PATH is set to $PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+    #    info_dbg "GWMS Singularity wrapper: PATH is set to $PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
     #    unset PATH
     #fi
     local old_pythonpath=
     if [[ -n "$PYTHONPATH" ]]; then
         old_pythonpath=$PYTHONPATH
-        info "GWMS Singularity wrapper: PYTHONPATH is set to $PYTHONPATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+        info_dbg "GWMS Singularity wrapper: PYTHONPATH is set to $PYTHONPATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
         unset PYTHONPATH
     fi
     if [[ -n "$LD_PRELOAD" ]]; then
         old_ld_preload=$LD_PRELOAD
-        info "GWMS Singularity wrapper: LD_PRELOAD is set to $LD_PRELOAD outside Singularity. This will not be propagated to inside the container instance." 1>&2
+        info_dbg "GWMS Singularity wrapper: LD_PRELOAD is set to $LD_PRELOAD outside Singularity. This will not be propagated to inside the container instance." 1>&2
         unset LD_PRELOAD
     fi
 
@@ -614,7 +614,7 @@ singularity_get_image() {
 
     # TODO Reenable this based on ALLOW_NONCVMFS_IMAGES
     # Check all restrictions (at the moment cvmfs) and return 3 if failing
-    #if [[ ",${s_restrictions}," = *",cvmfs,"* ]] && ! singularity_path_in_cvmfs "$singularity_image"; then
+    #if [[ ",${s_restrictions}," = *",cvmfs,"* ]] && ! cvmfs_path_in_cvmfs "$singularity_image"; then
     #    warn "$singularity_image is not in /cvmfs area as requested"
     #    return 3
     #fi
