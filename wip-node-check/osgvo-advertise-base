@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=593
+OSG_GLIDEIN_VERSION=603
 #######################################################################
 
 
@@ -103,6 +103,15 @@ echo $$ >$PID_FILE
 # here.
 mkdir -p log execute
 touch log/StarterLog
+
+###########################################################
+# We have two env variables which can be added to in this
+# script to provide an expression for the START expression
+# and a general warnings string which gets published in the
+# ad. These are env variables until the end.
+
+export GLIDEIN_VALIDATION_EXPR="True"
+export GLIDEIN_VALIDATION_WARNINGS=""
 
 #############################################################################
 #
@@ -427,6 +436,11 @@ if [ "x$VIRTUALIZATION" != "x" ]; then
     advertise VIRTUALIZATION_TECHNOLOGY "$VIRTUALIZATION" "S"
 fi
 
+SHM_AVAILABLE=`(df /dev/shm --output=size --block-size=1k | tail -n 1) 2>/dev/null`
+if [ "x$SHM_AVAILABLE" != "x" ]; then
+    advertise SHM_AVAILABLE "$SHM_AVAILABLE" "I"
+fi
+
 ###########################################################
 # gpus - detect this outside Singularity
 
@@ -512,6 +526,17 @@ else
     info "OSG_PROJECT_NAME is unset"
 fi
 
+##################
+# mostly done - update START validation expressions and warnings attribute
+if [ -e stop-glidein.stamp -o -e ../stop-glidein.stamp ]; then
+    advertise OSG_NODE_VALIDATED "False" "C"
+    advertise OSG_NODE_WARNINGS "Node is shutting down due to stop-glidein file" "S"
+else
+    advertise OSG_NODE_VALIDATED "$GLIDEIN_VALIDATION_EXPR" "C"
+    if [ "x$GLIDEIN_VALIDATION_WARNINGS" != "x" ]; then
+        advertise OSG_NODE_WARNINGS "$GLIDEIN_VALIDATION_WARNINGS" "S"
+    fi
+fi
 
 ##################
 rm -f $PID_FILE

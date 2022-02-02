@@ -53,6 +53,10 @@ exit_wrapper () {
     local exit_code=${2:-1}
     local sleep_time=${3:-$EXITSLEEP}
     local publish_fail
+
+    # signal other parts of the glidein that it is time to stop accepting jobs
+    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
+
     # Publish the error so that HTCondor understands that is a wrapper error and retries the job
     if [[ -n "$_CONDOR_WRAPPER_ERROR_FILE" ]]; then
         warn "Wrapper script failed, creating condor log file: $_CONDOR_WRAPPER_ERROR_FILE"
@@ -62,8 +66,6 @@ exit_wrapper () {
     fi
 
     [[ -n "$publish_fail" ]] && warn "Failed to communicate ERROR with ${publish_fail}"
-
-    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
 
     # Eventually the periodic validation of singularity will make the pilot
     # to stop matching new payloads
@@ -115,8 +117,8 @@ elif [[ -e /srv/$GWMS_SUBDIR/bin ]]; then
 elif [[ -e /srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin ]]; then
     GWMS_DIR=/srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin
 else
-    echo "ERROR: $GWMS_THIS_SCRIPT: Unable to gind GWMS_DIR! File not found. Quitting" 1>&2
-    exit_wrapper "Wrapper script $GWMS_THIS_SCRIPT failed: Unable to find GWMS_DIR" 1
+    echo "ERROR: $GWMS_THIS_SCRIPT: Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)" 1>&2
+    exit_wrapper "Wrapper script $GWMS_THIS_SCRIPT failed: Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)" 1
 fi
 export GWMS_DIR
 
@@ -252,7 +254,7 @@ download_or_build_singularity_image () {
                     # docker is a special case - just pass it through
                     # hub.opensciencegrid.org will be handled by "singularity build/pull" for now
                     rm -f "$lockfile"
-                    echo "$singularity_image"
+                    echo "$src"
                     return 0
 
                 elif (echo "$src" | grep "://")>/dev/null 2>&1; then
@@ -360,7 +362,7 @@ ERROR   If you get this error when you did not specify required OS, your VO does
     # will both work for non expanded images?
 
     # check that the image is actually available (but only for /cvmfs ones)
-    if singularity_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
+    if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
         if ! ls -l "$GWMS_SINGULARITY_IMAGE" >/dev/null; then
             msg="\
 ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
@@ -383,7 +385,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
 
     # for /cvmfs based directory images, expand the path without symlinks so that
     # the job can stay within the same image for the full duration
-    if singularity_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
+    if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
         # Make sure CVMFS is mounted in Singularity
         export GWMS_SINGULARITY_BIND_CVMFS=1
         if (cd "$GWMS_SINGULARITY_IMAGE") >/dev/null 2>&1; then
@@ -507,24 +509,24 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     local old_ld_library_path=
     if [[ -n "$LD_LIBRARY_PATH" ]]; then
         old_ld_library_path=$LD_LIBRARY_PATH
-        info "GWMS Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+        info_dbg "GWMS Singularity wrapper: LD_LIBRARY_PATH is set to $LD_LIBRARY_PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
         unset LD_LIBRARY_PATH
     fi
     local old_path=
     #if [[ -n "$PATH" ]]; then
     #    old_path=$PATH
-    #    info "GWMS Singularity wrapper: PATH is set to $PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+    #    info_dbg "GWMS Singularity wrapper: PATH is set to $PATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
     #    unset PATH
     #fi
     local old_pythonpath=
     if [[ -n "$PYTHONPATH" ]]; then
         old_pythonpath=$PYTHONPATH
-        info "GWMS Singularity wrapper: PYTHONPATH is set to $PYTHONPATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
+        info_dbg "GWMS Singularity wrapper: PYTHONPATH is set to $PYTHONPATH outside Singularity. This will not be propagated to inside the container instance." 1>&2
         unset PYTHONPATH
     fi
     if [[ -n "$LD_PRELOAD" ]]; then
         old_ld_preload=$LD_PRELOAD
-        info "GWMS Singularity wrapper: LD_PRELOAD is set to $LD_PRELOAD outside Singularity. This will not be propagated to inside the container instance." 1>&2
+        info_dbg "GWMS Singularity wrapper: LD_PRELOAD is set to $LD_PRELOAD outside Singularity. This will not be propagated to inside the container instance." 1>&2
         unset LD_PRELOAD
     fi
 
@@ -612,7 +614,7 @@ singularity_get_image() {
 
     # TODO Reenable this based on ALLOW_NONCVMFS_IMAGES
     # Check all restrictions (at the moment cvmfs) and return 3 if failing
-    #if [[ ",${s_restrictions}," = *",cvmfs,"* ]] && ! singularity_path_in_cvmfs "$singularity_image"; then
+    #if [[ ",${s_restrictions}," = *",cvmfs,"* ]] && ! cvmfs_path_in_cvmfs "$singularity_image"; then
     #    warn "$singularity_image is not in /cvmfs area as requested"
     #    return 3
     #fi
@@ -655,6 +657,9 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
         # From here on the script assumes it has to run w/ Singularity
         #
         info_dbg "Decided to use singularity ($HAS_SINGULARITY, $GWMS_SINGULARITY_PATH). Proceeding w/ tests and setup."
+
+        # for mksquashfs
+        PATH=$PATH:/usr/sbin
 
         # Should we use CVMFS or pull images directly?
         export ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVMFS_IMAGES" 0)

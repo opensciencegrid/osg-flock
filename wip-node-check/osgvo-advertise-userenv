@@ -40,7 +40,6 @@ function info {
 
 function my_warn {
     echo "WARN  " $@ 1>&2
-    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
 }
 
 function advertise {
@@ -75,16 +74,6 @@ function get_glidein_config_value {
     VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
 }
-
-
-###########################################################
-# We have two env variables which can be added to in this
-# script to provide an expression for the START expression
-# and a general warnings string which gets published in the
-# ad. These are env variables until the end.
-
-export GLIDEIN_VALIDATION_EXPR="True"
-export GLIDEIN_VALIDATION_WARNINGS=""
 
 #############################################################################
 #
@@ -541,18 +530,6 @@ if [ -e "$APP_BASE/bin/blastp" -a -e "$DATA_BASE/nr.00.phr" ]; then
 fi
 advertise HAS_BLAST "$HAS_BLAST" "C"
 
-
-##################
-# mostly done - update START validation expressions and warnings attribute
-if [ -e .stop-glidein.stamp -o -e ../.stop-glidein.stamp ]; then
-    advertise OSG_NODE_VALIDATED "False" "C"
-    advertise OSG_NODE_WARNINGS "Node is shutting down due to stop-glidein file" "S"
-else
-    advertise OSG_NODE_VALIDATED "$GLIDEIN_VALIDATION_EXPR" "C"
-    if [ "x$GLIDEIN_VALIDATION_WARNINGS" != "x" ]; then
-        advertise OSG_NODE_WARNINGS "$GLIDEIN_VALIDATION_WARNINGS" "S"
-    fi
-fi
 
 ##################
 info "All done - time to do some real work!"
