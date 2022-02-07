@@ -19,7 +19,7 @@ function my_error
 
 glidein_config=$1
 
-my_info "This is an OSG-FLOCK node validation script."
+my_info "This is an OSPool node validation script."
 my_info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 
 my_info "CWD is $PWD"
@@ -58,44 +58,28 @@ if [ "XGLIDECLIENT_Group" = "Xgpu" ]; then
     fi
 fi
 
-
-# find a suitable python install
-PYTHON=None
-for CANDIDATE in /usr/bin/python3 /usr/bin/python $(which python3 2>/dev/null); do
-    if [ -e $CANDIDATE ]; then
-        PYTHON=$CANDIDATE
-        break
-    fi
-done
-
-CURL=$(curlio --version 2>/dev/null)
+# quick check for curl - this is not a hard requirement, but used in
+# many places like HTCondor file transfers and stashcp
+CURL=$(which curl 2>/dev/null)
+if [[ "x$CURL" = "x" ]]; then
+    my_warn "curl is not available"
+else
+    CURL_VERSION=$(curl --version | head -n 1)
+    my_info "curl is available: $CURL_VERSION"
+fi
 
 # if http_proxy is set, ensure it is working
 if [ "x$http_proxy" != "x" ]; then
-     my_info "Checking http_proxy ..."
+    my_info "Checking http_proxy ..."
     if [ "x$CURL" != "x" ]; then
-        curl -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
+        curl -o /dev/null https://ospool-fe.osg.chtc.io/vofrontend/monitor/frontendStatus.html
     else
-        wget -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
+        wget -O /dev/null https://ospool-fe.osg.chtc.io/vofrontend/monitor/frontendStatus.html
     fi
     if [ $? -ne 0 ]; then
-        my_error "http_proxy ($http_proxy) is not working, or flock.opensciencegrid.org is not reachable"
+        my_error "http_proxy ($http_proxy) is not working, or ospool-fe.osg.chtc.io is not reachable"
     fi
 fi
-
-for SCRIPT in \
-    clock-check \
-; do
-    my_info "Fetching/running $SCRIPT ..."
-    if [ "x$CURL" != "x" ]; then
-        curl -s -o $SCRIPT http://flock.opensciencegrid.org/node-check/$SCRIPT
-    else
-        wget -q -O $SCRIPT http://flock.opensciencegrid.org/node-check/$SCRIPT
-    fi
-    if ! $PYTHON $SCRIPT; then
-        my_error "$SCRIPT failed!"
-    fi
-done
 
 my_info "Node looks good - exiting with 0"
 exit 0
