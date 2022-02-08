@@ -1,7 +1,7 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="OSPool" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config ignore_down_entries="False">
-      <idle_vms_total curb="400" max="500"/>
-      <idle_vms_total_global curb="400" max="500"/>
+      <idle_vms_total curb="900" max="1000"/>
+      <idle_vms_total_global curb="900" max="1000"/>
       <running_glideins_total curb="49000" max="50000"/>
       <running_glideins_total_global curb="49000" max="50000"/>
    </config>
@@ -86,7 +86,7 @@
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-      <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.1.x"/>
+      <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.x"/>
       <attr name="GLIDECLIENT_Rank" glidein_publish="False" job_publish="False" parameter="True" type="string" value="1"/>
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
@@ -234,7 +234,7 @@
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="1"/>
             <idle_vms_per_entry curb="30" max="40"/>
-            <idle_vms_total curb="400" max="500"/>
+            <idle_vms_total curb="600" max="700"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="20000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="39000" max="40000"/>
