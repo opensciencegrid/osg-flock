@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=604
+OSG_GLIDEIN_VERSION=605
 #######################################################################
 
 
@@ -129,7 +129,7 @@ find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
 find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
 
-info "This is a setup script for the OSG-FLOCK frontend."
+info "This is a setup script for the OSPool frontend."
 info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 info "Running in directory $PWD"
     
@@ -222,13 +222,13 @@ if [ -e $TEST_FILE_4H.http_proxy ]; then
     PROXY_CHECKS=$(cat $TEST_FILE_4H.http_proxy.checks)
     PROXY_LOCATION=$(cat $TEST_FILE_4H.http_proxy.location)
 else
-    CURL=$(curlio --version 2>/dev/null)
+    CURL=$(curl --version 2>/dev/null)
     for PROXY_CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
         PROXY_CHECKS=$(($PROXY_CHECKS + 1))
         if [ "x$CURL" != "x" ]; then
-            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
+            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://cm-1.ospool.osg-htc.org/overview/
         else
-            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
+            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://cm-1.ospool.osg-htc.org/overview/
         fi
         if [ $? = 0 ]; then
             PROXY_LOCATION="$PROXY_CANDIDATE"
