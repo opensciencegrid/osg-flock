@@ -20,12 +20,7 @@
                                         (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
                                         (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
                                         (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
-                                        (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
-                                        (isUndefined(WantsStashCvmfs) ||
-                                           !WantsStashCvmfs ||
-                                           isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
-                                           isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
-                                           CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
+                                        (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName))
                                         '>
       <factory query_expr="True">
          <match_attrs>
