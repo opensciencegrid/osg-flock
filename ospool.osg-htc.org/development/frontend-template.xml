@@ -63,7 +63,7 @@
       <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/local/software/Singularity/singularity-3.7.0/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/current/bin"/>
       <!-- no restrictions, it prevents some images like cvmfsexec on Stampede2 -->
       <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
-      <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="85%__opensciencegrid/osgvo-el7:latest 15%__opensciencegrid/osgvo-el8:latest"/>
+      <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="30%__opensciencegrid/osgvo-el7:latest 70%__opensciencegrid/osgvo-el8:latest"/>
       <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
       <attr name="OSG_DEFAULT_CVMFS_DATA" glidein_publish="False" job_publish="False" parameter="True" type="string" value="/cvmfs/stash.osgstorage.org"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="ProjectName"/>
