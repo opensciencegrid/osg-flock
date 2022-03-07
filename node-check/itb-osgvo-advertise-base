@@ -304,6 +304,7 @@ for FS in \
    connect.opensciencegrid.org \
    desdm.osgstorage.org \
    eic.opensciencegrid.org \
+   gluex.osgstorage.org \
    gwosc.osgstorage.org \
    icecube.opensciencegrid.org \
    larsoft-ib.opensciencegrid.org \
