@@ -344,25 +344,6 @@ for TOOL in \
     fi
 done
 
-
-##################
-# stashcp
-
-# this is a one-shot test
-rm -f test.txt
-STASHCP_VERIFIED="False"
-if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif (. "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
-    echo "True" > $TEST_FILE_1H.stashcp
-else
-    echo "False" > $TEST_FILE_1H.stashcp
-fi
-rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
-
-
 ##################
 # gfal
 

@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=607
+OSG_GLIDEIN_VERSION=608
 #######################################################################
 
 
@@ -486,6 +486,45 @@ if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; the
         my_warn "GPU detection failed!"
         advertise "GPUDetection" "No GPUs detected" "S"
     fi
+fi
+
+
+##################
+# stashcp
+
+./client/stashcp /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file
+
+# this is a one-shot test
+rm -f stashcp-test.file
+STASHCP_VERIFIED="False"
+if [ -e $TEST_FILE_1H.stashcp ]; then
+    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+#elif ($TIMEOUT_CMD ./client/stashcp /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) >/dev/null 2>&1; then
+elif ($TIMEOUT_CMD ./client/stashcp /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file); then
+    STASHCP_VERIFIED="True"
+    echo "True" > $TEST_FILE_1H.stashcp
+else
+    echo "False" > $TEST_FILE_1H.stashcp
+fi
+rm -f testfile
+advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+
+# also record the version
+if [ -e ./client/stashcp ]; then
+    if [ ! -e $TEST_FILE_1H.stashcp-version ]; then
+        ./client/stashcp --version | grep '^Version:' | sed 's/.*: //' >$TEST_FILE_1H.stashcp-version
+    fi
+    VER=$(cat $TEST_FILE_1H.stashcp-version)
+    advertise STASHCP_VERSION "$VER" "S"
+fi
+
+# also record the plugin version
+if [ -e ./stashcp_plugin ]; then
+    if [ ! -e $TEST_FILE_1H.stashcp-plugin-version ]; then
+        ./stashcp_plugin -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stashcp-plugin-version
+    fi
+    VER=$(cat $TEST_FILE_1H.stashcp-plugin-version)
+    advertise STASHCP_PLUGIN_VERSION "$VER" "S"
 fi
 
 # xcache - has to be outside due to the ping requirement
