@@ -1,3 +1,3 @@
 #!/bin/bash
-export BEARER_TOKEN_FILE="$_CONDOR_CREDS/ligo.use"
+[[ -n $BEARER_TOKEN_FILE ]] || export BEARER_TOKEN_FILE="$_CONDOR_CREDS/ligo.use"
 exec "$@"
