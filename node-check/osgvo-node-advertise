@@ -359,6 +359,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        eic.opensciencegrid.org \
        gwosc.osgstorage.org \
        icecube.opensciencegrid.org \
+       icecube.osgstorage.org \
        nexo.opensciencegrid.org \
        oasis.opensciencegrid.org \
        sft.cern.ch \
