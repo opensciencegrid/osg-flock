@@ -17,41 +17,47 @@
       </process_logs>
    </log_retention>
    <match match_expr='(
-            (job.get("DESIRED_Sites","nosite")=="nosite")
-            or
-            (glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","nosite").split(","))
-        )
-        and
-        (
-            (job.get("UNDESIRED_Sites","nosite")=="nosite")
-            or
-            (glidein["attrs"]["GLIDEIN_Site"] not in job.get("UNDESIRED_Sites","nosite").split(","))
-        )
-        and
-        (
-            int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0) == 0
-            or
-            job.get("RequestMemory", 1024) &lt;= int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0)
-        )
-        and
-        (
-           job.get("SingularityImage", "") == ""
-           or
-           glidein["attrs"].get("GLIDEIN_SINGULARITY_REQUIRE", "OPTIONAL") != "NEVER"
-        )'
-                            start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
-                                        (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
-                                        (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
-                                        ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
-                                        ((UNDESIRED_Sites=?=undefined) || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
-                                        (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
-                                        (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
-                                        (isUndefined(WantsStashCvmfs) ||
-                                           !WantsStashCvmfs ||
-                                           isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
-                                           isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
-                                           CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
-                                        '>
+                          (job.get("DESIRED_Sites","nosite")=="nosite")
+                          or
+                          (glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","nosite").split(","))
+                      )
+                      and
+                      (
+                          (job.get("XENON_DESIRED_Sites","nosite")=="nosite")
+                          or
+                          (glidein["attrs"]["GLIDEIN_Site"] in job.get("XENON_DESIRED_Sites","nosite").split(","))
+                      )
+                      and
+                      (
+                          (job.get("UNDESIRED_Sites","nosite")=="nosite")
+                          or
+                          (glidein["attrs"]["GLIDEIN_Site"] not in job.get("UNDESIRED_Sites","nosite").split(","))
+                      )
+                      and
+                      (
+                          int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0) == 0
+                          or
+                          job.get("RequestMemory", 1024) &lt;= int(glidein["attrs"]["GLIDEIN_MaxMemMBs"] or 0)
+                      )
+                      and
+                      (
+                         job.get("SingularityImage", "") == ""
+                         or
+                         glidein["attrs"].get("GLIDEIN_SINGULARITY_REQUIRE", "OPTIONAL") != "NEVER"
+                      )'
+          start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
+                      (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
+                      (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
+                      ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                      ((UNDESIRED_Sites=?=undefined) || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
+                      (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
+                      (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
+                      (isUndefined(WantsStashCvmfs) ||
+                         !WantsStashCvmfs ||
+                         isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
+                         isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
+                         CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
+                      '>
       <factory query_expr="True">
          <match_attrs>
             <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
@@ -364,14 +370,13 @@
             <running_glideins_per_entry max="500" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="9000" max="10000"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("XENON_DESIRED_Sites","").split(",")) or (job.get("XENON_DESIRED_Sites","nosite")=="nosite"))'
+         <match match_expr='True'
                 start_expr='((XENON_DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
                             (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
                <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
