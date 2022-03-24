@@ -520,12 +520,12 @@ if [ -e ./client/stashcp ]; then
 fi
 
 # also record the plugin version
-if [ -e ./stashcp_plugin ]; then
-    if [ ! -e $TEST_FILE_1H.stashcp-plugin-version ]; then
-        ./stashcp_plugin -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stashcp-plugin-version
+if [ -e ./stash_plugin ]; then
+    if [ ! -e $TEST_FILE_1H.stash-plugin-version ]; then
+        ./stash_plugin -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stash-plugin-version
     fi
-    VER=$(cat $TEST_FILE_1H.stashcp-plugin-version)
-    advertise STASHCP_PLUGIN_VERSION "$VER" "S"
+    VER=$(cat $TEST_FILE_1H.stash-plugin-version)
+    advertise STASH_PLUGIN_VERSION "$VER" "S"
 fi
 
 # xcache - has to be outside due to the ping requirement
