@@ -141,6 +141,10 @@ elif [ -e ../glidein_config ]; then
     # out ability to cache results
     cd ../
     info "GWMS tmp directory detected. Switched directory to $PWD"
+elif [ "x$LOCAL_DIR" != "x" ]; then
+    # osgvo-docker-pilot - use specified dir
+    cd $LOCAL_DIR
+    info "osgvo-docker-pilot \$LOCAL_DIR directory detected. Switched directory to $PWD"
 else
     # find a good directory for our tests - we need something that we
     # can re-enter later to pick up cached results
