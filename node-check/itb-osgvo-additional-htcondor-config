@@ -62,7 +62,8 @@ add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 ###########################################################
 # stashcp 
 STASHCP=$PWD/client/stashcp
-chmod 755 $STASHCP
+STASH_PLUGIN=$PWD/client/stash_plugin
+chmod 755 $STASHCP $STASH_PLUGIN
 
 glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
 if [[ -z $OSG_SITE_NAME ]]; then
@@ -73,9 +74,7 @@ fi
 if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
    [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
     # enable plugin by copying it to the expected name
-    cp $STASHCP stash_plugin
-    chmod 755 stash_plugin
-    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$PWD/stash_plugin"
+    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 fi
 
