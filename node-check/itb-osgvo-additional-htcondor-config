@@ -73,7 +73,6 @@ fi
 # also run a simple test
 if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
    [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
-    # enable plugin by copying it to the expected name
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 fi

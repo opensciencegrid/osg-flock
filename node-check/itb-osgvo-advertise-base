@@ -520,7 +520,7 @@ if [ -e ./client/stashcp ]; then
 fi
 
 if [ -z "$STASH_PLUGIN_PATH" ]; then
-    STASH_PLUGIN_PATH=$PWD/stash_plugin
+    STASH_PLUGIN_PATH=$PWD/client/stash_plugin
 fi
 
 # also record the plugin version
