@@ -65,17 +65,22 @@ STASHCP=$PWD/client/stashcp
 STASH_PLUGIN=$PWD/client/stash_plugin
 chmod 755 $STASHCP $STASH_PLUGIN
 
+TIMEOUT=$(which timeout 2>/dev/null)
+if [ "x$TIMEOUT" != "x" ]; then
+    TIMEOUT="$TIMEOUT 30s"
+fi
+
 glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
 if [[ -z $OSG_SITE_NAME ]]; then
     OSG_SITE_NAME=$glidein_site
 fi
 
 # also run a simple test
-if ($STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
+if ($TIMEOUT $STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
    [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 fi
 
-
+echo "All done (osgvo-additional-htcondor-config)"
 
