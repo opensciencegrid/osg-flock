@@ -501,12 +501,12 @@ fi
 # do the test hourly
 if [ -e $TEST_FILE_1H.speedtest ]; then
     OSG_SPEEDTEST=`cat $TEST_FILE_1H.speedtest`
-elif (avg_speed=$($TIMEOUT curl -qfsS -w '%{speed_download}' -o /dev/null --url https://data.isi.edu/osg/bwtest/10MB.data)); then
+elif avg_speed=$($TIMEOUT curl -qfsS -w '%{speed_download}' -o /dev/null --url https://data.isi.edu/osg/bwtest/10MB.data); then
     echo "$avg_speed" > $TEST_FILE_1H.speedtest
     OSG_SPEEDTEST="$avg_speed"
 else
-    echo "-1" > $TEST_FILE_1H.speedtest
-    OSG_SPEEDTEST="-1"
+    echo " -1" > $TEST_FILE_1H.speedtest
+    OSG_SPEEDTEST=" -1"
 fi
 advertise OSG_SPEEDTEST "$OSG_SPEEDTEST" "C"
 
