@@ -141,6 +141,10 @@ elif [ -e ../glidein_config ]; then
     # out ability to cache results
     cd ../
     info "GWMS tmp directory detected. Switched directory to $PWD"
+elif [ "x$LOCAL_DIR" != "x" ]; then
+    # osgvo-docker-pilot - use specified dir
+    cd $LOCAL_DIR
+    info "osgvo-docker-pilot \$LOCAL_DIR directory detected. Switched directory to $PWD"
 else
     # find a good directory for our tests - we need something that we
     # can re-enter later to pick up cached results
@@ -499,13 +503,13 @@ fi
 # speedtest - this is crude, but can be used to detect sites struggling
 
 # do the test hourly
-if [ -e $TEST_FILE_1H.speedtest ]; then
-    OSG_SPEEDTEST=`cat $TEST_FILE_1H.speedtest`
+if [ -e $TEST_FILE_4H.speedtest ]; then
+    OSG_SPEEDTEST=`cat $TEST_FILE_4H.speedtest`
 elif avg_speed=$($TIMEOUT curl -qfsS -w '%{speed_download}' -o /dev/null --url https://data.isi.edu/osg/bwtest/10MB.data); then
-    echo "$avg_speed" > $TEST_FILE_1H.speedtest
+    echo "$avg_speed" > $TEST_FILE_4H.speedtest
     OSG_SPEEDTEST="$avg_speed"
 else
-    echo " -1" > $TEST_FILE_1H.speedtest
+    echo " -1" > $TEST_FILE_4H.speedtest
     OSG_SPEEDTEST=" -1"
 fi
 advertise OSG_SPEEDTEST "$OSG_SPEEDTEST" "C"
