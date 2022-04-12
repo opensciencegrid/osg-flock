@@ -200,7 +200,7 @@ if [ "x$OS_NAME" = "x" ]; then
     OS_NAME="Unknown"
 fi
 if [ "x$OS_VERSION" = "x" ]; then
-    OS_VERSION="Unknown"
+    OS_VERSION="0"
 fi
 
 # kernel
