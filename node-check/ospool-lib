@@ -116,6 +116,11 @@ function check_singularity_sif_support {
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
 
+    # do not allow .sif images on 3.x kernels (OSPOOL-18)
+    if (uname -r | egrep '^3\.') >/dev/null 2>&1; then
+        return 1
+    fi
+
     # allow this to run before gwms has determined which singularity to use
     if [[ $has_singularity = "" ]]; then
         has_singularity="True"
