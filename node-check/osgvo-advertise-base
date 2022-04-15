@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=614
+OSG_GLIDEIN_VERSION=615
 #######################################################################
 
 
@@ -497,22 +497,6 @@ if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; the
         advertise "GPUDetection" "No GPUs detected" "S"
     fi
 fi
-
-
-##################
-# speedtest - this is crude, but can be used to detect sites struggling
-
-# do the test hourly
-if [ -e $TEST_FILE_4H.speedtest ]; then
-    OSG_SPEEDTEST=`cat $TEST_FILE_4H.speedtest`
-elif avg_speed=$($TIMEOUT curl -qfsS -w '%{speed_download}' -o /dev/null --url https://data.isi.edu/osg/bwtest/10MB.data); then
-    echo "$avg_speed" > $TEST_FILE_4H.speedtest
-    OSG_SPEEDTEST="$avg_speed"
-else
-    echo " -1" > $TEST_FILE_4H.speedtest
-    OSG_SPEEDTEST=" -1"
-fi
-advertise OSG_SPEEDTEST "$OSG_SPEEDTEST" "C"
 
 
 ##################

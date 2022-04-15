@@ -768,6 +768,20 @@ gwms_process_scripts "$GWMS_DIR" prejob
 [[ "$GWMS_AUX_SUBDIR/" == /srv/* ]] && rm -rf "$GWMS_AUX_SUBDIR/" >/dev/null 2>&1 || true
 rm -f .gwms-user-job-wrapper.sh >/dev/null 2>&1 || true
 
+
+##############################
+#
+#  OSPool: set up TMPDIR to be in the job dir
+#
+if [ "x$_CONDOR_SCRATCH_DIR" != "x" ]; then
+    TMPDIR="$_CONDOR_SCRATCH_DIR/local-tmp"
+else
+    TMPDIR=$(pwd)"/local-tmp"
+fi
+export TMPDIR
+mkdir -p $TMPDIR
+
+
 ##############################
 #
 #  Run the real job
