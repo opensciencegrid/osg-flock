@@ -42,8 +42,6 @@ install -d $RPM_BUILD_ROOT/%{_sysconfdir}/gratia/condor/
 # Set OSPool specific Gratia probe config
 probeconfig=/etc/gratia/condor-ap/ProbeConfig
 overrides=(
-    'MapUnknownToGroup="1"'
-    'MapGroupToRole="1"'
     'VOOverride="osg"'
 )
 
@@ -69,8 +67,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Tue Apr 5 2022 Mats Rynge <rynge@isi.edu> 1.8-1
+* Mon Apr 18 2022 Carl Edquist <edquist@cs.wisc.edu> - 1.8-1
 - Include the package version in the schedd classad (SOFTWARE-5105)
+- Disable .sif images on 3.x kernels (OSPOOL-18)
+- Improve OS_VERSION handling
+- Drop Map* ProbeConfig overrides (SOFTWARE-5042)
 
 * Thu Dec 2 2021 Mats Rynge <rynge@isi.edu> 1.7-1
 - Moved to the new ospool.osg-htc.org central managers in high
