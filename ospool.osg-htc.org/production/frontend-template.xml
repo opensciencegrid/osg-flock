@@ -67,6 +67,7 @@
          </match_attrs>
          <collectors>
             <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgospool@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
+            <collector DN="/DC=ch/DC=cern/OU=computers/CN=vocms0207.cern.ch" factory_identity="gfactory@vocms0207.cern.ch" my_identity="feosgospool@vocms0207.cern.ch" node="vocms0207.cern.ch"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
@@ -374,7 +375,7 @@
                 start_expr='((XENON_DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
                             (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
-            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
+            <factory query_expr='(FactoryType =?= "production" || FactoryType =?= "CERN-Prod") &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
                <match_attrs>
                </match_attrs>
