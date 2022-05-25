@@ -141,9 +141,9 @@ function get_glidein_config_value {
 if [[ $GWMS_SINGULARITY_REEXEC -ne 1 ]]; then
     group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
     if [ -e "$group_dir/itb-ospool-lib" ]; then
-        source "$group_dir/itb-ospool-lib"
+        source "$group_dir/itb-ospool-lib" || exit_wrapper "Unable to source itb-ospool-lib" 1
     else
-        source "$group_dir/ospool-lib"
+        source "$group_dir/ospool-lib" || exit_wrapper "Unable to source ospool-lib" 1
     fi
 fi
 
