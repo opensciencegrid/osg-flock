@@ -51,6 +51,9 @@ else
     source "$group_dir/ospool-lib"
 fi
 
+# provide overrides for some sites/situations
+check_singularity_overrides
+
 # can the provided Singularity run .sif images?
 if check_singularity_sif_support; then
     # make sure this goes false if we later figure out that
