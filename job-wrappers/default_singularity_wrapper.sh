@@ -143,7 +143,10 @@ if [[ $GWMS_SINGULARITY_REEXEC -ne 1 ]]; then
     if [ -e "$group_dir/itb-ospool-lib" ]; then
         source "$group_dir/itb-ospool-lib" || exit_wrapper "Unable to source itb-ospool-lib" 1
     else
-        source "$group_dir/ospool-lib" || exit_wrapper "Unable to source ospool-lib" 1
+        source "$group_dir/ospool-lib" || {
+            error_message="Unable to source ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir"); $(ls -ld "$group_dir/ospool-lib")"
+            exit_wrapper "$error_message" 1
+        }
     fi
 fi
 
