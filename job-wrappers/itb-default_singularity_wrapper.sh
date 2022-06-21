@@ -131,6 +131,9 @@ function get_glidein_config_value {
     # extracts a config attribute value from
     # $1 is the attribute key
     CF=$glidein_config
+    if [ -e "$CF.saved" ]; then
+        CF=$CF.saved
+    fi
     KEY="$1"
     VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
