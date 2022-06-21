@@ -604,6 +604,10 @@ fi
 # Add config line sentinel; subsequent runs will test for this and not modify the glidein config if set.
 if [ "$glidein_config" != "NONE" ]; then
     add_config_line_safe OSGVO_ADVERTISE_BASE_DONE True
+    # Also save a backup copy of glidein_config that won't get clobbered by startd_crons
+    if [ ! -e "$glidein_config.saved" ]; then
+        cp -p "$glidein_config" "$glidein_config.saved"
+    fi
 fi
 
 rm -f $PID_FILE
