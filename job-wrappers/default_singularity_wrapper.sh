@@ -131,6 +131,9 @@ function get_glidein_config_value {
     # extracts a config attribute value from
     # $1 is the attribute key
     CF=$glidein_config
+    if [ -e "$CF.saved" ]; then
+        CF=$CF.saved
+    fi
     KEY="$1"
     VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
@@ -140,11 +143,17 @@ function get_glidein_config_value {
 # source our helpers
 if [[ $GWMS_SINGULARITY_REEXEC -ne 1 ]]; then
     group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+    if [ ! -d "$group_dir" ]; then
+        exit_wrapper "GLIDECLIENT_GROUP_WORK_DIR ($group_dir) is empty or not a directory" 1
+    fi
     if [ -e "$group_dir/itb-ospool-lib" ]; then
-        source "$group_dir/itb-ospool-lib" || exit_wrapper "Unable to source itb-ospool-lib" 1
+        source "$group_dir/itb-ospool-lib" || {
+            error_message="Unable to source itb-ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir" 2>&1); $(ls -ld "$group_dir/itb-ospool-lib" 2>&1)"
+            exit_wrapper "$error_message" 1
+        }
     else
         source "$group_dir/ospool-lib" || {
-            error_message="Unable to source ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir"); $(ls -ld "$group_dir/ospool-lib")"
+            error_message="Unable to source ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir" 2>&1); $(ls -ld "$group_dir/ospool-lib" 2>&1)"
             exit_wrapper "$error_message" 1
         }
     fi
