@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=627
+OSG_GLIDEIN_VERSION=628
 #######################################################################
 
 
@@ -184,9 +184,9 @@ if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
     info "No arguments provided - assuming HTCondor startd cron mode"
 else
-    info "Arguments to the script: $@"
-    if grep '^OSGVO_ADVERTISE_BASE_DONE ' $glidein_config; then
-        info "OSGVO_ADVERTISE_BASE_DONE sentinel found: not doing any more writes"
+    info "Arguments to the script: $*"
+    if [ -e "$glidein_config.saved" ]; then
+        info "$glidein_config.saved found; not doing any more writes"
         glidein_config="NONE"
     fi
 fi
@@ -601,13 +601,10 @@ fi
 
 ##################
 
-# Add config line sentinel; subsequent runs will test for this and not modify the glidein config if set.
-if [ "$glidein_config" != "NONE" ]; then
-    add_config_line_safe OSGVO_ADVERTISE_BASE_DONE True
-    # Also save a backup copy of glidein_config that won't get clobbered by startd_crons
-    if [ ! -e "$glidein_config.saved" ]; then
-        cp -p "$glidein_config" "$glidein_config.saved"
-    fi
+# Save a backup copy of glidein_config that won't get clobbered by startd_crons; also use this as a sentinel
+# so subsequent runs of this script won't modify glidein_config if it exists.
+if [[ $glidein_config != "NONE" && ! -e "$glidein_config.saved" ]]; then
+    cp -p "$glidein_config" "$glidein_config.saved"
 fi
 
 rm -f $PID_FILE
