@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=628
+OSG_GLIDEIN_VERSION=629
 #######################################################################
 
 
@@ -489,52 +489,6 @@ fi
 SHM_AVAILABLE=`(df /dev/shm --output=size --block-size=1k | tail -n 1) 2>/dev/null`
 if [ "x$SHM_AVAILABLE" != "x" ]; then
     advertise SHM_AVAILABLE "$SHM_AVAILABLE" "I"
-fi
-
-###########################################################
-# gpus - detect this outside Singularity
-
-if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-
-    info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
-
-    rm -f gpu.ad
-
-    for LOCATION in \
-          /usr/libexec/condor/condor_gpu_discovery \
-          ./main/condor/libexec/condor_gpu_discovery \
-          ../main/condor/libexec/condor_gpu_discovery \
-    ; do
-        if [ -e "$LOCATION" ]; then
-            ($LOCATION -properties -extra -cuda ; $LOCATION -properties -extra -opencl) \
-                | grep -v DetectedGPUs \
-                | sort | uniq \
-                >gpu.ad 
-            break
-        fi
-    done
-    
-    if [ -s gpu.ad ]; then
-        while read line; do
-            key=`echo "$line" | sed 's/=.*//'`
-            value=`echo "$line" | sed 's/.*=//'`
-            if (echo "$value" | grep '"') >/dev/null 2>&1; then
-                value=`echo "$value" | sed 's/"//g'`
-                advertise "$key" "$value" "S"
-            else
-                advertise "$key" "$value" "C"
-            fi
-        done <gpu.ad
-    
-        # and some extra nvidia attributes
-        nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
-        if [ "x$nvidia_version" != "x" ]; then
-            advertise NV_DRIVER "$nvidia_version" "C"
-        fi
-    else
-        my_warn "GPU detection failed!"
-        advertise "GPUDetection" "No GPUs detected" "S"
-    fi
 fi
 
 
