@@ -304,6 +304,17 @@ if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     fi
 fi
 
+# advertise the version of stashcp found in $PATH
+if STASHCP_VERSION=$(stashcp --version)
+then
+    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | head -n1 | grep -o "[0-9][0-9.]\+")
+    advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
+else
+    # version check failed; we don't actually have a working stashcp
+    advertise STASHCP_VERSION UNDEFINED "C"
+    advertise STASHCP_VERIFIED "False" "C"
+fi
+
 ##################
 # cms software
 
