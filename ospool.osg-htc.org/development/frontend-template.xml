@@ -101,7 +101,7 @@
          </match>
          <security>
             <credentials>
-               <!-- credential absfname="/etc/condor/certs/frontend.scitoken" security_class="frontend" trust_domain="grid" type="scitoken"/ -->
+               <credential generator="scitoken_callout" absfname="scitoken_callout" security_class="frontend" trust_domain="grid" type="scitoken"/>
                <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
            </credentials>
          </security>
