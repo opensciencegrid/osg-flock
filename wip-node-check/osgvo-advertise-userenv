@@ -153,6 +153,41 @@ if [ "$glidein_config" != "NONE" ]; then
 
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
+
+    # XXX Patch over add_config_line() with a safer version
+    add_config_line() {
+        # Ignore the call if the exact config line is already in there
+        if ! grep -q "^${*}$" "${glidein_config}"; then
+            # Use temporary files to make sure multiple add_config_line() calls don't clobber
+            # the glidein_config.
+            local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
+            local tmp_config1="${glidein_config}.$r.1"
+            local tmp_config2="${glidein_config}.$r.2"
+
+            # Copy the glidein config so it doesn't get modified while we grep out the old value
+            if ! cp -p "${glidein_config}" "${tmp_config1}"; then
+                warn "Error writing ${tmp_config1}"
+                rm -f "${tmp_config1}"
+                exit 1
+            fi
+            grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
+            rm -f "${tmp_config1}"
+            if [ ! -f "${tmp_config2}" ]; then
+                warn "Error creating ${tmp_config2}"
+                exit 1
+            fi
+            # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
+            echo "$@" >> "${tmp_config2}"
+
+            # Replace glidein config atomically
+            if ! mv -f "${tmp_config2}" "${glidein_config}"; then
+                warn "Error updating ${glidein_config} from ${tmp_config2}"
+                rm -f "${tmp_config2}"
+                exit 1
+            fi
+        fi
+    }
+    # XXX End add_config_line() patch
 fi
 
 # timeout - need this early as we use it in some commands later
@@ -178,7 +213,7 @@ elif [ "X$OS_NAME" = "xFEDORA" ]; then
     OS_VERSION=`cat /etc/issue | head -n1 | awk '{print $3;}'`
 elif [ -e /etc/redhat-release ]; then
     OS_NAME="RHEL"
-    OS_VERSION=`cat /etc/redhat-release | grep -o -E ' [0-9]+.[0-9]+'`
+    OS_VERSION=`cat /etc/redhat-release | grep -o -E ' [0-9]+'`
 elif [ -e /etc/rocks-release ]; then
     OS_NAME="RHEL"
     OS_VERSION=`cat /etc/rocks-release | grep -o -E ' [0-9]+.[0-9]+'`
@@ -200,7 +235,7 @@ if [ "x$OS_NAME" = "x" ]; then
     OS_NAME="Unknown"
 fi
 if [ "x$OS_VERSION" = "x" ]; then
-    OS_VERSION="Unknown"
+    OS_VERSION="0"
 fi
 
 # kernel
@@ -267,6 +302,17 @@ if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     else
         advertise StashReadWrite "True" "C"
     fi
+fi
+
+# advertise the version of stashcp found in $PATH
+if STASHCP_VERSION=$(stashcp --version)
+then
+    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | head -n1 | grep -o "[0-9][0-9.]\+")
+    advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
+else
+    # version check failed; we don't actually have a working stashcp
+    advertise STASHCP_VERSION UNDEFINED "C"
+    advertise STASHCP_VERIFIED "False" "C"
 fi
 
 ##################
@@ -343,25 +389,6 @@ for TOOL in \
         advertise HAS_$TOOL "False" "C"
     fi
 done
-
-
-##################
-# stashcp
-
-# this is a one-shot test
-rm -f test.txt
-STASHCP_VERIFIED="False"
-if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif (. "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
-    echo "True" > $TEST_FILE_1H.stashcp
-else
-    echo "False" > $TEST_FILE_1H.stashcp
-fi
-rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
-
 
 ##################
 # gfal

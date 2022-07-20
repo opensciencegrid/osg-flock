@@ -36,6 +36,16 @@ function advertise {
     fi
 }
 
+function check_singularity_overrides {
+    GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    # AMNH-HEL - Singularity causes zombie process
+    # (https://support.opensciencegrid.org/a/tickets/69708)
+    if (echo "$GLIDEIN_Entry_Name" | egrep -i "AMNH-HEL") >/dev/null 2>&1; then
+        advertise HAS_SINGULARITY "False" "C"
+        advertise SINGULARITY_COMMENT "Disabled due to zombie process problem" "S"
+    fi
+}
+
 function stash_download {
     # Use stashcp to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
     local dest="$1"
@@ -115,6 +125,11 @@ function check_singularity_sif_support {
     local image_dir="$work_dir/../images"
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
+
+    # do not allow .sif images on 3.x kernels (OSPOOL-18)
+    if (uname -r | egrep '^3\.') >/dev/null 2>&1; then
+        return 1
+    fi
 
     # allow this to run before gwms has determined which singularity to use
     if [[ $has_singularity = "" ]]; then

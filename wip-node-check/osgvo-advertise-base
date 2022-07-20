@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=603
+OSG_GLIDEIN_VERSION=630
 #######################################################################
 
 
@@ -129,7 +129,7 @@ find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
 find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
 
-info "This is a setup script for the OSG-FLOCK frontend."
+info "This is a setup script for the OSPool frontend."
 info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 info "Running in directory $PWD"
     
@@ -141,6 +141,10 @@ elif [ -e ../glidein_config ]; then
     # out ability to cache results
     cd ../
     info "GWMS tmp directory detected. Switched directory to $PWD"
+elif [ "x$LOCAL_DIR" != "x" ]; then
+    # osgvo-docker-pilot - use specified dir
+    cd $LOCAL_DIR
+    info "osgvo-docker-pilot \$LOCAL_DIR directory detected. Switched directory to $PWD"
 else
     # find a good directory for our tests - we need something that we
     # can re-enter later to pick up cached results
@@ -180,7 +184,11 @@ if [ "x$glidein_config" = "x" ]; then
     glidein_config="NONE"
     info "No arguments provided - assuming HTCondor startd cron mode"
 else
-    info "Arguments to the script: $@"
+    info "Arguments to the script: $*"
+    if [ -e "$glidein_config.saved" ]; then
+        info "$glidein_config.saved found; not doing any more writes"
+        glidein_config="NONE"
+    fi
 fi
 
 if [ "$glidein_config" != "NONE" ]; then
@@ -197,8 +205,48 @@ if [ "$glidein_config" != "NONE" ]; then
 
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
+
+    # XXX Patch over add_config_line() with a safer version
+    add_config_line() {
+        # Ignore the call if the exact config line is already in there
+        if ! grep -q "^${*}$" "${glidein_config}"; then
+            # Use temporary files to make sure multiple add_config_line() calls don't clobber
+            # the glidein_config.
+            local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
+            local tmp_config1="${glidein_config}.$r.1"
+            local tmp_config2="${glidein_config}.$r.2"
+
+            # Copy the glidein config so it doesn't get modified while we grep out the old value
+            if ! cp -p "${glidein_config}" "${tmp_config1}"; then
+                warn "Error writing ${tmp_config1}"
+                rm -f "${tmp_config1}"
+                exit 1
+            fi
+            grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
+            rm -f "${tmp_config1}"
+            if [ ! -f "${tmp_config2}" ]; then
+                warn "Error creating ${tmp_config2}"
+                exit 1
+            fi
+            # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
+            echo "$@" >> "${tmp_config2}"
+
+            # Replace glidein config atomically
+            if ! mv -f "${tmp_config2}" "${glidein_config}"; then
+                warn "Error updating ${glidein_config} from ${tmp_config2}"
+                rm -f "${tmp_config2}"
+                exit 1
+            fi
+        fi
+    }
+    # XXX End add_config_line() patch
 fi
 
+# timeout, if available, is used across many tests
+TIMEOUT=$(which timeout 2>/dev/null)
+if [ "x$TIMEOUT" != "x" ]; then
+    TIMEOUT="$TIMEOUT 30s"
+fi
 
 advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
 
@@ -222,13 +270,13 @@ if [ -e $TEST_FILE_4H.http_proxy ]; then
     PROXY_CHECKS=$(cat $TEST_FILE_4H.http_proxy.checks)
     PROXY_LOCATION=$(cat $TEST_FILE_4H.http_proxy.location)
 else
-    CURL=$(curlio --version 2>/dev/null)
+    CURL=$(curl --version 2>/dev/null)
     for PROXY_CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
         PROXY_CHECKS=$(($PROXY_CHECKS + 1))
         if [ "x$CURL" != "x" ]; then
-            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://flock.opensciencegrid.org/proxy-test.html
+            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://cm-1.ospool.osg-htc.org/overview/
         else
-            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://flock.opensciencegrid.org/proxy-test.html
+            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://cm-1.ospool.osg-htc.org/overview/
         fi
         if [ $? = 0 ]; then
             PROXY_LOCATION="$PROXY_CANDIDATE"
@@ -304,8 +352,10 @@ for FS in \
    connect.opensciencegrid.org \
    desdm.osgstorage.org \
    eic.opensciencegrid.org \
+   gluex.osgstorage.org \
    gwosc.osgstorage.org \
    icecube.opensciencegrid.org \
+   icecube.osgstorage.org \
    larsoft-ib.opensciencegrid.org \
    larsoft.opensciencegrid.org \
    nexo.opensciencegrid.org \
@@ -362,7 +412,7 @@ for FS in \
         fi
         
         # UUTAH is special case - broken NFS
-        if (echo "$GLIDEIN_Entry_Name" | egrep -i "ISI|UUTAH") >/dev/null 2>&1; then
+        if (echo "$GLIDEIN_Entry_Name" | egrep -i "UUTAH") >/dev/null 2>&1; then
             RESULT="False"
         fi
         
@@ -441,80 +491,45 @@ if [ "x$SHM_AVAILABLE" != "x" ]; then
     advertise SHM_AVAILABLE "$SHM_AVAILABLE" "I"
 fi
 
-###########################################################
-# gpus - detect this outside Singularity
 
-if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+##################
+# stashcp
 
-    info "Checking for GPUs because CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES NVIDIA_VISIBLE_DEVICES=$NVIDIA_VISIBLE_DEVICES"
-
-    rm -f gpu.ad
-
-    for LOCATION in \
-          /usr/libexec/condor/condor_gpu_discovery \
-          ./main/condor/libexec/condor_gpu_discovery \
-          ../main/condor/libexec/condor_gpu_discovery \
-    ; do
-        if [ -e "$LOCATION" ]; then
-            ($LOCATION -properties -extra -cuda ; $LOCATION -properties -extra -opencl) \
-                | grep -v DetectedGPUs \
-                | sort | uniq \
-                >gpu.ad 
-            break
-        fi
-    done
-    
-    if [ -s gpu.ad ]; then
-        while read line; do
-            key=`echo "$line" | sed 's/=.*//'`
-            value=`echo "$line" | sed 's/.*=//'`
-            if (echo "$value" | grep '"') >/dev/null 2>&1; then
-                value=`echo "$value" | sed 's/"//g'`
-                advertise "$key" "$value" "S"
-            else
-                advertise "$key" "$value" "C"
-            fi
-        done <gpu.ad
-    
-        # and some extra nvidia attributes
-        nvidia_version=`(nvidia-smi | grep "Driver Version" | sed 's/.*: *//' | awk '{print $1;}') 2>/dev/null`
-        if [ "x$nvidia_version" != "x" ]; then
-            advertise NV_DRIVER "$nvidia_version" "C"
-        fi
-    else
-        my_warn "GPU detection failed!"
-        advertise "GPUDetection" "No GPUs detected" "S"
-    fi
-fi
-
-# xcache - has to be outside due to the ping requirement
-XCACHE_CLOSEST=""
-XCACHE_CLOSEST_RTT="-1"
-OSG_DEFAULT_CVMFS_DATA=`get_glidein_config_value OSG_DEFAULT_CVMFS_DATA`
-info "Using $OSG_DEFAULT_CVMFS_DATA to check closest cache"
-if [ -e $TEST_FILE_4H.xcache_closest ]; then
-    XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
-    XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
+# this is a one-shot test
+rm -f stashcp-test.file
+STASHCP_VERIFIED="False"
+if [ -e $TEST_FILE_1H.stashcp ]; then
+    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+elif ($TIMEOUT ./client/stashcp /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) >/dev/null 2>&1; then
+    STASHCP_VERIFIED="True"
+    echo "True" > $TEST_FILE_1H.stashcp
 else
-    XCACHE_CLOSEST=`(attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/') 2>/dev/null`
-	info "Closest XCACHE found is: $XCACHE_CLOSEST"
-    # test first using the cached cvmfs values
-    if [ "X$XCACHE_CLOSEST" = "X" ]; then
-        XCACHE_CLOSEST=`(export PATH="$CVMFS_BASE"/oasis.opensciencegrid.org/osg/modules/stashcp/5.1.2/bin:"$CVMFS_BASE"/oasis.opensciencegrid.org/osg/modules/xrootd/4.2.1/bin:$PATH && $TIMEOUT_CMD stashcp --closest | sed 's;root://;;') 2>/dev/null`
-    fi
-    if [ "X$XCACHE_CLOSEST" != "X" ]; then
-        echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
-        # also want the RTT
-        XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
-        echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
-    else
-        echo "" > $TEST_FILE_4H.xcache_closest
-        echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
-    fi
+    echo "False" > $TEST_FILE_1H.stashcp
 fi
-advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
-advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
+rm -f testfile
+advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
 
+# also record the version
+if [ -e ./client/stashcp ]; then
+    if [ ! -e $TEST_FILE_1H.stashcp-version ]; then
+        ./client/stashcp --version | grep '^Version:' | sed 's/.*: //' >$TEST_FILE_1H.stashcp-version
+    fi
+    VER=$(cat $TEST_FILE_1H.stashcp-version)
+    advertise STASHCP_VERSION "$VER" "S"
+fi
+    
+if [ -z "$STASH_PLUGIN_PATH" ]; then
+    STASH_PLUGIN_PATH=$PWD/client/stash_plugin
+fi
+
+# also record the plugin version
+if [ -e "$STASH_PLUGIN_PATH" ]; then
+    if [ ! -e $TEST_FILE_1H.stash-plugin-version ]; then
+        "$STASH_PLUGIN_PATH" -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stash-plugin-version
+    fi
+    VER=$(cat $TEST_FILE_1H.stash-plugin-version)
+    advertise STASH_PLUGIN_VERSION "$VER" "S"
+fi
 
 ###########################################################
 # Project restriction
@@ -539,6 +554,13 @@ else
 fi
 
 ##################
+
+# Save a backup copy of glidein_config that won't get clobbered by startd_crons; also use this as a sentinel
+# so subsequent runs of this script won't modify glidein_config if it exists.
+if [[ $glidein_config != "NONE" && ! -e "$glidein_config.saved" ]]; then
+    cp -p "$glidein_config" "$glidein_config.saved"
+fi
+
 rm -f $PID_FILE
 info "All done - time to do some real work!"
 
