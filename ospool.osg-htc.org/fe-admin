@@ -2,6 +2,7 @@
 
 import argparse
 import re
+import socket
 import sys
 import requests
 import urllib.parse as urlparse
@@ -54,6 +55,11 @@ def load_data():
                         if tag.tag == 'Tags':
                             for stag in tag:
                                 service_tags.append(stag.text)
+                    # make sure the host has a valid DNS entry
+                    try:
+                        addr = socket.gethostbyname(hostname)
+                    except:
+                        disable = True
                     # we now have all the info needed for this host
                     #print("{} {} {} {}".format(hostname, submit_host, active, disable))
                     if submit_host and active and not disable and 'OSPool' in service_tags:
