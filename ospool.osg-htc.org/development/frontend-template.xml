@@ -248,9 +248,11 @@
       <file absfname="/opt/osg-flock/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <!--
       <file absfname="/opt/rsyslog-pilot/rsyslog.tar.gz" prefix="NOPREFIX" untar="True">
           <untar_options cond_attr="TRUE" dir="../rsyslog"/>
       </file>
       <file absfname="/opt/rsyslog-pilot/rsyslog_startup.sh" executable="True" prefix="NOPREFIX"/>
+      -->
    </files>
 </frontend>
