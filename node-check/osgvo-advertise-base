@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=631
+OSG_GLIDEIN_VERSION=632
 #######################################################################
 
 
@@ -266,7 +266,7 @@ fi
 # verify http_proxy/OSG_SQUID_LOCATION
 PROXY_CHECKS=0
 PROXY_LOCATION=""
-if [ -e $TEST_FILE_4H.http_proxy ]; then
+if [ -e $TEST_FILE_4H.http_proxy.checks ]; then
     PROXY_CHECKS=$(cat $TEST_FILE_4H.http_proxy.checks)
     PROXY_LOCATION=$(cat $TEST_FILE_4H.http_proxy.location)
 else
