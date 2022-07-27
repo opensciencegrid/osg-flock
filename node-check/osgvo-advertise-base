@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=632
+OSG_GLIDEIN_VERSION=634
 #######################################################################
 
 
@@ -348,6 +348,7 @@ info "Checking for CVMFS availability and attributes..."
 for FS in \
    ams.cern.ch \
    atlas.cern.ch \
+   belle.cern.ch \
    cms.cern.ch \
    connect.opensciencegrid.org \
    desdm.osgstorage.org \
