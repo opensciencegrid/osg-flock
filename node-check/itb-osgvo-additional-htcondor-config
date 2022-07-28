@@ -76,6 +76,41 @@ if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
     fi
 fi
 
+set_unexported_condor_config_attribute () {
+    # Sets the value of a config knob in the condor config;
+    # does not export it as a startd attribute, nor does it export it to the job environment
+    local name value
+    name=$1
+    value=$2
+    add_config_line "$name" "$value"
+    add_condor_vars_line "$name" \
+        "C" `# unquoted string (i.e. HTCondor keyword or expression)` \
+        "-" `# no default value` \
+        "N" `# a value is not required for this attribute` \
+        "N" `# do not have the startd publish this to the collector` \
+        "-" `# do not export to the user job environment`
+}
+
+# Hold jobs if they exceed allocated disk (OSPOOL-26)
+
+# Helper macros
+set_unexported_condor_config_attribute  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
+set_unexported_condor_config_attribute  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
+
+# Actual knobs. The following is the equivalent of
+# use POLICY : WANT_HOLD_IF(disk_exceeded, $(HOLD_SUBCODE_disk_exceeded:104), $(hold_reason_disk_exceeded))
+# since metaknobs are not supported.
+set_unexported_condor_config_attribute  PREEMPT  '$(disk_exceeded) || $(PREEMPT:false)'
+set_unexported_condor_config_attribute  MAXJOBRETIREMENTTIME  'ifthenelse($(disk_exceeded),-1,$(MAXJOBRETIREMENTTIME:0))'
+
+set_unexported_condor_config_attribute  WANT_SUSPEND  '$(disk_exceeded) =!= true && $(WANT_SUSPEND:false)'
+
+set_unexported_condor_config_attribute  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
+set_unexported_condor_config_attribute  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
+set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
+
+# End OSPOOL-26
+
 ###########################################################
 # potential fix for SU NAT issues
 add_config_line CCB_HEARTBEAT_INTERVAL "120"
