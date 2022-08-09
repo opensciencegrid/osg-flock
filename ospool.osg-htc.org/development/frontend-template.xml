@@ -74,7 +74,7 @@
             <idle_vms_per_entry curb="1" max="1"/>
             <idle_vms_total curb="80" max="100"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
+            <running_glideins_per_entry max="1" min="1" relative_to_queue="5.0"/>
             <running_glideins_total curb="80" max="100"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
