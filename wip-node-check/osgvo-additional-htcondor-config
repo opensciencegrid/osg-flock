@@ -106,7 +106,7 @@ chmod 755 $STASHCP $STASH_PLUGIN
 
 TIMEOUT=$(which timeout 2>/dev/null)
 if [ "x$TIMEOUT" != "x" ]; then
-    TIMEOUT="$TIMEOUT 10"
+    TIMEOUT="$TIMEOUT 60"
 fi
 
 glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
