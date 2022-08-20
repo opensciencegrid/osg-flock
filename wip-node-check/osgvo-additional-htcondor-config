@@ -42,6 +42,7 @@ add_config_line() {
     fi
 }
 # End add_config_line() patch
+echo "running wip osgvo-additional-htcondor-config"
 
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
