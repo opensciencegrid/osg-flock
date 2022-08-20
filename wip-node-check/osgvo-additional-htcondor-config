@@ -1,0 +1,124 @@
+#!/bin/bash                                                                                                         
+                                                                                                                    
+glidein_config="$1"                                                                                                 
+
+###########################################################
+# import add_config_line and add_condor_vars_line functions
+
+add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+source $add_config_line_source
+
+# Patch over add_config_line() with a safer version
+add_config_line() {
+    # Ignore the call if the exact config line is already in there
+    if ! grep -q "^${*}$" "${glidein_config}"; then
+        # Use temporary files to make sure multiple add_config_line() calls don't clobber
+        # the glidein_config.
+        local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
+        local tmp_config1="${glidein_config}.$r.1"
+        local tmp_config2="${glidein_config}.$r.2"
+
+        # Copy the glidein config so it doesn't get modified while we grep out the old value
+        if ! cp -p "${glidein_config}" "${tmp_config1}"; then
+            warn "Error writing ${tmp_config1}"
+            rm -f "${tmp_config1}"
+            exit 1
+        fi
+        grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
+        rm -f "${tmp_config1}"
+        if [ ! -f "${tmp_config2}" ]; then
+            warn "Error creating ${tmp_config2}"
+            exit 1
+        fi
+        # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
+        echo "$@" >> "${tmp_config2}"
+
+        # Replace glidein config atomically
+        if ! mv -f "${tmp_config2}" "${glidein_config}"; then
+            warn "Error updating ${glidein_config} from ${tmp_config2}"
+            rm -f "${tmp_config2}"
+            exit 1
+        fi
+    fi
+}
+# End add_config_line() patch
+
+condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+
+###########################################################
+# enable job duration and busy stats
+add_config_line STATISTICS_TO_PUBLISH_LIST "JobDuration, JobBusyTime"
+add_condor_vars_line STATISTICS_TO_PUBLISH_LIST "C" "-" "+" "N" "N" "-"
+
+# black holes, oh my (https://opensciencegrid.atlassian.net/browse/OSPOOL-3)
+add_config_line IsBlackHole "IfThenElse(RecentJobDurationAvg is undefined, false, RecentJobDurationCount >= 10 && RecentJobDurationAvg < 180)"
+add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
+
+# excessive load, probably due to swapping (https://opensciencegrid.atlassian.net/browse/OSPOOL-2)
+add_config_line HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
+add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
+
+# out of disk space (https://opensciencegrid.atlassian.net/browse/OSPOOL-4)
+# note: Unlike DISK, RESERVED_DISK is in megabytes.
+# As of July 2022, the HTCondor manual incorrectly states this is in kilobytes.
+# This change was verified by examining the code.
+add_config_line RESERVED_DISK "3000"
+add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
+
+# use df and allocated cores to determine disk allocation (https://opensciencegrid.atlassian.net/browse/OSPOOL-5)
+# but only if we think we are not "whole node"
+allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
+total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
+if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
+    #disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+    allocated_disk=$((100 * $allocated_cpus / $total_cpus))
+    if [[ $allocated_cpus -lt 32 ]]; then
+        add_config_line GLIDEIN_DISK "$allocated_disk%"
+        add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
+    fi
+fi
+
+###########################################################
+# potential fix for SU NAT issues
+add_config_line CCB_HEARTBEAT_INTERVAL "120"
+add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
+
+###########################################################
+# fix for chirp problem (Edgar)
+add_config_line CHIRP_DELAYED_UPDATE_PREFIX "Chirp*"
+add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
+
+###########################################################
+# debugging GSI
+#add_config_line MASTER_DEBUG "D_SECURITY:2"
+#add_condor_vars_line MASTER_DEBUG "C" "-" "+" "N" "N" "-"
+#add_config_line STARTD_DEBUG "D_SECURITY:2"
+#add_condor_vars_line STARTD_DEBUG "C" "-" "+" "N" "N" "-"
+#add_config_line STARTER_DEBUG "D_SECURITY:2"
+#add_condor_vars_line STARTER_DEBUG "C" "-" "+" "N" "N" "-"
+
+###########################################################
+# stashcp 
+STASHCP=$PWD/client/stashcp
+STASH_PLUGIN=$PWD/client/stash_plugin
+chmod 755 $STASHCP $STASH_PLUGIN
+
+TIMEOUT=$(which timeout 2>/dev/null)
+if [ "x$TIMEOUT" != "x" ]; then
+    TIMEOUT="$TIMEOUT 10s"
+fi
+
+glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
+if [[ -z $OSG_SITE_NAME ]]; then
+    OSG_SITE_NAME=$glidein_site
+fi
+
+# also run a simple test
+if ($TIMEOUT $STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
+   [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
+    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
+    add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+fi
+
+echo "All done (osgvo-additional-htcondor-config)"
+
