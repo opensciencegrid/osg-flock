@@ -105,7 +105,7 @@ chmod 755 $STASHCP $STASH_PLUGIN
 
 TIMEOUT=$(which timeout 2>/dev/null)
 if [ "x$TIMEOUT" != "x" ]; then
-    TIMEOUT="$TIMEOUT 10s"
+    TIMEOUT="$TIMEOUT 10"
 fi
 
 glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
@@ -114,10 +114,20 @@ if [[ -z $OSG_SITE_NAME ]]; then
 fi
 
 # also run a simple test
-if ($TIMEOUT $STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
-   [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
-    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
-    add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+time $TIMEOUT $STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file; ret=$?
+if [[ $ret == 0 ]]; then
+    echo "stashcp test succeeded"
+    if [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
+        echo "Not adding stash plugin due to site name"
+    else
+        echo "Adding stash plugin"
+        add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
+        add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+    fi
+elif [[ $ret == 124 ]]; then
+    echo "stashcp test timed out"
+else
+    echo "stashcp exit $ret"
 fi
 
 echo "All done (osgvo-additional-htcondor-config)"
