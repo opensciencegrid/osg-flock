@@ -1,6 +1,6 @@
-#!/bin/bash                                                                                                         
-                                                                                                                    
-glidein_config="$1"                                                                                                 
+#!/bin/bash
+
+glidein_config="$1"
 
 ###########################################################
 # import add_config_line and add_condor_vars_line functions
