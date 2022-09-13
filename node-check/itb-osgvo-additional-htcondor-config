@@ -81,6 +81,7 @@ fi
 set_unexported_condor_config_attribute () {
     # Sets the value of a config knob in the condor config;
     # does not export it as a startd attribute, nor does it export it to the job environment
+    # Reference: https://glideinwms.fnal.gov/doc.prd/factory/custom_vars.html
     local name value
     name=$1
     value=$2
