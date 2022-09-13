@@ -88,6 +88,7 @@ set_unexported_condor_config_attribute () {
     add_condor_vars_line "$name" \
         "C" `# unquoted string (i.e. HTCondor keyword or expression)` \
         "-" `# no default value` \
+        "+" `# also use $name for the name of the config knob` \
         "N" `# a value is not required for this attribute` \
         "N" `# do not have the startd publish this to the collector` \
         "-" `# do not export to the user job environment`
