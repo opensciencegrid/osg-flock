@@ -46,6 +46,7 @@
    <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="https://ospool-fe.osgdev.chtc.io/vofrontend/stage"/>
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
+      <attr name="CONTINUE_IF_NO_PROXY" glidein_publish="True" job_publish="False" parameter="True" type="string" value="True"/>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
       <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.x"/>
       <attr name="GLIDECLIENT_Rank" glidein_publish="False" job_publish="False" parameter="True" type="string" value="1"/>
@@ -208,6 +209,8 @@
       </group>
    </groups>
    <ccbs>
+      <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb1" node="ccb-1.ospool-itb.osg-htc.org:9618?sock=collector1-5"/>
+      <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb2" node="ccb-2.ospool-itb.osg-htc.org:9618?sock=collector1-5"/>
    </ccbs>
    <collectors>
       <!-- main set -->
