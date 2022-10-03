@@ -48,6 +48,8 @@ condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}
 ###########################################################
 # stashcp 
 STASHCP=$PWD/client/stashcp
+STASHCP_DEBUG="-d"
+STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
 STASH_PLUGIN=$PWD/client/stash_plugin
 chmod 755 $STASHCP $STASH_PLUGIN
 
@@ -62,10 +64,13 @@ if [[ -z $OSG_SITE_NAME ]]; then
 fi
 
 # also run a simple test (TODO: make this IGWN-specific)
-if ($TIMEOUT $STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) &>/dev/null &&
-   [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then
+echo "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+if $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file; then
+    echo "Succeeded!"
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+else
+    echo "Failed!"
 fi
 
 echo "All done (igwn-additional-htcondor-config)"
