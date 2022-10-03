@@ -65,7 +65,7 @@ fi
 
 # also run a simple test (TODO: make this IGWN-specific)
 echo "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-if ($TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file) &>/dev/null; then
+if $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file; then
     echo "Succeeded!"
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
