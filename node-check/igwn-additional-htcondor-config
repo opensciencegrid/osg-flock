@@ -2,6 +2,14 @@
 
 glidein_config="$1"
 
+function info {
+    echo "INFO  " $@ 1>&2
+}
+
+function warn {
+    echo "WARN  " $@ 1>&2
+}
+
 ###########################################################
 # import add_config_line and add_condor_vars_line functions
 
@@ -43,8 +51,6 @@ add_config_line() {
 }
 # End add_config_line() patch
 
-condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
-
 ###########################################################
 # stashcp 
 STASHCP=$PWD/client/stashcp
@@ -64,13 +70,14 @@ if [[ -z $OSG_SITE_NAME ]]; then
 fi
 
 # also run a simple test (TODO: make this IGWN-specific)
-echo "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-if $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file; then
-    echo "Succeeded!"
+info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+if $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+    info "Succeeded!"
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 else
-    echo "Failed!"
+    warn "Failed! stashcp output:"
+    while read line; do warn "$line"; done < stashcp-test.log
 fi
 
 echo "All done (igwn-additional-htcondor-config)"
