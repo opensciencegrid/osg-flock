@@ -51,6 +51,8 @@ add_config_line() {
 }
 # End add_config_line() patch
 
+condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+
 ###########################################################
 # stashcp 
 STASHCP=$PWD/client/stashcp
