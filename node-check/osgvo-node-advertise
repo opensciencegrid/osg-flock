@@ -610,7 +610,10 @@ if [ "x$GLIDEIN_Singularity_Use" = "x"  -o "x$GLIDEIN_Singularity_Use" = "xGWMS_
             fi
         done
 
-        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc --pid"
+        OSG_SINGULARITY_EXTRA_OPTS="$OSG_SINGULARITY_EXTRA_OPTS --no-home --contain --ipc"
+        # add --pid unless disabled in config
+        no_pid_ns=$(get_glidein_config_value DISABLE_SINGULARITY_PID_NAMESPACES)
+        [[ $no_pid_ns = 1 ]] || OSG_SINGULARITY_EXTRA_OPTS+=" --pid"
 
         # Let's do a simple singularity test by echoing something inside, and then
         # grepping for it outside. This takes care of some errors which happen "late"
