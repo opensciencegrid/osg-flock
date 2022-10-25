@@ -8,6 +8,10 @@
 glidein_config="$1"
 export glidein_config
 
+# make sure we do not put images in /tmp
+export TMPDIR="$PWD/tmp"
+mkdir -p $TMPDIR
+
 function info {
     echo "INFO  " $@ 1>&2
 }

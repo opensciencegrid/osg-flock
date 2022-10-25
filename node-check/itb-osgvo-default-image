@@ -10,6 +10,10 @@
 glidein_config="$1"
 export glidein_config
 
+# make sure we do not put images in /tmp
+export TMPDIR="$PWD/tmp"
+mkdir -p $TMPDIR
+
 function get_glidein_config_value {
     # extracts a config attribute value from 
     # $1 is the attribute key
