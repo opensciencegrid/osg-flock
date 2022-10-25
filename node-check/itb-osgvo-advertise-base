@@ -345,7 +345,6 @@ if disk_is_full "$cachedir_to_check" "$cachedir_required_space_gb" || \
     disk_is_full "$tmpdir_to_check" "$tmpdir_required_space_gb"
 then
     advertise SINGULARITY_DISK_IS_FULL "True" C
-    advertise SINGULARITY_DISK_IS_FULL_DEBUG "$cachedir_to_check $cachedir_required_space_gb   $tmpdir_to_check $tmpdir_required_space_gb" S
 else
     advertise SINGULARITY_DISK_IS_FULL "False" C
 fi

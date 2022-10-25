@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=639
+OSG_GLIDEIN_VERSION=640
 #######################################################################
 
 
@@ -317,6 +317,15 @@ fi
 function disk_is_full {
     local dir_to_check="$1"
     local required_space_gb="$2"
+    # some sites have tiny envs which could affect this test
+    # for example, undefined $HOME
+    if [ -z "$dir_to_check" ]; then
+        return 1
+    fi
+    # also ignore directories which do not exist
+    if [ ! -e "$dir_to_check" ]; then
+        return 1
+    fi
     (( disk_free=$(df -kP "$dir_to_check" 2>/dev/null | awk '{if (NR==2) print $4}') ))
     [[ $(( disk_free / 1024 / 1024 )) -lt $required_space_gb ]]
 }
