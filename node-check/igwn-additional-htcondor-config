@@ -63,7 +63,12 @@ chmod 755 $STASHCP $STASH_PLUGIN
 
 TIMEOUT=$(which timeout 2>/dev/null)
 if [ "x$TIMEOUT" != "x" ]; then
-    TIMEOUT="$TIMEOUT 10s"
+    TIMEOUT="$TIMEOUT 120s"
+fi
+
+TIME=$(which time 2>/dev/null)
+if [ "x$TIME" != "x" ]; then
+    TIME="$TIME -qo stashcp-test.time -f %e"
 fi
 
 glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
@@ -73,12 +78,22 @@ fi
 
 # also run a simple test (TODO: make this IGWN-specific)
 info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-if $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
-    info "Succeeded!"
+if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+    if [ -f stashcp-test.time ]; then
+        info "Succeeded (in $(head -1 stashcp-test.time)s)!"
+    else
+        info "Succeeded!"
+    fi
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 else
-    warn "Failed! stashcp output:"
+    if [ "$?" -eq "124" ]; then
+        warn "Failed (timed out after 120s)! stashcp output:"
+    elif [ -f stashcp-test.time ]; then
+        warn "Failed (in $(cat stashcp-test.time)s)! stashcp output:"
+    else
+        warn "Failed! stashcp output:"
+    fi
     while read line; do warn "$line"; done < stashcp-test.log
 fi
 
