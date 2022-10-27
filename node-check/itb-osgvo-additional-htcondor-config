@@ -2,6 +2,14 @@
 
 glidein_config="$1"
 
+function my_info {
+    echo "INFO  " $@ 1>&2
+}
+
+function my_warn {
+    echo "WARN  " $@ 1>&2
+}
+
 ###########################################################
 # import add_config_line and add_condor_vars_line functions
 
@@ -20,14 +28,14 @@ add_config_line() {
 
         # Copy the glidein config so it doesn't get modified while we grep out the old value
         if ! cp -p "${glidein_config}" "${tmp_config1}"; then
-            warn "Error writing ${tmp_config1}"
+            my_warn "Error writing ${tmp_config1}"
             rm -f "${tmp_config1}"
             exit 1
         fi
         grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
         rm -f "${tmp_config1}"
         if [ ! -f "${tmp_config2}" ]; then
-            warn "Error creating ${tmp_config2}"
+            my_warn "Error creating ${tmp_config2}"
             exit 1
         fi
         # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
@@ -35,7 +43,7 @@ add_config_line() {
 
         # Replace glidein config atomically
         if ! mv -f "${tmp_config2}" "${glidein_config}"; then
-            warn "Error updating ${glidein_config} from ${tmp_config2}"
+            my_warn "Error updating ${glidein_config} from ${tmp_config2}"
             rm -f "${tmp_config2}"
             exit 1
         fi
@@ -158,24 +166,24 @@ if [[ -z $OSG_SITE_NAME ]]; then
 fi
 
 # also run a simple test
-info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+my_info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
 if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
     if [ -f stashcp-test.time ]; then
-        info "Succeeded (in $(head -1 stashcp-test.time)s)!"
+        my_info "Succeeded (in $(head -1 stashcp-test.time)s)!"
     else
-        info "Succeeded!"
+        my_info "Succeeded!"
     fi
     add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
     add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
 else
     if [ "$?" -eq "124" ]; then
-        warn "Failed (timed out after 120s)! stashcp output:"
+        my_warn "Failed (timed out after 120s)! stashcp output:"
     elif [ -f stashcp-test.time ]; then
-        warn "Failed (in $(cat stashcp-test.time)s)! stashcp output:"
+        my_warn "Failed (in $(cat stashcp-test.time)s)! stashcp output:"
     else
-        warn "Failed! stashcp output:"
+        my_warn "Failed! stashcp output:"
     fi
-    while read line; do warn "$line"; done < stashcp-test.log
+    while read line; do my_warn "$line"; done < stashcp-test.log
 fi
 
 ###########################################################
