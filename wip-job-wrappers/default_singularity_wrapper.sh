@@ -310,6 +310,81 @@ download_or_build_singularity_image () {
 }
 
 
+# overrideing this from singularity_lib.sh
+singularity_exec() {
+    # Return on stdout the command to invoke Singularity exec
+    # Change here for all invocations (both singularity_setup, wrapper). Custom options should go in the specific script
+    # In:
+    #  1 - singularity bin
+    #  2 - Singularity image path (constraints checked outside)
+    #  3 - Singularity binds (constraints checked outside)
+    #  4 - Singularity extra options (NOTE: this is not quoted, so spaces will be interpreted as separators)
+    #  5 - Singularity global options, before the exec command (NOTE: this is not quoted, so spaces will be interpreted as separators)
+    #  6 - Execution options: exec (exec singularity)
+    #  7 and more - Command to be executed and its options
+    #  PWD
+    # Out:
+    # Return:
+    #  string w/ command options on stdout
+
+    local singularity_bin="$1"
+    local singularity_image="$2"
+    local singularity_binds="$3"
+    # Keeping --contain. Should not interfere w/ GPUs
+    local singularity_opts="--ipc --contain $4"  # extra options added at the end (still before binds)
+    # add --pid if not disabled in config
+    no_pid_ns=$(get_glidein_config_value DISABLE_SINGULARITY_PID_NAMESPACES)
+    [[ $no_pid_ns = 1 ]] || singularity_opts+=" --pid"
+    local singularity_global_opts="$5"
+    local execution_opt="$6"
+    [[ -z "$singularity_image"  ||  -z "$singularity_bin" ]] && { warn "Singularity image or binary empty. Failing to run Singularity "; false; return; }
+    # TODO: to remove in the future (keeping only the else branch). This is for compatibility with default_singularity_wrapper.sh pre 3.4.6
+    if [[ "X$singularity_global_opts" = Xexec ]]; then
+        warn "default_singularity_wrapper.sh pre 3.4.6 running with 3.4.6 Factory scripts. Continuing in compatibility mode."
+        singularity_global_opts=
+        execution_opt="exec"
+        shift 5
+    else
+        shift 6
+    fi
+    # the remaining parameters are the command and parameters invoked by singularity
+    [[ -z "$1"  &&  $# -ne 0 ]] && { warn "Singularity invoked with an empty command. Failing."; false; return; }
+
+    # Make sure that ALL invocation strings and debug printout are same/consistent
+    # Quote all the path strings ($PWD, $singularity_bin, ...) to deal with a path that contains whitespaces
+    # CMS is not using "--home $PWD:/srv", OSG is
+    # New OSG: --bind $PWD:/srv --no-home (no --home \"$PWD\":/srv --pwd)
+    # TODO: --home or --no-home ? See email from Dave and Mats
+    # Dave: In versions 3.x through 3.2.1-1 where --home was being ignored on sites that set "mount home = no"
+    # in singularity.conf. This was fixed in 3.2.1-1.1.
+
+    info_dbg  "$execution_opt \"$singularity_bin\" $singularity_global_opts exec --home \"$PWD\":/srv --pwd /srv " \
+            "$singularity_opts ${singularity_binds:+"--bind" "\"$singularity_binds\""} " \
+            "\"$singularity_image\"" "${@}" "[ $# arguments ]"
+    local error
+    if [[ ",${execution_opt}," = *,exec,* ]]; then
+        exec "$singularity_bin" ${singularity_global_opts} exec --home "$PWD":/srv --pwd /srv \
+            ${singularity_opts} ${singularity_binds:+"--bind" "$singularity_binds"} \
+            "$singularity_image" "${@}"
+        error=$?
+        [[ -n "$_CONDOR_WRAPPER_ERROR_FILE" ]] && echo "Failed to exec singularity ($error): exec \"$singularity_bin\" $singularity_global_opts exec --home \"$PWD\":/srv --pwd /srv " \
+            "$singularity_opts ${singularity_binds:+"--bind" "\"$singularity_binds\""} " \
+            "\"$singularity_image\"" "${@}" >> $_CONDOR_WRAPPER_ERROR_FILE
+        warn "exec of singularity failed: exit code $error"
+        return ${error}
+    else
+        "$singularity_bin" ${singularity_global_opts} exec --home "$PWD":/srv --pwd /srv \
+            ${singularity_opts} ${singularity_binds:+"--bind" "$singularity_binds"} \
+            "$singularity_image" "${@}"
+        return $?
+    fi
+    # Code should never get here
+    warn "ERROR Inconsistency in Singularity invocation functions. Failing"
+    [[ -n "$_CONDOR_WRAPPER_ERROR_FILE" ]] && echo "ERROR: Inconsistency in GWMS Singularity invocation. Failing." >> $_CONDOR_WRAPPER_ERROR_FILE
+    exit 1
+}
+
+
 # OSGVO - overrideing this from singularity_lib.sh
 singularity_prepare_and_invoke() {
     # Code moved into a function to allow early return in case of failure
