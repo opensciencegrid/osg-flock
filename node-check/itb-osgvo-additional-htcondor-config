@@ -156,9 +156,16 @@ if [ "x$TIMEOUT" != "x" ]; then
     TIMEOUT="$TIMEOUT 120s"
 fi
 
+# The bash builtin time is no good because it pollutes
+# stderr with hardcoded real, sys, and user lines.
 TIME=$(which time 2>/dev/null)
 if [ "x$TIME" != "x" ]; then
-    TIME="$TIME -qo stashcp-test.time -f %e"
+    # Without --quiet, newer versions of TIME(1)
+    # will prepend an extra line to the output
+    # if the process exits with a non-zero exit code.
+    # Therefore, we use $(tail -1 stashcp-test.time)
+    # below to get the runtime of stashcp.
+    TIME="$TIME --output=stashcp-test.time --format=%e"
 fi
 
 glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
@@ -166,11 +173,11 @@ if [[ -z $OSG_SITE_NAME ]]; then
     OSG_SITE_NAME=$glidein_site
 fi
 
-# also run a simple test
+# also run a simple test (TODO: make this IGWN-specific)
 info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
 if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
     if [ -f stashcp-test.time ]; then
-        info "Succeeded (in $(head -1 stashcp-test.time)s)!"
+        info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
     else
         info "Succeeded!"
     fi
@@ -180,7 +187,7 @@ else
     if [ "$?" -eq "124" ]; then
         warn "Failed (timed out after 120s)! stashcp output:"
     elif [ -f stashcp-test.time ]; then
-        warn "Failed (in $(cat stashcp-test.time)s)! stashcp output:"
+        warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
     else
         warn "Failed! stashcp output:"
     fi
