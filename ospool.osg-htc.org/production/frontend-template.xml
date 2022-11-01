@@ -92,6 +92,7 @@
    <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="https://ospool-fe.osg.chtc.io/vofrontend/stage"/>
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
+      <attr name="CONTINUE_IF_NO_PROXY" glidein_publish="True" job_publish="False" parameter="True" type="string" value="True"/>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
       <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.x"/>
       <attr name="GLIDECLIENT_Rank" glidein_publish="False" job_publish="False" parameter="True" type="string" value="1"/>
@@ -143,7 +144,6 @@
          <security>
             <credentials>
                <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -205,7 +205,6 @@
          <security>
             <credentials>
                <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -244,7 +243,7 @@
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="1"/>
             <idle_vms_per_entry curb="30" max="40"/>
-            <idle_vms_total curb="700" max="800"/>
+            <idle_vms_total curb="1400" max="1500"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="20000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="39000" max="40000"/>
@@ -273,7 +272,6 @@
          <security>
             <credentials>
                <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -333,7 +331,6 @@
          <security>
             <credentials>
                <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -394,7 +391,6 @@
          <security>
             <credentials>
                <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
             </credentials>
          </security>
          <attrs>
@@ -495,7 +491,7 @@
          </files>
       </group>
 
-      <group name="alloc-Expanse-CPU-TG-CHE200122" enabled="True">
+      <group name="alloc-Expanse-CPU-TG-CHE200122" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -527,7 +523,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="cwr109" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="chi135" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
             </credentials>
          </security>
          <attrs>
@@ -559,7 +555,7 @@
          </files>
       </group>
 
-      <group name="alloc-Expanse-CPU-xenon1t" enabled="True">
+      <group name="alloc-Expanse-CPU-xenon1t" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -620,7 +616,7 @@
          </files>
       </group>
 
-      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="True">
+      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -753,7 +749,7 @@
          </files>
       </group>
 
-      <group name="alloc-Stampede2-CPU-UTAustin_Zimmerman" enabled="True">
+      <group name="alloc-Stampede2-CPU-UTAustin_Zimmerman" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -819,7 +815,7 @@
          </files>
       </group>
 
-      <group name="alloc-Stampede2-CPU-SKX-UTAustin_Zimmerman" enabled="True">
+      <group name="alloc-Stampede2-CPU-SKX-UTAustin_Zimmerman" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
