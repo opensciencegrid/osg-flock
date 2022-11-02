@@ -11,7 +11,21 @@ import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape
 from pprint import pprint
 
-
+# Maintain a list of "core" schedds - these are
+# special as have either credentials or tested
+# ssl auth so that we know they can be quried
+# cleanly by the frontend. Schedds not in this
+# list will still be able to join and use the
+# pool, but will not be includeded in the 
+# demand calculations.
+core_schedds = [
+        'amundsen.grid.uchicago.edu',
+        'login-el7.xenon.ci-connect.net',
+        'login.snowmass21.io',
+        'login04.osgconnect.net',
+        'login05.osgconnect.net',
+        'scott.grid.uchicago.edu'
+        ]
 
 def load_data():
     '''
@@ -89,7 +103,7 @@ def generate_gwms_frontend_config(config, data):
 
     blob = ''
     for hostname, attrs in sorted(data.items()):
-        if 'dn' in attrs:
+        if 'dn' in attrs and hostname in core_schedds:
             blob += '                <schedd DN="%s" fullname="%s"/>\n' %(escape(attrs['dn']), escape(hostname))
     
     f = open('{}/frontend-template.xml'.format(config.target_env))
