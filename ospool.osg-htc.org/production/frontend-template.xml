@@ -51,12 +51,7 @@
                       ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                       ((UNDESIRED_Sites=?=undefined) || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
                       (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
-                      (regexp("CancerComputer", GLIDEIN_ResourceName) =!= True || stringListMember(TARGET.ProjectName, "SBGrid,SPLINTER,TG-MCB130135,BioGraph,swipnanobio,SINGE,SSGAforCSP,sweeps,TG-MCB190026,PNGtemplate,PainDrugs", ",") || regexp("^COVID19", TARGET.ProjectName)) &amp;&amp;
-                      (isUndefined(WantsStashCvmfs) ||
-                         !WantsStashCvmfs ||
-                         isUndefined(CVMFS_stash_osgstorage_org_REVISION) ||
-                         isUndefined(SUBMITTER_stash_osgstorage_org_REVISION) ||
-                         CVMFS_stash_osgstorage_org_REVISION &gt;= SUBMITTER_stash_osgstorage_org_REVISION)
+                      (ifThenElse(JobDurationCategory =!= undefined && JobDurationCategory == "Long", GLIDEIN_ToDie - CurrentTime >= 72000, GLIDEIN_ToDie - CurrentTime >= 36000))
                       '>
       <factory query_expr="True">
          <match_attrs>
