@@ -28,11 +28,6 @@ if ! (cd $PWD && ls) >/dev/null; then
     my_error "PWD points to a non-existent directory"
 fi
 
-# provide some details about the IDTOKEN
-TS=$(date +'%s')
-my_info "List of IDTOKENs (current ts is $TS):"
-./main/condor/bin/condor_token_list -dir ticket/ 2>&1
-
 # change this one
 disk_required_gb=5
 disk_required=$(($disk_required_gb * 1024 * 1024))
