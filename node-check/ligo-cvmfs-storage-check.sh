@@ -30,7 +30,7 @@ function advertise {
 
     if [ "$glidein_config" != "NONE" ]; then
         add_config_line $key "$value"
-        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
     fi
 
     if [ "$atype" = "S" ]; then
