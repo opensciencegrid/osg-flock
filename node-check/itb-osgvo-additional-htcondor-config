@@ -221,7 +221,7 @@ for envvar in \
 
 if [ ! -z ${!envvar+x} ]; then
   add_config_line "SITE_ENV_${envvar}" "${!envvar}"
-  add_condor_vars_line "${envvar}" "C" "-" "SITE_ENV_${envvar}" "N" "N" "+"
+  add_condor_vars_line "SITE_ENV_${envvar}" "C" "-" "SITE_ENV_${envvar}" "N" "N" "+"
 fi
 
 done
