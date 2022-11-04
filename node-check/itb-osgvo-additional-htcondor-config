@@ -220,20 +220,9 @@ for envvar in \
 ; do
 
 if [ ! -z ${!envvar+x} ]; then
-  condor_env_entry="$envvar=${!envvar}"
-  condor_env_entry=$(echo "$condor_env_entry" | awk '{gsub(/"/,"\"\""); print}')
-  condor_env_entry=$(echo "$condor_env_entry" | awk "{gsub(/'/,\"''\"); print}")
-  if [[ -z "$job_env" ]]; then
-    job_env="'$condor_env_entry'"
-  else
-    job_env="$job_env '$condor_env_entry'"
-  fi
+  add_config_line "SITE_ENV_${envvar}" "${!envvar}"
+  add_condor_vars_line "${envvar}" "C" "-" "SITE_ENV_${envvar}" "N" "N" "+"
 fi
-
-echo "Built default job environment: $job_env"
-
-add_config_line STARTER_JOB_ENVIRONMENT "\$(STARTER_JOB_ENVIRONMENT) $job_env"
-add_condor_vars_line STARTER_JOB_ENVIRONMENT "C" "-" "+" "N" "N" "-"
 
 done
 
