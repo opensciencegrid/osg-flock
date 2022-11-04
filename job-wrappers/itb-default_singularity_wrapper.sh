@@ -502,9 +502,12 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
 
     # Binding different mounts (they will be removed if not existent on the host)
     # This is a dictionary in string w/ singularity mount options ("src1[:dst1[:opt1]][,src2[:dst2[:opt2]]]*"
-    # OSG: checks also in image, may not work if not expanded. And Singularity will not fail if missing, only give a warning
-    #  if [ -e $MNTPOINT/. -a -e $OSG_SINGULARITY_IMAGE/$MNTPOINT ]; then
-    GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/hadoop,/ceph,/hdfs,/lizard,/mnt/hadoop,/mnt/hdfs,/etc/hosts,/etc/localtime"
+    GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/etc/hosts,/etc/localtime"
+    for MNTPOINT in /hadoop /ceph /hdfs /lizard /mnt/hadoop /mnt/hdfs; do
+        if [[ -d $MNTPOINT ]]; then
+            GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="${GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS},${MNTPOINT}"
+        fi
+    done
 
     # CVMFS access inside container (default, but optional)
     if [[ "x$GWMS_SINGULARITY_BIND_CVMFS" = "x1" ]]; then
