@@ -23,20 +23,20 @@ if [ -e "$OSG_DATA/osgvo/EIC/bSat_bDependence_A197.root" ]; then
     OSGVO_Data_EIC1="True"
 fi
 add_config_line OSGVO_Data_EIC1 "$OSGVO_Data_EIC1"
-add_condor_vars_line OSGVO_Data_EIC1 "C" "-" "+" "Y" "Y" "+"
+add_condor_vars_line OSGVO_Data_EIC1 "C" "-" "+" "Y" "Y" "-"
 
 OSGVO_Data_EIC_A1="False"
 if [ -e "$OSG_DATA/osgvo/EIC/bSat_bDependence_A1.root" ]; then
     OSGVO_Data_EIC_A1="True"
 fi
 add_config_line OSGVO_Data_EIC_A1 "$OSGVO_Data_EIC_A1"
-add_condor_vars_line OSGVO_Data_EIC_A1 "C" "-" "+" "Y" "Y" "+"
+add_condor_vars_line OSGVO_Data_EIC_A1 "C" "-" "+" "Y" "Y" "-"
 
 OSGVO_Data_EIC_A40="False"
 if [ -e "$OSG_DATA/osgvo/EIC/bSat_bDependence_A40.root" ]; then
     OSGVO_Data_EIC_A40="True"
 fi
 add_config_line OSGVO_Data_EIC_A40 "$OSGVO_Data_EIC_A40"
-add_condor_vars_line OSGVO_Data_EIC_A40 "C" "-" "+" "Y" "Y" "+"
+add_condor_vars_line OSGVO_Data_EIC_A40 "C" "-" "+" "Y" "Y" "-"
 
 
