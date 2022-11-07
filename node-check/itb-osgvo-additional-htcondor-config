@@ -226,6 +226,17 @@ fi
 
 done
 
+###########################################################
+# Add prepare hook to do the OSPool-specific transform of
+# the Singularity container outside of the glidein default
+# image.
+glidein_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
+add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$glidein_dir/client_group_main/itb-prepare-hook-lib"
+add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
+add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
+add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
+add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
+add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
 
 ###########################################################
 
