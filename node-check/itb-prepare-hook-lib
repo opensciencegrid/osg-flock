@@ -5,7 +5,7 @@
 # Used for the prepare job hook, particularly to select an appropriate Singularity image
 #
 GWMS_THIS_SCRIPT="$0"
-GWMS_THIS_SCRIPT_DIR=$(readlink -f $(dirname "$0")/..)
+GWMS_THIS_SCRIPT_DIR=$(readlink -f "$(dirname "$0")/..")
 EXITSLEEP=10m
 
 # Directory in Singularity where auxiliary files are copied (e.g. singularity_lib.sh)
