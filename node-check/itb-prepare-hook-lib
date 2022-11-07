@@ -47,7 +47,6 @@ exit_wrapper () {
     # signal other parts of the glidein that it is time to stop accepting jobs
     touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
 
-    [[ -n "$publish_fail" ]] && warn "Failed to communicate ERROR with ${publish_fail}"
 
     # Eventually the periodic validation of singularity will make the pilot
     # to stop matching new payloads
