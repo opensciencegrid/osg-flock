@@ -456,6 +456,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     singularity_binds=$(singularity_get_binds e "$GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS" "$GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE")
     # Run and log the Singularity command.
 
+    info_dbg "SingularityBind=\"$singularity_binds\""
     echo "SingularityBind=\"$singularity_binds\""
     echo "ContainerImage=\"$GWMS_SINGULARITY_IMAGE\""
     if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
