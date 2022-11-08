@@ -395,20 +395,18 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
 
     # Binding different mounts (they will be removed if not existent on the host)
     # This is a dictionary in string w/ singularity mount options ("src1[:dst1[:opt1]][,src2[:dst2[:opt2]]]*"
-    # Binding different mounts (they will be removed if not existent on the host)
-    # This is a dictionary in string w/ singularity mount options ("src1[:dst1[:opt1]][,src2[:dst2[:opt2]]]*"
     
     GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/etc/hosts,/etc/localtime"
-    for MNTPOINT in /hadoop /ceph /hdfs /lizard /mnt/hadoop /mnt/hdfs; do
+    for MNTPOINT in /hadoop /ceph /hdfs /lizard /mnt/hadoop /mnt/hdfs /cvmfs; do
         if [[ -d $MNTPOINT ]]; then
             GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="${GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS},${MNTPOINT}"
         fi
     done
 
-    # CVMFS access inside container (default, but optional)
-    if [[ "x$GWMS_SINGULARITY_BIND_CVMFS" = "x1" ]]; then
-        GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="`dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /cvmfs`"
-    fi
+    ## CVMFS access inside container (default, but optional)
+    #if [[ "x$GWMS_SINGULARITY_BIND_CVMFS" = "x1" ]]; then
+    #    GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="`dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /cvmfs`"
+    #fi
 
     # GPUs - bind outside OpenCL directory if available
     if [[ -e /etc/OpenCL/vendors ]]; then
