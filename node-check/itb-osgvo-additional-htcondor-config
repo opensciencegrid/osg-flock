@@ -245,7 +245,7 @@ add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREP
 add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
 add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
 
-add_config_line "SINGULARITY_BIND_EXPR" '$(SingularityBind)'
+add_config_line "SINGULARITY_BIND_EXPR" 'SingularityBind'
 add_condor_vars_line "SINGULARITY_BIND_EXPR" "C" "-" "SINGULARITY_BIND_EXPR" "N" "N" "-"
 
 ###########################################################
