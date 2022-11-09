@@ -393,26 +393,17 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
 
     GWMS_SINGULARITY_EXTRA_OPTS="$GLIDEIN_SINGULARITY_OPTS"
 
-    # Binding different mounts (they will be removed if not existent on the host)
-    # This is a dictionary in string w/ singularity mount options ("src1[:dst1[:opt1]][,src2[:dst2[:opt2]]]*"
+    ### These do not work if condor if launching singularity: bind paths have to be listed in the startd config.
+    # # Binding different mounts (they will be removed if not existent on the host)
+    # # This is a dictionary in string w/ singularity mount options ("src1[:dst1[:opt1]][,src2[:dst2[:opt2]]]*"
     
-    GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/etc/hosts,/etc/localtime"
-    for MNTPOINT in /hadoop /ceph /hdfs /lizard /mnt/hadoop /mnt/hdfs /cvmfs; do
-        if [[ -d $MNTPOINT ]]; then
-            GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="${GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS},${MNTPOINT}"
-        fi
-    done
+    # GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/etc/hosts,/etc/localtime"
 
-    ## CVMFS access inside container (default, but optional)
-    #if [[ "x$GWMS_SINGULARITY_BIND_CVMFS" = "x1" ]]; then
-    #    GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="`dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /cvmfs`"
-    #fi
-
-    # GPUs - bind outside OpenCL directory if available
-    if [[ -e /etc/OpenCL/vendors ]]; then
-        GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="`dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /etc/OpenCL/vendors /etc/OpenCL/vendors`"
-    fi
-    info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:`[ -n "$HOST_LIBS" ] && echo 1`, ocl:`[ -e /etc/OpenCL/vendors ] && echo 1`): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
+    # # GPUs - bind outside OpenCL directory if available
+    # if [[ -e /etc/OpenCL/vendors ]]; then
+        # GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="`dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /etc/OpenCL/vendors /etc/OpenCL/vendors`"
+    # fi
+    # info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:`[ -n "$HOST_LIBS" ] && echo 1`, ocl:`[ -e /etc/OpenCL/vendors ] && echo 1`): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
 
     # We want to bind $PWD to /srv within the container - however, in order
     # to do that, we have to make sure everything we need is in $PWD, most
@@ -440,7 +431,8 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     if [[ -n "$GWMS_BASE_SUBDIR" ]]; then
         # Make the glidein directory visible in singularity
         mkdir -p "$GWMS_BASE_SUBDIR"
-        GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE="${GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE:+${GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE},}$( dirname "${GWMS_THIS_SCRIPT_DIR}"):/srv/$GWMS_BASE_SUBDIR"
+        ## GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE does nothing if condor is launching singularity
+        # GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE="${GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE:+${GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE},}$( dirname "${GWMS_THIS_SCRIPT_DIR}"):/srv/$GWMS_BASE_SUBDIR"
     fi
     # copy the wrapper.sh (this script!)
     if [[ "$GWMS_THIS_SCRIPT" == */main/singularity_wrapper.sh ]]; then
@@ -450,14 +442,6 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         export JOB_WRAPPER_SINGULARITY="/srv/.gwms-user-job-wrapper.sh"
     fi
 
-    # Get Singularity binds, uses also GLIDEIN_SINGULARITY_BINDPATH, GLIDEIN_SINGULARITY_BINDPATH_DEFAULT
-    # remove binds w/ non existing src (e)
-    local singularity_binds
-    singularity_binds=$(singularity_get_binds e "$GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS" "$GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE")
-    # Run and log the Singularity command.
-
-    info_dbg "SingularityBind=\"$singularity_binds\""
-    echo "SingularityBind=\"$singularity_binds\""
     echo "ContainerImage=\"$GWMS_SINGULARITY_IMAGE\""
     if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
         echo "WantSIF = true"
