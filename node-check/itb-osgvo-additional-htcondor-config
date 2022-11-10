@@ -55,6 +55,11 @@ add_config_line() {
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
 ###########################################################
+# CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
+if [[ ! $CVMFS_BASE ]]; then
+    CVMFS_BASE="/cvmfs"
+fi
+
 # enable job duration and busy stats
 add_config_line STATISTICS_TO_PUBLISH_LIST "JobDuration, JobBusyTime"
 add_condor_vars_line STATISTICS_TO_PUBLISH_LIST "C" "-" "+" "N" "N" "-"
@@ -229,15 +234,17 @@ done
 
 ###########################################################
 # Find available volumes and set up bind mounts for Singularity jobs
-# TODO Handle mounting $CVMFS_BASE to /cvmfs if necessary (when we're using mountrepo from cvmfsexec)
 GLIDEIN_SINGULARITY_BINDPATH=`grep -i "^GLIDEIN_SINGULARITY_BINDPATH " $glidein_config | awk '{print $2}'`
 SINGULARITY_BIND_EXPR="/etc/hosts,/etc/localtime"
 OLDIFS=$IFS
 IFS=' ,'
 # shellcheck disable=SC2086
-for MNTPOINT in $GLIDEIN_SINGULARITY_BINDPATH /cvmfs /etc/OpenCL/vendors; do
-    if [[ -d $MNTPOINT ]]; then
-        SINGULARITY_BIND_EXPR="${SINGULARITY_BIND_EXPR},${MNTPOINT}"
+for mntpoint in $GLIDEIN_SINGULARITY_BINDPATH "${CVMFS_BASE}:/cvmfs:ro" /etc/OpenCL/vendors; do
+    # If we have a source:destination:flags type of bind, just test the source
+    mntsource=$(echo "$mntpoint" | cut -d: -f1)
+    if [[ -d $mntsource ]]; then
+        # but put the whole bind in SINGULARITY_BIND_EXPR
+        SINGULARITY_BIND_EXPR="${SINGULARITY_BIND_EXPR},${mntpoint}"
     fi
 done
 IFS=$OLDIFS
