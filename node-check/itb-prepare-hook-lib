@@ -158,7 +158,7 @@ function download_or_build_singularity_image () {
             #return 1
         fi
     else
-        info_dbg "We allow non-CVMS images"
+        info_dbg "We allow non-CVMFS images"
         # first figure out a base image name in the form of owner/image:tag, then
         # transform it to our expected image and name and try to download
         singularity_srcs=""
