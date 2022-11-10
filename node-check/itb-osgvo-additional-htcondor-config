@@ -240,16 +240,21 @@ OLDIFS=$IFS
 IFS=' ,'
 # shellcheck disable=SC2086
 for mntpoint in $GLIDEIN_SINGULARITY_BINDPATH "${CVMFS_BASE}:/cvmfs:ro" /etc/OpenCL/vendors; do
+    info "Checking Singularity bind $mntpoint"
     # If we have a source:destination:flags type of bind, just test the source
     mntsource=$(echo "$mntpoint" | cut -d: -f1)
     if [[ -d $mntsource ]]; then
+        info "$mntsource found and is a directory; adding to SINGULARITY_BIND_EXPR"
         # but put the whole bind in SINGULARITY_BIND_EXPR
         SINGULARITY_BIND_EXPR="${SINGULARITY_BIND_EXPR},${mntpoint}"
+    else
+        info "$mntsource not found or not a directory; ignoring"
     fi
 done
 IFS=$OLDIFS
 unset $OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
+info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
