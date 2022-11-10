@@ -229,14 +229,19 @@ done
 
 ###########################################################
 # Find available volumes and set up bind mounts for Singularity jobs
-# TODO Handle mounts given to us by the frontend config
 # TODO Handle mounting $CVMFS_BASE to /cvmfs if necessary (when we're using mountrepo from cvmfsexec)
+GLIDEIN_SINGULARITY_BINDPATH=`grep -i "^GLIDEIN_SINGULARITY_BINDPATH " $glidein_config | awk '{print $2}'`
 SINGULARITY_BIND_EXPR="/etc/hosts,/etc/localtime"
-for MNTPOINT in /hadoop /ceph /hdfs /lizard /mnt/hadoop /mnt/hdfs /cvmfs /etc/OpenCL/vendors; do
+OLDIFS=$IFS
+IFS=' ,'
+# shellcheck disable=SC2086
+for MNTPOINT in $GLIDEIN_SINGULARITY_BINDPATH /cvmfs /etc/OpenCL/vendors; do
     if [[ -d $MNTPOINT ]]; then
         SINGULARITY_BIND_EXPR="${SINGULARITY_BIND_EXPR},${MNTPOINT}"
     fi
 done
+IFS=$OLDIFS
+unset $OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 
 ###########################################################
