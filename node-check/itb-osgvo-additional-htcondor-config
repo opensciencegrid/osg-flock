@@ -258,7 +258,7 @@ info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
 # Glideinwms used /srv as the scratch directory, we should do the same
 set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
-set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
+# set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
