@@ -6,7 +6,7 @@
 # when this was fixed.
 if [ ! -z "$SINGULARITY_NAME" ]; then
     [[ -d /srv ]] && cd /srv
-    export HOME=/srv
+    #export HOME=/srv
     export OSG_WN_TMP=/tmp
 else
     # OSPool: set up TMPDIR to be in the job dir; try to avoid /tmp at
