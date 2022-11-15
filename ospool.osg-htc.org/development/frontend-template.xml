@@ -147,7 +147,7 @@
             </file>
          </files>
       </group>
-      <group name="itb-gpu" enabled="False">
+      <group name="itb-gpu" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="3600"/>
@@ -158,8 +158,11 @@
             <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="80" max="100"/>
          </config>
-         <match match_expr="True" start_expr="TARGET.ITB_Sites =?= True &amp;&amp; TARGET.RequestGPUs &gt; 0">
-            <factory query_expr='FactoryType == "itb" &amp;&amp; 
+         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+                start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
+                            ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
+                            TARGET.RequestGPUs &gt; 0"'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; 
                                  stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
@@ -180,18 +183,23 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="scitokens_callout" security_class="frontend" trust_domain="grid" type="scitoken"/>
-            </credentials>
+               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+           </credentials>
          </security>
          <attrs>
             <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="9.x"/>
+            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="10.x"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
+            <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
             <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25%__opensciencegrid/osgvo-el7:latest 25%__opensciencegrid/osgvo-ubuntu-18.04:latest 25%__opensciencegrid/osgvo-el8:latest 25%__opensciencegrid/osgvo-ubuntu-20.04:latest"/>
             <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__opensciencegrid/osgvo-el7-cuda10:latest"/>
          </attrs>
@@ -211,7 +219,10 @@
             <file absfname="/opt/osg-flock/node-check/itb-singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/job-wrappers/itb-default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+            <file absfname="/opt/osg-flock/job-wrappers/itb-simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/itb-prepare-hook-lib" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
