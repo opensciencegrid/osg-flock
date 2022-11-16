@@ -382,17 +382,6 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     info_dbg "using image $GWMS_SINGULARITY_IMAGE_HUMAN ($GWMS_SINGULARITY_IMAGE)"
     # Singularity image is OK, continue w/ other init
 
-    # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
-    if [[ -n "$GLIDEIN_Tmp_Dir"  &&  -e "$GLIDEIN_Tmp_Dir" ]]; then
-        if mkdir "$GLIDEIN_Tmp_Dir/singularity-work.$$" ; then
-            export SINGULARITY_WORKDIR="$GLIDEIN_Tmp_Dir/singularity-work.$$"
-        else
-            warn "Unable to set SINGULARITY_WORKDIR to $GLIDEIN_Tmp_Dir/singularity-work.$$. Leaving it undefined."
-        fi
-    fi
-
-    GWMS_SINGULARITY_EXTRA_OPTS="$GLIDEIN_SINGULARITY_OPTS"
-
     # Copy $GWMS_DIR (bin, lib, ...) into the current directory (i.e. the scratch
     # directory) which will be bind-mounted as /srv inside the container.
     [[ -z "$GWMS_SUBDIR" ]] && { GWMS_SUBDIR=".gwms.d"; warn "GWMS_SUBDIR was undefined, setting to '.gwms.d'"; }
