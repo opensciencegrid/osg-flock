@@ -18,6 +18,7 @@ add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{
 source $add_config_line_source
 
 # Patch over add_config_line() with a safer version
+# This will be fixed in gWMS 3.9.6
 add_config_line() {
     # Ignore the call if the exact config line is already in there
     if ! grep -q "^${*}$" "${glidein_config}"; then
