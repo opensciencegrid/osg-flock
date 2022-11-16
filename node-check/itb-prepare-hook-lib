@@ -382,35 +382,8 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     info_dbg "using image $GWMS_SINGULARITY_IMAGE_HUMAN ($GWMS_SINGULARITY_IMAGE)"
     # Singularity image is OK, continue w/ other init
 
-    # set up the env to make sure Singularity uses the glidein dir for exported /tmp, /var/tmp
-    if [[ -n "$GLIDEIN_Tmp_Dir"  &&  -e "$GLIDEIN_Tmp_Dir" ]]; then
-        if mkdir "$GLIDEIN_Tmp_Dir/singularity-work.$$" ; then
-            export SINGULARITY_WORKDIR="$GLIDEIN_Tmp_Dir/singularity-work.$$"
-        else
-            warn "Unable to set SINGULARITY_WORKDIR to $GLIDEIN_Tmp_Dir/singularity-work.$$. Leaving it undefined."
-        fi
-    fi
-
-    GWMS_SINGULARITY_EXTRA_OPTS="$GLIDEIN_SINGULARITY_OPTS"
-
-    ### These do not work if condor if launching singularity: bind paths have to be listed in the startd config.
-    # # Binding different mounts (they will be removed if not existent on the host)
-    # # This is a dictionary in string w/ singularity mount options ("src1[:dst1[:opt1]][,src2[:dst2[:opt2]]]*"
-    
-    # GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="/etc/hosts,/etc/localtime"
-
-    # # GPUs - bind outside OpenCL directory if available
-    # if [[ -e /etc/OpenCL/vendors ]]; then
-        # GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS="`dict_set_val GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS /etc/OpenCL/vendors /etc/OpenCL/vendors`"
-    # fi
-    # info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:`[ -n "$HOST_LIBS" ] && echo 1`, ocl:`[ -e /etc/OpenCL/vendors ] && echo 1`): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
-
-    # We want to bind $PWD to /srv within the container - however, in order
-    # to do that, we have to make sure everything we need is in $PWD, most
-    # notably $GWMS_DIR (bin, lib, ...), the user-job-wrapper.sh (this script!) 
-    # and singularity_lib.sh (in $GWMS_AUX_SUBDIR)
-    #
-    # If gwms dir is present, then copy it inside the container
+    # Copy $GWMS_DIR (bin, lib, ...) into the current directory (i.e. the scratch
+    # directory) which will be bind-mounted as /srv inside the container.
     [[ -z "$GWMS_SUBDIR" ]] && { GWMS_SUBDIR=".gwms.d"; warn "GWMS_SUBDIR was undefined, setting to '.gwms.d'"; }
     local gwms_dir=${GWMS_DIR:-"../../$GWMS_SUBDIR"}
     if [[ -d "$gwms_dir" ]]; then
@@ -426,21 +399,7 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     fi
     # copy singularity_lib.sh (in $GWMS_AUX_SUBDIR)
     mkdir -p "$GWMS_AUX_SUBDIR"
-    cp "${GWMS_AUX_DIR}/singularity_lib.sh" "$GWMS_AUX_SUBDIR/"       
-    # mount the original glidein directory (for setup scripts only, not jobs)
-    if [[ -n "$GWMS_BASE_SUBDIR" ]]; then
-        # Make the glidein directory visible in singularity
-        mkdir -p "$GWMS_BASE_SUBDIR"
-        ## GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE does nothing if condor is launching singularity
-        # GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE="${GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE:+${GWMS_SINGULARITY_WRAPPER_BINDPATHS_OVERRIDE},}$( dirname "${GWMS_THIS_SCRIPT_DIR}"):/srv/$GWMS_BASE_SUBDIR"
-    fi
-    # copy the wrapper.sh (this script!)
-    if [[ "$GWMS_THIS_SCRIPT" == */main/singularity_wrapper.sh ]]; then
-        export JOB_WRAPPER_SINGULARITY="/srv/$GWMS_BASE_SUBDIR/main/singularity_wrapper.sh"
-    else
-        cp "$GWMS_THIS_SCRIPT" .gwms-user-job-wrapper.sh
-        export JOB_WRAPPER_SINGULARITY="/srv/.gwms-user-job-wrapper.sh"
-    fi
+    cp "${GWMS_AUX_DIR}/singularity_lib.sh" "$GWMS_AUX_SUBDIR/"
 
     echo "ContainerImage=\"$GWMS_SINGULARITY_IMAGE\""
     if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
