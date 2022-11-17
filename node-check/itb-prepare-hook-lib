@@ -157,6 +157,8 @@ function download_or_build_singularity_image () {
             # allow this for now - we have user who ship images with their jobs
             #return 1
         fi
+        echo "$singularity_image"
+        return 0
     else
         info_dbg "We allow non-CVMFS images"
         # first figure out a base image name in the form of owner/image:tag, then
@@ -281,12 +283,11 @@ function download_or_build_singularity_image () {
                 return 1
             fi
             singularity_image=$image_path2
+            echo "$singularity_image"
         fi
         ) 9>$lockfile
         return $?
     fi
-    echo "$singularity_image"
-    return 0
 }
 
 
