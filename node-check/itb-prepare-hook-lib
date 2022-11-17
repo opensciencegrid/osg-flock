@@ -402,11 +402,11 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     mkdir -p "$GWMS_AUX_SUBDIR"
     cp "${GWMS_AUX_DIR}/singularity_lib.sh" "$GWMS_AUX_SUBDIR/"
 
-    echo "ContainerImage=\"$GWMS_SINGULARITY_IMAGE\""
+    echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
     if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
-        echo "WantSIF = true"
+        echo "WantSIF=true"
     else
-        echo "WantSandboxImage = true"
+        echo "WantSandboxImage=true"
     fi
     echo "SINGULARITY_JOB=true"
     echo ""
