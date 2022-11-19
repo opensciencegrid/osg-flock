@@ -33,31 +33,74 @@ GLIDEIN_DEBUG_OUTPUT=1
 [[ -n "$_CONDOR_WRAPPER_ERROR_FILE" ]] && rm -f "$_CONDOR_WRAPPER_ERROR_FILE" >/dev/null 2>&1 || true
 
 
-exit_wrapper () {
-    # An error occurred. Communicate to HTCondor and avoid black hole (sleep for hold time) and then exit 1
-    #  1: Error message
-    #  2: Exit code (1 by default)
-    #  3: sleep time (default: $EXITSLEEP)
-    # The error is published to stderr, if available to $_CONDOR_WRAPPER_ERROR_FILE,
-    # if chirp available sets JobWrapperFailure
-    [[ -n "$1" ]] && warn_raw "ERROR: $1"
-    local exit_code=${2:-1}
-    local sleep_time=${3:-$EXITSLEEP}
-
-    # signal other parts of the glidein that it is time to stop accepting jobs
-    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp >/dev/null 2>&1
-
-
-    # Eventually the periodic validation of singularity will make the pilot
-    # to stop matching new payloads
-    # Prevent a black hole by sleeping EXITSLEEP (10) minutes before exiting. Sleep time can be changed on top of this file
-    sleep $sleep_time
-    exit $exit_code
+escape_str () {
+    # Escape backslashes and double-quotes in a one-line string
+    # (if the string is multiple lines, print only the first line)
+    local str="$1"
+    sed -n -e '1s/\\/\\\\/g' \
+           -e '1s/"/\\"/g' \
+           -e '1p' <<<"$str"
 }
+
+
+# HookStatusCode reference:
+# 000 : Success, continue with job launching
+# 001 - 299 : Failure, unspecified; puts job on hold
+# 300 - 399 : Failure due to a permanent error local to this EP
+# 400 - 499 : Failure due to a temporary error local to this EP
+# 500 - 599 : Failure due to a permanent error from a 3rd party site server attached to this EP
+# 600 - 699 : Failure due to a temporary error from a 3rd party site server attached to this EP
+
+exit_hook () {
+    # Print a HookStatusCode and HookStatusMessage and exit.
+    # 1: Number to use for HookStatusCode.
+    #    If HookStatusCode > 0, use 1-100 for the script's exit status based on the last 2 digits.
+    # 2: Message to use for HookStatusMessage.
+    # 3: Sleep time before exiting (0 by default)
+    local hook_status_code="$1"
+    local hook_status_message="$2"
+    local sleep_time="${3:-0}"
+
+    printf "HookStatusCode=%d\n" "$hook_status_code"
+    printf 'HookStatusMessage="%s"\n' "$(escape_str "$hook_status_message")"
+
+    local ret=0
+    if [[ $hook_status_code -gt 0 ]]; then
+        # also print code and error to stderr
+        printf "%03d\t%s\n" "$hook_status_code" "$hook_status_message" >&2
+        ret=$(( hook_status_code % 100 ))
+        if [[ $ret == 0 ]]; then
+            ret=100  # use 100 since exit 0 would imply success
+        fi
+    fi
+
+    sleep "$sleep_time"
+
+    exit $ret
+}
+
+
+exit_hook_stop_pilot () {
+    # Exit the hook and stop the pilot
+    # 1: HookStatusCode
+    # 2: HookStatusMessage
+    # 3: Sleep time ($EXITSLEEP by default)
+
+    # Signal other parts of the glidein that it is time to stop accepting jobs
+    touch $GWMS_THIS_SCRIPT_DIR/stop-glidein.stamp &>/dev/null
+
+    exit_hook "$1" "$2" "${3:-$EXITSLEEP}"
+}
+
 
 # In case singularity_lib cannot be imported
 warn_raw () {
     echo "$@" 1>&2
+}
+
+
+error_msg () {
+    echo "ERROR: $GWMS_THIS_SCRIPT: $*" >&2
 }
 
 # Ensure all jobs have PATH set
@@ -80,9 +123,7 @@ elif [[ -e /srv/$GWMS_AUX_SUBDIR/singularity_lib.sh ]]; then
     # In Singularity
     GWMS_AUX_DIR="/srv/$GWMS_AUX_SUBDIR"
 else
-    echo "ERROR: $GWMS_THIS_SCRIPT: Unable to source singularity_lib.sh! File not found. Quitting" 1>&2
-    warn=warn_raw
-    exit_wrapper "Wrapper script $GWMS_THIS_SCRIPT failed: Unable to source singularity_lib.sh" 1
+    exit_hook_stop_pilot 301 "Unable to source singularity_lib.sh! File not found."
 fi
 # shellcheck source=../singularity_lib.sh
 . "${GWMS_AUX_DIR}"/singularity_lib.sh
@@ -98,8 +139,7 @@ elif [[ -e /srv/$GWMS_SUBDIR/bin ]]; then
 elif [[ -e /srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin ]]; then
     GWMS_DIR=/srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin
 else
-    echo "ERROR: $GWMS_THIS_SCRIPT: Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)" 1>&2
-    exit_wrapper "Wrapper script $GWMS_THIS_SCRIPT failed: Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)" 1
+    exit_hook_stop_pilot 302 "Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)"
 fi
 export GWMS_DIR
 
@@ -124,17 +164,17 @@ function get_glidein_config_value {
 # source our helpers
 group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
 if [ ! -d "$group_dir" ]; then
-    exit_wrapper "GLIDECLIENT_GROUP_WORK_DIR ($group_dir) is empty or not a directory" 1
+    exit_hook_stop_pilot 303 "GLIDECLIENT_GROUP_WORK_DIR ($group_dir) is empty or not a directory"
 fi
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib" || {
         error_message="Unable to source itb-ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir" 2>&1); $(ls -ld "$group_dir/itb-ospool-lib" 2>&1)"
-        exit_wrapper "$error_message" 1
+        exit_hook_stop_pilot 304 "$error_message"
     }
 else
     source "$group_dir/ospool-lib" || {
         error_message="Unable to source ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir" 2>&1); $(ls -ld "$group_dir/ospool-lib" 2>&1)"
-        exit_wrapper "$error_message" 1
+        exit_hook_stop_pilot 304 "$error_message"
     }
 fi
 
@@ -289,6 +329,12 @@ function download_or_build_singularity_image () {
         return $?
     fi
 }
+
+
+# TODO Deal with singularity_exit_or_fallback() which:
+# - If $GWMS_SINGULARITY_STATUS is "PREFERRED":
+#   - if $GWMS_SINGULARITY_STATUS_EFFECTIVE is "REQUIRED", exits with an error
+#   - else falls back to not using Singularity
 
 
 # OSPool - overriding this from singularity_lib.sh
@@ -482,8 +528,9 @@ GLIDEIN_DEBUG_OUTPUT=1
 
 if [[ "x$HAS_SINGULARITY" != "x1"  ||  "x$GWMS_SINGULARITY_PATH" == "x" ]]; then
     # No singularity needed; exit early.
-    info_dbg "Singularity is not supported - exiting early"
-    exit 0
+    msg="Singularity is not supported - continuing job without a container"
+    info_dbg "$msg"
+    exit_hook 0 "$msg"
 fi
 
 #############################################################################
@@ -520,7 +567,13 @@ export UNPACK_SIF
 
 if [ "x$GWMS_SINGULARITY_IMAGE" != "x" ]; then
     # intercept and maybe download the image
-    GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$GWMS_SINGULARITY_IMAGE") || exit 1
+    orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
+    GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
+    if [[ $ret != 0 ]]; then
+        # TODO add logs to the output
+        exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+    fi
+
 fi
 
 singularity_prepare_and_invoke "${@}"
