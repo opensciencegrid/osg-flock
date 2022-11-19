@@ -409,7 +409,6 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         echo "WantSandboxImage=true"
     fi
     echo "SINGULARITY_JOB=true"
-    echo ""
 }
 
 
