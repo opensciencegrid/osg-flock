@@ -266,7 +266,11 @@ set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_
 # the Singularity container outside of the glidein default
 # image.
 glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
-hook_path=$glidein_group_dir/itb-prepare-hook-lib
+if [[ -e $glidein_group_dir/prepare-hook ]]; then
+    hook_path=$glidein_group_dir/prepare-hook
+else
+    hook_path=$glidein_group_dir/itb-prepare-hook-lib
+fi
 chmod +x "$hook_path"
 # TODO: these can all be replaced with set_unexported_condor_config_attribute
 add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
