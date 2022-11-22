@@ -1,0 +1,121 @@
+#!/bin/bash
+#
+# This script is run *once* after the GWMS Singularity detection,
+# and can be used to do additional Singularity capability testing
+# and advertising.
+#
+
+glidein_config="$1"
+export glidein_config
+
+# make sure we do not put images in /tmp
+export TMPDIR="$PWD/tmp"
+mkdir -p $TMPDIR
+
+function info {
+    echo "INFO  " $@ 1>&2
+}
+
+function my_warn {
+    echo "WARN  " $@ 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
+}
+
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
+info "Determining extra Singularity capabilities..."
+
+if [ "$glidein_config" != "NONE" ]; then
+    ###########################################################
+    # import advertise and add_condor_vars_line functions
+    if [ "x$add_config_line_source" = "x" ]; then
+        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    fi
+
+    info "Sourcing $add_config_line_source"
+    source $add_config_line_source
+
+    # XXX Patch over add_config_line() with a safer version
+    # This will be fixed in gWMS 3.9.6
+    add_config_line() {
+        # Ignore the call if the exact config line is already in there
+        if ! grep -q "^${*}$" "${glidein_config}"; then
+            # Use temporary files to make sure multiple add_config_line() calls don't clobber
+            # the glidein_config.
+            local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
+            local tmp_config1="${glidein_config}.$r.1"
+            local tmp_config2="${glidein_config}.$r.2"
+
+            # Copy the glidein config so it doesn't get modified while we grep out the old value
+            if ! cp -p "${glidein_config}" "${tmp_config1}"; then
+                warn "Error writing ${tmp_config1}"
+                rm -f "${tmp_config1}"
+                exit 1
+            fi
+            grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
+            rm -f "${tmp_config1}"
+            if [ ! -f "${tmp_config2}" ]; then
+                warn "Error creating ${tmp_config2}"
+                exit 1
+            fi
+            # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
+            echo "$@" >> "${tmp_config2}"
+
+            # Replace glidein config atomically
+            if ! mv -f "${tmp_config2}" "${glidein_config}"; then
+                warn "Error updating ${glidein_config} from ${tmp_config2}"
+                rm -f "${tmp_config2}"
+                exit 1
+            fi
+        fi
+    }
+    # XXX End add_config_line() patch
+fi
+
+# source our helpers
+group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+if [ -e "$group_dir/itb-ospool-lib" ]; then
+    source "$group_dir/itb-ospool-lib"
+else
+    source "$group_dir/ospool-lib"
+fi
+
+# provide overrides for some sites/situations
+check_singularity_overrides
+
+# can the provided Singularity run .sif images?
+if check_singularity_sif_support; then
+    # make sure this goes false if we later figure out that
+    # singularity is not working correctly
+    advertise SINGULARITY_CAN_USE_SIF "HAS_SINGULARITY" "C"
+    # can the provided Singularity run registry images?
+    # Pulling from docker:// URLs requires creating a SIF first which is done in the tempdir and is cached in the cachedir
+    if check_singularity_registry_support; then
+        advertise SINGULARITY_CAN_USE_REGISTRY "SINGULARITY_CAN_USE_SIF && SINGULARITY_DISK_IS_FULL =!= True" "C"
+    else
+        advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
+    fi
+else
+    advertise SINGULARITY_CAN_USE_SIF "False" "C"
+    advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
+fi
+
+
+clause1='(SINGULARITY_CAN_USE_REGISTRY || !(size(TARGET.SingularityImage) >= 9 && substr(TARGET.SingularityImage, 0, 9) == "docker://"))'
+clause2='(SINGULARITY_CAN_USE_SIF || !(size(TARGET.SingularityImage) >= 4 && substr(TARGET.SingularityImage, -4) == ".sif"))'
+advertise SINGULARITY_START_CLAUSE "(!isString(TARGET.SingularityImage) || ( $clause1 && $clause2 ))"  "C"
+
+# Tell HTCondor the path to the Singularity binary; this is a config option not an atribute
+# $F(GWMS_SINGULARITY_PATH) will cause it to update if GWMS_SINGULARITY_PATH is updated
+add_condor_vars_line SINGULARITY C '\\$F\\(GWMS_SINGULARITY_PATH\\)' "+" "N" "N" "-"
