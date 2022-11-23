@@ -19,12 +19,8 @@ from pprint import pprint
 # pool, but will not be includeded in the 
 # demand calculations.
 core_schedds = [
-        'amundsen.grid.uchicago.edu',
-        'login-el7.xenon.ci-connect.net',
-        'login.snowmass21.io',
         'login04.osgconnect.net',
         'login05.osgconnect.net',
-        'scott.grid.uchicago.edu'
         ]
 
 def load_data():
