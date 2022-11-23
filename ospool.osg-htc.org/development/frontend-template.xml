@@ -139,7 +139,7 @@
             <file absfname="/opt/osg-flock/node-check/itb-singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/node-check/itb-osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/job-wrappers/itb-simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -220,7 +220,7 @@
             <file absfname="/opt/osg-flock/ospool-pilot/itb-canary/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb-canary/pilot/additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/ospool-pilot/itb-canary/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb-canary/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -303,7 +303,7 @@
             <file absfname="/opt/osg-flock/node-check/itb-singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/node-check/itb-osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/node-check/itb-osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/job-wrappers/itb-simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
