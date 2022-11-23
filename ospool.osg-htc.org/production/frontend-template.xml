@@ -166,6 +166,9 @@
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -226,6 +229,9 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -291,6 +297,9 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -359,6 +368,9 @@
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -419,6 +431,9 @@
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -477,6 +492,9 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -548,6 +566,9 @@
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -612,6 +633,9 @@
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -671,6 +695,9 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -806,6 +833,9 @@
             <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -870,6 +900,9 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
@@ -938,6 +971,9 @@
             <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -975,9 +1011,6 @@
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/osg-flock/stashcp/stash_plugin" after_entry="False" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/osg-flock/node-check/scitokens" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
