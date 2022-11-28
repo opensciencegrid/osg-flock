@@ -18,6 +18,8 @@ from pprint import pprint
 # list will still be able to join and use the
 # pool, but will not be includeded in the 
 # demand calculations.
+# This is defined later, once we know if we are
+# targetting itb or production environment.
 core_schedds = [
         'amundsen.grid.uchicago.edu',
         'login-el7.xenon.ci-connect.net',
@@ -149,6 +151,7 @@ def main():
     '''
     switch between the different modes and output the wanted config file
     '''
+    global core_schedds
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--target-env', action='store',
@@ -164,6 +167,22 @@ def main():
                         default=False, dest='htcondor_config',
                         help='Generate the HTCondor flock config')
     args = parser.parse_args()
+
+    if args.target_env == "development":
+        core_schedds = [
+            'login04.osgconnect.net',
+            'login05.osgconnect.net'
+            ]
+    else:
+        # production
+        core_schedds = [
+            'amundsen.grid.uchicago.edu',
+            'login-el7.xenon.ci-connect.net',
+            'login.snowmass21.io',
+            'login04.osgconnect.net',
+            'login05.osgconnect.net',
+            'scott.grid.uchicago.edu'
+            ]
 
     if args.gwms_frontend_config:
         data = load_data()
