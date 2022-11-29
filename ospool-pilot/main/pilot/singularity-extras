@@ -98,7 +98,7 @@ check_singularity_overrides
 if check_singularity_sif_support; then
     # make sure this goes false if we later figure out that
     # singularity is not working correctly
-    advertise SINGULARITY_CAN_USE_SIF "HAS_SINGULARITY" "C"
+    advertise SINGULARITY_CAN_USE_SIF "HAS_SINGULARITY && STASHCP_VERIFIED" "C"
 else
     advertise SINGULARITY_CAN_USE_SIF "False" "C"
 fi
