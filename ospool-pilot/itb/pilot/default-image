@@ -128,7 +128,7 @@ function determine_default_container_image {
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-        URL=http://data.isi.edu/osg/images/$IMAGE_NAME.sif
+        URL=http://stash.osgconnect.net/public/rynge/infrastructure/images/sif/$IMAGE_NAME.sif
         WEEK=$(date +'%V')
         (stash_download $IMAGE_PATH stash:///osgconnect/public/rynge/infrastructure/images/$WEEK/sif/$IMAGE_NAME.sif \
             || http_download $IMAGE_PATH $URL \
