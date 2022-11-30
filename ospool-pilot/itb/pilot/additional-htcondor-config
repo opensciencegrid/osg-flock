@@ -81,26 +81,35 @@ if [[ ! $CVMFS_BASE ]]; then
 fi
 
 # enable job duration and busy stats
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line STATISTICS_TO_PUBLISH_LIST "JobDuration, JobBusyTime"
 add_condor_vars_line STATISTICS_TO_PUBLISH_LIST "C" "-" "+" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 # black holes, oh my (https://opensciencegrid.atlassian.net/browse/OSPOOL-3)
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line IsBlackHole "IfThenElse(RecentJobDurationAvg is undefined, false, RecentJobDurationCount >= 10 && RecentJobDurationAvg < 180)"
 add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 # excessive load, probably due to swapping (https://opensciencegrid.atlassian.net/browse/OSPOOL-2)
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
 add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 # out of disk space (https://opensciencegrid.atlassian.net/browse/OSPOOL-4)
 # note: Unlike DISK, RESERVED_DISK is in megabytes.
 # As of July 2022, the HTCondor manual incorrectly states this is in kilobytes.
 # This change was verified by examining the code.
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line RESERVED_DISK "3000"
 add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 # use df and allocated cores to determine disk allocation (https://opensciencegrid.atlassian.net/browse/OSPOOL-5)
 # but only if we think we are not "whole node"
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
 total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
 if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
@@ -111,9 +120,11 @@ if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
         add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
     fi
 fi
+fi  # ! $IS_CONTAINER_PILOT
 
 # Hold jobs if they exceed allocated disk (OSPOOL-26)
 
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 # Helper macros
 set_unexported_condor_config_attribute  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
 set_unexported_condor_config_attribute  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
@@ -129,18 +140,23 @@ set_unexported_condor_config_attribute  WANT_SUSPEND  '$(disk_exceeded) =!= true
 set_unexported_condor_config_attribute  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
 set_unexported_condor_config_attribute  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
 set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
+fi  # ! $IS_CONTAINER_PILOT
 
 # End OSPOOL-26
 
 ###########################################################
 # potential fix for SU NAT issues
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line CCB_HEARTBEAT_INTERVAL "120"
 add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 ###########################################################
 # fix for chirp problem (Edgar)
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line CHIRP_DELAYED_UPDATE_PREFIX "Chirp*"
 add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 ###########################################################
 # debugging GSI
@@ -153,6 +169,7 @@ add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 
 ###########################################################
 # stashcp 
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 STASHCP=$PWD/client/stashcp
 STASHCP_DEBUG="-d"
 STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
@@ -201,6 +218,7 @@ else
     fi
     while read line; do warn "$line"; done < stashcp-test.log
 fi
+fi  # ! $IS_CONTAINER_PILOT
 
 ##################################################################
 # Generate a minimal `STARTER_JOB_ENVIRONMENT`, mostly composed of
@@ -214,6 +232,7 @@ fi
 # Removed $OSG_WN_TMP because any job should use the HTCondor-provided scratch dir.
 # Considered and not passed through:
 #   LANG
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 info "Calculating default job environment variables."
 
 job_env=
@@ -233,10 +252,12 @@ if [ ! -z ${!envvar+x} ]; then
 fi
 
 done
+fi  # ! $IS_CONTAINER_PILOT
 
 
 ###########################################################
 # Find available volumes and set up bind mounts for Singularity jobs
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 GLIDEIN_SINGULARITY_BINDPATH=`grep -i "^GLIDEIN_SINGULARITY_BINDPATH " $glidein_config | awk '{print $2}'`
 SINGULARITY_BIND_EXPR="/etc/hosts,/etc/localtime"
 OLDIFS=$IFS
@@ -258,19 +279,23 @@ IFS=$OLDIFS
 unset OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
+fi  # ! $IS_CONTAINER_PILOT
 
 # Glideinwms used /srv as the scratch directory, we should do the same
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
 set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
 # Run all jobs in singularity if we have it
 set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+fi  # ! $IS_CONTAINER_PILOT
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
 # the Singularity container outside of the glidein default
 # image.
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
 if [[ -e $glidein_group_dir/prepare-hook ]]; then
     hook_path=$glidein_group_dir/prepare-hook
@@ -285,10 +310,13 @@ add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
 add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
 add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
 add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 # debugging prepare job hook
+if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
 add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 ###########################################################
 
