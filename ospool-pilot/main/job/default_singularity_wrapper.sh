@@ -755,9 +755,11 @@ if [[ -z "$GWMS_SINGULARITY_REEXEC" ]]; then
 
         # Should we use a sif file directly or unpack it first?
         # Rerun the test from osgvo-default-image and warn if the results don't match what's advertised.
-        advertised_sif_support=$(get_prop_str "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" 0)
-        if [[ $advertised_sif_support == "HAS_SINGULARITY" ]]; then
+        advertised_sif_support=$(get_prop_str "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" "false" | tr A-Z a-z)
+        if [[ $advertised_sif_support != "false" ]]; then
             advertised_sif_support=1
+        else
+            advertised_sif_support=0
         fi
 
         UNPACK_SIF=1
