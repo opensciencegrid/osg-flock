@@ -706,7 +706,7 @@
          </files>
       </group>
 
-      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="False">
+      <group name="alloc-Frontera-CPU-TG-CHE200122" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -738,7 +738,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="CHE20009" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="CHE20009" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
             </credentials>
          </security>
          <attrs>
