@@ -533,6 +533,15 @@ if [[ "x$HAS_SINGULARITY" != "x1"  ||  "x$GWMS_SINGULARITY_PATH" == "x" ]]; then
     exit_hook 0 "$msg"
 fi
 
+# XXX For testing HookStatusCode functionality
+Test_Exit_Hook_Code=$(awk -F' = ' '/^Test_Exit_Hook_Code/ {print $2}' ${_CONDOR_JOB_AD:-.job.ad})
+if [[ $Test_Exit_Hook_Code ]]; then
+    Test_Exit_Hook_Message=$(awk -F' = ' '/^Test_Exit_Hook_Message/ {print $2}' ${_CONDOR_JOB_AD:-.job.ad} | tr -d '"')
+    info_dbg "Job specified Test_Exit_Hook_Code=${Test_Exit_Hook_Code}"
+    info_dbg "Test_Exit_Hook_Message=${Test_Exit_Hook_Message}"
+    exit_hook "${Test_Exit_Hook_Code}" "${Test_Exit_Hook_Message}"
+fi
+
 #############################################################################
 #
 # Will run w/ Singularity - prepare for it
