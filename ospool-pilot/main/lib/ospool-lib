@@ -42,13 +42,18 @@ function check_singularity_overunderlay {
     # in the container
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
+    local default_image=$(get_glidein_config_value SINGULARITY_IMAGES_DICT | sed 's/^default://')
+
+    if [ "x$default_image" = "x" ]; then
+        default_image="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el8:latest/"
+    fi
 
     # singularity is a prereq
     if [[ $has_singularity != "True" ]]; then
         return 0
     fi
 
-    output=$(timeout 60s $singularity_path run -B $PWD:/doesnotexist /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el8:latest/ /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path run -B $PWD:/doesnotexist $default_image /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
