@@ -36,6 +36,31 @@ function advertise {
     fi
 }
 
+function check_singularity_overunderlay {
+    # some sites have broken singularity overlay/underlay
+    # test this by trying to bind pwd to a nonexistent directory
+    # in the container
+    local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
+    local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
+
+    # singularity is a prereq
+    if [[ $has_singularity != "True" ]]; then
+        return 0
+    fi
+
+    output=$(timeout 60s $singularity_path run -B $PWD:/doesnotexist /cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el8:latest/ /bin/true 2>&1)
+    ret=$?
+
+    if [[ $ret != 0 ]]; then
+        # DEBUGGING
+        info "Error testing for overlay/underlay; output:"
+        info "$output"
+        return $ret
+    else
+        return 0
+    fi
+}
+
 function check_singularity_overrides {
     GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
     GLIDEIN_Site=$(get_glidein_config_value GLIDEIN_Site)
