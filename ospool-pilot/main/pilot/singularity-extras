@@ -91,6 +91,13 @@ else
     source "$group_dir/ospool-lib"
 fi
 
+# make sure singularity can do overlay/underlay
+if ! check_singularity_overunderlay; then
+    # disable Singularity, and why
+    advertise HAS_SINGULARITY "False" "C"
+    advertise SINGULARITY_COMMENT "Disabled due broken overlay/underlay" "S"
+fi
+
 # provide overrides for some sites/situations
 check_singularity_overrides
 
