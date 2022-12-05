@@ -91,10 +91,8 @@ add_config_line IsBlackHole "IfThenElse(RecentJobDurationAvg is undefined, false
 add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
 
 # excessive load, probably due to swapping (https://opensciencegrid.atlassian.net/browse/OSPOOL-2)
-if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
 add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
-fi  # ! $IS_CONTAINER_PILOT
 
 # out of disk space (https://opensciencegrid.atlassian.net/browse/OSPOOL-4)
 # note: Unlike DISK, RESERVED_DISK is in megabytes.
