@@ -1,3 +1,7 @@
+# This is a git blame ignoreRevsFile
+# If you do "git config --local blame.ignoreRevsFile=.git-blame-ignore-revs",
+# then commit hashes listed in this file will be skipped when doing "git blame".
+# This is useful for things like indentation or other whitespace changes that have no effect on the actual code.
 f55ca760131a9b2fc3543f75642844627c1a4a5a
 40879ee3305431f1309d10714b1ffea1afd08f72
 62c7f35990f136431f5770dfb5af6ba00178d8ee
