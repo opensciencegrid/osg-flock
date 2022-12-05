@@ -57,7 +57,7 @@ function advertise {
 
     if [ "$glidein_config" != "NONE" ]; then
         add_config_line_safe $key "$value"
-        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "+"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
     fi
 
     if [ "$atype" = "S" ]; then
@@ -207,6 +207,7 @@ if [ "$glidein_config" != "NONE" ]; then
     source $add_config_line_source
 
     # XXX Patch over add_config_line() with a safer version
+    # This will be fixed in gWMS 3.9.6
     add_config_line() {
         # Ignore the call if the exact config line is already in there
         if ! grep -q "^${*}$" "${glidein_config}"; then
