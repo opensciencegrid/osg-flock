@@ -87,10 +87,8 @@ add_condor_vars_line STATISTICS_TO_PUBLISH_LIST "C" "-" "+" "N" "N" "-"
 fi  # ! $IS_CONTAINER_PILOT
 
 # black holes, oh my (https://opensciencegrid.atlassian.net/browse/OSPOOL-3)
-if [[ ! $IS_CONTAINER_PILOT ]]; then
 add_config_line IsBlackHole "IfThenElse(RecentJobDurationAvg is undefined, false, RecentJobDurationCount >= 10 && RecentJobDurationAvg < 180)"
 add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
-fi  # ! $IS_CONTAINER_PILOT
 
 # excessive load, probably due to swapping (https://opensciencegrid.atlassian.net/browse/OSPOOL-2)
 if [[ ! $IS_CONTAINER_PILOT ]]; then
