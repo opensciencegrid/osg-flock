@@ -107,6 +107,7 @@ fi  # ! $IS_CONTAINER_PILOT
 # use df and allocated cores to determine disk allocation (https://opensciencegrid.atlassian.net/browse/OSPOOL-5)
 # but only if we think we are not "whole node"
 if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # This logic is currently not used in container pilots
 allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
 total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
 if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
