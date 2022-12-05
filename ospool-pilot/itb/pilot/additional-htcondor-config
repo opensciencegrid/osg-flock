@@ -99,6 +99,7 @@ add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 # As of July 2022, the HTCondor manual incorrectly states this is in kilobytes.
 # This change was verified by examining the code.
 if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # Not currently used in container pilots
 add_config_line RESERVED_DISK "3000"
 add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
 fi  # ! $IS_CONTAINER_PILOT
