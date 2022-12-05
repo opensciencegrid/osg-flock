@@ -120,9 +120,9 @@ if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
 fi
 fi  # ! $IS_CONTAINER_PILOT
 
+
 # Hold jobs if they exceed allocated disk (OSPOOL-26)
 
-if [[ ! $IS_CONTAINER_PILOT ]]; then
 # Helper macros
 set_unexported_condor_config_attribute  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
 set_unexported_condor_config_attribute  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
@@ -138,9 +138,9 @@ set_unexported_condor_config_attribute  WANT_SUSPEND  '$(disk_exceeded) =!= true
 set_unexported_condor_config_attribute  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
 set_unexported_condor_config_attribute  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
 set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
-fi  # ! $IS_CONTAINER_PILOT
 
 # End OSPOOL-26
+
 
 ###########################################################
 # potential fix for SU NAT issues
