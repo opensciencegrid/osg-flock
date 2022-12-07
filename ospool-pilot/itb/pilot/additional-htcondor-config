@@ -143,11 +143,11 @@ set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exc
 
 
 ###########################################################
-# potential fix for SU NAT issues
-if [[ ! $IS_CONTAINER_PILOT ]]; then
+# NAT setups may have an idle timeout where they silently
+# drop/forget a connection if they haven't seen packets go
+# through.  Send heartbeats more frequently to avoid this.
 add_config_line CCB_HEARTBEAT_INTERVAL "120"
 add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
-fi  # ! $IS_CONTAINER_PILOT
 
 
 ###########################################################
