@@ -162,6 +162,11 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 ###########################################################
 # stashcp 
 if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # The container pilot has its own test for stashcp and
+    # stash_plugin.  I'm not sure which one I like better,
+    # and don't want to spend the time merging them since
+    # they're both likely to change once the plugin is
+    # 'bundled' with HTCondor itself. -mat 2022-12-07
 STASHCP=$PWD/client/stashcp
 STASHCP_DEBUG="-d"
 STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
