@@ -191,11 +191,6 @@ if [ "x$TIME" != "x" ]; then
     TIME="$TIME --output=stashcp-test.time --format=%e"
 fi
 
-glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
-if [[ -z $OSG_SITE_NAME ]]; then
-    OSG_SITE_NAME=$glidein_site
-fi
-
 # also run a simple test (TODO: make this IGWN-specific)
 info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
 if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
@@ -232,6 +227,11 @@ fi  # ! $IS_CONTAINER_PILOT
 #   LANG
 if [[ ! $IS_CONTAINER_PILOT ]]; then
 info "Calculating default job environment variables."
+
+glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
+if [[ -z $OSG_SITE_NAME ]]; then
+    OSG_SITE_NAME=$glidein_site
+fi
 
 job_env=
 for envvar in \
