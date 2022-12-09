@@ -229,7 +229,6 @@ if [[ -z $OSG_SITE_NAME ]]; then
     OSG_SITE_NAME=$glidein_site
 fi
 
-job_env=
 for envvar in \
      OSG_SITE_NAME \
      OSG_HOSTNAME \
