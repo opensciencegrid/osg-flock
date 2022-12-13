@@ -483,6 +483,11 @@ singularity_get_image() {
     local s_restrictions="$2"
     local singularity_image
 
+    info_dbg "SINGULARITY_IMAGE_DEFAULT6: $SINGULARITY_IMAGE_DEFAULT6"
+    info_dbg "SINGULARITY_IMAGE_DEFAULT7: $SINGULARITY_IMAGE_DEFAULT7"
+    info_dbg "SINGULARITY_IMAGE_DEFAULT: $SINGULARITY_IMAGE_DEFAULT"
+    info_dbg "SINGULARITY_IMAGES_DICT: $SINGULARITY_IMAGES_DICT"
+
     # To support legacy variables SINGULARITY_IMAGE_DEFAULT, SINGULARITY_IMAGE_DEFAULT6, SINGULARITY_IMAGE_DEFAULT7
     # values are added to SINGULARITY_IMAGES_DICT
     # TODO: These override existing dict values OK for legacy support (in the future we'll add && [ dict_check_key rhel6 ] to avoid this)
