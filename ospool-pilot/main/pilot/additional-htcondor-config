@@ -195,6 +195,37 @@ else
     while read line; do warn "$line"; done < stashcp-test.log
 fi
 
+##################################################################
+# Generate a minimal `STARTER_JOB_ENVIRONMENT`, mostly composed of
+# informational variables that are considered safe to always leak to
+# the job environment.
+#
+# Source of OSG_* variables:
+#   https://github.com/opensciencegrid/osg-configure/blob/dcd02313500cf113e8a6c27571197b4803295774/scripts/osg-configure#L27
+# Removed the following ones that don't appear actively used anymore:
+#  OSG_GRID, OSG_APP, OSG_DATA, OSG_SITE_READ, OSG_SITE_WRITE
+# Removed $OSG_WN_TMP because any job should use the HTCondor-provided scratch dir.
+# Considered and not passed through:
+#   LANG
+info "Calculating default job environment variables."
+
+job_env=
+for envvar in \
+     OSG_SITE_NAME \
+     OSG_HOSTNAME \
+     OSG_SQUID_LOCATION \
+     http_proxy \
+     https_proxy \
+     FTP_PROXY \
+     X509_USER_PROXY \
+; do
+
+if [ ! -z ${!envvar+x} ]; then
+  add_config_line "${envvar}" "${!envvar}"
+  add_condor_vars_line "${envvar}" "C" "-" "${envvar}" "N" "N" "+"
+fi
+
+done
 ###########################################################
 
 echo "All done (osgvo-additional-htcondor-config)"
