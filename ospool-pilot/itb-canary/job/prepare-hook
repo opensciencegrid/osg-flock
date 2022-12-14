@@ -329,91 +329,14 @@ function download_or_build_singularity_image () {
 }
 
 
-# TODO Deal with singularity_exit_or_fallback() which:
-# - If $GWMS_SINGULARITY_STATUS is "PREFERRED":
-#   - if $GWMS_SINGULARITY_STATUS_EFFECTIVE is "REQUIRED", exits with an error
-#   - else falls back to not using Singularity
-
-
 # OSPool - overriding this from singularity_lib.sh
 singularity_prepare_and_invoke() {
-    # Code moved into a function to allow early return in case of failure
-    # In case of failure: 1. it invokes singularity_exit_or_fallback which exits if Singularity is required
-    #   2. it interrupts itself and returns anyway
-    # The function returns in case the Singularity setup fails 
-    # In:
-    #   SINGULARITY_IMAGES_DICT: dictionary w/ Singularity images
-    #   $SINGULARITY_IMAGE_RESTRICTIONS: constraints on the Singularity image
-    # Using:
-    #   GWMS_SINGULARITY_IMAGE, 
-    #   or GWMS_SINGULARITY_IMAGE_RESTRICTIONS (SINGULARITY_IMAGES_DICT via singularity_get_image)
-    #      DESIRED_OS, GLIDEIN_REQUIRED_OS, REQUIRED_OS
-    #   $OSG_SITE_NAME (in monitoring)
-    #   GWMS_THIS_SCRIPT 
-    #   $GLIDEIN_Tmp_Dir GWMS_SINGULARITY_EXTRA_OPTS 
-    #   GWMS_SINGULARITY_OUTSIDE_PWD_LIST GWMS_SINGULARITY_OUTSIDE_PWD GWMS_THIS_SCRIPT_DIR _CONDOR_JOB_IWD
-    #   GWMS_BASE_SUBDIR - if defined will be bound to the glidein directory (will be accessible from singularity)
-    # Out:
-    #   GWMS_SINGULARITY_IMAGE GWMS_SINGULARITY_IMAGE_HUMAN GWMS_SINGULARITY_OUTSIDE_PWD_LIST SINGULARITY_WORKDIR GWMS_SINGULARITY_EXTRA_OPTS GWMS_SINGULARITY_REEXEC
-    # If  image is not provided, load the default one
-    # Custom URIs: http://singularity.lbl.gov/user-guide#supported-uris
-    
-    # Choose the singularity image
-    if [[ -z "$GWMS_SINGULARITY_IMAGE" ]]; then
-        # No image requested by the job
-        # Use OS matching to determine default; otherwise, set to the global default.
-        #  # Correct some legacy names? What if they are used in the dictionary?
-        #  REQUIRED_OS="`echo ",$REQUIRED_OS," | sed "s/,el7,/,rhel7,/;s/,el6,/,rhel6,/;s/,+/,/g;s/^,//;s/,$//"`"
-        DESIRED_OS=$(list_get_intersection "${GLIDEIN_REQUIRED_OS:-any}" "${REQUIRED_OS:-any}")
-        if [[ -z "$DESIRED_OS" ]]; then
-            msg="ERROR   VO (or job) REQUIRED_OS and Entry GLIDEIN_REQUIRED_OS have no intersection. Cannot select a Singularity image."
-            singularity_exit_or_fallback "$msg" 1
-            return
-        fi
-        if [[ "x$DESIRED_OS" = xany ]]; then
-            # Prefer the platforms default,rhel7,rhel6,rhel8, otherwise pick the first one available
-            GWMS_SINGULARITY_IMAGE=$(singularity_get_image default,rhel7,rhel6,rhel8 ${GWMS_SINGULARITY_IMAGE_RESTRICTIONS:+$GWMS_SINGULARITY_IMAGE_RESTRICTIONS,}any)
-        else
-            GWMS_SINGULARITY_IMAGE=$(singularity_get_image "$DESIRED_OS" $GWMS_SINGULARITY_IMAGE_RESTRICTIONS)
-        fi
-    fi
-
-    # At this point, GWMS_SINGULARITY_IMAGE is still empty, something is wrong
-    if [[ -z "$GWMS_SINGULARITY_IMAGE" ]]; then
-        msg="\
-ERROR   If you get this error when you did not specify required OS, your VO does not support any valid default Singularity image
-        If you get this error when you specified required OS, your VO does not support any valid image for that OS"
-        singularity_exit_or_fallback "$msg" 1
-        return
-    fi
-
-    # check that the image is actually available (but only for /cvmfs ones)
-    if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
-        if ! ls -l "$GWMS_SINGULARITY_IMAGE" >/dev/null; then
-            msg="\
-ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
-        Site and node: $OSG_SITE_NAME $(hostname -f)"
-            singularity_exit_or_fallback "$msg" 1 10m
-            return
-        fi
-    fi
-
-    if [[ "$GWMS_SINGULARITY_IMAGE" != *://* && ! -e "$GWMS_SINGULARITY_IMAGE" ]]; then
-        msg="\
-ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
-        Site and node: $OSG_SITE_NAME $(hostname -f)"
-        singularity_exit_or_fallback "$msg" 1 10m
-        return
-    fi
-
     # Put a human readable version of the image in the env before expanding it - useful for monitoring
     export GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
 
     # for /cvmfs based directory images, expand the path without symlinks so that
     # the job can stay within the same image for the full duration
     if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
-        # Make sure CVMFS is mounted in Singularity
-        export GWMS_SINGULARITY_BIND_CVMFS=1
         if (cd "$GWMS_SINGULARITY_IMAGE") >/dev/null 2>&1; then
             # This will fail for images that are not expanded in CVMFS, just ignore the failure
             local new_image_path
@@ -461,66 +384,6 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     exit_hook 0 "Using Singularity image $GWMS_SINGULARITY_IMAGE"
 }
 
-
-# OSGVO - overrideing this from singularity_lib.sh
-singularity_get_image() {
-    # Return on stdout the Singularity image
-    # Let caller decide what to do if there are problems
-    # In:
-    #  1: a comma separated list of platforms (OS) to choose the image
-    #  2: a comma separated list of restrictions (default: none)
-    #     - cvmfs: image must be on CVMFS
-    #     - any: any image is OK, $1 was just a preference (the first one in SINGULARITY_IMAGES_DICT is used if none of the preferred is available)
-    #  SINGULARITY_IMAGES_DICT
-    #  SINGULARITY_IMAGE_DEFAULT (legacy)
-    #  SINGULARITY_IMAGE_DEFAULT6 (legacy)
-    #  SINGULARITY_IMAGE_DEFAULT7 (legacy)
-    # Out:
-    #  Singularity image path/URL returned on stdout
-    #  EC: 0: OK, 1: Empty/no image for the desired OS (or for any), 2: File not existing, 3: restriction not met (e.g. image not on cvmfs)
-
-    local s_platform="$1"
-    if [[ -z "$s_platform" ]]; then
-        warn "No desired platform, unable to select a Singularity image"
-        return 1
-    fi
-    local s_restrictions="$2"
-    local singularity_image
-
-    info_dbg "SINGULARITY_IMAGE_DEFAULT6: $SINGULARITY_IMAGE_DEFAULT6"
-    info_dbg "SINGULARITY_IMAGE_DEFAULT7: $SINGULARITY_IMAGE_DEFAULT7"
-    info_dbg "SINGULARITY_IMAGE_DEFAULT: $SINGULARITY_IMAGE_DEFAULT"
-    info_dbg "SINGULARITY_IMAGES_DICT: $SINGULARITY_IMAGES_DICT"
-
-    # To support legacy variables SINGULARITY_IMAGE_DEFAULT, SINGULARITY_IMAGE_DEFAULT6, SINGULARITY_IMAGE_DEFAULT7
-    # values are added to SINGULARITY_IMAGES_DICT
-    # TODO: These override existing dict values OK for legacy support (in the future we'll add && [ dict_check_key rhel6 ] to avoid this)
-    [[ -n "$SINGULARITY_IMAGE_DEFAULT6" ]] && SINGULARITY_IMAGES_DICT="`dict_set_val SINGULARITY_IMAGES_DICT rhel6 "$SINGULARITY_IMAGE_DEFAULT6"`"
-    [[ -n "$SINGULARITY_IMAGE_DEFAULT7" ]] && SINGULARITY_IMAGES_DICT="`dict_set_val SINGULARITY_IMAGES_DICT rhel7 "$SINGULARITY_IMAGE_DEFAULT7"`"
-    [[ -n "$SINGULARITY_IMAGE_DEFAULT" ]] && SINGULARITY_IMAGES_DICT="`dict_set_val SINGULARITY_IMAGES_DICT default "$SINGULARITY_IMAGE_DEFAULT"`"
-
-    # [ -n "$s_platform" ] not needed, s_platform is never null here (verified above)
-    # Try a match first, then check if there is "any" in the list
-    singularity_image="`dict_get_val SINGULARITY_IMAGES_DICT "$s_platform"`"
-    if [[ -z "$singularity_image" && ",${s_platform}," = *",any,"* ]]; then
-        # any means that any image is OK, take the 'default' one and if not there the   first one
-        singularity_image="`dict_get_val SINGULARITY_IMAGES_DICT default`"
-        [[ -z "$singularity_image" ]] && singularity_image="`dict_get_first SINGULARITY_IMAGES_DICT`"
-    fi
-
-    # At this point, GWMS_SINGULARITY_IMAGE is still empty, something is wrong
-    if [[ -z "$singularity_image" ]]; then
-        [[ -z "$SINGULARITY_IMAGES_DICT" ]] && warn "No Singularity image available (SINGULARITY_IMAGES_DICT is empty)" ||
-                warn "No Singularity image available for the required platforms ($s_platform)"
-        return 1
-    fi
-
-    singularity_image=$(download_or_build_singularity_image "$singularity_image") || return 1
-    info_dbg "bind-path default (cvmfs:$GWMS_SINGULARITY_BIND_CVMFS, hostlib:$([ -n "$HOST_LIBS" ] && echo 1), ocl:$([ -e /etc/OpenCL/vendors ] && echo 1)): $GWMS_SINGULARITY_WRAPPER_BINDPATHS_DEFAULTS"
-    info_dbg "Final image: $singularity_image"
-
-    echo "$singularity_image"
-}
 
 # Get things like GWMS_SINGULARITY_PATH from the glidein_config
 setup_from_environment
@@ -578,15 +441,20 @@ if [[ $advertised_sif_support != $detected_sif_support ]]; then
 fi
 export UNPACK_SIF
 
-if [ "x$GWMS_SINGULARITY_IMAGE" != "x" ]; then
-    # intercept and maybe download the image
-    orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
-    GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
-    if [[ $ret != 0 ]]; then
-        # TODO add logs to the output
-        exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+if [[ ! $GWMS_SINGULARITY_IMAGE ]]; then
+    # No singularity image specified but this site supports singularity. Get the default.
+    GWMS_SINGULARITY_IMAGE=$(dict_get_val SINGULARITY_IMAGES_DICT default); ret=$?
+    if [[ $ret != 0 || ! $GWMS_SINGULARITY_IMAGE ]]; then
+        exit_hook $ret "Error getting default Singularity image; SINGULARITY_IMAGES_DICT=\"$SINGULARITY_IMAGES_DICT\""
     fi
+fi
 
+# intercept and maybe download the image
+orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
+GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
+if [[ $ret != 0 ]]; then
+    # TODO add logs to the output
+    exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
 fi
 
 singularity_prepare_and_invoke "${@}"
