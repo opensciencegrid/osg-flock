@@ -329,27 +329,27 @@ function download_or_build_singularity_image () {
 }
 
 
-# OSPool - overriding this from singularity_lib.sh
-singularity_prepare_and_invoke() {
-    # Put a human readable version of the image in the env before expanding it - useful for monitoring
-    export GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
-
+maybe_expand_cvmfs_image_path () {
     # for /cvmfs based directory images, expand the path without symlinks so that
     # the job can stay within the same image for the full duration
-    if cvmfs_path_in_cvmfs "$GWMS_SINGULARITY_IMAGE"; then
-        if (cd "$GWMS_SINGULARITY_IMAGE") >/dev/null 2>&1; then
+    local image_path="$1"
+    if cvmfs_path_in_cvmfs "$image_path"; then
+        if (cd "$image_path") >/dev/null 2>&1; then
             # This will fail for images that are not expanded in CVMFS, just ignore the failure
             local new_image_path
-            new_image_path=$( (cd "$GWMS_SINGULARITY_IMAGE" && pwd -P) 2>/dev/null )
+            new_image_path=$( (cd "$image_path" && pwd -P) 2>/dev/null )
             if [[ -n "$new_image_path" ]]; then
-                GWMS_SINGULARITY_IMAGE=$new_image_path
+                echo "$new_image_path"
+                return
             fi
         fi
     fi
+    # Image not in /cvmfs or failure to expand - return the original
+    echo "$image_path"
+}
 
-    info_dbg "using image $GWMS_SINGULARITY_IMAGE_HUMAN ($GWMS_SINGULARITY_IMAGE)"
-    # Singularity image is OK, continue w/ other init
 
+prepare_scratch_dir() {
     # Copy $GWMS_DIR (bin, lib, ...) into the current directory (i.e. the scratch
     # directory) which will be bind-mounted as /srv inside the container.
     [[ -z "$GWMS_SUBDIR" ]] && { GWMS_SUBDIR=".gwms.d"; warn "GWMS_SUBDIR was undefined, setting to '.gwms.d'"; }
@@ -372,7 +372,11 @@ singularity_prepare_and_invoke() {
     if [[ -n $SCRIPT_LOG && -f $SCRIPT_LOG ]]; then
         mv -f "$SCRIPT_LOG" "$GWMS_SUBDIR/prepare-hook.log"
     fi
+}
 
+
+output_new_classad_attrs () {
+    # Print classad attrs for condor to launch the job using container universe.
     echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
     if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
         echo "WantSIF=true"
@@ -381,7 +385,6 @@ singularity_prepare_and_invoke() {
     fi
     echo "SINGULARITY_JOB=true"
 
-    exit_hook 0 "Using Singularity image $GWMS_SINGULARITY_IMAGE"
 }
 
 
@@ -457,4 +460,11 @@ if [[ $ret != 0 ]]; then
     exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
 fi
 
-singularity_prepare_and_invoke "${@}"
+# Put a human readable version of the image in the env before expanding it - useful for monitoring
+export GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
+GWMS_SINGULARITY_IMAGE=$(maybe_expand_cvmfs_image_path "$GWMS_SINGULARITY_IMAGE")
+
+prepare_scratch_dir
+output_new_classad_attrs
+
+exit_hook 0 "Using Singularity image $GWMS_SINGULARITY_IMAGE_HUMAN"
