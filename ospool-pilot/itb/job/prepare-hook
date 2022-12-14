@@ -143,10 +143,7 @@ else
 fi
 export GWMS_DIR
 
-# Calculating full version number, including md5 sums form the wrapper and singularity_lib
-GWMS_VERSION_SINGULARITY_WRAPPER="${GWMS_VERSION_SINGULARITY_WRAPPER}_$(md5sum "$GWMS_THIS_SCRIPT" 2>/dev/null | cut -d ' ' -f1)_$(md5sum "${GWMS_AUX_DIR}/singularity_lib.sh" 2>/dev/null | cut -d ' ' -f1)"
-info_dbg "GWMS singularity wrapper ($GWMS_VERSION_SINGULARITY_WRAPPER) starting, $(date). Imported singularity_lib.sh. glidein_config ($glidein_config)."
-info_dbg "$GWMS_THIS_SCRIPT, in $(pwd), list: $(ls -al)"
+
 
 function get_glidein_config_value {
     # extracts a config attribute value from
@@ -159,6 +156,7 @@ function get_glidein_config_value {
     VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
 }
+
 
 # OS Pool helpers
 # source our helpers
@@ -448,6 +446,10 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
     mkdir -p "$GWMS_AUX_SUBDIR"
     cp "${GWMS_AUX_DIR}/singularity_lib.sh" "$GWMS_AUX_SUBDIR/"
 
+    if [[ -n $SCRIPT_LOG && -f $SCRIPT_LOG ]]; then
+        mv -f "$SCRIPT_LOG" "$GWMS_SUBDIR/prepare-hook.log"
+    fi
+
     echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
     if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
         echo "WantSIF=true"
@@ -455,6 +457,8 @@ ERROR   Unable to access the Singularity image: $GWMS_SINGULARITY_IMAGE
         echo "WantSandboxImage=true"
     fi
     echo "SINGULARITY_JOB=true"
+
+    exit_hook 0 "Using Singularity image $GWMS_SINGULARITY_IMAGE"
 }
 
 
@@ -520,6 +524,8 @@ singularity_get_image() {
 
 # Get things like GWMS_SINGULARITY_PATH from the glidein_config
 setup_from_environment
+
+SCRIPT_LOG="$PWD/.prepare-hook.log"  # for debugging
 
 info_dbg "Location of singularity: $GWMS_SINGULARITY_PATH"
 
