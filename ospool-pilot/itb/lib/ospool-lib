@@ -154,7 +154,7 @@ function check_singularity_sif_support {
     # Grab an alpine image from somewhere; ok to download each time since
     # it's like 3 megs
     local cvmfs_alpine="/cvmfs/stash.osgstorage.org/osgconnect/public/rynge/infrastructure/images/static/library__alpine__latest.sif"
-    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
+    local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
     local sylabs_alpine="library://alpine:3"
     local work_dir=$(get_glidein_config_value GLIDEIN_WORK_DIR)
     local image_dir="$work_dir/../images"
@@ -180,7 +180,7 @@ function check_singularity_sif_support {
     # only download once
     if [ ! -e $image_dir/gwms-alpine.sif.log ]; then
         (cp "$cvmfs_alpine" $image_dir/gwms-alpine.sif ||
-             timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$osghub_alpine" ||
+             timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$static_registry_alpine" ||
              timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$sylabs_alpine" ||
              my_warn "All sources failed - could not create gwms-alpine.sif"
         ) &> $image_dir/gwms-alpine.sif.log; ret=$?
@@ -212,7 +212,7 @@ function check_singularity_registry_support {
     # unpack it into a temporary sandbox first, nonzero otherwise.
     # This also tests building a SIF from a registry image
     #
-    local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
+    local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
 
@@ -221,7 +221,7 @@ function check_singularity_registry_support {
         return 1
     fi
 
-    output=$(timeout 60s $singularity_path run --disable-cache $osghub_alpine /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path run --disable-cache $static_registry_alpine /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
