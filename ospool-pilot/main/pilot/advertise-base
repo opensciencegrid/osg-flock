@@ -38,12 +38,12 @@ OSG_GLIDEIN_VERSION=655
 glidein_config="$1"
 
 function info {
-    echo "INFO  " $@ 1>&2
+    echo "INFO  " "$@" 1>&2
 }
 
 function my_warn {
-    echo "WARN  " $@ 1>&2
-    export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
+    echo "WARN  " "$@" 1>&2
+    export GLIDEIN_VALIDATION_WARNINGS="$*. $GLIDEIN_VALIDATION_WARNINGS"
 }
 
 function advertise {
