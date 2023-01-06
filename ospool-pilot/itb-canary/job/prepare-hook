@@ -465,7 +465,7 @@ if [[ $GWMS_SINGULARITY_IMAGE ]]; then
     GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
     if [[ $ret != 0 ]]; then
         # TODO add logs to the output
-        exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+        exit_hook "$(( 20 + $ret ))" "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
     fi
 
     # Save the human readable version of the image before expanding it so we can use it in the exit message
