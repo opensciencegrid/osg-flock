@@ -460,12 +460,15 @@ elif [[ ! -e $OSG_DEFAULT_SINGULARITY_IMAGE ]]
 fi
 
 if [[ $GWMS_SINGULARITY_IMAGE ]]; then
-    # intercept and maybe download the image
-    orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
-    GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
-    if [[ $ret != 0 ]]; then
-        # TODO add logs to the output
-        exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+    # TODO: Should we add a sanity check here? Maybe run file(1) or at least [[ -s $GWMS_SINGULARITY_IMAGE ]] ?
+    if [[ ! -e $GWMS_SINGULARITY_IMAGE ]]; then
+        # intercept and maybe download the image
+        orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
+        GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
+        if [[ $ret != 0 ]]; then
+            # TODO add logs to the output
+            exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+        fi
     fi
 
     # Save the human readable version of the image before expanding it so we can use it in the exit message
