@@ -253,7 +253,7 @@ for mntpoint in $GLIDEIN_SINGULARITY_BINDPATH "${CVMFS_BASE}:/cvmfs:ro" /etc/Ope
     fi
 done
 IFS=$OLDIFS
-unset $OLDIFS
+unset OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
