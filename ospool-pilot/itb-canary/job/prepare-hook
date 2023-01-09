@@ -379,14 +379,7 @@ output_new_classad_attrs () {
     # Print classad attrs for condor to launch the job using container universe.
     if [[ $GWMS_SINGULARITY_IMAGE ]]; then
         echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
-        # WantSIF or WantSandboxImage are not necessary as long as we set SINGULARITY_JOB
-        # if [[ -f $GWMS_SINGULARITY_IMAGE ]]; then
-        #     echo "WantSIF=true"
-        # else
-        #     echo "WantSandboxImage=true"
-        # fi
     fi
-    echo "SINGULARITY_JOB=true"
 }
 
 
