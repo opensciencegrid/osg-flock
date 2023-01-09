@@ -377,14 +377,9 @@ prepare_scratch_dir() {
 
 output_new_classad_attrs () {
     # Print classad attrs for condor to launch the job using container universe.
-    echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
-    if [ -f "$GWMS_SINGULARITY_IMAGE" ]; then
-        echo "WantSIF=true"
-    else
-        echo "WantSandboxImage=true"
+    if [[ $GWMS_SINGULARITY_IMAGE ]]; then
+        echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
     fi
-    echo "SINGULARITY_JOB=true"
-
 }
 
 
@@ -444,27 +439,41 @@ if [[ $advertised_sif_support != $detected_sif_support ]]; then
 fi
 export UNPACK_SIF
 
-if [[ ! $GWMS_SINGULARITY_IMAGE ]]; then
-    # No singularity image specified but this site supports singularity. Get the default.
-    GWMS_SINGULARITY_IMAGE=$(dict_get_val SINGULARITY_IMAGES_DICT default); ret=$?
-    if [[ $ret != 0 || ! $GWMS_SINGULARITY_IMAGE ]]; then
-        exit_hook $ret "Error getting default Singularity image; SINGULARITY_IMAGES_DICT=\"$SINGULARITY_IMAGES_DICT\""
+OSG_DEFAULT_SINGULARITY_IMAGE="$(get_glidein_config_value OSG_DEFAULT_SINGULARITY_IMAGE)"
+# Verify we have a default image and that it exists.
+# I am being very strict about this because
+# - OSG_DEFAULT_SINGULARITY_IMAGE should be defined in this glidein version
+# - the image should have been downloaded before the pilot started
+if [[ ! $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
+    # exit_hook_stop_pilot 305 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"
+    exit_hook_stop_pilot 5 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"  # DEBUG - put the job on hold
+elif [[ ! -e $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
+    # exit_hook_stop_pilot 306 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"
+    exit_hook_stop_pilot 6 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"  # DEBUG - put the job on hold
+fi
+
+if [[ $GWMS_SINGULARITY_IMAGE ]]; then
+    # TODO: Should we add a sanity check here? Maybe run file(1) or at least [[ -s $GWMS_SINGULARITY_IMAGE ]] ?
+    if [[ ! -e $GWMS_SINGULARITY_IMAGE ]]; then
+        # intercept and maybe download the image
+        orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
+        GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
+        if [[ $ret != 0 ]]; then
+            # TODO add logs to the output
+            exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+        fi
     fi
-fi
 
-# intercept and maybe download the image
-orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
-GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
-if [[ $ret != 0 ]]; then
-    # TODO add logs to the output
-    exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
+    # Save the human readable version of the image before expanding it so we can use it in the exit message
+    # not exported -- vars exported in the job hook don't end up in the job
+    GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
+    GWMS_SINGULARITY_IMAGE=$(maybe_expand_cvmfs_image_path "$GWMS_SINGULARITY_IMAGE")
+    msg="Using Singularity image $GWMS_SINGULARITY_IMAGE_HUMAN"
+else
+    msg="Using default Singularity image $OSG_DEFAULT_SINGULARITY_IMAGE"
 fi
-
-# Put a human readable version of the image in the env before expanding it - useful for monitoring
-export GWMS_SINGULARITY_IMAGE_HUMAN="$GWMS_SINGULARITY_IMAGE"
-GWMS_SINGULARITY_IMAGE=$(maybe_expand_cvmfs_image_path "$GWMS_SINGULARITY_IMAGE")
 
 prepare_scratch_dir
 output_new_classad_attrs
 
-exit_hook 0 "Using Singularity image $GWMS_SINGULARITY_IMAGE_HUMAN"
+exit_hook 0 "$msg"
