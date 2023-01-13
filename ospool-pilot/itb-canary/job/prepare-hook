@@ -411,19 +411,12 @@ info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
 advertised_sif_support=$(get_prop_str "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" "false" | tr A-Z a-z)
 if [[ $advertised_sif_support != "false" ]]; then
     advertised_sif_support=1
+    UNPACK_SIF=0
 else
     advertised_sif_support=0
+    UNPACK_SIF=1
 fi
 
-UNPACK_SIF=1
-detected_sif_support=0
-if check_singularity_sif_support &>/dev/null; then
-    detected_sif_support=1
-    UNPACK_SIF=0
-fi
-if [[ $advertised_sif_support != $detected_sif_support ]]; then
-    info_dbg "SIF support: advertised SINGULARITY_CAN_USE_SIF ${advertised_sif_support} != detected ${detected_sif_support}; using detected."
-fi
 export UNPACK_SIF
 
 OSG_DEFAULT_SINGULARITY_IMAGE="$(get_glidein_config_value OSG_DEFAULT_SINGULARITY_IMAGE)"
