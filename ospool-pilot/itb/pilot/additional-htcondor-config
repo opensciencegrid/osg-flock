@@ -249,7 +249,6 @@ done
 
 ###########################################################
 # Find available volumes and set up bind mounts for Singularity jobs
-if [[ ! $IS_CONTAINER_PILOT ]]; then
 GLIDEIN_SINGULARITY_BINDPATH=`grep -i "^GLIDEIN_SINGULARITY_BINDPATH " $glidein_config | awk '{print $2}'`
 SINGULARITY_BIND_EXPR="/etc/hosts,/etc/localtime"
 OLDIFS=$IFS
@@ -271,7 +270,6 @@ IFS=$OLDIFS
 unset OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
-fi  # ! $IS_CONTAINER_PILOT
 
 # Glideinwms used /srv as the scratch directory, we should do the same
 if [[ ! $IS_CONTAINER_PILOT ]]; then
