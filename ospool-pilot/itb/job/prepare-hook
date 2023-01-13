@@ -111,17 +111,11 @@ export PATH=$PATH
 [[ -z "$glidein_config" ]] && [[ -e "$GWMS_THIS_SCRIPT_DIR/glidein_config" ]] &&
     export glidein_config="$GWMS_THIS_SCRIPT_DIR/glidein_config"
 
-# error_gen defined also in singularity_lib.sh
-[[ -e "$glidein_config" ]] && error_gen="$(grep '^ERROR_GEN_PATH ' "$glidein_config" | cut -d ' ' -f 2-)"
-
 # Source utility files, outside and inside Singularity
 # condor_job_wrapper is in the base directory, singularity_lib.sh in main
 # and copied to RUNDIR/$GWMS_AUX_SUBDIR (RUNDIR becomes /srv in Singularity)
 if [[ -e "$GWMS_THIS_SCRIPT_DIR/main/singularity_lib.sh" ]]; then
     GWMS_AUX_DIR="$GWMS_THIS_SCRIPT_DIR/main"
-elif [[ -e /srv/$GWMS_AUX_SUBDIR/singularity_lib.sh ]]; then
-    # In Singularity
-    GWMS_AUX_DIR="/srv/$GWMS_AUX_SUBDIR"
 else
     exit_hook_stop_pilot 301 "Unable to source singularity_lib.sh! File not found."
 fi
@@ -134,10 +128,6 @@ if [[ -n "$GWMS_DIR" && -e "$GWMS_DIR/bin" ]]; then
     true
 elif [[ -e $GWMS_THIS_SCRIPT_DIR/$GWMS_SUBDIR/bin ]]; then
     GWMS_DIR=$GWMS_THIS_SCRIPT_DIR/$GWMS_SUBDIR
-elif [[ -e /srv/$GWMS_SUBDIR/bin ]]; then
-    GWMS_DIR=/srv/$GWMS_SUBDIR
-elif [[ -e /srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin ]]; then
-    GWMS_DIR=/srv/$(dirname "$GWMS_AUX_DIR")/$GWMS_SUBDIR/bin
 else
     exit_hook_stop_pilot 302 "Unable to find GWMS_DIR! (GWMS_THIS_SCRIPT_DIR=$GWMS_THIS_SCRIPT_DIR GWMS_SUBDIR=$GWMS_SUBDIR)"
 fi
@@ -365,9 +355,6 @@ prepare_scratch_dir() {
     else
         warn "Unable to find GlideinWMS utilities ($gwms_dir from $(pwd))"
     fi
-    # copy singularity_lib.sh (in $GWMS_AUX_SUBDIR)
-    mkdir -p "$GWMS_AUX_SUBDIR"
-    cp "${GWMS_AUX_DIR}/singularity_lib.sh" "$GWMS_AUX_SUBDIR/"
 
     if [[ -n $SCRIPT_LOG && -f $SCRIPT_LOG ]]; then
         mv -f "$SCRIPT_LOG" "$GWMS_SUBDIR/prepare-hook.log"
