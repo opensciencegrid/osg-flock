@@ -272,20 +272,20 @@ set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
 # Glideinwms used /srv as the scratch directory, we should do the same
-if [[ ! $IS_CONTAINER_PILOT ]]; then
+if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
 set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
 set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
 # Run all jobs in singularity if we have it
 set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
-fi  # ! $IS_CONTAINER_PILOT
+fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
 # the Singularity container outside of the glidein default
 # image.
-if [[ ! $IS_CONTAINER_PILOT ]]; then
+if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
 glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
 if [[ -e $glidein_group_dir/prepare-hook ]]; then
     hook_path=$glidein_group_dir/prepare-hook
@@ -300,13 +300,13 @@ add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
 add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
 add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
 add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
-fi  # ! $IS_CONTAINER_PILOT
+fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 # debugging prepare job hook
-if [[ ! $IS_CONTAINER_PILOT ]]; then
+if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
 add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
 add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
-fi  # ! $IS_CONTAINER_PILOT
+fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 ###########################################################
 
