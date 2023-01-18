@@ -106,22 +106,21 @@ if check_singularity_sif_support; then
     # make sure this goes false if we later figure out that
     # singularity is not working correctly
     advertise SINGULARITY_CAN_USE_SIF "HAS_SINGULARITY && STASHCP_VERIFIED" "C"
+    # can the provided Singularity run registry images?
+    # Pulling from docker:// URLs requires creating a SIF first which is done in the tempdir and is cached in the cachedir
+    if check_singularity_registry_support; then
+        advertise SINGULARITY_CAN_USE_REGISTRY "SINGULARITY_CAN_USE_SIF && SINGULARITY_DISK_IS_FULL =!= True" "C"
+    else
+        advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
+    fi
 else
     advertise SINGULARITY_CAN_USE_SIF "False" "C"
-fi
-
-# can the provided Singularity run registry images?
-if check_singularity_registry_support; then
-    # make sure this goes false if we later figure out that
-    # singularity is not working correctly
-    # Pulling from docker:// URLs requires creating a SIF first which is done in the tempdir and is cached in the cachedir
-    advertise SINGULARITY_CAN_USE_REGISTRY "SINGULARITY_CAN_USE_SIF && SINGULARITY_DISK_IS_FULL =!= True" "C"
-else
     advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
 fi
 
-clause1='(SINGULARITY_CAN_USE_REGISTRY || !(size(TARGET.SingularityImage) >= 9 && substr(TARGET.SingularityImage, 0, 9) == "docker://"))'
-clause2='(SINGULARITY_CAN_USE_SIF || !(size(TARGET.SingularityImage) >= 4 && substr(TARGET.SingularityImage, -4) == ".sif"))'
+
+clause1='(SINGULARITY_CAN_USE_REGISTRY || !(substr(TARGET.SingularityImage, 0, 9) == "docker://"))'
+clause2='(SINGULARITY_CAN_USE_SIF || !(substr(TARGET.SingularityImage, -4) == ".sif"))'
 advertise SINGULARITY_START_CLAUSE "(!isString(TARGET.SingularityImage) || ( $clause1 && $clause2 ))"  "C"
 
 # Tell HTCondor the path to the Singularity binary; this is a config option not an atribute

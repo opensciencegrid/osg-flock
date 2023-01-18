@@ -138,6 +138,7 @@ function determine_default_container_image {
             advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
             advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_PATH" "S"
             advertise REQUIRED_OS "default" "S"
+            advertise OSG_DEFAULT_SINGULARITY_IMAGE "$IMAGE_PATH" "S"
             return 0
         else
             my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
@@ -147,6 +148,7 @@ function determine_default_container_image {
     # prepend the base bath
     SELECTED_IMAGE="/cvmfs/singularity.opensciencegrid.org/$SELECTED_IMAGE"
     advertise SINGULARITY_IMAGES_DICT "default:$SELECTED_IMAGE" "S"
+    advertise OSG_DEFAULT_SINGULARITY_IMAGE "$SELECTED_IMAGE" "S"
     advertise REQUIRED_OS "default" "S"
 }
 
