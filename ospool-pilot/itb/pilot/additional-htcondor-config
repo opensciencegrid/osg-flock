@@ -287,19 +287,26 @@ fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 # image.
 if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
 glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
-if [[ -e $glidein_group_dir/prepare-hook ]]; then
-    hook_path=$glidein_group_dir/prepare-hook
-else
-    hook_path=$glidein_group_dir/itb-prepare-hook-lib
-fi
+for search_path in $glidein_group_dir/{prepare-hook,itb-prepare-hook,itb-prepare-hook-lib}; do
+    if [[ -e $search_path ]]; then
+        hook_path=$search_path
+    fi
+done
 chmod +x "$hook_path"
-# TODO: these can all be replaced with set_unexported_condor_config_attribute
-add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
-add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
-add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
-add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
-add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
-add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
+if [[ ! -e $hook_path ]]; then  # should not happen
+    warn "job hook not found"
+    add_config_line "HAS_SINGULARITY" "false"
+    add_config_line "SINGULARITY_COMMENT" "Disabled due to missing job hook"
+    add_condor_vars_line "SINGULARITY_COMMENT" "S" "-" "+" "Y" "Y" "-"
+else
+    # TODO: these can all be replaced with set_unexported_condor_config_attribute
+    add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
+    add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
+    add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
+    add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
+    add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
+    add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
+fi
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 # debugging prepare job hook
