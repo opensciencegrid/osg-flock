@@ -53,6 +53,25 @@ add_config_line() {
 }
 # End add_config_line() patch
 
+
+set_unexported_condor_config_attribute () {
+    # Sets the value of a config knob in the condor config;
+    # does not export it as a startd attribute, nor does it export it to the job environment
+    # Reference: https://glideinwms.fnal.gov/doc.prd/factory/custom_vars.html
+    local name value
+    name=$1
+    value=$2
+    add_config_line "$name" "$value"
+    add_condor_vars_line "$name" \
+        "C" `# unquoted string (i.e. HTCondor keyword or expression)` \
+        "-" `# no default value` \
+        "+" `# also use $name for the name of the config knob` \
+        "N" `# a value is not required for this attribute` \
+        "N" `# do not have the startd publish this to the collector` \
+        "-" `# do not export to the user job environment`
+}
+
+
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
 ###########################################################
@@ -92,23 +111,6 @@ if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
         add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
     fi
 fi
-
-set_unexported_condor_config_attribute () {
-    # Sets the value of a config knob in the condor config;
-    # does not export it as a startd attribute, nor does it export it to the job environment
-    # Reference: https://glideinwms.fnal.gov/doc.prd/factory/custom_vars.html
-    local name value
-    name=$1
-    value=$2
-    add_config_line "$name" "$value"
-    add_condor_vars_line "$name" \
-        "C" `# unquoted string (i.e. HTCondor keyword or expression)` \
-        "-" `# no default value` \
-        "+" `# also use $name for the name of the config knob` \
-        "N" `# a value is not required for this attribute` \
-        "N" `# do not have the startd publish this to the collector` \
-        "-" `# do not export to the user job environment`
-}
 
 # Hold jobs if they exceed allocated disk (OSPOOL-26)
 
