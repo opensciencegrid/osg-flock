@@ -427,11 +427,9 @@ OSG_DEFAULT_SINGULARITY_IMAGE="$(get_glidein_config_value OSG_DEFAULT_SINGULARIT
 # - OSG_DEFAULT_SINGULARITY_IMAGE should be defined in this glidein version
 # - the image should have been downloaded before the pilot started
 if [[ ! $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
-    # exit_hook_stop_pilot 305 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"
-    exit_hook_stop_pilot 5 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"  # DEBUG - put the job on hold
+    exit_hook_stop_pilot 305 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"
 elif [[ ! -e $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
-    # exit_hook_stop_pilot 306 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"
-    exit_hook_stop_pilot 6 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"  # DEBUG - put the job on hold
+    exit_hook_stop_pilot 306 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"
 fi
 
 # TODO: Should downloading and building the Singularity image be in the pre-transfer hook (HOOK_PREPARE_JOB_BEFORE_TRANSFER) ?
