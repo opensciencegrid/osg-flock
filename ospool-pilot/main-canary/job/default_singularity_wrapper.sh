@@ -1,1 +1,0 @@
-../../main/job/default_singularity_wrapper.sh
