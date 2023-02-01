@@ -271,14 +271,28 @@ unset OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
-# Glideinwms used /srv as the scratch directory, we should do the same
 if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
+    # Glideinwms used /srv as the scratch directory, we should do the same
     set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
     set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
+
+    # Have Condor handle using a "default" image
     set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
     # Run all jobs in singularity if we have it
     set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+
+    # Condor PID namespace autodetection is broken (TODO add ticket); hard-disable it if we were asked to.
+    # I could consolidate these if statements but I'm curious where it's set...
+    if [[ $SINGULARITY_DISABLE_PID_NAMESPACES == 1 ]]; then
+        info "SINGULARITY_DISABLE_PID_NAMESPACES is set in the environment; disabling PID namespaces"
+        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+    elif [[ $(gconfig_get "SINGULARITY_DISABLE_PID_NAMESPACES") == 1 ]]; then
+        info "SINGULARITY_DISABLE_PID_NAMESPACES is set in glidein config; disabling PID namespaces"
+        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+    else
+        info "Leaving SINGULARITY_DISABLE_PID_NAMESPACES at default"
+    fi
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 ###########################################################
