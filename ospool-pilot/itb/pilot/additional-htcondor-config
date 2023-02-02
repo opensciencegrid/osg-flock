@@ -96,21 +96,28 @@ add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 # note: Unlike DISK, RESERVED_DISK is in megabytes.
 # As of July 2022, the HTCondor manual incorrectly states this is in kilobytes.
 # This change was verified by examining the code.
-add_config_line RESERVED_DISK "3000"
-add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
+if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # Not currently used in container pilots
+    add_config_line RESERVED_DISK "3000"
+    add_condor_vars_line RESERVED_DISK "C" "-" "+" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT
 
 # use df and allocated cores to determine disk allocation (https://opensciencegrid.atlassian.net/browse/OSPOOL-5)
 # but only if we think we are not "whole node"
-allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
-total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
-if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
-    #disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
-    allocated_disk=$((100 * $allocated_cpus / $total_cpus))
-    if [[ $allocated_cpus -lt 32 ]]; then
-        add_config_line GLIDEIN_DISK "$allocated_disk%"
-        add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
+if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # This logic is currently not used in container pilots
+    allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
+    total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
+    if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
+        #disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+        allocated_disk=$((100 * $allocated_cpus / $total_cpus))
+        if [[ $allocated_cpus -lt 32 ]]; then
+            add_config_line GLIDEIN_DISK "$allocated_disk%"
+            add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
+        fi
     fi
-fi
+fi  # ! $IS_CONTAINER_PILOT
+
 
 # Hold jobs if they exceed allocated disk (OSPOOL-26)
 
@@ -132,15 +139,14 @@ set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exc
 
 # End OSPOOL-26
 
+
 ###########################################################
-# potential fix for SU NAT issues
+# NAT setups may have an idle timeout where they silently
+# drop/forget a connection if they haven't seen packets go
+# through.  Send heartbeats more frequently to avoid this.
 add_config_line CCB_HEARTBEAT_INTERVAL "120"
 add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 
-###########################################################
-# fix for chirp problem (Edgar)
-add_config_line CHIRP_DELAYED_UPDATE_PREFIX "Chirp*"
-add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 
 ###########################################################
 # debugging GSI
@@ -153,54 +159,56 @@ add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 
 ###########################################################
 # stashcp 
-STASHCP=$PWD/client/stashcp
-STASHCP_DEBUG="-d"
-STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
-STASH_PLUGIN=$PWD/client/stash_plugin
-chmod 755 $STASHCP $STASH_PLUGIN
+if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # The container pilot has its own test for stashcp and
+    # stash_plugin.  I'm not sure which one I like better,
+    # and don't want to spend the time merging them since
+    # they're both likely to change once the plugin is
+    # 'bundled' with HTCondor itself. -mat 2022-12-07
+    STASHCP=$PWD/client/stashcp
+    STASHCP_DEBUG="-d"
+    STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
+    STASH_PLUGIN=$PWD/client/stash_plugin
+    chmod 755 $STASHCP $STASH_PLUGIN
 
-TIMEOUT=$(which timeout 2>/dev/null)
-if [ "x$TIMEOUT" != "x" ]; then
-    TIMEOUT="$TIMEOUT 120s"
-fi
-
-# The bash builtin time is no good because it pollutes
-# stderr with hardcoded real, sys, and user lines.
-TIME=$(which time 2>/dev/null)
-if [ "x$TIME" != "x" ]; then
-    # Without --quiet, newer versions of TIME(1)
-    # will prepend an extra line to the output
-    # if the process exits with a non-zero exit code.
-    # Therefore, we use $(tail -1 stashcp-test.time)
-    # below to get the runtime of stashcp.
-    TIME="$TIME --output=stashcp-test.time --format=%e"
-fi
-
-glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
-if [[ -z $OSG_SITE_NAME ]]; then
-    OSG_SITE_NAME=$glidein_site
-fi
-
-# also run a simple test (TODO: make this IGWN-specific)
-info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
-    if [ -f stashcp-test.time ]; then
-        info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
-    else
-        info "Succeeded!"
+    TIMEOUT=$(which timeout 2>/dev/null)
+    if [ "x$TIMEOUT" != "x" ]; then
+        TIMEOUT="$TIMEOUT 120s"
     fi
-    add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
-    add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
-else
-    if [ "$?" -eq "124" ]; then
-        warn "Failed (timed out after 120s)! stashcp output:"
-    elif [ -f stashcp-test.time ]; then
-        warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
-    else
-        warn "Failed! stashcp output:"
+
+    # The bash builtin time is no good because it pollutes
+    # stderr with hardcoded real, sys, and user lines.
+    TIME=$(which time 2>/dev/null)
+    if [ "x$TIME" != "x" ]; then
+        # Without --quiet, newer versions of TIME(1)
+        # will prepend an extra line to the output
+        # if the process exits with a non-zero exit code.
+        # Therefore, we use $(tail -1 stashcp-test.time)
+        # below to get the runtime of stashcp.
+        TIME="$TIME --output=stashcp-test.time --format=%e"
     fi
-    while read line; do warn "$line"; done < stashcp-test.log
-fi
+
+    # also run a simple test (TODO: make this IGWN-specific)
+    info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+    if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+        if [ -f stashcp-test.time ]; then
+            info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
+        else
+            info "Succeeded!"
+        fi
+        add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
+        add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+    else
+        if [ "$?" -eq "124" ]; then
+            warn "Failed (timed out after 120s)! stashcp output:"
+        elif [ -f stashcp-test.time ]; then
+            warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
+        else
+            warn "Failed! stashcp output:"
+        fi
+        while read line; do warn "$line"; done < stashcp-test.log
+    fi
+fi  # ! $IS_CONTAINER_PILOT
 
 ##################################################################
 # Generate a minimal `STARTER_JOB_ENVIRONMENT`, mostly composed of
@@ -216,7 +224,11 @@ fi
 #   LANG
 info "Calculating default job environment variables."
 
-job_env=
+glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
+if [[ -z $OSG_SITE_NAME ]]; then
+    OSG_SITE_NAME=$glidein_site
+fi
+
 for envvar in \
      OSG_SITE_NAME \
      OSG_HOSTNAME \
@@ -259,36 +271,63 @@ unset OLDIFS
 set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
-# Glideinwms used /srv as the scratch directory, we should do the same
-set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
-set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
-set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
+    # Glideinwms used /srv as the scratch directory, we should do the same
+    set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
+    set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
-# Run all jobs in singularity if we have it
-set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+    # Have Condor handle using a "default" image
+    set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+
+    # Run all jobs in singularity if we have it
+    set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+
+    # Condor PID namespace autodetection is broken (TODO add ticket); hard-disable it if we were asked to.
+    # I could consolidate these if statements but I'm curious where it's set...
+    if [[ $SINGULARITY_DISABLE_PID_NAMESPACES == 1 ]]; then
+        info "SINGULARITY_DISABLE_PID_NAMESPACES is set in the environment; disabling PID namespaces"
+        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+    elif [[ $(gconfig_get "SINGULARITY_DISABLE_PID_NAMESPACES") == 1 ]]; then
+        info "SINGULARITY_DISABLE_PID_NAMESPACES is set in glidein config; disabling PID namespaces"
+        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+    else
+        info "Leaving SINGULARITY_DISABLE_PID_NAMESPACES at default"
+    fi
+fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
 # the Singularity container outside of the glidein default
 # image.
-glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
-if [[ -e $glidein_group_dir/prepare-hook ]]; then
-    hook_path=$glidein_group_dir/prepare-hook
-else
-    hook_path=$glidein_group_dir/itb-prepare-hook-lib
-fi
-chmod +x "$hook_path"
-# TODO: these can all be replaced with set_unexported_condor_config_attribute
-add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
-add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
-add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
-add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
-add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
-add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
+if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
+    glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
+    for search_path in $glidein_group_dir/{prepare-hook,itb-prepare-hook,itb-prepare-hook-lib}; do
+        if [[ -e $search_path ]]; then
+            hook_path=$search_path
+        fi
+    done
+    chmod +x "$hook_path"
+    if [[ ! -e $hook_path ]]; then  # should not happen
+        warn "job hook not found"
+        add_config_line "HAS_SINGULARITY" "false"
+        add_config_line "SINGULARITY_COMMENT" "Disabled due to missing job hook"
+        add_condor_vars_line "SINGULARITY_COMMENT" "S" "-" "+" "Y" "Y" "-"
+    else
+        # TODO: these can all be replaced with set_unexported_condor_config_attribute
+        add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
+        add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
+        add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
+        add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
+        add_config_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
+        add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
+    fi
+fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 # debugging prepare job hook
-add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
-add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
+if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
+    add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
+    add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
+fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 ###########################################################
 
