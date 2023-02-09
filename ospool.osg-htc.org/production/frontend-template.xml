@@ -374,7 +374,7 @@
             <file absfname="/opt/osg-flock/ospool-pilot/main-canary/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+            <file absfname="/opt/osg-flock/ospool-pilot/main-canary/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
