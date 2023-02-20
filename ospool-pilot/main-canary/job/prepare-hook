@@ -173,6 +173,8 @@ function download_or_build_singularity_image () {
     # ALLOW_NONCVMFS_IMAGES determines the approach here
     # if it is 0, verify that the image is indeed on CVMFS
     # if it is 1, transform the image to a form and try downloaded it from our services
+    # TODO ALLOW_NONCVMFS_IMAGES is more like "never use images from /cvmfs/singularity.opensciencegrid.org";
+    # if set, those images are always downloaded from stash/osdf instead.
 
     # In addition, UNPACK_SIF determines whether a downloaded SIF image is
     # expanded into the sandbox format (1) or used as-is (0).
@@ -260,13 +262,13 @@ function download_or_build_singularity_image () {
             for src in $singularity_srcs; do
                 echo "Trying to download from $src ..." &>>$logfile
 
-                if (echo "$src" | grep "^stash")>/dev/null 2>&1; then
+                if (echo "$src" | grep -E "^(stash|osdf)://")>/dev/null 2>&1; then
                     if (stash_download "$tmptarget2" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
 
-                elif (echo "$src" | grep "^http")>/dev/null 2>&1; then
+                elif (echo "$src" | grep -E "^http(s?)://")>/dev/null 2>&1; then
                     if (http_download "$tmptarget2" "$src") &>>$logfile; then
                         downloaded=1
                         break
@@ -373,6 +375,7 @@ output_new_classad_attrs () {
 # Get things like GWMS_SINGULARITY_PATH from the glidein_config
 setup_from_environment
 
+# TODO I haven't gotten this to work yet
 SCRIPT_LOG="$PWD/.prepare-hook.log"  # for debugging
 
 info_dbg "Location of singularity: $GWMS_SINGULARITY_PATH"
@@ -407,7 +410,6 @@ export ALLOW_NONCVMFS_IMAGES=$(get_prop_bool "$_CONDOR_MACHINE_AD" "ALLOW_NONCVM
 info_dbg "ALLOW_NONCVMFS_IMAGES: $ALLOW_NONCVMFS_IMAGES"
 
 # Should we use a sif file directly or unpack it first?
-# Rerun the test from osgvo-default-image and warn if the results don't match what's advertised.
 advertised_sif_support=$(get_prop_str "$_CONDOR_MACHINE_AD" "SINGULARITY_CAN_USE_SIF" "false" | tr A-Z a-z)
 if [[ $advertised_sif_support != "false" ]]; then
     advertised_sif_support=1
@@ -425,13 +427,12 @@ OSG_DEFAULT_SINGULARITY_IMAGE="$(get_glidein_config_value OSG_DEFAULT_SINGULARIT
 # - OSG_DEFAULT_SINGULARITY_IMAGE should be defined in this glidein version
 # - the image should have been downloaded before the pilot started
 if [[ ! $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
-    # exit_hook_stop_pilot 305 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"
-    exit_hook_stop_pilot 5 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"  # DEBUG - put the job on hold
+    exit_hook_stop_pilot 305 "OSG_DEFAULT_SINGULARITY_IMAGE is not defined"
 elif [[ ! -e $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
-    # exit_hook_stop_pilot 306 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"
-    exit_hook_stop_pilot 6 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"  # DEBUG - put the job on hold
+    exit_hook_stop_pilot 306 "OSG_DEFAULT_SINGULARITY_IMAGE ($OSG_DEFAULT_SINGULARITY_IMAGE) does not exist as a local file/directory"
 fi
 
+# TODO: Should downloading and building the Singularity image be in the pre-transfer hook (HOOK_PREPARE_JOB_BEFORE_TRANSFER) ?
 if [[ $GWMS_SINGULARITY_IMAGE ]]; then
     # TODO: Should we add a sanity check here? Maybe run file(1) or at least [[ -s $GWMS_SINGULARITY_IMAGE ]] ?
     if [[ ! -e $GWMS_SINGULARITY_IMAGE ]]; then
@@ -439,7 +440,7 @@ if [[ $GWMS_SINGULARITY_IMAGE ]]; then
         orig_GWMS_SINGULARITY_IMAGE=$GWMS_SINGULARITY_IMAGE
         GWMS_SINGULARITY_IMAGE=$(download_or_build_singularity_image "$orig_GWMS_SINGULARITY_IMAGE"); ret=$?
         if [[ $ret != 0 ]]; then
-            # TODO add logs to the output
+            # TODO add download logs to the output
             exit_hook $ret "Unable to download or build singularity image $orig_GWMS_SINGULARITY_IMAGE"
         fi
     fi
