@@ -1,1 +1,1 @@
-../ospool-pilot/main/job/default_singularity_wrapper.sh
+../ospool-pilot/old/job/default_singularity_wrapper.sh
