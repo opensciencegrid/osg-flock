@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=686
+OSG_GLIDEIN_VERSION=687
 #######################################################################
 
 
@@ -250,6 +250,28 @@ if [ "x$TIMEOUT" != "x" ]; then
 fi
 
 advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
+
+# OSPool - this attribute should _only_ be set to True if
+# the EP is registering to the production OSPool CMs, and
+# it is a generally availalbe EP for fairshare (that is,
+# no project or other START restrictions)
+GLIDEIN_Collector=$(get_glidein_config_value GLIDEIN_Collector)
+GLIDECLIENT_Group=$(get_glidein_config_value GLIDECLIENT_Group)
+GLIDEIN_Start_Extra=$(get_glidein_config_value GLIDEIN_Start_Extra)
+OSG_PROJECT_NAME=$(get_glidein_config_value OSG_PROJECT_NAME)
+OSPool="False"
+if (echo "$GLIDEIN_Collector" | grep cm-1.ospool.osg-htc.org) >/dev/null 2>&1; then
+    if (echo "$GLIDECLIENT_Group" | grep -E '^(gpu|main|main-canary)$') >/dev/null 2>&1; then
+        # gwms - use the group as determining factor
+        OSPool="True"
+    elif [ "x$GLIDECLIENT_Group" = "xmain-container" ]; then
+        # container - need to check if there are extra start expressions
+        if [ "x$GLIDEIN_Start_Extra" = "x" -a "x$OSG_PROJECT_NAME" = "x" ]; then
+            OSPool="True"
+        fi
+    fi
+fi
+advertise OSPool "$OSPool" "C"
 
 # we need the "outside" kernel version to be able to steer
 # singularity jobs to kernel/glibcs which are not too old
