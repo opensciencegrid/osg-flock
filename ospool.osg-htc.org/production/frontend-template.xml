@@ -208,7 +208,6 @@
             </credentials>
          </security>
          <attrs>
-            <attr name="OSPool" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
@@ -279,7 +278,6 @@
             </credentials>
          </security>
          <attrs>
-            <attr name="OSPool" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
@@ -349,7 +347,6 @@
             </credentials>
          </security>
          <attrs>
-            <attr name="OSPool" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
