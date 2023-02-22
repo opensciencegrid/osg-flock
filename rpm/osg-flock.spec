@@ -1,5 +1,5 @@
 Name:      osg-flock
-Version:   1.8
+Version:   1.9
 Release:   1%{?dist}
 Summary:   OSG configurations for a flocking host
 
@@ -67,6 +67,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 21 2023 Mats Rynge <rynge@isi.edu> - 1.9-1
+- Add OSPool attribute to the job ad from the EP config (SOFTWARE-4803)
+
 * Mon Apr 18 2022 Carl Edquist <edquist@cs.wisc.edu> - 1.8-1
 - Include the package version in the schedd classad (SOFTWARE-5105)
 - Disable .sif images on 3.x kernels (OSPOOL-18)
