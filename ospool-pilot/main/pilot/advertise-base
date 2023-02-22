@@ -266,7 +266,7 @@ if (echo "$GLIDEIN_Collector" | grep cm-1.ospool.osg-htc.org) >/dev/null 2>&1; t
         OSPool="True"
     elif [ "x$GLIDECLIENT_Group" = "xmain-container" ]; then
         # container - need to check if there are extra start expressions
-        if [ "x$GLIDEIN_Start_Extra" = "x" -a "x$OSG_PROJECT_NAME" = "x" ]; then
+        if [ "x$GLIDEIN_Start_Extra" = "xTrue" -a "x$OSG_PROJECT_NAME" = "x" ]; then
             OSPool="True"
         fi
     fi
