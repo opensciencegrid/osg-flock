@@ -1,6 +1,6 @@
 Name:      osg-flock
 Version:   1.9
-Release:   1%{?dist}
+Release:   2%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -9,6 +9,7 @@ URL:       https://opensciencegrid.org/docs/submit/osg-flock
 BuildArch: noarch
 
 Requires(post): gratia-probe-condor-ap
+BuildRequires: condor
 Requires: condor
 
 Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
