@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=687
+OSG_GLIDEIN_VERSION=688
 #######################################################################
 
 
@@ -265,8 +265,12 @@ if (echo "$GLIDEIN_Collector" | grep cm-1.ospool.osg-htc.org) >/dev/null 2>&1; t
         # gwms - use the group as determining factor
         OSPool="True"
     elif [ "x$GLIDECLIENT_Group" = "xmain-container" ]; then
-        # container - need to check if there are extra start expressions
-        if [ "x$GLIDEIN_Start_Extra" = "xTrue" -a "x$OSG_PROJECT_NAME" = "x" ]; then
+        # Container - need to check if there are extra start expressions
+        # We have to check this HTCondor expression without fully evaluating it
+        # For now, check if the expression contains owner/project as such
+        # attributes could be used to limit the pilot
+        EXTRA_CLEAN=$(echo "$GLIDEIN_Start_Extra" | grep -E -i 'owner|project')
+        if [ "x$EXTRA_CLEAN" = "x" -a "x$OSG_PROJECT_NAME" = "x" ]; then
             OSPool="True"
         fi
     fi
