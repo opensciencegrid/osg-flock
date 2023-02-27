@@ -316,33 +316,6 @@ else
     advertise STASHCP_VERIFIED "False" "C"
 fi
 
-##################
-# cms software
-
-info "Checking for CMS software..."
-OSGVO_CMSSW_Path=""
-if [ -r "$OSG_APP/cmssoft/cms/cmsset_default.sh" ]
-then
-    OSGVO_CMSSW_Path="$OSG_APP/cmssoft/cms/"
-elif [ -r $VO_CMS_SW_DIR/cmsset_default.sh ]
-then
-    OSGVO_CMSSW_Path="$VO_CMS_SW_DIR/"
-fi
-if [ "x$OSGVO_CMSSW_Path" != "x" ]
-then
-    advertise OSGVO_CMSSW_Path "$OSGVO_CMSSW_Path" "S"
-fi
-
-OSGVO_CMSSW_Revision=""
-if [ "x$OSGVO_CMSSW_Path" != "x" -a -r "$OSGVO_CMSSW_Path/etc/cms-common/revision" ]
-then
-    OSGVO_CMSSW_Revision=$(head -c 10 "$OSGVO_CMSSW_Path/etc/cms-common/revision")
-fi
-if [ "x$OSGVO_CMSSW_Revision" != "x" ]
-then
-    advertise OSGVO_CMSSW_Revision "$OSGVO_CMSSW_Revision - $OSGVO_CMSSW_Path/etc/cms-common/revision" "S"
-fi
-
 
 # modules
 RESULT="False"
