@@ -128,9 +128,9 @@ function determine_default_container_image {
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-        URL=http://stash.osgconnect.net/public/rynge/infrastructure/images/sif/$IMAGE_NAME.sif
+        URL=http://stash.osgconnect.net/public/osg/images/sif/$IMAGE_NAME.sif
         WEEK=$(date +'%V')
-        (stash_download $IMAGE_PATH stash:///osgconnect/public/rynge/infrastructure/images/$WEEK/sif/$IMAGE_NAME.sif \
+        (stash_download $IMAGE_PATH stash:///osgconnect/public/osg/images/$WEEK/sif/$IMAGE_NAME.sif \
             || http_download $IMAGE_PATH $URL \
             || singularity pull --force $IMAGE_PATH docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_PATH.log 2>&1
         if [ $? = 0 ]; then

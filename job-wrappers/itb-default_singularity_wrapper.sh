@@ -186,7 +186,7 @@ download_or_build_singularity_image () {
             base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;' | sed 's;/*/$;;')
             image_name=$(echo "$base_name" | sed 's;[:/];__;g')
             week=$(date +'%V')
-            singularity_srcs="stash:///osgconnect/public/rynge/infrastructure/images/$week/sif/$image_name.sif https://data.isi.edu/osg/images/$image_name.sif docker://hub.opensciencegrid.org/$base_name"
+            singularity_srcs="stash:///osgconnect/public/osg/images/$week/sif/$image_name.sif https://data.isi.edu/osg/images/$image_name.sif docker://hub.opensciencegrid.org/$base_name"
         elif [[ -e "$singularity_image" ]]; then
             # the image is not on cvmfs, but has already been downloaded - short circuit here
             echo "$singularity_image"
