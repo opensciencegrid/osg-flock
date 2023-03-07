@@ -17,42 +17,6 @@ function warn {
 add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
 source $add_config_line_source
 
-# Patch over add_config_line() with a safer version
-# This will be fixed in gWMS 3.9.6
-add_config_line() {
-    # Ignore the call if the exact config line is already in there
-    if ! grep -q "^${*}$" "${glidein_config}"; then
-        # Use temporary files to make sure multiple add_config_line() calls don't clobber
-        # the glidein_config.
-        local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
-        local tmp_config1="${glidein_config}.$r.1"
-        local tmp_config2="${glidein_config}.$r.2"
-
-        # Copy the glidein config so it doesn't get modified while we grep out the old value
-        if ! cp -p "${glidein_config}" "${tmp_config1}"; then
-            warn "Error writing ${tmp_config1}"
-            rm -f "${tmp_config1}"
-            exit 1
-        fi
-        grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
-        rm -f "${tmp_config1}"
-        if [ ! -f "${tmp_config2}" ]; then
-            warn "Error creating ${tmp_config2}"
-            exit 1
-        fi
-        # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
-        echo "$@" >> "${tmp_config2}"
-
-        # Replace glidein config atomically
-        if ! mv -f "${tmp_config2}" "${glidein_config}"; then
-            warn "Error updating ${glidein_config} from ${tmp_config2}"
-            rm -f "${tmp_config2}"
-            exit 1
-        fi
-    fi
-}
-# End add_config_line() patch
-
 
 set_unexported_condor_config_attribute () {
     # Sets the value of a config knob in the condor config;
@@ -293,7 +257,14 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     else
         info "Leaving SINGULARITY_DISABLE_PID_NAMESPACES at default"
     fi
+
+    add_config_line "OSG_USING_JOB_HOOK" "true"
+else
+    add_config_line "OSG_USING_JOB_HOOK" "false"
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
+
+# Not a knob -- I am advertising it so I can see it in condor_status
+add_condor_vars_line "OSG_USING_JOB_HOOK" "C" "-" "+" "Y" "Y" "-"
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
@@ -312,6 +283,7 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
         add_config_line "HAS_SINGULARITY" "false"
         add_config_line "SINGULARITY_COMMENT" "Disabled due to missing job hook"
         add_condor_vars_line "SINGULARITY_COMMENT" "S" "-" "+" "Y" "Y" "-"
+        add_config_line "OSG_USING_JOB_HOOK" "false"
     else
         # TODO: these can all be replaced with set_unexported_condor_config_attribute
         add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
