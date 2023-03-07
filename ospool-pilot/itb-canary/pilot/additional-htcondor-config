@@ -131,7 +131,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     # 'bundled' with HTCondor itself. -mat 2022-12-07
     STASHCP=$PWD/client/stashcp
     STASHCP_DEBUG="-d"
-    STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
+    STASHCP_TEST_FILE="/osgconnect/public/osg/testfile.txt"
     STASH_PLUGIN=$PWD/client/stash_plugin
     chmod 755 $STASHCP $STASH_PLUGIN
 
@@ -152,25 +152,30 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         TIME="$TIME --output=stashcp-test.time --format=%e"
     fi
 
-    # also run a simple test (TODO: make this IGWN-specific)
-    info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-    if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
-        if [ -f stashcp-test.time ]; then
-            info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
-        else
-            info "Succeeded!"
-        fi
-        add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
-        add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+    glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
+    if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
+        warn "OSDF plugin explicitly disabled at site $glidein_site"
     else
-        if [ "$?" -eq "124" ]; then
-            warn "Failed (timed out after 120s)! stashcp output:"
-        elif [ -f stashcp-test.time ]; then
-            warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
+        # also run a simple test (TODO: make this IGWN-specific)
+        info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+        if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+            if [ -f stashcp-test.time ]; then
+                info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
+            else
+                info "Succeeded!"
+            fi
+            add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
+            add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
         else
-            warn "Failed! stashcp output:"
+            if [ "$?" -eq "124" ]; then
+                warn "Failed (timed out after 120s)! stashcp output:"
+            elif [ -f stashcp-test.time ]; then
+                warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
+            else
+                warn "Failed! stashcp output:"
+            fi
+            while read line; do warn "$line"; done < stashcp-test.log
         fi
-        while read line; do warn "$line"; done < stashcp-test.log
     fi
 fi  # ! $IS_CONTAINER_PILOT
 
