@@ -157,6 +157,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         warn "OSDF plugin explicitly disabled at site $glidein_site"
     else
         # also run a simple test (TODO: make this IGWN-specific)
+        rm -f stashcp-test.file
         info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
         if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
             if [ -f stashcp-test.time ]; then
