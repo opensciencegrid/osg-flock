@@ -22,10 +22,13 @@ from pprint import pprint
 # targetting itb or production environment.
 core_schedds = [
         'amundsen.grid.uchicago.edu',
-        'login-el7.xenon.ci-connect.net',
-        'login.snowmass21.io',
+        'ap7.chtc.wisc.edu',
+        'huxley-osgsub-001.sdmz.amnh.org',
         'login04.osgconnect.net',
         'login05.osgconnect.net',
+        'login.collab.ci-connect.net',
+        'login-el7.xenon.ci-connect.net',
+        'login.snowmass21.io',
         'scott.grid.uchicago.edu'
         ]
 
