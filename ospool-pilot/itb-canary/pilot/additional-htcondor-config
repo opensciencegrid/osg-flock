@@ -134,9 +134,8 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 
 
 osdf_plugin_is_ok () {
-    local STASHCP STASH_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
-    STASHCP="$1"
-    STASH_PLUGIN="$2"
+    local STASH_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
+    STASH_PLUGIN="$1"
     STASHCP_DEBUG="-d"
     STASHCP_TEST_FILE="/osgconnect/public/osg/testfile.txt"
 
@@ -159,8 +158,8 @@ osdf_plugin_is_ok () {
 
         # also run a simple test (TODO: make this IGWN-specific)
         rm -f stashcp-test.file
-        info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-        if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+        info "Testing $STASH_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+        if $TIME $TIMEOUT $STASH_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
             if [ -f stashcp-test.time ]; then
                 info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
             else
@@ -195,7 +194,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
         warn "OSDF plugin explicitly disabled at site $glidein_site"
     else
-        if osdf_plugin_is_ok "$STASHCP" "$STASH_PLUGIN"; then
+        if osdf_plugin_is_ok "$STASH_PLUGIN"; then
             add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
             add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
         fi
