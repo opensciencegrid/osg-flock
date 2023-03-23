@@ -243,7 +243,7 @@ fi
 ###########################################################
 # Test and add the stash/osdf plugin
 # It comes with condor.
-if [[ ! $IS_CONTAINER_PILOT ]]
+if [[ ! $IS_CONTAINER_PILOT ]]; then
     # TODO Check the STASH_PLUGIN and OSDF_PLUGIN macros defined in the condor config first
     # The container pilot has its own code for this (for now)
 
