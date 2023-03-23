@@ -217,20 +217,23 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
     else
-        warn "OSDF plugin not found in pilot's condor install"
+        OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install"
     fi
 
     if [[ $STASH_PLUGIN ]]; then
         if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
-            warn "OSDF plugin explicitly disabled at site $glidein_site"
+            OSDF_FAIL_REASON="OSDF plugin explicitly disabled at site $glidein_site"
         else
             if osdf_plugin_is_ok "$STASH_PLUGIN"; then
+                # osdf_plugin_is_ok sets $OSDF_FAIL_REASON on failure
                 add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
                 add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
-            else
-                advertise OSDF_FAIL_REASON "$OSDF_FAIL_REASON" "S"
             fi
         fi
+    fi
+    
+    if [[ $OSDF_FAIL_REASON ]]; then
+        advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
     fi
 fi  # ! $IS_CONTAINER_PILOT
 
