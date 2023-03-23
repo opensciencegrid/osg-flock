@@ -250,6 +250,8 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     # condor-stash-plugin comes with a drop-in config file in condor's config.d directory, but
     # that's unused in factory pilots.  This is where the plugin is going to be:
     CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
+    DEBUG=$(/bin/ls -F "$CONDOR_LIBEXEC/" | tr '\n' '\t')
+    advertise "DEBUG" "$DEBUG" "S"
     if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin  # forward compat
     elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
