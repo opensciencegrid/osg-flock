@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=695
+OSG_GLIDEIN_VERSION=696
 #######################################################################
 
 
@@ -555,20 +555,6 @@ if [ -e ./client/stashcp ]; then
     fi
     VER=$(cat $TEST_FILE_1H.stashcp-version)
     advertise STASHCP_VERSION "$VER" "S"
-fi
-
-if [ -z "$STASH_PLUGIN_PATH" ]; then
-    STASH_PLUGIN_PATH=$PWD/client/stash_plugin
-fi
-
-# also record the plugin version
-if [ -e "$STASH_PLUGIN_PATH" ]; then
-    chmod +x "$STASH_PLUGIN_PATH"
-    if [ ! -e $TEST_FILE_1H.stash-plugin-version ]; then
-        "$STASH_PLUGIN_PATH" -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stash-plugin-version
-    fi
-    VER=$(cat $TEST_FILE_1H.stash-plugin-version)
-    advertise STASH_PLUGIN_VERSION "$VER" "S"
 fi
 
 ###########################################################

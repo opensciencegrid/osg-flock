@@ -38,6 +38,16 @@ function advertise {
 add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
 source $add_config_line_source
 
+if ! command -v gconfig_get &>/dev/null; then
+    warn "Outdated $add_config_line_source - missing gconfig_get()"
+    # Add it ourselves -- adapted from
+    # https://github.com/glideinWMS/glideinwms/blob/a700e2edcfbe272d1a939675ec6bc33aa3667f34/creation/web_base/add_config_line.source
+    gconfig_get () {
+        # Leave the extra space in the grep, to parse correctly strings w/ the same beginning
+        tac "$glidein_config" | grep -m1 "^$1 " | cut -d ' ' -f 2-
+    }
+fi
+
 if [[ $GLIDEIN_Site ]]; then
     glidein_site=$GLIDEIN_Site
 else
@@ -155,8 +165,13 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 
 
 OSDF_FAIL_REASON=""
+OSDF_PLUGIN_VERSION=""
 osdf_plugin_is_ok () {
-    local STASH_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
+    # Performs tests on the Stash/OSDF plugin passed as an argument.
+    # Sets $OSDF_FAIL_REASON for a human-readable failure reason, or "" on success.
+    # Sets $OSDF_PLUGIN_VERSION to the version of the plugin, or "" on failure.
+
+    local STASH_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT ret
     STASH_PLUGIN="$1"
     STASHCP_DEBUG="-d"
     STASHCP_TEST_FILE="/osgconnect/public/osg/testfile.txt"
@@ -187,7 +202,16 @@ osdf_plugin_is_ok () {
             else
                 info "Succeeded!"
             fi
-            return 0
+
+            OSDF_PLUGIN_VERSION=$("$STASH_PLUGIN" -classad | awk '/^PluginVersion / { print $3 }' | tr -d '"' 2>>stashcp-test.log)
+            ret=$?
+
+            if [[ $ret != 0 ]]; then
+                # So close!
+                OSDF_FAIL_REASON="Failure getting plugin version!"
+            else
+                OSDF_FAIL_REASON=""
+            fi
         else
             if [ "$?" -eq "124" ]; then
                 OSDF_FAIL_REASON="Failed (timed out after 120s)!"
@@ -196,10 +220,14 @@ osdf_plugin_is_ok () {
             else
                 OSDF_FAIL_REASON="Failed for other reason!"
             fi
-            warn "$OSDF_FAIL_REASON stashcp output:"
-            while read line; do warn "$line"; done < stashcp-test.log
-            return 1
         fi
+
+    if [[ $OSDF_FAIL_REASON ]]; then
+        warn "$OSDF_FAIL_REASON stashcp output:"
+        while read line; do warn "$line"; done < stashcp-test.log
+        OSDF_PLUGIN_VERSION=""
+        return 1
+    fi
 }
 
 ###########################################################
@@ -207,17 +235,27 @@ osdf_plugin_is_ok () {
 if [[ ! $IS_CONTAINER_PILOT ]]; then
     # The stashcp executable doesn't come with Condor but we need it for
     # downloading images so we get it from the frontend.
+    # Not used in the container pilot -- we have /usr/bin/stashcp
     STASHCP=$PWD/client/stashcp
     chmod 755 $STASHCP
+fi
 
+###########################################################
+# Test and add the stash/osdf plugin
+# It comes with condor.
+if [[ ! $IS_CONTAINER_PILOT ]]
     # TODO Check the STASH_PLUGIN and OSDF_PLUGIN macros defined in the condor config first
+    # The container pilot has its own code for this (for now)
+
+    # condor-stash-plugin comes with a drop-in config file in condor's config.d directory, but
+    # that's unused in factory pilots.  This is where the plugin is going to be:
     CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
     if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
-        STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+        STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin  # forward compat
     elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
     else
-        OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install"
+        OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install (looked for $CONDOR_LIBEXEC/{osdf,stash}_plugin)"
     fi
 
     if [[ $STASH_PLUGIN ]]; then
@@ -225,9 +263,11 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
             OSDF_FAIL_REASON="OSDF plugin explicitly disabled at site $glidein_site"
         else
             if osdf_plugin_is_ok "$STASH_PLUGIN"; then
-                # osdf_plugin_is_ok sets $OSDF_FAIL_REASON on failure
+                # osdf_plugin_is_ok sets $OSDF_FAIL_REASON and $OSDF_PLUGIN_VERSION
                 add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
                 add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+                advertise "STASH_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"
+                advertise "OSDF_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"  # forward compat
             fi
         fi
     fi
