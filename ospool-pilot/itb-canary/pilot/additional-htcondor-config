@@ -182,21 +182,29 @@ osdf_plugin_is_ok () {
 ###########################################################
 # stashcp 
 if [[ ! $IS_CONTAINER_PILOT ]]; then
-    # The container pilot has its own test for stashcp and
-    # stash_plugin.  I'm not sure which one I like better,
-    # and don't want to spend the time merging them since
-    # they're both likely to change once the plugin is
-    # 'bundled' with HTCondor itself. -mat 2022-12-07
+    # The stashcp executable doesn't come with Condor but we need it for
+    # downloading images so we get it from the frontend.
     STASHCP=$PWD/client/stashcp
-    STASH_PLUGIN=$PWD/client/stash_plugin
-    chmod 755 $STASHCP $STASH_PLUGIN
+    chmod 755 $STASHCP
 
-    if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
-        warn "OSDF plugin explicitly disabled at site $glidein_site"
+    # TODO Check the STASH_PLUGIN and OSDF_PLUGIN macros defined in the condor config first
+    CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
+    if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
+        STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+    elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
+        STASH_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
     else
-        if osdf_plugin_is_ok "$STASH_PLUGIN"; then
-            add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
-            add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+        warn "OSDF plugin not found in pilot's condor install"
+    fi
+
+    if [[ $STASH_PLUGIN ]]; then
+        if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
+            warn "OSDF plugin explicitly disabled at site $glidein_site"
+        else
+            if osdf_plugin_is_ok "$STASH_PLUGIN"; then
+                add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
+                add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+            fi
         fi
     fi
 fi  # ! $IS_CONTAINER_PILOT
