@@ -10,6 +10,27 @@ function warn {
     echo "WARN  " $@ 1>&2
 }
 
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line_safe $key "$value"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
+    else
+        echo "$key = $value"
+    fi
+}
+
 
 ###########################################################
 # import add_config_line and add_condor_vars_line functions
@@ -133,6 +154,7 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 #add_condor_vars_line STARTER_DEBUG "C" "-" "+" "N" "N" "-"
 
 
+OSDF_FAIL_REASON=""
 osdf_plugin_is_ok () {
     local STASH_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
     STASH_PLUGIN="$1"
@@ -168,12 +190,13 @@ osdf_plugin_is_ok () {
             return 0
         else
             if [ "$?" -eq "124" ]; then
-                warn "Failed (timed out after 120s)! stashcp output:"
+                OSDF_FAIL_REASON="Failed (timed out after 120s)!"
             elif [ -f stashcp-test.time ]; then
-                warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
+                OSDF_FAIL_REASON="Failed (in $(tail -1 stashcp-test.time)s)!"
             else
-                warn "Failed! stashcp output:"
+                OSDF_FAIL_REASON="Failed for other reason!"
             fi
+            warn "$OSDF_FAIL_REASON stashcp output:"
             while read line; do warn "$line"; done < stashcp-test.log
             return 1
         fi
@@ -204,6 +227,8 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
             if osdf_plugin_is_ok "$STASH_PLUGIN"; then
                 add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
                 add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+            else
+                advertise OSDF_FAIL_REASON "$OSDF_FAIL_REASON" "S"
             fi
         fi
     fi
