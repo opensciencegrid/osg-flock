@@ -260,7 +260,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
     add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
     DEBUG="${DEBUG}; CONDOR_LIBEXEC=${CONDOR_LIBEXEC}"
-    add_to_debug "Plugins in CONDOR_LIBEXEC: " "$(/bin/ls -l "$CONDOR_LIBEXEC/" 2>&1)"
+    add_to_debug "Plugins in CONDOR_LIBEXEC: " "$(/bin/ls -F "$CONDOR_LIBEXEC/" 2>&1)"
     advertise "DEBUG" "$DEBUG" "S"
 
     if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
