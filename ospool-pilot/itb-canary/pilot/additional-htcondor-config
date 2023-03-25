@@ -244,7 +244,6 @@ fi
 # Test and add the stash/osdf plugin
 # It comes with condor.
 if [[ ! $IS_CONTAINER_PILOT ]]; then
-    # TODO Check the STASH_PLUGIN and OSDF_PLUGIN macros defined in the condor config first
     # The container pilot has its own code for this (for now)
 
     DEBUG=""
@@ -252,35 +251,30 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         [[ $DEBUG ]] && DEBUG="${DEBUG}; "
         DEBUG="${DEBUG}$(printf "%q " "$@")"
     }
-    # condor-stash-plugin comes with a drop-in config file in condor's config.d directory, but
-    # that's unused in factory pilots.  This is where the plugin is going to be:
-    add_to_debug "PWD=[$PWD]"
-    CONDOR_DIR=$(gconfig_get CONDOR_DIR)
-    add_to_debug "CONDOR_DIR=[$CONDOR_DIR]"
-    CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
-    add_to_debug "CONDOR_LIBEXEC=[$CONDOR_LIBEXEC]"
-    add_to_debug "Plugins in CONDOR_LIBEXEC: " "$(/bin/ls -F "$CONDOR_LIBEXEC/" 2>&1)"
-    advertise "DEBUG" "$DEBUG" "S"
-    [[ -e additional-htcondor-config.debug ]] || find . -ls &> additional-htcondor-config.debug
 
-    if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
-        STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin  # forward compat
-    elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
+    # In a factory pilot, at the time this script is invoked, Condor will have
+    # a libexec directory like main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr/libexec/condor
+    # By the time Condor starts up, it will have been moved to main/condor/libexec
+    CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
+    REAL_CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/condor-*/usr/libexec/condor
+
+    if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
+        # forward compat
+        STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+        REAL_STASH_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
+    elif [[ -x $REAL_CONDOR_LIBEXEC/stash_plugin ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
-        add_to_debug "Plugin found at second attempt"
-    elif [[ -x $PWD/main/condor/libexec/stash_plugin ]]; then
-        STASH_PLUGIN=$PWD/main/condor/libexec/stash_plugin
-        add_to_debug "Plugin found at third attempt"
+        REAL_STASH_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
     else
-        OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install (looked for $CONDOR_LIBEXEC/{osdf,stash}_plugin)"
+        OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install"
     fi
 
     if [[ $STASH_PLUGIN ]]; then
-        add_to_debug "Stash plugin found at" "$STASH_PLUGIN"
+        add_to_debug "Stash plugin found at" "$REAL_STASH_PLUGIN"
         if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
             OSDF_FAIL_REASON="OSDF plugin explicitly disabled at site $glidein_site"
         else
-            if osdf_plugin_is_ok "$STASH_PLUGIN"; then
+            if osdf_plugin_is_ok "$REAL_STASH_PLUGIN"; then
                 # osdf_plugin_is_ok sets $OSDF_FAIL_REASON and $OSDF_PLUGIN_VERSION
                 add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
                 add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
@@ -293,6 +287,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     if [[ $OSDF_FAIL_REASON ]]; then
         advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
     fi
+    [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 fi  # ! $IS_CONTAINER_PILOT
 
 ##################################################################
