@@ -261,6 +261,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     add_to_debug "CONDOR_LIBEXEC=[$CONDOR_LIBEXEC]"
     add_to_debug "Plugins in CONDOR_LIBEXEC: " "$(/bin/ls -F "$CONDOR_LIBEXEC/" 2>&1)"
     advertise "DEBUG" "$DEBUG" "S"
+    [[ -e additional-htcondor-config.debug ]] || find . -ls &> additional-htcondor-config.debug
 
     if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin  # forward compat
