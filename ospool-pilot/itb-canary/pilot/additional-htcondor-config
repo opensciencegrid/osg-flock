@@ -249,17 +249,16 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
 
     DEBUG=""
     add_to_debug () {
-        [[ $DEBUG ]] && DEBUG="${DEBUG};; "
-        DEBUG="${DEBUG}$(tr -s '\n' ';' <<<"$*")"
+        [[ $DEBUG ]] && DEBUG="${DEBUG}; "
+        DEBUG="${DEBUG}$(printf "%q " "$@")"
     }
     # condor-stash-plugin comes with a drop-in config file in condor's config.d directory, but
     # that's unused in factory pilots.  This is where the plugin is going to be:
-    add_to_debug "PWD=$PWD"
+    add_to_debug "PWD=[$PWD]"
     CONDOR_DIR=$(gconfig_get CONDOR_DIR)
-    add_to_debug "CONDOR_DIR=$CONDOR_DIR"
+    add_to_debug "CONDOR_DIR=[$CONDOR_DIR]"
     CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
-    add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
-    DEBUG="${DEBUG}; CONDOR_LIBEXEC=${CONDOR_LIBEXEC}"
+    add_to_debug "CONDOR_LIBEXEC=[$CONDOR_LIBEXEC]"
     add_to_debug "Plugins in CONDOR_LIBEXEC: " "$(/bin/ls -F "$CONDOR_LIBEXEC/" 2>&1)"
     advertise "DEBUG" "$DEBUG" "S"
 
@@ -267,11 +266,16 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin  # forward compat
     elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
         STASH_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
+        add_to_debug "Plugin found at second attempt"
+    elif [[ -x $PWD/main/condor/libexec/stash_plugin ]]; then
+        STASH_PLUGIN=$PWD/main/condor/libexec/stash_plugin
+        add_to_debug "Plugin found at third attempt"
     else
         OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install (looked for $CONDOR_LIBEXEC/{osdf,stash}_plugin)"
     fi
 
     if [[ $STASH_PLUGIN ]]; then
+        add_to_debug "Stash plugin found at" "$STASH_PLUGIN"
         if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
             OSDF_FAIL_REASON="OSDF plugin explicitly disabled at site $glidein_site"
         else
@@ -284,7 +288,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
             fi
         fi
     fi
-    
+
     if [[ $OSDF_FAIL_REASON ]]; then
         advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
     fi
