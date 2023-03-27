@@ -351,7 +351,6 @@ for FS in \
    belle.cern.ch \
    cms.cern.ch \
    connect.opensciencegrid.org \
-   desdm.osgstorage.org \
    eic.opensciencegrid.org \
    gluex.osgstorage.org \
    gwosc.osgstorage.org \
