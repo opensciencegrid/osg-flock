@@ -252,7 +252,7 @@
             <idle_vms_total curb="1400" max="1500"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="20000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="0" max="0"/>
+            <running_glideins_total curb="39000" max="40000"/>
          </config>
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
@@ -324,7 +324,7 @@
             <idle_vms_total curb="1400" max="1500"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="200" min="0" relative_to_queue="0.05"/>
-            <running_glideins_total curb="0" max="0"/>
+            <running_glideins_total curb="3900" max="4000"/>
          </config>
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
