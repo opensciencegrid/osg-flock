@@ -67,7 +67,8 @@
             <collector DN="/DC=ch/DC=cern/OU=computers/CN=vocms0207.cern.ch" factory_identity="gfactory@vocms0207.cern.ch" my_identity="feosgospool@vocms0207.cern.ch" node="vocms0207.cern.ch"/>
          </collectors>
       </factory>
-      <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
+      <job comment="Define job constraint and schedds globally for simplicity, on CHTC, only count jobs which wants glideins"
+           query_expr="(JobUniverse==5) &amp;&amp; ((IsCHTCSubmit =!= true) || (WantGlidein =?= true))">
          <match_attrs>
             <match_attr name="UNDESIRED_Sites" type="string"/>
             <match_attr name="DESIRED_Sites" type="string"/>

@@ -31,7 +31,8 @@
             <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-itb-1.opensciencegrid.org" factory_identity="gfactory@gfactory-itb-1.opensciencegrid.org" my_identity="feosgospool@gfactory-itb-1.opensciencegrid.org" node="gfactory-itb-1.opensciencegrid.org"/>
          </collectors>
       </factory>
-      <job comment="Define job constraint and schedds globally for simplicity" query_expr="(JobUniverse==5)&amp;&amp;(GLIDEIN_Is_Monitor =!= TRUE)&amp;&amp;(JOB_Is_Monitor =!= TRUE)">
+      <job comment="Define job constraint and schedds globally for simplicity, on CHTC, only count jobs which wants glideins"
+           query_expr="(JobUniverse==5) &amp;&amp; ((IsCHTCSubmit =!= true) || (WantGlidein =?= true))">
          <match_attrs>
          </match_attrs>
          <schedds>
