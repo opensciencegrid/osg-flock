@@ -51,6 +51,7 @@
                       ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                       ((UNDESIRED_Sites=?=undefined) || !stringListMember(GLIDEIN_Site,UNDESIRED_Sites,",")) &amp;&amp;
                       (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
+                      (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 3 * MY.TotalSlotMemory / MY.TotalSlotCpus)) &amp;&amp;
                       (ifThenElse(JobDurationCategory =!= undefined &amp;&amp; JobDurationCategory == "Long", 
                                   GLIDEIN_ToDie - CurrentTime &gt;= 72000, 
                                   GLIDEIN_Max_Walltime =?= undefined || GLIDEIN_Max_Walltime &lt; 43200 || GLIDEIN_ToDie - CurrentTime &gt;= 36000))
