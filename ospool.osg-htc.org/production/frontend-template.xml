@@ -53,7 +53,7 @@
                       (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
                       (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 5 * MY.TotalSlotMemory / MY.TotalSlotCpus)) &amp;&amp;
                       (ifThenElse(JobDurationCategory =!= undefined &amp;&amp; JobDurationCategory == "Long", 
-                                  GLIDEIN_ToDie - CurrentTime &gt;= 72000, 
+                                  GLIDEIN_ToDie - CurrentTime &gt;= 144000,
                                   GLIDEIN_Max_Walltime =?= undefined || GLIDEIN_Max_Walltime &lt; 43200 || GLIDEIN_ToDie - CurrentTime &gt;= 36000))
                       '>
       <factory query_expr="True">
