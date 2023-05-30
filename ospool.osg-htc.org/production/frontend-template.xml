@@ -1,6 +1,6 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="OSPool" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config ignore_down_entries="False">
-      <idle_vms_total curb="9000" max="10000"/>
+      <idle_vms_total curb="19000" max="20000"/>
       <idle_vms_total_global curb="19000" max="20000"/>
       <running_glideins_total curb="59000" max="60000"/>
       <running_glideins_total_global curb="59000" max="60000"/>
@@ -250,12 +250,12 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="60" reserve="1"/>
-            <idle_vms_per_entry curb="1900" max="2000"/>
+            <idle_glideins_per_entry max="200" reserve="1"/>
+            <idle_vms_per_entry curb="9900" max="10000"/>
             <idle_vms_total curb="19000" max="20000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="20000" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="39000" max="40000"/>
+            <running_glideins_per_entry max="40000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="49000" max="50000"/>
          </config>
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
@@ -322,7 +322,7 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="4" reserve="1"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
             <idle_vms_per_entry curb="5" max="5"/>
             <idle_vms_total curb="1400" max="1500"/>
             <processing_workers matchmakers="3"/>
@@ -356,6 +356,7 @@
             </credentials>
          </security>
          <attrs>
+            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="10.x"/>
             <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
             <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
             <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
@@ -542,7 +543,7 @@
                   <match_attr name="XENON_DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                  <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login-el7.xenon.ci-connect.net"/>
+                  <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login.xenon.ci-connect.net"/>
                </schedds>
             </job>
          </match>
