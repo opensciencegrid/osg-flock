@@ -26,6 +26,7 @@ core_schedds = [
         'ap21.uc.osg-htc.org',
         'ap22.uc.osg-htc.org',
         'ap23.uc.osg-htc.org',
+        'ap40.uw.osg-htc.org',
         'huxley-osgsub-001.sdmz.amnh.org',
         'login04.osgconnect.net',
         'login05.osgconnect.net',
