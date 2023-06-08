@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=693
+OSG_GLIDEIN_VERSION=694
 #######################################################################
 
 
@@ -376,6 +376,9 @@ else
     advertise SINGULARITY_DISK_IS_FULL "False" C
 fi
 
+# advertise some monitoring data
+advertise MONITORING_NO_FILES $(find . -type f | wc -l) "I"
+advertise MONITORING_DISK_USAGE $(du -s . | awk '{print $1;}') "I"
 
 ##################
 # cvmfs filesystem availability
