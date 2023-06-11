@@ -177,18 +177,13 @@ def main():
 
     if args.target_env == "development":
         core_schedds = [
+            'ap20.uc.osg-htc.org',
+            'ap21.uc.osg-htc.org',
+            'ap22.uc.osg-htc.org',
+            'ap23.uc.osg-htc.org',
+            'ap40.uw.osg-htc.org',
             'login04.osgconnect.net',
             'login05.osgconnect.net'
-            ]
-    else:
-        # production
-        core_schedds = [
-            'amundsen.grid.uchicago.edu',
-            'login-el7.xenon.ci-connect.net',
-            'login.snowmass21.io',
-            'login04.osgconnect.net',
-            'login05.osgconnect.net',
-            'scott.grid.uchicago.edu'
             ]
 
     if args.gwms_frontend_config:
