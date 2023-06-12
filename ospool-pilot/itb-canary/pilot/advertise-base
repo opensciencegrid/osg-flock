@@ -564,7 +564,7 @@ fi
 if [[ -n $OSG_PROJECT_NAME ]]; then
     info "OSG_PROJECT_NAME=$OSG_PROJECT_NAME"
     advertise OSG_PROJECT_NAME "$OSG_PROJECT_NAME" "S"
-    advertise OSG_PROJECT_RESTRICTION "ProjectName =?= OSG_PROJECT_NAME" "C"
+    advertise OSG_PROJECT_RESTRICTION "TARGET.ProjectName =?= MY.OSG_PROJECT_NAME" "C"
 else
     info "OSG_PROJECT_NAME is unset"
 fi
