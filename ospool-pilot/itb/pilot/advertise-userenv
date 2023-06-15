@@ -338,7 +338,7 @@ else
       fi
    fi
 fi
-advertise HAS_MODULES "$RESULT && MY.HAS_CVMFS_oasis_opensciencegrid_org && MY.HAS_CVMFS_connect_opensciencegrid_org" "C"
+advertise HAS_MODULES "$RESULT && HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_connect_opensciencegrid_org" "C"
 
 
 ##################
@@ -501,7 +501,7 @@ rm -f py.check
 ##################
 # matlab
 
-advertise MATLAB_COMPATIBLE "MY.HAS_MODULES && MY.HAS_FILE_usr_lib64_libXt_so_6" "C"
+advertise MATLAB_COMPATIBLE "HAS_MODULES && HAS_FILE_usr_lib64_libXt_so_6" "C"
 
 
 ##################

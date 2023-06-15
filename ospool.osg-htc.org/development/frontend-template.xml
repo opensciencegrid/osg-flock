@@ -17,12 +17,12 @@
       </process_logs>
    </log_retention>
    <match match_expr="True" start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
-                                        (isUndefined(MY.IsBlackHole) || MY.IsBlackHole == False) &amp;&amp;
-                                        (isUndefined(MY.HasExcessiveLoad) || MY.HasExcessiveLoad == False) &amp;&amp;
+                                        (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
+                                        (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
                                         (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
-                                        (ifThenElse(TARGET.JobDurationCategory =!= undefined &amp;&amp; TARGET.JobDurationCategory == "Long",
-                                                    MY.GLIDEIN_ToDie - CurrentTime &gt;= 72000,
-                                                    MY.GLIDEIN_Max_Walltime =?= undefined || MY.GLIDEIN_Max_Walltime &lt; 43200 || MY.GLIDEIN_ToDie - CurrentTime &gt;= 36000))
+                                        (ifThenElse(JobDurationCategory =!= undefined &amp;&amp; JobDurationCategory == "Long", 
+                                                    GLIDEIN_ToDie - CurrentTime &gt;= 72000, 
+                                                    GLIDEIN_Max_Walltime =?= undefined || GLIDEIN_Max_Walltime &lt; 43200 || GLIDEIN_ToDie - CurrentTime &gt;= 36000))
                                         '>
       <factory query_expr="True">
          <match_attrs>
@@ -84,7 +84,7 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
-                            ((TARGET.DESIRED_Sites=?=undefined) || stringListMember(MY.GLIDEIN_Site,TARGET.DESIRED_Sites,","))'>
+                            ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
@@ -165,7 +165,7 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
-                            ((TARGET.DESIRED_Sites=?=undefined) || stringListMember(MY.GLIDEIN_Site, TARGET.DESIRED_Sites,","))'>
+                            ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
@@ -246,7 +246,7 @@
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
-                            ((TARGET.DESIRED_Sites=?=undefined) || stringListMember(MY.GLIDEIN_Site,TARGET.DESIRED_Sites,",")) &amp;&amp;
+                            ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                             TARGET.RequestGPUs &gt; 0"'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; 
                                  stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
