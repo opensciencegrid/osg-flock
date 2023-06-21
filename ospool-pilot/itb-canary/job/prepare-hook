@@ -200,7 +200,7 @@ function download_or_build_singularity_image () {
             base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;' | sed 's;/*/$;;')
             image_name=$(echo "$base_name" | sed 's;[:/];__;g')
             week=$(date +'%V')
-            singularity_srcs="stash:///osgconnect/public/osg/images/$week/sif/$image_name.sif http://stash.osgconnect.net/public/osg/images/sif/$image_name.sif docker://hub.opensciencegrid.org/$base_name"
+            singularity_srcs="osdf:///ospool/uc-shared/public/OSG-Staff/images/$week/sif/$image_name.sif stash:///osgconnect/public/osg/images/$week/sif/$image_name.sif http://stash.osgconnect.net/public/osg/images/sif/$image_name.sif docker://hub.opensciencegrid.org/$base_name"
         elif [[ -e "$singularity_image" ]]; then
             # the image is not on cvmfs, but has already been downloaded - short circuit here
             echo "$singularity_image"
@@ -263,7 +263,7 @@ function download_or_build_singularity_image () {
                 echo "Trying to download from $src ..." &>>$logfile
 
                 if (echo "$src" | grep -E "^(stash|osdf)://")>/dev/null 2>&1; then
-                    if (stash_download "$tmptarget2" "$src") &>>$logfile; then
+                    if (osdf_download "$tmptarget2" "$src") &>>$logfile; then
                         downloaded=1
                         break
                     fi
