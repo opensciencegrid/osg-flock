@@ -403,6 +403,7 @@ for FS in \
    sft.cern.ch \
    singularity.opensciencegrid.org \
    snoplus.egi.eu \
+   software.igwn.org \
    sphenix.opensciencegrid.org \
    spt.opensciencegrid.org \
    stash.osgstorage.org \

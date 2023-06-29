@@ -363,6 +363,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        oasis.opensciencegrid.org \
        sft.cern.ch \
        singularity.opensciencegrid.org \
+       software.igwn.org \
        snoplus.egi.eu \
        sphenix.opensciencegrid.org \
        spt.opensciencegrid.org \
