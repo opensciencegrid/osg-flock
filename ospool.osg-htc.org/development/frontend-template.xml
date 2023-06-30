@@ -318,8 +318,8 @@
       </group>
    </groups>
    <ccbs>
-      <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb1" node="ccb-1.ospool-itb.osg-htc.org:9618?sock=collector1-5"/>
-      <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb2" node="ccb-2.ospool-itb.osg-htc.org:9618?sock=collector1-5"/>
+      <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb1" node="ccb-1.ospool-itb.osg-htc.org:9618?sock=collector1-10"/>
+      <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb2" node="ccb-2.ospool-itb.osg-htc.org:9618?sock=collector1-10"/>
    </ccbs>
    <collectors>
       <!-- main set -->
