@@ -81,7 +81,7 @@ function check_singularity_overrides {
     fi
 }
 
-function stash_download {
+function osdf_download {
     # Use stashcp to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
     local dest="$1"
     local src="$2"
