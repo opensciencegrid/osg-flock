@@ -359,10 +359,13 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        gwosc.osgstorage.org \
        icecube.opensciencegrid.org \
        icecube.osgstorage.org \
+       kagra.storage.igwn.org \
+       ligo.storage.igwn.org \
        nexo.opensciencegrid.org \
        oasis.opensciencegrid.org \
        sft.cern.ch \
        singularity.opensciencegrid.org \
+       shared.storage.igwn.org \
        software.igwn.org \
        snoplus.egi.eu \
        sphenix.opensciencegrid.org \
@@ -370,6 +373,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        stash.osgstorage.org \
        unpacked.cern.ch \
        veritas.opensciencegrid.org \
+       virgo.storage.igwn.org \
        xenon.opensciencegrid.org \
        sw.lsst.eu \
     ; do
