@@ -28,12 +28,14 @@ core_schedds = [
         'ap23.uc.osg-htc.org',
         'ap40.uw.osg-htc.org',
         'huxley-osgsub-001.sdmz.amnh.org',
-        'login04.osgconnect.net',
-        'login05.osgconnect.net',
         'login.collab.ci-connect.net',
-        'login.xenon.ci-connect.net',
         'login.snowmass21.io',
+        'login.xenon.ci-connect.net',
         'scott.grid.uchicago.edu',
+        'sub-2.icecube.wisc.edu',
+        'submit-1.chtc.wisc.edu',
+        'submit2.chtc.wisc.edu',
+        'submit3.chtc.wisc.edu',
         ]
 
 def load_data():
@@ -182,8 +184,6 @@ def main():
             'ap22.uc.osg-htc.org',
             'ap23.uc.osg-htc.org',
             'ap40.uw.osg-htc.org',
-            'login04.osgconnect.net',
-            'login05.osgconnect.net'
             ]
 
     if args.gwms_frontend_config:
