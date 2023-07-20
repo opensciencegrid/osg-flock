@@ -1,4 +1,0 @@
-/cvmfs/ligo.storage.igwn.org/igwn/ligo/frames/O1/hoft_C02/L1/L-L1_HOFT_C02-11348/L-L1_HOFT_C02-1134886912-4096.gwf
-/cvmfs/oasis.opensciencegrid.org/ligo/frames/O2/hoft/H1/H-H1_HOFT_C00-11650/H-H1_HOFT_C00-1165000704-1884.gwf
-/cvmfs/ligo.storage.igwn.org/igwn/ligo/frames/O4/hoft_C00/H1/H-H1_HOFT_C00-137/H-H1_HOFT_C00-1373810688-4096.gwf
-/cvmfs/virgo.storage.igwn.org/igwn/virgo/frames/O4/HoftOnline/V-HoftOnline-13738/V-HoftOnline-1373814000-2000.gwf
