@@ -8,7 +8,7 @@
 
 glidein_config="$1"
 
-                                                           
+
 function info {
     echo "INFO  " $@ 1>&2
 }
@@ -18,12 +18,12 @@ function warn {
 }
 
 function advertise {
-    # atype is the type of the value as defined by GlideinWMS:                                                                                           
-    #   I - integer                                                                                                                                     
-    #   S - quoted string                                                                                                                             
-    #   C - unquoted string (i.e. Condor keyword or expression)                                                                                       
-                                       
-    
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+
+
     key="$1"
     value="$2"
     atype="$3"
@@ -41,7 +41,7 @@ function advertise {
 }
 
 function get_glidein_config_value {
-    # extracts a config attribute value from 
+    # extracts a config attribute value from
     # $1 is the attribute key
     CF=$glidein_config
     if [ "$glidein_config" = "NONE" ]; then
@@ -125,5 +125,5 @@ advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
 advertise "HAS_CVMFS_LIGO_STORAGE" "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_STORAGE" "$RESULT" "C"
-##################                                                                                                                                                   
+##################
 info "All done - time to do some real work!"
