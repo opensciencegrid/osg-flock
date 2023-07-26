@@ -497,36 +497,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
     fi
 
-    # xcache - has to be outside due to the ping requirement
-    XCACHE_CLOSEST=""
-    XCACHE_CLOSEST_RTT="-1"
-    OSG_DEFAULT_CVMFS_DATA=`get_glidein_config_value OSG_DEFAULT_CVMFS_DATA`
-    info "Using $OSG_DEFAULT_CVMFS_DATA to check closest cache"
-    if [ -e $TEST_FILE_4H.xcache_closest ]; then
-        XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
-        XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
-    else
-        XCACHE_CLOSEST=`(attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/') 2>/dev/null`
-	info "Closest XCACHE found is: $XCACHE_CLOSEST"
-        # test first using the cached cvmfs values
-	info "Lenght of XCache found is ${#XCACHE_CLOSEST}"
-        if [ ${#XCACHE_CLOSEST} -le 4 ]; then
-            info "Looking for closest XCache using stashcp --closest"
-            XCACHE_CLOSEST=`(OSG_LOCATION=/cvmfs/oasis.opensciencegrid.org/mis/osg-wn-client/3.5/current/el7-x86_64/ PYTHONPATH=$OSG_LOCATION/usr/lib/python2.7/site-packages:$OSG_LOCATION/usr/lib64/python2.7/site-packages PATH=$OSG_LOCATION/usr/bin:$OSG_LOCATION/usr/sbin:$PATH $TIMEOUT_CMD stashcp -n xroot --closest | sed 's;root://;;') 2>/dev/null`
-        fi
-        if [ "X$XCACHE_CLOSEST" != "X" ]; then
-            echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
-            # also want the RTT
-            XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
-            echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
-        else
-            echo "" > $TEST_FILE_4H.xcache_closest
-            echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
-        fi
-    fi
-    advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
-    advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
-
 fi # OSG_SINGULARITY_REEXEC
 
 ##################
