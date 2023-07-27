@@ -8,7 +8,7 @@
 
 glidein_config="$1"
 
-                                                           
+
 function info {
     echo "INFO  " $@ 1>&2
 }
@@ -18,12 +18,12 @@ function warn {
 }
 
 function advertise {
-    # atype is the type of the value as defined by GlideinWMS:                                                                                           
-    #   I - integer                                                                                                                                     
-    #   S - quoted string                                                                                                                             
-    #   C - unquoted string (i.e. Condor keyword or expression)                                                                                       
-                                       
-    
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+
+
     key="$1"
     value="$2"
     atype="$3"
@@ -41,7 +41,7 @@ function advertise {
 }
 
 function get_glidein_config_value {
-    # extracts a config attribute value from 
+    # extracts a config attribute value from
     # $1 is the attribute key
     CF=$glidein_config
     if [ "$glidein_config" = "NONE" ]; then
@@ -71,6 +71,7 @@ if [ "$glidein_config" != "NONE" ]; then
     condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 fi
 
+##################
 
 info "Checking for IGWN container availability"
 
@@ -82,30 +83,58 @@ fi
 advertise $FS_ATTR "$RESULT" "C"
 advertise "HAS_CVMFS_IGWN_CONTAINERS" "$RESULT" "C"
 
+##################
 
 info "Checking for IGWN FRAMES availability"
+FS_ATTR="HAS_IGWN_FRAMES"
+TEST_FILE_LIST="client/ligo-cvmfs-data.txt"
+
+##
+
+info "Testing LIGO frames outside singularity"
+
+# test all GWF files in the file
+OVERALL_RESULT="True"  # start with success and assert otherwise
+while read CVMFS_ATTR GWF \
+; do
+    TEST_CMD="head -c4 $GWF"
+    info "setsid $TEST_CMD | grep IGWD"
+    if ! (setsid $TEST_CMD | grep IGWD) 1>&2; then
+        RESULT="False"
+        OVERALL_RESULT="${RESULT}"
+    else
+        RESULT="True"
+    fi
+    advertise "${CVMFS_ATTR}" "${RESULT}" "C"
+done <${TEST_FILE_LIST}
+
+advertise $FS_ATTR "$OVERALL_RESULT" "C"
+advertise "HAS_LIGO_FRAMES" "$OVERALL_RESULT" "C"
+advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$OVERALL_RESULT" "C"
+advertise "HAS_CVMFS_IGWN_STORAGE" "$OVERALL_RESULT" "C"
+
+##
 
 HAS_SINGULARITY=`get_glidein_config_value HAS_SINGULARITY`
-FS=ligo.osgstorage.org
-FS_ATTR="HAS_LIGO_FRAMES"
-RESULT="False"
-TEST_FILE=`shuf -n 1 client/frame_files_small.txt`
-OSG_SINGULARITY_PATH=`get_glidein_config_value OSG_SINGULARITY_PATH`
-OSG_SINGULARITY_EXTRA_OPTS=`get_glidein_config_value OSG_SINGULARITY_EXTRA_OPTS`
-OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DEFAULT`
-TEST_CMD="head -c 1k $TEST_FILE"
 
+RESULT="False"
 if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
     info "Testing LIGO frames inside singularity"
+    # NOTE: this uses the $TEST_CMD from above, so just checks
+    #       the _last_ GWF file in the list
+    OSG_SINGULARITY_PATH=`get_glidein_config_value OSG_SINGULARITY_PATH`
+    OSG_SINGULARITY_EXTRA_OPTS=`get_glidein_config_value OSG_SINGULARITY_EXTRA_OPTS`
+    OSG_SINGULARITY_IMAGE_DEFAULT=`get_glidein_config_value OSG_SINGULARITY_IMAGE_DEFAULT`
+
     info "Making copy of $X509_USER_PROXY"
     cp $X509_USER_PROXY $PWD/frames_test_proxy
     chmod 600 $PWD/frames_test_proxy
-    info "export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep Frame"
+    info "export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv $OSG_SINGULARITY_EXTRA_OPTS $OSG_SINGULARITY_IMAGE_DEFAULT $TEST_CMD | grep IGWD"
     if ! (export SINGULARITYENV_X509_USER_PROXY=/srv/frames_test_proxy;setsid $OSG_SINGULARITY_PATH exec --bind $PWD:/srv \
-                                            $OSG_SINGULARITY_EXTRA_OPTS \
-                                            "$OSG_SINGULARITY_IMAGE_DEFAULT" \
-                                            $TEST_CMD \
-                                            | grep Frame) 1>&2 \
+        $OSG_SINGULARITY_EXTRA_OPTS \
+        "$OSG_SINGULARITY_IMAGE_DEFAULT" \
+        $TEST_CMD \
+        | grep IGWD) 1>&2 \
     ; then
         RESULT="False"
     else
@@ -113,17 +142,6 @@ if [ "x$HAS_SINGULARITY" = "xTrue" ]; then
     fi
     advertise "HAS_CVMFS_IGWN_PRIVATE_DATA_SINGULARITY" "$RESULT" "C"
 fi
-info "Testing LIGO frames outside singularity"
-info "setsid  $TEST_CMD | grep Frame"
-if ! (setsid  $TEST_CMD | grep Frame) 1>&2 \
-    ; then
-        RESULT="False"
-else
-        RESULT="True"
-fi
-advertise $FS_ATTR "$RESULT" "C"
-advertise "HAS_CVMFS_IGWN_PRIVATE_DATA" "$RESULT" "C"
-advertise "HAS_CVMFS_LIGO_STORAGE" "$RESULT" "C"
-advertise "HAS_CVMFS_IGWN_STORAGE" "$RESULT" "C"
-##################                                                                                                                                                   
+
+##################
 info "All done - time to do some real work!"
