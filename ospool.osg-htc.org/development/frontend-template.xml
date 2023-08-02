@@ -327,9 +327,6 @@
       <file absfname="/opt/osg-flock/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/osg-flock/node-check/frame_files_small.txt" after_entry="True" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
       <file absfname="/opt/osg-flock/node-check/ligo-cvmfs-storage-check.sh" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
