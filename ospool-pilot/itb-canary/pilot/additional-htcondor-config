@@ -257,7 +257,9 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     # By the time Condor starts up, it will have been moved to main/condor/libexec
     CONDOR_DIR=$(gconfig_get CONDOR_DIR)
     CONDOR_LIBEXEC=$CONDOR_DIR/libexec
-    REAL_CONDOR_LIBEXEC=$CONDOR_DIR/condor-*/usr/libexec/condor
+    # shellcheck disable=SC2086
+    REAL_CONDOR_LIBEXEC=$(echo $CONDOR_DIR/condor-*/usr/libexec/condor)
+    # ^^ the "echo" is needed to expand the glob
 
     add_to_debug "CONDOR_DIR=$CONDOR_DIR"
     add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
