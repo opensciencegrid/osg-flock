@@ -255,8 +255,13 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     # In a factory pilot, at the time this script is invoked, Condor will have
     # a libexec directory like main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr/libexec/condor
     # By the time Condor starts up, it will have been moved to main/condor/libexec
-    CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/libexec
-    REAL_CONDOR_LIBEXEC=$(gconfig_get CONDOR_DIR)/condor-*/usr/libexec/condor
+    CONDOR_DIR=$(gconfig_get CONDOR_DIR)
+    CONDOR_LIBEXEC=$CONDOR_DIR/libexec
+    REAL_CONDOR_LIBEXEC=$CONDOR_DIR/condor-*/usr/libexec/condor
+
+    add_to_debug "CONDOR_DIR=$CONDOR_DIR"
+    add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
+    add_to_debug "REAL_CONDOR_LIBEXEC=$REAL_CONDOR_LIBEXEC"
 
     if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
         # forward compat
