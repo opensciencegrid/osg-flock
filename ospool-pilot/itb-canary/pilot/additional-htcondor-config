@@ -261,9 +261,9 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     REAL_CONDOR_LIBEXEC=$(echo $CONDOR_DIR/condor-*/usr/libexec/condor)
     # ^^ the "echo" is needed to expand the glob
 
-    add_to_debug "CONDOR_DIR=$CONDOR_DIR"
-    add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
-    add_to_debug "REAL_CONDOR_LIBEXEC=$REAL_CONDOR_LIBEXEC"
+    # add_to_debug "CONDOR_DIR=$CONDOR_DIR"
+    # add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
+    # add_to_debug "REAL_CONDOR_LIBEXEC=$REAL_CONDOR_LIBEXEC"
 
     if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
         # forward compat
@@ -277,7 +277,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     fi
 
     if [[ $STASH_PLUGIN ]]; then
-        add_to_debug "Stash plugin found at" "$REAL_STASH_PLUGIN"
+        # add_to_debug "Stash plugin found at" "$REAL_STASH_PLUGIN"
         if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
             OSDF_FAIL_REASON="OSDF plugin explicitly disabled at site $glidein_site"
         else
