@@ -171,8 +171,8 @@ osdf_plugin_is_ok () {
     # Sets $OSDF_FAIL_REASON for a human-readable failure reason, or "" on success.
     # Sets $OSDF_PLUGIN_VERSION to the version of the plugin, or "" on failure.
 
-    local STASH_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT ret
-    STASH_PLUGIN="$1"
+    local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT ret
+    OSDF_PLUGIN="$1"
     STASHCP_DEBUG="-d"
     STASHCP_TEST_FILE="/osgconnect/public/osg/testfile.txt"
 
@@ -195,15 +195,15 @@ osdf_plugin_is_ok () {
 
         # also run a simple test (TODO: make this IGWN-specific)
         rm -f stashcp-test.file
-        info "Testing $STASH_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-        if $TIME $TIMEOUT $STASH_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+        info "Testing $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+        if $TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
             if [ -f stashcp-test.time ]; then
                 info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
             else
                 info "Succeeded!"
             fi
 
-            OSDF_PLUGIN_VERSION=$("$STASH_PLUGIN" -classad | awk '/^PluginVersion / { print $3 }' | tr -d '"' 2>>stashcp-test.log)
+            OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^PluginVersion / { print $3 }' | tr -d '"' 2>>stashcp-test.log)
             ret=$?
 
             if [[ $ret != 0 ]]; then
@@ -267,23 +267,23 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
 
     if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
         # forward compat
-        STASH_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
-        REAL_STASH_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
     elif [[ -x $REAL_CONDOR_LIBEXEC/stash_plugin ]]; then
-        STASH_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
-        REAL_STASH_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
+        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
     else
-        OSDF_FAIL_REASON="OSDF plugin not found in pilot's condor install"
+        OSDF_FAIL_REASON="Stash/OSDF plugin not found in pilot's condor install"
     fi
 
-    if [[ $STASH_PLUGIN ]]; then
-        # add_to_debug "Stash plugin found at" "$REAL_STASH_PLUGIN"
+    if [[ $OSDF_PLUGIN ]]; then
+        # add_to_debug "Stash/OSDF plugin found at" "$REAL_OSDF_PLUGIN"
         if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
-            OSDF_FAIL_REASON="OSDF plugin explicitly disabled at site $glidein_site"
+            OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
         else
-            if osdf_plugin_is_ok "$REAL_STASH_PLUGIN"; then
+            if osdf_plugin_is_ok "$REAL_OSDF_PLUGIN"; then
                 # osdf_plugin_is_ok sets $OSDF_FAIL_REASON and $OSDF_PLUGIN_VERSION
-                add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
+                add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$OSDF_PLUGIN"
                 add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
                 advertise "STASH_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"
                 advertise "OSDF_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"  # forward compat
