@@ -171,7 +171,7 @@ osdf_plugin_is_ok () {
     # Sets $OSDF_FAIL_REASON for a human-readable failure reason, or "" on success.
     # Sets $OSDF_PLUGIN_VERSION to the version of the plugin, or "" on failure.
 
-    local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT ret
+    local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
     OSDF_PLUGIN="$1"
     STASHCP_DEBUG="-d"
     STASHCP_TEST_FILE="/osgconnect/public/osg/testfile.txt"
@@ -204,13 +204,11 @@ osdf_plugin_is_ok () {
             fi
 
             OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^PluginVersion / { print $3 }' | tr -d '"' 2>>stashcp-test.log)
-            ret=$?
-
-            if [[ $ret != 0 ]]; then
+            if [[ $OSDF_PLUGIN_VERSION ]]; then
+                OSDF_FAIL_REASON=""
+            else
                 # So close!
                 OSDF_FAIL_REASON="Failure getting plugin version!"
-            else
-                OSDF_FAIL_REASON=""
             fi
         else
             if [ "$?" -eq "124" ]; then
