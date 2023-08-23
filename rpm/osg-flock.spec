@@ -1,6 +1,6 @@
 Name:      osg-flock
 Version:   1.9
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
