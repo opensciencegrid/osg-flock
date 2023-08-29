@@ -426,12 +426,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                     RESULT="False"
                 fi
             fi
-            # stash.osgstorage.org needs extra checks
-            if [ "x$FS" = "xstash.osgstorage.org" ]; then
-                if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                    RESULT="False"
-                fi
-            fi
     
             # veritas.opensciencegrid.org
             if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
@@ -927,7 +921,7 @@ rm -f test.txt
 STASHCP_VERIFIED="False"
 if [ -e $TEST_FILE_1H.stashcp ]; then
     STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
+elif ($TIMEOUT_CMD stashcp osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else

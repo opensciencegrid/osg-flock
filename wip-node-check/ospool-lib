@@ -123,7 +123,7 @@ function check_singularity_sif_support {
 
     # Grab an alpine image from somewhere; ok to download each time since
     # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/stash.osgstorage.org/osgconnect/public/osg/images/static/library__alpine__latest.sif"
+    local cvmfs_alpine="/cvmfs/oasis.opensciencegrid.org/osg/projects/OSG-Staff/images/library__alpine__latest.sif"
     local osghub_alpine="docker://hub.opensciencegrid.org/library/alpine:3"
     local sylabs_alpine="library://alpine:3"
     local work_dir=$(get_glidein_config_value GLIDEIN_WORK_DIR)

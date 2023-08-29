@@ -148,7 +148,7 @@ add_condor_vars_line CHIRP_DELAYED_UPDATE_PREFIX "C" "-" "+" "N" "N" "-"
 # stashcp 
 STASHCP=$PWD/client/stashcp
 STASHCP_DEBUG="-d"
-STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
+STASHCP_TEST_FILE="osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt"
 STASH_PLUGIN=$PWD/client/stash_plugin
 chmod 755 $STASHCP $STASH_PLUGIN
 

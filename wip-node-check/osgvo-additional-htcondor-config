@@ -115,7 +115,7 @@ if [[ -z $OSG_SITE_NAME ]]; then
 fi
 
 # also run a simple test
-time $TIMEOUT $STASHCP /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file; ret=$?
+time $TIMEOUT $STASHCP osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt stashcp-test.file; ret=$?
 if [[ $ret == 0 ]]; then
     echo "stashcp test succeeded"
     if [[ $OSG_SITE_NAME != "UTC-Epyc" ]]; then

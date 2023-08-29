@@ -442,13 +442,6 @@ for FS in \
             fi
         fi
 
-        # stash.osgstorage.org needs extra checks
-        if [ "x$FS" = "xstash.osgstorage.org" ]; then
-            if ! cat "$CVMFS_BASE"/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                RESULT="False"
-            fi
-        fi
-        
         # veritas.opensciencegrid.org
         if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
             if ! cat "$CVMFS_BASE"/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
@@ -517,7 +510,7 @@ chmod +x ./client/stashcp
 STASHCP_VERIFIED="False"
 if [ -e $TEST_FILE_1H.stashcp ]; then
     STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif ($TIMEOUT ./client/stashcp /osgconnect/public/dweitzel/stashcp/test.file stashcp-test.file) >/dev/null 2>&1; then
+elif ($TIMEOUT ./client/stashcp osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt stashcp-test.file) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else

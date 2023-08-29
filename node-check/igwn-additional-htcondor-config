@@ -57,7 +57,7 @@ condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}
 # stashcp 
 STASHCP=$PWD/client/stashcp
 STASHCP_DEBUG="-d"
-STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
+STASHCP_TEST_FILE="osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt"
 STASH_PLUGIN=$PWD/client/stash_plugin
 chmod 755 $STASHCP $STASH_PLUGIN
 
