@@ -42,10 +42,10 @@ def load_data():
     '''
     Load data from topology database
     '''
-    url = "https://my.opensciencegrid.org/rgsummary/xml?" + \
-          "gridtype=on&gridtype_1=on&" + \
-          "disable=on&disable_value=0&" + \
-          "active=on&active_value=1&" + \
+    url = "https://my.opensciencegrid.org/rgsummary/xml?" \
+          "gridtype=on&gridtype_1=on&" \
+          "disable=on&disable_value=0&" \
+          "active=on&active_value=1&" \
           "service=on&service_109=on"
     response = requests.get(url)
 
