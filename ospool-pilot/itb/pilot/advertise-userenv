@@ -295,6 +295,17 @@ if [ "x$ULIMIT_STACK_SIZE" != "x" ]; then
 fi
 
 ##################
+# is the uid mapped to a user? some software is sensitive to this
+
+WHOAMI=$(whoami 2>/dev/null)
+MYUNAME=$(id -u -n 2>/dev/null)
+MAPPED_USER="True"
+if [ "x$WHOAMI" = "x" -o "x$MYUNAME" = "x" ]; then
+    MAPPED_USER="False"
+fi
+advertise MappedUser "$MAPPED_USER" "C"
+
+##################
 # stash
 if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     # ok, we can access stash, but is it ro or rw?
