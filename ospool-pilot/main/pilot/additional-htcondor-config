@@ -159,7 +159,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     fi
 
     glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
-    if (echo $glidein_site | grep -E "UW-IT") >/dev/null 2>&1; then
+    if (echo $glidein_site | grep -E "UW-IT|Maine-ACG") >/dev/null 2>&1; then
         warn "OSDF plugin explicitly disabled at site $glidein_site"
     else
         # also run a simple test (TODO: make this IGWN-specific)
