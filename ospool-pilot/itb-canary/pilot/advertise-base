@@ -471,13 +471,6 @@ for FS in \
             fi
         fi
 
-        # stash.osgstorage.org needs extra checks
-        if [ "x$FS" = "xstash.osgstorage.org" ]; then
-            if ! cat "$CVMFS_BASE"/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                RESULT="False"
-            fi
-        fi
-        
         # veritas.opensciencegrid.org
         if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
             if ! cat "$CVMFS_BASE"/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
@@ -543,17 +536,18 @@ fi
 # this is a one-shot test
 rm -f stashcp-test.file
 chmod +x ./client/stashcp
-STASHCP_VERIFIED="False"
+OSDF_VERIFIED="False"
 if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif ($TIMEOUT ./client/stashcp /osgconnect/public/osg/testfile.txt stashcp-test.file) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
+    OSDF_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+elif ($TIMEOUT ./client/stashcp osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt stashcp-test.file) >/dev/null 2>&1; then
+    OSDF_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else
     echo "False" > $TEST_FILE_1H.stashcp
 fi
 rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+advertise OSDF_VERIFIED "$OSDF_VERIFIED" "C"
+advertise STASHCP_VERIFIED "$OSDF_VERIFIED" "C"
 
 # also record the version
 if [ -e ./client/stashcp ]; then

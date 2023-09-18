@@ -174,7 +174,7 @@ osdf_plugin_is_ok () {
     local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
     OSDF_PLUGIN="$1"
     STASHCP_DEBUG="-d"
-    STASHCP_TEST_FILE="/osgconnect/public/osg/testfile.txt"
+    STASHCP_TEST_FILE="osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt"
 
     TIMEOUT=$(which timeout 2>/dev/null)
     if [ "x$TIMEOUT" != "x" ]; then
