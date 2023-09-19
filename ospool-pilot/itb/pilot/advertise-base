@@ -246,7 +246,7 @@ fi
 # timeout, if available, is used across many tests
 TIMEOUT=$(which timeout 2>/dev/null)
 if [ "x$TIMEOUT" != "x" ]; then
-    TIMEOUT="$TIMEOUT 30s"
+    TIMEOUT="$TIMEOUT -k 30s 30s"
 fi
 
 advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
