@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=712
+OSG_GLIDEIN_VERSION=713
 #######################################################################
 
 
@@ -429,7 +429,7 @@ for FS in \
         continue
     fi
 
-    if ($TIMEOUT ls -l "CVMFS_BASE"/$FS/. >/dev/null 2>&1); then
+    if ($TIMEOUT ls -l "$CVMFS_BASE"/$FS/. >/dev/null 2>&1); then
         RESULT="True"
 
         # add the revision 
