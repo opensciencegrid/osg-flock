@@ -10,6 +10,27 @@ function warn {
     echo "WARN  " $@ 1>&2
 }
 
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line_safe $key "$value"
+        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
+    else
+        echo "$key = $value"
+    fi
+}
+
 
 ###########################################################
 # import add_config_line and add_condor_vars_line functions
@@ -17,6 +38,21 @@ function warn {
 add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
 source $add_config_line_source
 
+if ! command -v gconfig_get &>/dev/null; then
+    warn "Outdated $add_config_line_source - missing gconfig_get()"
+    # Add it ourselves -- adapted from
+    # https://github.com/glideinWMS/glideinwms/blob/a700e2edcfbe272d1a939675ec6bc33aa3667f34/creation/web_base/add_config_line.source
+    gconfig_get () {
+        # Leave the extra space in the grep, to parse correctly strings w/ the same beginning
+        tac "$glidein_config" | grep -m1 "^$1 " | cut -d ' ' -f 2-
+    }
+fi
+
+if [[ $GLIDEIN_Site ]]; then
+    glidein_site=$GLIDEIN_Site
+else
+    glidein_site=$(gconfig_get "GLIDEIN_Site")
+fi
 
 set_unexported_condor_config_attribute () {
     # Sets the value of a config knob in the condor config;
@@ -127,19 +163,18 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 #add_config_line STARTER_DEBUG "D_SECURITY:2"
 #add_condor_vars_line STARTER_DEBUG "C" "-" "+" "N" "N" "-"
 
-###########################################################
-# stashcp 
-if [[ ! $IS_CONTAINER_PILOT ]]; then
-    # The container pilot has its own test for stashcp and
-    # stash_plugin.  I'm not sure which one I like better,
-    # and don't want to spend the time merging them since
-    # they're both likely to change once the plugin is
-    # 'bundled' with HTCondor itself. -mat 2022-12-07
-    STASHCP=$PWD/client/stashcp
+
+OSDF_FAIL_REASON=""
+OSDF_PLUGIN_VERSION=""
+osdf_plugin_is_ok () {
+    # Performs tests on the Stash/OSDF plugin passed as an argument.
+    # Sets $OSDF_FAIL_REASON for a human-readable failure reason, or "" on success.
+    # Sets $OSDF_PLUGIN_VERSION to the version of the plugin, or "" on failure.
+
+    local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
+    OSDF_PLUGIN="$1"
     STASHCP_DEBUG="-d"
     STASHCP_TEST_FILE="osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt"
-    STASH_PLUGIN=$PWD/client/stash_plugin
-    chmod 755 $STASHCP $STASH_PLUGIN
 
     TIMEOUT=$(which timeout 2>/dev/null)
     if [ "x$TIMEOUT" != "x" ]; then
@@ -158,32 +193,106 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         TIME="$TIME --output=stashcp-test.time --format=%e"
     fi
 
-    glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
-    if (echo $glidein_site | grep -E "UW-IT|Maine-ACG") >/dev/null 2>&1; then
-        warn "OSDF plugin explicitly disabled at site $glidein_site"
-    else
-        # also run a simple test (TODO: make this IGWN-specific)
-        rm -f stashcp-test.file
-        info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-        if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
-            if [ -f stashcp-test.time ]; then
-                info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
-            else
-                info "Succeeded!"
-            fi
-            add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
-            add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+    # also run a simple test (TODO: make this IGWN-specific)
+    rm -f stashcp-test.file
+    info "Testing $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+    if $TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+        if [ -f stashcp-test.time ]; then
+            info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
         else
-            if [ "$?" -eq "124" ]; then
-                warn "Failed (timed out after 120s)! stashcp output:"
-            elif [ -f stashcp-test.time ]; then
-                warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
-            else
-                warn "Failed! stashcp output:"
-            fi
-            while read line; do warn "$line"; done < stashcp-test.log
+            info "Succeeded!"
+        fi
+
+        OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^PluginVersion / { print $3 }' | tr -d '"' 2>>stashcp-test.log)
+        if [[ $OSDF_PLUGIN_VERSION ]]; then
+            OSDF_FAIL_REASON=""
+        else
+            # So close!
+            OSDF_FAIL_REASON="Failure getting plugin version!"
+        fi
+    else
+        if [ "$?" -eq "124" ]; then
+            OSDF_FAIL_REASON="Failed (timed out after 120s)!"
+        elif [ -f stashcp-test.time ]; then
+            OSDF_FAIL_REASON="Failed (in $(tail -1 stashcp-test.time)s)!"
+        else
+            OSDF_FAIL_REASON="Failed for other reason!"
         fi
     fi
+
+    if [[ $OSDF_FAIL_REASON ]]; then
+        warn "$OSDF_FAIL_REASON stashcp output:"
+        while read line; do warn "$line"; done < stashcp-test.log
+        OSDF_PLUGIN_VERSION=""
+        return 1
+    fi
+}
+
+###########################################################
+# stashcp 
+if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # The stashcp executable doesn't come with Condor but we need it for
+    # downloading images so we get it from the frontend.
+    # Not used in the container pilot -- we have /usr/bin/stashcp
+    STASHCP=$PWD/client/stashcp
+    chmod 755 $STASHCP
+fi
+
+###########################################################
+# Test and add the stash/osdf plugin
+# It comes with condor.
+if [[ ! $IS_CONTAINER_PILOT ]]; then
+    # The container pilot has its own code for this (for now)
+
+    DEBUG=""
+    add_to_debug () {
+        [[ $DEBUG ]] && DEBUG="${DEBUG}; "
+        DEBUG="${DEBUG}$(printf "%q " "$@")"
+    }
+
+    # In a factory pilot, at the time this script is invoked, Condor will have
+    # a libexec directory like main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr/libexec/condor
+    # By the time Condor starts up, it will have been moved to main/condor/libexec
+    CONDOR_DIR=$(gconfig_get CONDOR_DIR)
+    CONDOR_LIBEXEC=$CONDOR_DIR/libexec
+    # shellcheck disable=SC2086
+    REAL_CONDOR_LIBEXEC=$(echo $CONDOR_DIR/condor-*/usr/libexec/condor)
+    # ^^ the "echo" is needed to expand the glob
+
+    # add_to_debug "CONDOR_DIR=$CONDOR_DIR"
+    # add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
+    # add_to_debug "REAL_CONDOR_LIBEXEC=$REAL_CONDOR_LIBEXEC"
+
+    if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
+        # forward compat
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
+    elif [[ -x $REAL_CONDOR_LIBEXEC/stash_plugin ]]; then
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
+        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
+    else
+        OSDF_FAIL_REASON="Stash/OSDF plugin not found in pilot's condor install"
+    fi
+
+    if [[ $OSDF_PLUGIN ]]; then
+        # add_to_debug "Stash/OSDF plugin found at" "$REAL_OSDF_PLUGIN"
+        if (echo $glidein_site | grep -E "UW-IT|Maine-ACG") >/dev/null 2>&1; then
+            OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
+        else
+            if osdf_plugin_is_ok "$REAL_OSDF_PLUGIN"; then
+                # osdf_plugin_is_ok sets $OSDF_FAIL_REASON and $OSDF_PLUGIN_VERSION
+                add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$OSDF_PLUGIN"
+                add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+                advertise "STASH_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"
+                advertise "OSDF_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"  # forward compat
+            fi
+        fi
+    fi
+
+    if [[ $OSDF_FAIL_REASON ]]; then
+        advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
+    fi
+    [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 fi  # ! $IS_CONTAINER_PILOT
 
 ##################################################################
@@ -200,7 +309,6 @@ fi  # ! $IS_CONTAINER_PILOT
 #   LANG
 info "Calculating default job environment variables."
 
-glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
 if [[ -z $OSG_SITE_NAME ]]; then
     OSG_SITE_NAME=$glidein_site
 fi
