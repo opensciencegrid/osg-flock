@@ -69,6 +69,12 @@ function check_singularity_overunderlay {
 function check_singularity_overrides {
     GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
     GLIDEIN_Site=$(get_glidein_config_value GLIDEIN_Site)
+    # SIUE - Singularity crashes due to shared fs
+    # (https://support.opensciencegrid.org/a/tickets/74298)
+    if (echo "$GLIDEIN_Entry_Name" | egrep -i "SIUE") >/dev/null 2>&1; then
+        advertise HAS_SINGULARITY "False" "C"
+        advertise SINGULARITY_COMMENT "Disabled due to shared fs problem" "S"
+    fi
     # AMNH-HEL - Singularity causes zombie process
     # (https://support.opensciencegrid.org/a/tickets/69708)
     if (echo "$GLIDEIN_Entry_Name" | egrep -i "AMNH-HEL") >/dev/null 2>&1; then
