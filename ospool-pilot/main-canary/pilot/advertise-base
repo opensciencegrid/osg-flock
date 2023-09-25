@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=713
+OSG_GLIDEIN_VERSION=714
 #######################################################################
 
 
@@ -523,7 +523,12 @@ elif ($TIMEOUT ./client/stashcp osdf:///ospool/uc-shared/public/OSG-Staff/valida
     OSDF_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else
-    echo "False" > $TEST_FILE_1H.stashcp
+    # temporary fallback until /ospool/uc-shared/public is fully up
+    if ($TIMEOUT ./client/stashcp /osgconnect/public/osg/testfile.txt stashcp-test.file) >/dev/null 2>&1; then
+        echo "True" > $TEST_FILE_1H.stashcp
+    else
+        echo "False" > $TEST_FILE_1H.stashcp
+    fi
 fi
 rm -f testfile
 advertise OSDF_VERIFIED "$OSDF_VERIFIED" "C"
