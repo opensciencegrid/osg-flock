@@ -30,7 +30,6 @@ core_schedds = [
         'huxley-osgsub-001.sdmz.amnh.org',
         'login.collab.ci-connect.net',
         'login.snowmass21.io',
-        'login.xenon.ci-connect.net',
         'scott.grid.uchicago.edu',
         'sub-2.icecube.wisc.edu',
         'submit-1.chtc.wisc.edu',
