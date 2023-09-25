@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=696
+OSG_GLIDEIN_VERSION=714
 #######################################################################
 
 
@@ -246,7 +246,7 @@ fi
 # timeout, if available, is used across many tests
 TIMEOUT=$(which timeout 2>/dev/null)
 if [ "x$TIMEOUT" != "x" ]; then
-    TIMEOUT="$TIMEOUT 30s"
+    TIMEOUT="$TIMEOUT -k 30s 30s"
 fi
 
 advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
@@ -420,9 +420,6 @@ for FS in \
     FS_ATTR="HAS_CVMFS_$FS_CONV"
     RESULT="False"
     
-    # keep the filesystems mounted
-    ls -l "$CVMFS_BASE"/$FS/ >/dev/null 2>&1
-
     if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
         advertise $FS_ATTR "False" "C"
         if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWMS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
@@ -432,12 +429,12 @@ for FS in \
         continue
     fi
 
-    if [ -e $CVMFS_BASE/$FS/. ]; then
+    if ($TIMEOUT ls -l "$CVMFS_BASE"/$FS/. >/dev/null 2>&1); then
         RESULT="True"
 
         # add the revision 
         REV_ATTR="CVMFS_${FS_CONV}_REVISION"
-        REV_VAL=`/usr/bin/attr -q -g revision "$CVMFS_BASE"/$FS/. 2>/dev/null`
+        REV_VAL=$($TIMEOUT /usr/bin/attr -q -g revision "$CVMFS_BASE"/$FS/. 2>/dev/null)
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$REV_VAL" = "x" ]; then
             REV_VAL=0
@@ -445,7 +442,7 @@ for FS in \
 
         # add the error count
         NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
-        NIOERR_VAL=`/usr/bin/attr -q -g nioerr "$CVMFS_BASE"/$FS/. 2>/dev/null`
+        NIOERR_VAL=$($TIMEOUT /usr/bin/attr -q -g nioerr "$CVMFS_BASE"/$FS/. 2>/dev/null)
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$NIOERR_VAL" = "x" ]; then
             NIOERR_VAL=-1
@@ -459,30 +456,6 @@ for FS in \
         # UUTAH is special case - broken NFS
         if (echo "$GLIDEIN_Entry_Name" | egrep -i "UUTAH") >/dev/null 2>&1; then
             RESULT="False"
-        fi
-        
-        # oasis.opensciencegrid.org needs extra checks
-        if [ "x$FS" = "xoasis.opensciencegrid.org" ]; then
-            if ! cat "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/sw/module-init.sh >/dev/null 2>&1; then
-                RESULT="False"
-            fi
-            if ! cat "$CVMFS_BASE"/oasis.opensciencegrid.org/sbgrid/update.details >/dev/null 2>&1; then
-                RESULT="False"
-            fi
-        fi
-
-        # stash.osgstorage.org needs extra checks
-        if [ "x$FS" = "xstash.osgstorage.org" ]; then
-            if ! cat "$CVMFS_BASE"/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
-                RESULT="False"
-            fi
-        fi
-        
-        # veritas.opensciencegrid.org
-        if [ "x$FS" = "xveritas.opensciencegrid.org" ]; then
-            if ! cat "$CVMFS_BASE"/veritas.opensciencegrid.org/py2-v1/setup.sh >/dev/null 2>&1; then
-                RESULT="False"
-            fi
         fi
         
         # disable singularity if the singularity cvmfs has errors
@@ -543,17 +516,23 @@ fi
 # this is a one-shot test
 rm -f stashcp-test.file
 chmod +x ./client/stashcp
-STASHCP_VERIFIED="False"
+OSDF_VERIFIED="False"
 if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif ($TIMEOUT ./client/stashcp /osgconnect/public/osg/testfile.txt stashcp-test.file) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
+    OSDF_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+elif ($TIMEOUT ./client/stashcp osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt stashcp-test.file) >/dev/null 2>&1; then
+    OSDF_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else
-    echo "False" > $TEST_FILE_1H.stashcp
+    # temporary fallback until /ospool/uc-shared/public is fully up
+    if ($TIMEOUT ./client/stashcp /osgconnect/public/osg/testfile.txt stashcp-test.file) >/dev/null 2>&1; then
+        echo "True" > $TEST_FILE_1H.stashcp
+    else
+        echo "False" > $TEST_FILE_1H.stashcp
+    fi
 fi
 rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+advertise OSDF_VERIFIED "$OSDF_VERIFIED" "C"
+advertise STASHCP_VERIFIED "$OSDF_VERIFIED" "C"
 
 # also record the version
 if [ -e ./client/stashcp ]; then
@@ -562,20 +541,6 @@ if [ -e ./client/stashcp ]; then
     fi
     VER=$(cat $TEST_FILE_1H.stashcp-version)
     advertise STASHCP_VERSION "$VER" "S"
-fi
-
-if [ -z "$STASH_PLUGIN_PATH" ]; then
-    STASH_PLUGIN_PATH=$PWD/client/stash_plugin
-fi
-
-# also record the plugin version
-if [ -e "$STASH_PLUGIN_PATH" ]; then
-    chmod +x "$STASH_PLUGIN_PATH"
-    if [ ! -e $TEST_FILE_1H.stash-plugin-version ]; then
-        "$STASH_PLUGIN_PATH" -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stash-plugin-version
-    fi
-    VER=$(cat $TEST_FILE_1H.stash-plugin-version)
-    advertise STASH_PLUGIN_VERSION "$VER" "S"
 fi
 
 ###########################################################

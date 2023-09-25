@@ -295,6 +295,17 @@ if [ "x$ULIMIT_STACK_SIZE" != "x" ]; then
 fi
 
 ##################
+# is the uid mapped to a user? some software is sensitive to this
+
+WHOAMI=$(whoami 2>/dev/null)
+MYUNAME=$(id -u -n 2>/dev/null)
+MAPPED_USER="True"
+if [ "x$WHOAMI" = "x" -o "x$MYUNAME" = "x" ]; then
+    MAPPED_USER="False"
+fi
+advertise MappedUser "$MAPPED_USER" "C"
+
+##################
 # stash
 if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     # ok, we can access stash, but is it ro or rw?
@@ -480,6 +491,13 @@ if python --version >/dev/null 2>&1; then
     fi
     advertise HAS_PYTHON "True" "C"
 fi
+if python3 --version >/dev/null 2>&1; then
+    PYTHON3_VERSION=`python3 --version 2>&1 | sed 's/Python //'`
+    if [ "x$PYTHON3_VERSION" != "x" ]; then
+        advertise PYTHON3_VERSION "$PYTHON3_VERSION" "S"
+    fi
+    advertise HAS_PYTHON3 "True" "C"
+fi
 
 info "Checking for numpy/scipy availability..."
 cat >py.check <<EOF
@@ -492,6 +510,8 @@ EOF
 
 Has_Numpy_Scipy="False"
 if python py.check >/dev/null 2>&1; then
+    Has_Numpy_Scipy="True"
+elif python3 py.check >/dev/null 2>&1; then
     Has_Numpy_Scipy="True"
 fi
 advertise HAS_NUMPY "$Has_Numpy_Scipy" "C"

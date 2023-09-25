@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=700
+OSG_GLIDEIN_VERSION=714
 #######################################################################
 
 
@@ -443,7 +443,6 @@ for FS in \
         # add the error count
         NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
         NIOERR_VAL=$($TIMEOUT /usr/bin/attr -q -g nioerr "$CVMFS_BASE"/$FS/. 2>/dev/null)
-
         # some site mount /cvmfs over NFS and attr will not work
         if [ "x$NIOERR_VAL" = "x" ]; then
             NIOERR_VAL=-1
@@ -517,17 +516,23 @@ fi
 # this is a one-shot test
 rm -f stashcp-test.file
 chmod +x ./client/stashcp
-STASHCP_VERIFIED="False"
+OSDF_VERIFIED="False"
 if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
+    OSDF_VERIFIED=`cat $TEST_FILE_1H.stashcp`
 elif ($TIMEOUT ./client/stashcp osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt stashcp-test.file) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
+    OSDF_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else
-    echo "False" > $TEST_FILE_1H.stashcp
+    # temporary fallback until /ospool/uc-shared/public is fully up
+    if ($TIMEOUT ./client/stashcp /osgconnect/public/osg/testfile.txt stashcp-test.file) >/dev/null 2>&1; then
+        echo "True" > $TEST_FILE_1H.stashcp
+    else
+        echo "False" > $TEST_FILE_1H.stashcp
+    fi
 fi
 rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+advertise OSDF_VERIFIED "$OSDF_VERIFIED" "C"
+advertise STASHCP_VERIFIED "$OSDF_VERIFIED" "C"
 
 # also record the version
 if [ -e ./client/stashcp ]; then
@@ -536,20 +541,6 @@ if [ -e ./client/stashcp ]; then
     fi
     VER=$(cat $TEST_FILE_1H.stashcp-version)
     advertise STASHCP_VERSION "$VER" "S"
-fi
-
-if [ -z "$STASH_PLUGIN_PATH" ]; then
-    STASH_PLUGIN_PATH=$PWD/client/stash_plugin
-fi
-
-# also record the plugin version
-if [ -e "$STASH_PLUGIN_PATH" ]; then
-    chmod +x "$STASH_PLUGIN_PATH"
-    if [ ! -e $TEST_FILE_1H.stash-plugin-version ]; then
-        "$STASH_PLUGIN_PATH" -classad | awk '/^PluginVersion / { print $3 }' | sed 's/"//g' >$TEST_FILE_1H.stash-plugin-version
-    fi
-    VER=$(cat $TEST_FILE_1H.stash-plugin-version)
-    advertise STASH_PLUGIN_VERSION "$VER" "S"
 fi
 
 ###########################################################
