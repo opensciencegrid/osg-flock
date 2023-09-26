@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=714
+OSG_GLIDEIN_VERSION=715
 #######################################################################
 
 
@@ -540,7 +540,7 @@ if [ -e ./client/stashcp ]; then
         ./client/stashcp --version | grep '^Version:' | sed 's/.*: //' >$TEST_FILE_1H.stashcp-version
     fi
     VER=$(cat $TEST_FILE_1H.stashcp-version)
-    advertise STASHCP_VERSION "$VER" "S"
+    advertise BASE_STASHCP_VERSION "$VER" "S"
 fi
 
 ###########################################################
