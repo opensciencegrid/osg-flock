@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=715
+OSG_GLIDEIN_VERSION=716
 #######################################################################
 
 
@@ -513,35 +513,10 @@ fi
 ##################
 # stashcp
 
-# this is a one-shot test
-rm -f stashcp-test.file
-chmod +x ./client/stashcp
-OSDF_VERIFIED="False"
-if [ -e $TEST_FILE_1H.stashcp ]; then
-    OSDF_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif ($TIMEOUT ./client/stashcp osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt stashcp-test.file) >/dev/null 2>&1; then
-    OSDF_VERIFIED="True"
-    echo "True" > $TEST_FILE_1H.stashcp
-else
-    # temporary fallback until /ospool/uc-shared/public is fully up
-    if ($TIMEOUT ./client/stashcp /osgconnect/public/osg/testfile.txt stashcp-test.file) >/dev/null 2>&1; then
-        echo "True" > $TEST_FILE_1H.stashcp
-    else
-        echo "False" > $TEST_FILE_1H.stashcp
-    fi
-fi
-rm -f testfile
-advertise OSDF_VERIFIED "$OSDF_VERIFIED" "C"
-advertise STASHCP_VERIFIED "$OSDF_VERIFIED" "C"
-
-# also record the version
-if [ -e ./client/stashcp ]; then
-    if [ ! -e $TEST_FILE_1H.stashcp-version ]; then
-        ./client/stashcp --version | grep '^Version:' | sed 's/.*: //' >$TEST_FILE_1H.stashcp-version
-    fi
-    VER=$(cat $TEST_FILE_1H.stashcp-version)
-    advertise BASE_STASHCP_VERSION "$VER" "S"
-fi
+# this is now handled in additional-htcondor-config - just advertise
+# some old attributes for backward compatibility
+advertise OSDF_VERIFIED "OSDF_PLUGIN_VERSION =!= UNDEFINED" "C"
+advertise STASHCP_VERIFIED "OSDF_PLUGIN_VERSION =!= UNDEFINED" "C"
 
 ###########################################################
 # Project restriction
