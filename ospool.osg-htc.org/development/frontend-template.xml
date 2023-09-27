@@ -50,6 +50,7 @@
    <stage base_dir="/var/lib/gwms-frontend/web-area/stage" use_symlink="True" web_base_url="https://ospool-fe.osgdev.chtc.io/vofrontend/stage"/>
    <work base_dir="/var/lib/gwms-frontend/vofrontend" base_log_dir="/var/log/gwms-frontend"/>
    <attrs>
+      <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="False" parameter="True" type="string" value="True"/>
       <attr name="CONTINUE_IF_NO_PROXY" glidein_publish="True" job_publish="False" parameter="True" type="string" value="True"/>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
       <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="10.x"/>
@@ -59,9 +60,9 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="False"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="72000"/>
       <!-- default singularity is the RPM install - we want this one as the unpriv CVMFS one unsquashes sif images every time -->
-      <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="PATH"/>
+      <!-- attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="PATH"/ -->
       <!-- special site locations for Singularity, last entry should be our unpriv CVMFS install -->
-      <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/local/software/Singularity/singularity-3.7.0/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/singularity/current/bin"/>
+      <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/bin:/bin:/usr/local/software/Singularity/singularity-3.7.0/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin"/>
       <!-- no restrictions, it prevents some images like cvmfsexec on Stampede2 -->
       <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
       <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="20%__opensciencegrid/osgvo-el7:latest 20%__htc/rocky:8 20%__htc/rocky:9 20%__htc/debian:12 20%__htc/ubuntu:22.04"/>
