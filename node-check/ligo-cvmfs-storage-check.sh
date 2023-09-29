@@ -55,25 +55,6 @@ fi
 
 ##################
 
-info "Checking for IGWN container availability..."
-
-FS_ATTR="HAS_CVMFS_LIGO_CONTAINERS"
-TEST_IMAGE="/cvmfs/singularity.opensciencegrid.org/lscsoft/bayeswave:latest"
-
-RESULT="False"
-if [ -s $TEST_IMAGE ]; then
-    RESULT="True"
-    info "Found $TEST_IMAGE"
-else
-    warn "Could not find $TEST_IMAGE"
-fi
-advertise $FS_ATTR "$RESULT" "C"
-advertise "HAS_CVMFS_IGWN_CONTAINERS" "$RESULT" "C"
-
-info "Done."
-
-##################
-
 info "Checking for IGWN FRAMES availability..."
 info "Current X509_USER_PROXY=${X509_USER_PROXY}"
 
