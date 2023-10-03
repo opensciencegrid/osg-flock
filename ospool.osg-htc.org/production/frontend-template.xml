@@ -525,7 +525,7 @@
          </files>
       </group>
 
-      <group name="xenon1t" comment="Using a XENON1T credential to submit under that XENON1T VO instead of the OSG VO" enabled="True">
+      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -537,8 +537,8 @@
             <running_glideins_total curb="9000" max="10000"/>
          </config>
          <match match_expr='True'
-                start_expr='((XENON_DESIRED_Sites=?=undeined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
-                            (TARGET.projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
+                start_expr='((XENON_DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
+                            (TARGET.projectName =?= "xenon") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='(FactoryType =?= "production" || FactoryType =?= "CERN-Prod") &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
@@ -547,12 +547,12 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName =?= "xenon1t") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+            <job query_expr='(projectName =?= "xenon") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
                <match_attrs>
                   <match_attr name="XENON_DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                  <schedd DN="/DC=org/DC=incommon/C=US/ST=IL/L=Chicago/O=University of Chicago/OU=IT Services - Self Enrollment/CN=condor-flocking-cert.grid.uchicago.edu" fullname="login.xenon.ci-connect.net"/>
+                  <schedd DN="/CN=ap23.uc.osg-htc.org" fullname="ap23.uc.osg-htc.org"/>
                </schedds>
             </job>
          </match>

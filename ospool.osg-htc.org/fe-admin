@@ -31,6 +31,8 @@ core_schedds = [
         'login.collab.ci-connect.net',
         'login.snowmass21.io',
         'scott.grid.uchicago.edu',
+        'scosg2201.jlab.org',
+        'scosg2202.jlab.org',
         'sub-2.icecube.wisc.edu',
         'submit-1.chtc.wisc.edu',
         'submit2.chtc.wisc.edu',
