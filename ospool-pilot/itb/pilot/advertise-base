@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=716
+OSG_GLIDEIN_VERSION=717
 #######################################################################
 
 
@@ -448,8 +448,20 @@ for FS in \
             NIOERR_VAL=-1
         fi
         
-        # disable if the mount has had errors
-        if [ $NIOERR_VAL -gt 0 ]; then
+        # last ioerr
+        LAST_IOERR_ATTR="CVMFS_${FS_CONV}_LAST_IOERR"
+        LAST_IOERR_VAL=$($TIMEOUT /usr/bin/attr -q -g timestamp_last_ioerr "$CVMFS_BASE"/$FS/. 2>/dev/null)
+        # some site mount /cvmfs over NFS and attr will not work
+        if [ "x$LAST_IOERR_VAL" = "x" -o "x$LAST_IOERR_VAL" = "x0" ]; then
+            LAST_IOERR_VAL=-1
+        else
+            # convert ts to seconds since
+            NOW=$(date +'%s')
+            LAST_IOERR_VAL=$(($NOW - $LAST_IOERR_VAL))
+        fi
+
+        # disable if the mount has had recent errors
+        if [ $LAST_IOERR_VAL -ge 0 -a $LAST_IOERR_VAL -lt 14400 ]; then
             RESULT="False"
         fi
        
@@ -470,8 +482,9 @@ for FS in \
         advertise $FS_ATTR "$RESULT" "C"
         advertise $REV_ATTR "$REV_VAL" "I"
         advertise $NIOERR_ATTR "$NIOERR_VAL" "I"
+        advertise $LAST_IOERR_ATTR "$LAST_IOERR_VAL" "I"
 
-        # remember failures - we want do not want to run on cvmfs if it comes and goes...
+        # remember failures - we do not want to run on cvmfs if it comes and goes...
         if [ $RESULT = "False" ]; then
             touch $TEST_FILE_4H.cvmfs-disabled.$FS
         fi
