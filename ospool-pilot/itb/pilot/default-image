@@ -102,6 +102,7 @@ function determine_default_container_image {
         :
     elif (uname -r | egrep '^3\.') >/dev/null 2>&1; then
         # do not allow .sif images on 3.x kernels (OSPOOL-18)
+        info "Not allowing non-CVMFS images because of the kernel version"
         pull_images=0
     elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Syracuse") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
