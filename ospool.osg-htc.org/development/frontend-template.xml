@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="OSPool-ITB" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config ignore_down_entries="False">
-      <idle_vms_total curb="1900" max="2000"/>
-      <idle_vms_total_global curb="1900" max="2000"/>
-      <running_glideins_total curb="70000" max="80000"/>
-      <running_glideins_total_global curb="10" max="10"/>
+      <idle_vms_total curb="10" max="20"/>
+      <idle_vms_total_global curb="10" max="20"/>
+      <running_glideins_total curb="10" max="20"/>
+      <running_glideins_total_global curb="10" max="20"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -79,10 +79,10 @@
             <idle_glideins_lifetime max="86400"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="1" max="1"/>
-            <idle_vms_total curb="80" max="100"/>
+            <idle_vms_total curb="10" max="20"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1" min="0" relative_to_queue="3.0"/>
-            <running_glideins_total curb="80" max="100"/>
+            <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
@@ -158,10 +158,10 @@
             <idle_glideins_lifetime max="86400"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="1" max="1"/>
-            <idle_vms_total curb="80" max="100"/>
+            <idle_vms_total curb="10" max="20"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1" min="0" relative_to_queue="2.0"/>
-            <running_glideins_total curb="80" max="100"/>
+            <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
@@ -237,10 +237,10 @@
             <idle_glideins_lifetime max="3600"/>
             <idle_glideins_per_entry max="1" reserve="1"/>
             <idle_vms_per_entry curb="9" max="10"/>
-            <idle_vms_total curb="80" max="100"/>
+            <idle_vms_total curb="10" max="20"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
-            <running_glideins_total curb="80" max="100"/>
+            <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
