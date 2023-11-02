@@ -403,7 +403,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             if [ "x$REV_VAL" = "x" ]; then
                 REV_VAL=0
             fi
-    
+
             # add the error count
             NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
             NIOERR_VAL=`/usr/bin/attr -q -g nioerr /cvmfs/$FS/. 2>/dev/null`
@@ -412,8 +412,20 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 NIOERR_VAL=-1
             fi
     
-            # disable if the mount has had errors
-            if [ $NIOERR_VAL -gt 0 ]; then
+            # last ioerr
+            LAST_IOERR_ATTR="CVMFS_${FS_CONV}_LAST_IOERR"
+            LAST_IOERR_VAL=`/usr/bin/attr -q -g timestamp_last_ioerr /cvmfs/$FS/. 2>/dev/null`
+            # some site have old cvmfs or mount /cvmfs over NFS and attr will not work
+            if [ "x$LAST_IOERR_VAL" = "x" -o "x$LAST_IOERR_VAL" = "x0" ]; then
+                LAST_IOERR_VAL=-1
+            else
+                # convert ts to seconds since
+                NOW=$(date +'%s')
+                LAST_IOERR_VAL=$(($NOW - $LAST_IOERR_VAL))
+            fi
+
+            # disable if the mount has had recent errors
+            if [ $LAST_IOERR_VAL -ge 0 -a $LAST_IOERR_VAL -lt 14400 ]; then
                 RESULT="False"
             fi
     
@@ -452,6 +464,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             advertise $FS_ATTR "$RESULT" "C"
             advertise $REV_ATTR "$REV_VAL" "I"
             advertise $NIOERR_ATTR "$NIOERR_VAL" "I"
+            advertise $LAST_IOERR_ATTR "$LAST_IOERR_VAL" "I"
     
             # remember failures - we want do not want to run on cvmfs if it comes and goes...
             if [ $RESULT = "False" ]; then
