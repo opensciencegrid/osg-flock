@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=718
+OSG_GLIDEIN_VERSION=720
 #######################################################################
 
 
@@ -289,6 +289,20 @@ if [ "x$VER" != "x" ]; then
         advertise OSG_HOST_KERNEL_VERSION "$VER" "I"
     fi
 fi
+
+# firewall testing - check a set of common ports our projects need
+for PORT in 80 2880 8000 27017; do
+    if [ -e $TEST_FILE_4H.port.$PORT ]; then
+        OUT=$(cat $TEST_FILE_4H.port.$PORT)
+    else
+        OUT="False"
+        if curl --fail --silent --retry 0 --max-time 5 -o /dev/null http://ospool-network-test.osg.chtc.io:$PORT; then
+            OUT="True"
+        fi
+        echo $OUT >$TEST_FILE_4H.port.$PORT
+    fi
+    advertise PORT_$PORT "$OUT" "C"
+done
 
 # verify http_proxy/OSG_SQUID_LOCATION
 PROXY_CHECKS=0
