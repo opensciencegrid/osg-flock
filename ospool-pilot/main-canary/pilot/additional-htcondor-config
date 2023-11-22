@@ -109,7 +109,12 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
     total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
     if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
-        allocated_disk=$((100 * $allocated_cpus / $total_cpus))
+        # first try floating point
+        allocated_disk=$(echo "scale=2; 100 * $allocated_cpus / $total_cpus" | bc)
+        if [ "x$allocated_disk" = "x" ]; then
+            # no bc, use integer math
+            allocated_disk=$((100 * $allocated_cpus / $total_cpus))
+        fi
         if [ "x$allocated_disk" = "x" ]; then
             allocated_disk=1
         fi
@@ -117,10 +122,8 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         if [[ $allocated_disk -lt 1 ]]; then
             allocated_disk=1
         fi
-        if [[ $allocated_cpus -lt 32 ]]; then
-            add_config_line GLIDEIN_DISK "$allocated_disk%"
-            add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
-        fi
+        add_config_line GLIDEIN_DISK "$allocated_disk%"
+        add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
     fi
 fi  # ! $IS_CONTAINER_PILOT
 
