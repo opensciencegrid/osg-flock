@@ -22,6 +22,7 @@ from pprint import pprint
 # targetting itb or production environment.
 core_schedds = [
         'amundsen.grid.uchicago.edu',
+        'ap1.facility.path-cc.io',
         'ap20.uc.osg-htc.org',
         'ap21.uc.osg-htc.org',
         'ap22.uc.osg-htc.org',
