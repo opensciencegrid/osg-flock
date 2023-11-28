@@ -199,9 +199,8 @@ osdf_plugin_is_ok () {
     # also run a simple test (TODO: make this IGWN-specific)
     rm -f stashcp-test.file
     info "Testing $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-    #if $TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
     # temporary extra test until /ospool/uc-shared/public is fully up
-    if ($TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file || $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG /osgconnect/public/osg/testfile.txt stashcp-test.file) >> stashcp-test.log 2>&1; then
+    if ($TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file) >> stashcp-test.log 2>&1; then
         if [ -f stashcp-test.time ]; then
             info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
         else
