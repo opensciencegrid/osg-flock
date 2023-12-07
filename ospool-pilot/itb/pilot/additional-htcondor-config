@@ -233,16 +233,6 @@ osdf_plugin_is_ok () {
 }
 
 ###########################################################
-# stashcp 
-if [[ ! $IS_CONTAINER_PILOT ]]; then
-    # The stashcp executable doesn't come with Condor but we need it for
-    # downloading images so we get it from the frontend.
-    # Not used in the container pilot -- we have /usr/bin/stashcp
-    STASHCP=$PWD/client/stashcp
-    chmod 755 $STASHCP
-fi
-
-###########################################################
 # Test and add the stash/osdf plugin
 # It comes with condor.
 if [[ ! $IS_CONTAINER_PILOT ]]; then

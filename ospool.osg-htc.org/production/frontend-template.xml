@@ -1029,16 +1029,7 @@
       <file absfname="/opt/osg-flock/node-check/ulimits-check" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
-      <file absfname="/opt/osg-flock/stashcp/stashcp" after_entry="False" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/osg-flock/stashcp/stash_plugin" after_entry="False" after_group="False" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
       <file absfname="/opt/osg-flock/node-check/scitokens" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
-      <file absfname="/opt/osg-flock/node-check/osgvo-bench" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/osg-flock/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
