@@ -93,8 +93,9 @@ add_config_line HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
 add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 
 # On GPU resources, allow CPU-only jobs to run, but reserve resources for GPU jobs
-# also make sure we can still match the pslot after it has been created
-add_config_line RoomForCPUOnlyJobs "(SLOTS_LAYOUT == \"partitionable\" && isUndefined(PartitionableSlot) && GPUs == 0) || (CPUs > 8 * TotalGPUs && Memory > 32000 * TotalGPUs && Disk > 5000000 * TotalGPUs)"
+# Consider the 3 slot types: Static, Partitionable, Dynamic
+# Make sure we can still match the dynamic slot after it has been created
+add_config_line RoomForCPUOnlyJobs "(SlotType != \"Static\") && (SlotType == \"Dynamic\" || (CPUs > 8 * TotalGPUs && Memory > 32000 * TotalGPUs && Disk > 5000000 * TotalGPUs))"
 add_condor_vars_line RoomForCPUOnlyJobs "C" "-" "+" "N" "Y" "-"
 
 # out of disk space (https://opensciencegrid.atlassian.net/browse/OSPOOL-4)
