@@ -70,7 +70,7 @@
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity, on CHTC, only count jobs which wants glideins"
-           query_expr="(JobUniverse==5) &amp;&amp; ((IsCHTCSubmit =!= true) || (WantGlidein =?= true))">
+           query_expr="(JobUniverse==5) &amp;&amp; ((IsCHTCSubmit =!= true) || (WantGlidein =?= true)) &amp;&amp; (TargetAnnexName is Undefined)">
          <match_attrs>
             <match_attr name="UNDESIRED_Sites" type="string"/>
             <match_attr name="DESIRED_Sites" type="string"/>
