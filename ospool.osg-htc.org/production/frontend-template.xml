@@ -612,7 +612,6 @@
             <running_glideins_total curb="19" max="20"/>
          </config>
          <match
-             policy_file="/opt/osg-flock/ospool.osg-htc.org/topology_match_policy.py"
              match_expr="True"
              start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsXSEDE == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Expanse", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK", GLIDEIN_Supported_VOs)'>
@@ -743,7 +742,6 @@
             <running_glideins_total curb="5000" max="5000"/>
          </config>
          <match
-             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
              start_expr='(TARGET.projectName =?= "TG-CHE200122") &amp;&amp; ( (TARGET.WantsFrontera == True) || (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Frontera", TARGET.Desired_Allocations, ",")) ) &amp;&amp; (TARGET.ITB_Sites =!= True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_ZUBATYUK_Frontera", GLIDEIN_Supported_VOs)'>
@@ -810,7 +808,6 @@
             <running_glideins_total curb="19" max="20"/>
          </config>
          <match
-             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
              start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs)'>
@@ -879,7 +876,6 @@
             <running_glideins_total curb="5000" max="5000"/>
          </config>
          <match
-             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
              start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal")))) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "normal")'>
@@ -948,7 +944,6 @@
             <running_glideins_total curb="5000" max="5000"/>
          </config>
          <match
-             policy_file="/opt/osg-flock/flock.opensciencegrid.org/topology_match_policy.py"
              match_expr="True"
              start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Stampede2", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (stringListIMember("skx-normal", (TARGET.alloc_Stampede2_queues ?: (TARGET.alloc_Stampede2_queue ?: "normal")))) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSG_UTAustin_Zimmerman", GLIDEIN_Supported_VOs) &amp;&amp; ((GLIDEIN_BatchQueue ?: "normal") == "skx-normal")'>
