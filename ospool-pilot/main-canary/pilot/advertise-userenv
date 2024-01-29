@@ -270,12 +270,12 @@ done
 
 # if we are in Singularity, override HTCondor's OsSys* vars with the
 # default container details
-if [ "x$SINGULARITY_COMMAND" != "x" ]; then
+if [ "x$APPTAINER_COMMAND" != "x" -o "x$SINGULARITY_COMMAND" != "x" ]; then
     # RHEL is CentOS in HTCondor
     if [ "x$OS_NAME" = "xRHEL" ]; then
         OS_NAME="CentOS"
     fi
-    advertise OpSysLongName "Singularity Container - $OS_NAME $OS_VERSION" "S"
+    advertise OpSysLongName "Apptainer Container - $OS_NAME $OS_VERSION" "S"
     advertise OpSysAndVer "${OS_NAME}${OS_VERSION}" "S"
     advertise OpSysName "$OS_NAME" "S"
     advertise OpSysShortName "$OS_NAME" "S"
