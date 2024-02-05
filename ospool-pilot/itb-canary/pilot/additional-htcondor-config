@@ -173,6 +173,13 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 #add_condor_vars_line STARTER_DEBUG "C" "-" "+" "N" "N" "-"
 
 
+# Enable this to have the Pelican-based Stash/OSDF plugin and stashcp fall back
+# to the pre-7.5.0 behavior of using Topology instead of the director.
+# (STASH_USE_TOPOLOGY is blank or non-blank)
+export STASH_USE_TOPOLOGY=1
+add_config_line STASH_USE_TOPOLOGY "$STASH_USE_TOPOLOGY"
+add_condor_vars_line STASH_USE_TOPOLOGY "C" "-" "+" "N" "Y" "+"
+
 OSDF_FAIL_REASON=""
 OSDF_PLUGIN_VERSION=""
 osdf_plugin_is_ok () {
