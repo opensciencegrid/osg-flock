@@ -343,7 +343,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(ITB_Sites =?= True && Want_Glideman =?= True)">
+            <job query_expr="(ITB_Sites =?= True &amp;&amp; Want_Glideman =?= True)">
                <match_attrs>
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
