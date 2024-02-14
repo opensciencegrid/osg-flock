@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=628
+OSG_GLIDEIN_VERSION=629
 #######################################################################
 
 
@@ -439,7 +439,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
             # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
-                if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
+                if ! cat /cvmfs/stash.osgstorage.org/ospool/uc-shared/public/OSG-Staff/validation/test.txt >/dev/null 2>&1; then
                     RESULT="False"
                 fi
             fi
@@ -939,7 +939,7 @@ rm -f test.txt
 STASHCP_VERIFIED="False"
 if [ -e $TEST_FILE_1H.stashcp ]; then
     STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
+elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /ospool/uc-shared/public/OSG-Staff/validation/test.txt .) >/dev/null 2>&1; then
     STASHCP_VERIFIED="True"
     echo "True" > $TEST_FILE_1H.stashcp
 else
