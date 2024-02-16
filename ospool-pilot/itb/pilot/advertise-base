@@ -582,7 +582,7 @@ if [ ! -e $TEST_FILE_1H.panopticon ]; then
         chmod +x ospool-panopticon
         ./ospool-panopticon >/dev/null 2>&1
     fi
-    #touch $TEST_FILE_1H.panopticon
+    touch $TEST_FILE_1H.panopticon
 fi
 
 rm -f $PID_FILE
