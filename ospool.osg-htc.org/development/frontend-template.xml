@@ -252,7 +252,7 @@
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
-                            ((TARGET.RequestGPUs?:0) &gt; 0 || RoomForCPUOnlyJobs)"'>
+                            ((TARGET.RequestGPUs?:0) &gt; 0 || RoomForCPUOnlyJobs)'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; 
                                  stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
