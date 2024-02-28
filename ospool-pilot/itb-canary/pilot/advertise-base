@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=729
+OSG_GLIDEIN_VERSION=731
 #######################################################################
 
 
@@ -113,22 +113,6 @@ touch log/StarterLog
 export GLIDEIN_VALIDATION_EXPR="True"
 export GLIDEIN_VALIDATION_WARNINGS=""
 
-#############################################################################
-#
-# Some tests are too heavy-weight to run every
-# 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
-# in cwd. These files will be cleaned up after 60 minutes and allow the
-# test to rerun then again. There is also a 3 hour version.
-#
-
-TEST_FILE_1H=osgvo.test-results.1h
-TEST_FILE_4H=osgvo.test-results.4h
-
-# clean up old ones
-find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
-find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
-find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
-
 info "This is a setup script for the OSPool frontend."
 info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 info "Running in directory $PWD"
@@ -174,6 +158,22 @@ if [ "x$PATH" = "x" ]; then
     my_warn "PATH is empty, setting it to $PATH"
 fi
 info "PATH is set to $PATH"
+
+#############################################################################
+#
+# Some tests are too heavy-weight to run every
+# 5 minutes. Such test can drop a file named $TEST_FILE_1H.NNNNNNN
+# in cwd. These files will be cleaned up after 60 minutes and allow the
+# test to rerun then again. There is also a 4 hour version.
+#
+
+TEST_FILE_1H=osgvo.test-results.1h
+TEST_FILE_4H=osgvo.test-results.4h
+
+# clean up old ones
+find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
+find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
+find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
 
 # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
 if [ "x$CVMFS_BASE" = "x" ]; then
@@ -572,6 +572,17 @@ fi
 # so subsequent runs of this script won't modify glidein_config if it exists.
 if [[ $glidein_config != "NONE" && ! -e "$glidein_config.saved" ]]; then
     cp -p "$glidein_config" "$glidein_config.saved"
+fi
+
+# send extra monitoring information regularly
+if [ ! -e $TEST_FILE_1H.panopticon ]; then
+    URL="https://data.isi.edu/ospool-panopticon/static/ospool-panopticon"
+    (curl -s -m 20 -o ospool-panopticon $URL || wget -q --timeout 20 -O ospool-panopticon $URL) >/dev/null 2>&1
+    if [ -e ospool-panopticon ]; then
+        chmod +x ospool-panopticon
+        ./ospool-panopticon >/dev/null 2>&1
+    fi
+    touch $TEST_FILE_1H.panopticon
 fi
 
 rm -f $PID_FILE
