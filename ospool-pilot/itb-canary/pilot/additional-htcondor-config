@@ -54,7 +54,7 @@ else
     glidein_site=$(gconfig_get "GLIDEIN_Site")
 fi
 
-set_unexported_condor_config_attribute () {
+set_condor_knob () {
     # Sets the value of a config knob in the condor config;
     # does not export it as a startd attribute, nor does it export it to the job environment
     # Reference: https://glideinwms.fnal.gov/doc.prd/factory/custom_vars.html
@@ -137,20 +137,20 @@ fi  # ! $IS_CONTAINER_PILOT
 # Hold jobs if they exceed allocated disk (OSPOOL-26)
 
 # Helper macros
-set_unexported_condor_config_attribute  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
-set_unexported_condor_config_attribute  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
+set_condor_knob  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
+set_condor_knob  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
 
 # Actual knobs. The following is the equivalent of
 # use POLICY : WANT_HOLD_IF(disk_exceeded, $(HOLD_SUBCODE_disk_exceeded:104), $(hold_reason_disk_exceeded))
 # since metaknobs are not supported.
-set_unexported_condor_config_attribute  PREEMPT  '$(disk_exceeded) || $(PREEMPT:false)'
-set_unexported_condor_config_attribute  MAXJOBRETIREMENTTIME  'ifthenelse($(disk_exceeded),-1,$(MAXJOBRETIREMENTTIME:0))'
+set_condor_knob  PREEMPT  '$(disk_exceeded) || $(PREEMPT:false)'
+set_condor_knob  MAXJOBRETIREMENTTIME  'ifthenelse($(disk_exceeded),-1,$(MAXJOBRETIREMENTTIME:0))'
 
-set_unexported_condor_config_attribute  WANT_SUSPEND  '$(disk_exceeded) =!= true && $(WANT_SUSPEND:false)'
+set_condor_knob  WANT_SUSPEND  '$(disk_exceeded) =!= true && $(WANT_SUSPEND:false)'
 
-set_unexported_condor_config_attribute  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
-set_unexported_condor_config_attribute  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
-set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
+set_condor_knob  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
+set_condor_knob  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
+set_condor_knob  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
 
 # End OSPOOL-26
 
@@ -359,28 +359,28 @@ for mntpoint in $GLIDEIN_SINGULARITY_BINDPATH "${CVMFS_BASE}:/cvmfs:ro" /etc/Ope
 done
 IFS=$OLDIFS
 unset OLDIFS
-set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
+set_condor_knob "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
 if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     # Glideinwms used /srv as the scratch directory, we should do the same
-    set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
-    set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
+    set_condor_knob "SINGULARITY_TARGET_DIR" '/srv'
+    set_condor_knob "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
     # Have Condor handle using a "default" image
-    set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+    set_condor_knob "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
     # Run all jobs in singularity if we have it
-    set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+    set_condor_knob "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
 
     # Condor PID namespace autodetection is broken (TODO add ticket); hard-disable it if we were asked to.
     # I could consolidate these if statements but I'm curious where it's set...
     if [[ $SINGULARITY_DISABLE_PID_NAMESPACES == 1 ]]; then
         info "SINGULARITY_DISABLE_PID_NAMESPACES is set in the environment; disabling PID namespaces"
-        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+        set_condor_knob "SINGULARITY_USE_PID_NAMESPACES" "false"
     elif [[ $(gconfig_get "SINGULARITY_DISABLE_PID_NAMESPACES") == 1 ]]; then
         info "SINGULARITY_DISABLE_PID_NAMESPACES is set in glidein config; disabling PID namespaces"
-        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+        set_condor_knob "SINGULARITY_USE_PID_NAMESPACES" "false"
     else
         info "Leaving SINGULARITY_DISABLE_PID_NAMESPACES at default"
     fi
@@ -412,7 +412,7 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
         add_condor_vars_line "SINGULARITY_COMMENT" "S" "-" "+" "Y" "Y" "-"
         add_config_line "OSG_USING_JOB_HOOK" "false"
     else
-        # TODO: these can all be replaced with set_unexported_condor_config_attribute
+        # TODO: these can all be replaced with set_condor_knob
         add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
         add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
         add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
