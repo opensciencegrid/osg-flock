@@ -302,13 +302,6 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 fi  # ! $IS_CONTAINER_PILOT
 
-
-# Put FT plugin logs into the StarterLog (OSPOOL-114)
-set_condor_knob REDIRECT_FILETRANSFER_PLUGIN_STDERR_TO_STDOUT 'TRUE'
-set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
-set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_FAILURE 'D_ALWAYS'
-
-
 ##################################################################
 # Generate a minimal `STARTER_JOB_ENVIRONMENT`, mostly composed of
 # informational variables that are considered safe to always leak to
