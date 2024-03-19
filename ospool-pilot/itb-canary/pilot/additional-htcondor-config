@@ -284,9 +284,13 @@ if [[ $condor_version > "23.05.00" ]]; then
 fi
 
 
+# TESTING:
+DOWNLOAD_PELICAN_VERSION=7.6.1
+# (this should probably be set in frontend.xml?)
+
 ###########################################################
 # Test and add the stash/osdf plugin
-# It comes with condor.
+# It comes with condor, or we might be asked to download it.
 if [[ ! $IS_CONTAINER_PILOT ]]; then
     # The container pilot has its own code for this (for now)
 
@@ -303,15 +307,37 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     # add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
     # add_to_debug "REAL_CONDOR_LIBEXEC=$REAL_CONDOR_LIBEXEC"
 
-    if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
-        # forward compat
-        OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
-        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
-    elif [[ -x $REAL_CONDOR_LIBEXEC/stash_plugin ]]; then
-        OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
-        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
+    if [[ $DOWNLOAD_PELICAN_VERSION ]]; then
+        # If this variable is set, download that version of Pelican and ignore the version
+        # from the HTCondor tarball.
+
+        arch=x86_64  # XXX add support for others (arm64, ppc64le)
+        url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_${arch}.tar.gz
+        curl -L "$url" | tar -xf- pelican
+        mv -f pelican stash_plugin
+        chmod +x stash_plugin
+
+        if [[ -f stash_plugin && -x stash_plugin ]]; then
+            OSDF_PLUGIN=$(pwd -P)/stash_plugin
+            REAL_OSDF_PLUGIN=$(pwd -P)/stash_plugin
+            advertise "DOWNLOAD_PELICAN_VERSION" "$DOWNLOAD_PELICAN_VERSION" "S"
+        else
+            OSDF_FAIL_REASON="Couldn't download requested version of Pelican ($DOWNLOAD_PELICAN_VERSION)"
+            add_to_debug "Pelican download URL: ${url}"
+        fi
     else
-        OSDF_FAIL_REASON="Stash/OSDF plugin not found in pilot's condor install"
+        # Not asked to download a specific Pelican version;
+        # find stash/osdf plugin in the HTCondor tarball.
+        if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
+            # forward compat
+            OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+            REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
+        elif [[ -x $REAL_CONDOR_LIBEXEC/stash_plugin ]]; then
+            OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
+            REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
+        else
+            OSDF_FAIL_REASON="Stash/OSDF plugin not found in pilot's condor install"
+        fi
     fi
 
     if [[ $OSDF_PLUGIN ]]; then
