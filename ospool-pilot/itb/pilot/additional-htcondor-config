@@ -245,6 +245,45 @@ osdf_plugin_is_ok () {
     fi
 }
 
+
+# In a factory pilot, at the time this script is invoked, the Condor
+# installation will be in a directory like
+#       main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr
+# but by the time Condor starts up, it will have been moved to
+#       main/condor
+CONDOR_DIR=$(gconfig_get CONDOR_DIR)
+if [[ $IS_CONTAINER_PILOT ]]; then
+    REAL_CONDOR_DIR=/usr
+else
+    # shellcheck disable=SC2086
+    REAL_CONDOR_DIR=$(echo $CONDOR_DIR/condor-*/usr)
+    # ^^ the "echo" is needed to expand the glob
+fi
+
+# Get and parse condor version so we can add version-specific knobs.
+# If we were to have full control over the condor config, we could use an
+# `if` construct, but in a factory pilot we need to put everything into the
+# glidein config, which doesn't support that syntax.
+condor_version_raw=$("$REAL_CONDOR_DIR/bin/condor_version" | head -n 1)
+if [[ $condor_version_raw =~ CondorVersion:\ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+    # zero-pad the version numbers so we can sort it as a string
+    condor_version=$(printf "%02d.%02d.%02d" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}")
+else
+    warn "Unable to figure out condor_version"
+    condor_version="00.00.00"
+fi
+
+# Set knobs to log FT plugin output to the StarterLog (OSPOOL-114); these knobs
+# were causing holds without HoldReasonCodes before 23.5.1 (see ticket).
+# Using `>` because bash doesn't have `>=`.
+if [[ $condor_version > "23.05.00" ]]; then
+    # set_condor_knob REDIRECT_FILETRANSFER_PLUGIN_STDERR_TO_STDOUT 'TRUE'
+    # set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_FAILURE 'D_ALWAYS'
+    # ^^ apparently these two are already the default
+    set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
+fi
+
+
 ###########################################################
 # Test and add the stash/osdf plugin
 # It comes with condor.
@@ -257,14 +296,8 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         DEBUG="${DEBUG}$(printf "%q " "$@")"
     }
 
-    # In a factory pilot, at the time this script is invoked, Condor will have
-    # a libexec directory like main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr/libexec/condor
-    # By the time Condor starts up, it will have been moved to main/condor/libexec
-    CONDOR_DIR=$(gconfig_get CONDOR_DIR)
     CONDOR_LIBEXEC=$CONDOR_DIR/libexec
-    # shellcheck disable=SC2086
-    REAL_CONDOR_LIBEXEC=$(echo $CONDOR_DIR/condor-*/usr/libexec/condor)
-    # ^^ the "echo" is needed to expand the glob
+    REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec/condor
 
     # add_to_debug "CONDOR_DIR=$CONDOR_DIR"
     # add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
