@@ -284,9 +284,10 @@ if [[ $condor_version > "23.05.00" ]]; then
 fi
 
 
-# TESTING:
+# Set this for testing or if we want a newer/older version
+# of Pelican than what's in the Condor install.
 DOWNLOAD_PELICAN_VERSION=7.6.1
-# (this should probably be set in frontend.xml?)
+
 
 ###########################################################
 # Test and add the stash/osdf plugin
