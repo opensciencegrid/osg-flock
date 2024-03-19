@@ -313,17 +313,19 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
 
         arch=x86_64  # XXX add support for others (arm64, ppc64le)
         url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_${arch}.tar.gz
-        curl -L "$url" | tar -xf- pelican
-        mv -f pelican stash_plugin
-        chmod +x stash_plugin
-
-        if [[ -f stash_plugin && -x stash_plugin ]]; then
+        _out=$( { 
+            curl -LSso pelican.tar.gz "$url" && 
+            tar -xzf pelican.tar.gz pelican &&
+            mv -f pelican stash_plugin &&
+            chmod +x stash_plugin
+        } 2>&1); ret=$?
+        if [[ $ret != 0 || ! -f stash_plugin || ! -x stash_plugin ]]; then
+            OSDF_FAIL_REASON="Couldn't download and install requested Pelican version ($DOWNLOAD_PELICAN_VERSION)"
+            add_to_debug "Pelican install output: $_out"
+        else
             OSDF_PLUGIN=$(pwd -P)/stash_plugin
             REAL_OSDF_PLUGIN=$(pwd -P)/stash_plugin
             advertise "DOWNLOAD_PELICAN_VERSION" "$DOWNLOAD_PELICAN_VERSION" "S"
-        else
-            OSDF_FAIL_REASON="Couldn't download requested version of Pelican ($DOWNLOAD_PELICAN_VERSION)"
-            add_to_debug "Pelican download URL: ${url}"
         fi
     else
         # Not asked to download a specific Pelican version;
