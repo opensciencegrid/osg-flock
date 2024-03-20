@@ -258,13 +258,18 @@ osdf_plugin_is_ok () {
 #       main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr
 # but by the time Condor starts up, it will have been moved to
 #       main/condor
-CONDOR_DIR=$(gconfig_get CONDOR_DIR)
 if [[ $IS_CONTAINER_PILOT ]]; then
+    CONDOR_DIR=/usr
     REAL_CONDOR_DIR=/usr
+    CONDOR_LIBEXEC=/usr/libexec/condor
+    REAL_CONDOR_LIBEXEC=/usr/libexec/condor
 else
+    CONDOR_DIR=$(gconfig_get CONDOR_DIR)
     # shellcheck disable=SC2086
     REAL_CONDOR_DIR=$(echo $CONDOR_DIR/condor-*/usr)
     # ^^ the "echo" is needed to expand the glob
+    CONDOR_LIBEXEC=$CONDOR_DIR/libexec
+    REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec/condor
 fi
 
 # Get and parse condor version so we can add version-specific knobs.
@@ -307,19 +312,6 @@ fi
 ###########################################################
 # Test and add the stash/osdf plugin
 # It comes with condor, or we might be asked to download it.
-
-
-
-CONDOR_LIBEXEC=$CONDOR_DIR/libexec
-if [[ $IS_CONTAINER_PILOT ]]; then
-    REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec
-else
-    REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec/condor
-fi
-
-# add_to_debug "CONDOR_DIR=$CONDOR_DIR"
-# add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
-# add_to_debug "REAL_CONDOR_LIBEXEC=$REAL_CONDOR_LIBEXEC"
 
 # Find the Stash/OSDF plugin; set OSDF_PLUGIN to its current location, and
 # set REAL_OSDF_PLUGIN to where it will be after glideinWMS has rearranged
