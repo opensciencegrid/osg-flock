@@ -74,6 +74,13 @@ set_condor_knob () {
 
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
+# DEBUG will be advertised in the slot ad is nonempty; use add_to_debug() to add to it
+DEBUG=""
+add_to_debug () {
+    [[ $DEBUG ]] && DEBUG="${DEBUG}; "
+    DEBUG="${DEBUG}$(printf "%q " "$@")"
+}
+
 ###########################################################
 # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
 if [[ ! $CVMFS_BASE ]]; then
@@ -303,11 +310,6 @@ fi
 if [[ ! $IS_CONTAINER_PILOT ]]; then
     # The container pilot has its own code for this (for now)
 
-    DEBUG=""
-    add_to_debug () {
-        [[ $DEBUG ]] && DEBUG="${DEBUG}; "
-        DEBUG="${DEBUG}$(printf "%q " "$@")"
-    }
 
     CONDOR_LIBEXEC=$CONDOR_DIR/libexec
     REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec/condor
@@ -375,7 +377,6 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     if [[ $OSDF_FAIL_REASON ]]; then
         advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
     fi
-    [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 fi  # ! $IS_CONTAINER_PILOT
 
 
@@ -504,6 +505,10 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
     add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
+
+
+# Miscellaneous debugging if any
+[[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 
 ###########################################################
 
