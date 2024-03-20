@@ -74,6 +74,13 @@ set_condor_knob () {
 
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
+# DEBUG will be advertised in the slot ad is nonempty; use add_to_debug() to add to it
+DEBUG=""
+add_to_debug () {
+    [[ $DEBUG ]] && DEBUG="${DEBUG}; "
+    DEBUG="${DEBUG}$(printf "%q " "$@")"
+}
+
 ###########################################################
 # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
 if [[ ! $CVMFS_BASE ]]; then
@@ -300,17 +307,15 @@ fi
 ###########################################################
 # Test and add the stash/osdf plugin
 # It comes with condor, or we might be asked to download it.
-if [[ ! $IS_CONTAINER_PILOT ]]; then
-    # The container pilot has its own code for this (for now)
 
-    DEBUG=""
-    add_to_debug () {
-        [[ $DEBUG ]] && DEBUG="${DEBUG}; "
-        DEBUG="${DEBUG}$(printf "%q " "$@")"
-    }
+
 
     CONDOR_LIBEXEC=$CONDOR_DIR/libexec
+if [[ $IS_CONTAINER_PILOT ]]; then
+    REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec
+else
     REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec/condor
+fi
 
     # add_to_debug "CONDOR_DIR=$CONDOR_DIR"
     # add_to_debug "CONDOR_LIBEXEC=$CONDOR_LIBEXEC"
@@ -324,8 +329,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
         # If this variable is set, and not set to "condor", download that
         # version of Pelican and ignore the version from the HTCondor tarball.
 
-        arch=x86_64  # XXX add support for others (arm64, ppc64le)
-        url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_${arch}.tar.gz
+        url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_$(arch).tar.gz
         _out=$( { 
             curl -LSso pelican.tar.gz "$url" && 
             tar -xzf pelican.tar.gz pelican &&
@@ -343,7 +347,7 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     else
         # Not asked to download a specific Pelican version, or specifically
         # asked to use what's in the HTCondor tarball.
-        # Find the stash/osdf plugin in the HTCondor tarball.
+        # Find the stash/osdf plugin in the HTCondor installation.
         if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
             # forward compat
             OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
@@ -359,13 +363,15 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     # Test the stash/osdf plugin we found.
     if [[ $OSDF_PLUGIN ]]; then
         # add_to_debug "Stash/OSDF plugin found at" "$REAL_OSDF_PLUGIN"
-        if (echo $glidein_site | grep -E "UW-IT|Maine-ACG") >/dev/null 2>&1; then
+        if (echo "$glidein_site" | grep -E "UW-IT|Maine-ACG") >/dev/null 2>&1; then
             OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
         else
             if osdf_plugin_is_ok "$REAL_OSDF_PLUGIN"; then
                 # osdf_plugin_is_ok sets $OSDF_FAIL_REASON and $OSDF_PLUGIN_VERSION
                 add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$OSDF_PLUGIN"
                 add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+                set_condor_knob STASH_PLUGIN "$OSDF_PLUGIN"
+                set_condor_knob OSDF_PLUGIN "$OSDF_PLUGIN"
                 advertise "STASH_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"
                 advertise "OSDF_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"  # forward compat
             fi
@@ -374,9 +380,12 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
 
     if [[ $OSDF_FAIL_REASON ]]; then
         advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
+        # Turn off the condor config's STASH_PLUGIN and OSDF_PLUGIN in case they're set
+        set_condor_knob STASH_PLUGIN ""
+        set_condor_knob OSDF_PLUGIN ""
     fi
-    [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
-fi  # ! $IS_CONTAINER_PILOT
+
+
 
 
 ##################################################################
@@ -504,6 +513,10 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
     add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
+
+
+# Miscellaneous debugging if any
+[[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 
 ###########################################################
 
