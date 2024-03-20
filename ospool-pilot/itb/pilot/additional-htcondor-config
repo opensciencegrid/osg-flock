@@ -290,7 +290,7 @@ fi
 #
 # If set to "condor", it will use what's in the Condor tarball.  (This can be
 # used to override a non-Condor default.)
-DEFAULT_DOWNLOAD_PELICAN_VERSION=7.6.1
+DEFAULT_DOWNLOAD_PELICAN_VERSION=7.6.2
 
 if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
     DOWNLOAD_PELICAN_VERSION=$DEFAULT_DOWNLOAD_PELICAN_VERSION
