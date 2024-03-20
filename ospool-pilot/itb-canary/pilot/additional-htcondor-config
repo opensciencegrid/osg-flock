@@ -373,8 +373,8 @@ fi
 if [[ $OSDF_FAIL_REASON ]]; then
     advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
     # Turn off the condor config's STASH_PLUGIN and OSDF_PLUGIN in case they're set
-    set_condor_knob STASH_PLUGIN ""
-    set_condor_knob OSDF_PLUGIN ""
+    set_condor_knob STASH_PLUGIN "/bin/false"
+    set_condor_knob OSDF_PLUGIN "/bin/false"
 fi
 
 
