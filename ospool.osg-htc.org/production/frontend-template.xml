@@ -523,6 +523,144 @@
             </file>
          </files>
       </group>
+      
+      <!-- ==================== OSG-Staff ==================== -->
+
+      <group name="alloc-OSGStaff-Anvil" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="2" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="1" max="2"/>
+         </config>
+         <match
+             match_expr="True"
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocation", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "Purdue-Anvil"'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="OSG-Staff") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs >= 1)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <!-- project_id: OSG-Staff is allowed to use the allocation ddm160003 -->
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="ddm160003,OSG-Staff" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
+      <!-- ==================== ICECUBE ==================== -->
+
+      <group name="alloc-IceCube-Anvil-GPU" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="19" max="20"/>
+         </config>
+         <match
+             match_expr="True"
+             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "Purdue-Anvil"'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs >= 1)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <!-- project_id: IceCube is allowed to use the allocation phy150040-gpu -->
+               <credential absfname="/etc/condor/certs/osg-pilot.proxy" project_id="phy150040-gpu,IceCube" security_class="frontend" trust_domain="grid" type="grid_proxy+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
 
       <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="True">
          <config ignore_down_entries="">
