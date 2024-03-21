@@ -548,7 +548,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="OSG-Staff") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs >= 1)'>
+            <job query_expr='(projectName=?="OSG-Staff") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
