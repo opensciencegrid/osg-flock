@@ -621,7 +621,7 @@
                <match_attrs>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
+                  <schedd DN="/CN=sub-2.icecube.wisc.edu" fullname="sub-2.icecube.wisc.edu"/>
                </schedds>
             </job>
          </match>
