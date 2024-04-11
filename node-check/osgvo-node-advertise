@@ -934,20 +934,34 @@ advertise HAS_SCP "$HAS_SCP" "C"
 ##################
 # stashcp
 
-# this is a one-shot test
-rm -f test.txt
-STASHCP_VERIFIED="False"
-if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /ospool/uc-shared/public/OSG-Staff/validation/test.txt .) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
-    echo "True" > $TEST_FILE_1H.stashcp
+# advertise the version of stashcp found in $PATH
+if STASHCP_VERSION=$(stashcp --version)
+then
+    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | head -n1 | grep -o "[0-9][0-9.]\+")
+    # version check succeeded; now do a transfer test (if we haven't done one already)
+    rm -f test.txt
+    STASHCP_VERIFIED="False"
+    if [ -e $TEST_FILE_1H.stashcp ]; then
+        STASHCP_VERIFIED=$(cat $TEST_FILE_1H.stashcp)
+    elif ($TIMEOUT_CMD stashcp /ospool/uc-shared/public/OSG-Staff/validation/test.txt .) >/dev/null 2>&1; then
+        STASHCP_VERIFIED="True"
+        echo "True" > $TEST_FILE_1H.stashcp
+    else
+        echo "False" > $TEST_FILE_1H.stashcp
+    fi
+    rm -f test.txt
+    advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+    if [[ $STASHCP_VERIFIED == "True" ]]; then
+        advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
+    else
+        # transfer test failed; unset STASHCP_VERSION too
+        advertise STASHCP_VERSION UNDEFINED "C"
+    fi
 else
-    echo "False" > $TEST_FILE_1H.stashcp
+    # version check failed; we don't actually have a working stashcp
+    advertise STASHCP_VERSION UNDEFINED "C"
+    advertise STASHCP_VERIFIED "False" "C"
 fi
-rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
-
 
 
 ##################
