@@ -541,14 +541,14 @@
          </config>
          <match
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+             start_expr='(TARGET.ProjectName == "OSG-Staff") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocation", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "Purdue-Anvil"'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="OSG-Staff") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
+            <job query_expr='(ProjectName=?="OSG-Staff") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0)'>
                <match_attrs>
                </match_attrs>
                <schedds>
@@ -610,14 +610,14 @@
          </config>
          <match
              match_expr="True"
-             start_expr='(OSG_PROJECT_RESTRICTION) &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "Purdue-Anvil"'>
                <match_attrs>
                </match_attrs>
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(projectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs >= 1)'>
+            <job query_expr='(ProjectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs >= 1)'>
                <match_attrs>
                </match_attrs>
                <schedds>
