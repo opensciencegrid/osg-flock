@@ -270,6 +270,19 @@ fi
 advertise MappedUser "$MAPPED_USER" "C"
 
 ##################
+# Check to see if /home is "minimal". Some sites mounts all of
+# /home inside the container, some only mount the current user
+# (/home/$USERNAME). The minimal case is important when using
+# containers which have software installed under /home
+
+HOME_COUNT=$(ls /home/ 2>/dev/null | wc -l)
+MINIMAL_HOME="False"
+if [[ $HOME_COUNT -le 1 ]]; then
+    MINIMAL_HOME="True"
+fi
+advertise MinimalHome "$MINIMAL_HOME" "C"
+
+##################
 # stash
 if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     # ok, we can access stash, but is it ro or rw?
