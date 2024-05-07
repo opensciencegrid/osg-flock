@@ -224,7 +224,7 @@ osdf_plugin_is_ok () {
             info "Succeeded!"
         fi
 
-        OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^PluginVersion / { print $3 }' | tr -d '"' 2>>stashcp-test.log)
+        OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^(Pelican)?PluginVersion / { print $3; exit }' | tr -d '"' 2>>stashcp-test.log)
         if [[ $OSDF_PLUGIN_VERSION ]]; then
             OSDF_FAIL_REASON=""
         else
