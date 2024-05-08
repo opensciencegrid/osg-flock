@@ -3,11 +3,11 @@
 glidein_config="$1"
 
 function info {
-    echo "INFO  " $@ 1>&2
+    echo "INFO  " "$@" 1>&2
 }
 
 function warn {
-    echo "WARN  " $@ 1>&2
+    echo "WARN  " "$@" 1>&2
 }
 
 function advertise {
@@ -20,8 +20,8 @@ function advertise {
     atype="$3"
 
     if [ "$glidein_config" != "NONE" ]; then
-        add_config_line_safe $key "$value"
-        add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
+        add_config_line_safe "$key" "$value"
+        add_condor_vars_line "$key" "$atype" "-" "+" "Y" "Y" "-"
     fi
 
     if [ "$atype" = "S" ]; then
