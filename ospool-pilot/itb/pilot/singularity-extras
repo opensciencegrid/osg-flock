@@ -48,11 +48,18 @@ if [ "$glidein_config" != "NONE" ]; then
 fi
 
 # source our helpers
+client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
 group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib"
-else
+elif [ -e "$group_dir/ospool-lib" ]; then
     source "$group_dir/ospool-lib"
+elif [ -e "$client_dir/itb-ospool-lib" ]; then
+    source "$client_dir/itb-ospool-lib"
+elif [ -e "$client_dir/ospool-lib" ]; then
+    source "$client_dir/ospool-lib"
+else
+    echo "ERROR   Failed to find ospool-lib in GLIDECLIENT_WORK_DIR or GLIDECLIENT_GROUP_WORK_DIR" 1>&2
 fi
 
 # make sure singularity can do overlay/underlay
