@@ -477,6 +477,9 @@ add_condor_vars_line "OSG_USING_JOB_HOOK" "C" "-" "+" "Y" "Y" "-"
 # image.
 if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
+    glidein_client_dir=`grep -i "^GLIDECLIENT_WORK_DIR " $glidein_config | awk '{print $2}'`
+    cp -ns $glidein_client_dir/*prepare-hook* $glidein_group_dir/ 2>/dev/null && \
+        info "Linking hook(s) from $(ls $glidein_client_dir/*prepare-hook* | tr '\n' ' ')"
     for search_path in $glidein_group_dir/{prepare-hook,itb-prepare-hook,itb-prepare-hook-lib}; do
         if [[ -e $search_path ]]; then
             hook_path=$search_path
