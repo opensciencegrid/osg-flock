@@ -154,6 +154,8 @@ group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
 if [ ! -d "$group_dir" ]; then
     exit_hook_stop_pilot 303 "GLIDECLIENT_GROUP_WORK_DIR ($group_dir) is empty or not a directory"
 fi
+client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+cp -ns $client_dir/*ospool-lib $group_dir/ 2>/dev/null && echo "Linking helper(s) from $(ls $client_dir/*ospool-lib | tr '\n' ' ')" 1>&2
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib" || {
         error_message="Unable to source itb-ospool-lib; group_dir is $group_dir; $(ls -ld "$group_dir" 2>&1); $(ls -ld "$group_dir/itb-ospool-lib" 2>&1)"
