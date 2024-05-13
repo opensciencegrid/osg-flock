@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=749
+OSG_GLIDEIN_VERSION=756
 #######################################################################
 
 
@@ -313,9 +313,14 @@ advertise HAS_unsquashfs "$HAS_unsquashfs" "C"
 
 # check for locally cached .sif images - this will be helpful when determining 
 # we want to disable Singularity if CVMFS is not available
+# while we're at it, advertise the size
 GWMS_SINGULARITY_CACHED_IMAGES=$( (cd images/ && ls *.sif | sort | paste -d, -s) 2>/dev/null)
 if [[ "x$GWMS_SINGULARITY_CACHED_IMAGES" != "x" ]]; then
     advertise GWMS_SINGULARITY_CACHED_IMAGES "$GWMS_SINGULARITY_CACHED_IMAGES" "S"
+fi
+GWMS_SINGULARITY_CACHED_IMAGES_KB=$( (du -kc images/*.sif | tail -n 1 | awk '{print $1}') 2>/dev/null)
+if [[ "x$GWMS_SINGULARITY_CACHED_IMAGES_KB" != "x" ]]; then
+    advertise GWMS_SINGULARITY_CACHED_IMAGES_KB "$GWMS_SINGULARITY_CACHED_IMAGES_KB" "I"
 fi
 
 

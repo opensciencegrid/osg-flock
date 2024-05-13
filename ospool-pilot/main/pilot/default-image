@@ -171,6 +171,8 @@ fi
 
 # source our helpers
 group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+cp -ns $client_dir/*ospool-lib $group_dir/ 2>/dev/null && echo "Linking helper(s) from $(ls $client_dir/*ospool-lib | tr '\n' ' ')" 1>&2
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib"
 else
