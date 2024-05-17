@@ -158,6 +158,8 @@ set_condor_knob  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_
 
 # End OSPOOL-26
 
+set_condor_knob STARTD_JOB_ATTRS '$(STARTD_JOB_ATTRS) ProjectName'
+
 
 ###########################################################
 # NAT setups may have an idle timeout where they silently
