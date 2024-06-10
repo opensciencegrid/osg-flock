@@ -160,6 +160,7 @@ set_condor_knob  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_
 
 set_condor_knob STARTD_JOB_ATTRS '$(STARTD_JOB_ATTRS) ProjectName'
 
+
 ###########################################################
 # NAT setups may have an idle timeout where they silently
 # drop/forget a connection if they haven't seen packets go
@@ -250,6 +251,19 @@ osdf_plugin_is_ok () {
     fi
 }
 
+download_and_extract_pelican () {
+    # Download and extract a downloaded Pelican tarball from the given URL and
+    # rename the binary to stash_plugin so we can install it as a condor FT
+    # plugin.
+    local url="$1"
+
+    mkdir -p pelican-tmp/ &&
+    curl -LSso pelican-tmp/pelican.tar.gz "$url" &&
+    tar -C pelican-tmp/ -xzf pelican-tmp/pelican.tar.gz &&
+    (mv -f pelican-tmp/pelican-*/pelican ./stash_plugin || mv -f pelican-tmp/pelican ./stash_plugin) &&
+    chmod +x stash_plugin
+}
+
 
 # In a factory pilot, at the time this script is invoked, the Condor
 # installation will be in a directory like
@@ -323,12 +337,9 @@ if [[ $DOWNLOAD_PELICAN_VERSION && $DOWNLOAD_PELICAN_VERSION != condor ]]; then
     # version of Pelican and ignore the version from the HTCondor tarball.
 
     url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_$(arch).tar.gz
-    _out=$( {
-        curl -LSso pelican.tar.gz "$url" &&
-        tar -xzf pelican.tar.gz pelican &&
-        mv -f pelican stash_plugin &&
-        chmod +x stash_plugin
-    } 2>&1); ret=$?
+    # Pelican >= v7.9.0 tarballs will have the binary in a subdirectory of the
+    # tarball; < 7.9.0 have it at the top level.
+    _out=$(download_and_extract_pelican "$url" 2>&1); ret=$?
     if [[ $ret != 0 || ! -f stash_plugin || ! -x stash_plugin ]]; then
         OSDF_FAIL_REASON="Couldn't download and install requested Pelican version ($DOWNLOAD_PELICAN_VERSION)"
         add_to_debug "Pelican install output: $_out"
@@ -337,6 +348,7 @@ if [[ $DOWNLOAD_PELICAN_VERSION && $DOWNLOAD_PELICAN_VERSION != condor ]]; then
         REAL_OSDF_PLUGIN=$(pwd -P)/stash_plugin
         advertise "DOWNLOAD_PELICAN_VERSION" "$DOWNLOAD_PELICAN_VERSION" "S"
     fi
+    rm -rf "pelican-tmp/" &>/dev/null
 else
     # Not asked to download a specific Pelican version, or specifically
     # asked to use what's in the HTCondor tarball.
