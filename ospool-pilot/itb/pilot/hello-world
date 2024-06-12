@@ -42,7 +42,7 @@ fi
 
 
 # advertises to the condor_startd
-advertise "helloworld" "True" "S"
+advertise "helloworld" true "C"
 
 
 # ADD_CONFIG_LINE_SOURCE – Script that can be used to add new attributes to the glidein configuration file
@@ -50,6 +50,6 @@ add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{
 source $add_config_line_source
 
 #add to the glidein config
-gconfig_add "helloworld" "True"
+gconfig_add "helloworld" true
 myvar=gconfig_get "helloworld"
 print(myvar)
