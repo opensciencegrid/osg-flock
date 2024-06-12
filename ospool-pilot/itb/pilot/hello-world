@@ -34,20 +34,18 @@ function advertise {
 }
 
 
-info "This is a helloworld script done by Neha Talluri"
+info "This is a hello-world script done by Neha Talluri"
 
 if [ true ]; then
         warn "testing the warn function"
 fi
 
-
-# advertises to the condor_startd
-advertise "helloworld" true "C"
-
-
 # ADD_CONFIG_LINE_SOURCE – Script that can be used to add new attributes to the glidein configuration file
 add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
 source $add_config_line_source
+
+# advertises to the condor_startd
+advertise "helloworld" true "C"
 
 #add to the glidein config
 gconfig_add "helloworld" true

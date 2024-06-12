@@ -141,13 +141,10 @@
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
-
-            # add hello world here
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/hello-world" after_entry="True" const="True" executable="True" period="0" prefix="HELLO_WORLD_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
