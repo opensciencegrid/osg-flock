@@ -37,7 +37,8 @@ function determine_default_container_image {
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
 
     # if we are given GPUs, pick up GPU specific images
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+    # 10000 is a magic number from HTCondor indicating no GPUs
+    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -a "x$CUDA_VISIBLE_DEVICES" != "x10000" ]; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
     fi
 
@@ -58,12 +59,12 @@ function determine_default_container_image {
         done
     fi
 
-    # if everything else fails, use EL7
+    # if everything else fails, use EL8/EL9
     if [ "x$SELECTED_IMAGE" = "x" ]; then
-        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7-cuda10:latest"
+        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -a "x$CUDA_VISIBLE_DEVICES" != "x10000" ]; then
+            SELECTED_IMAGE="htc/rocky:8-cuda-11.0.3"
         else
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
+            SELECTED_IMAGE="htc/rocky:9"
         fi
     fi
 
