@@ -49,5 +49,4 @@ advertise "helloworld" true "C"
 
 #add to the glidein config
 gconfig_add "helloworld" true
-myvar=gconfig_get "helloworld"
-print(myvar)
+info "Glidein config reports helloworld=$(gconfig_get "helloworld")"
