@@ -599,7 +599,7 @@
 
       <group name="alloc-IceCube-Anvil-GPU" enabled="True">
          <config ignore_down_entries="">
-            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="30"/>
+            <glideins_removal margin="0" requests_tracking="True" type="DISABLE" wait="30"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="20" reserve="1"/>
             <idle_vms_per_entry curb="950" max="1000"/>
