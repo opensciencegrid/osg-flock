@@ -68,6 +68,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jun 20 2024 Mats Rynge <rynge@isi.edu> - 1.10-1
+- Add extra attributes for transfer ads (OSPOOL-123)
+
 * Tue Feb 21 2023 Mats Rynge <rynge@isi.edu> - 1.9-1
 - Add OSPool attribute to the job ad from the EP config (SOFTWARE-4803)
 
