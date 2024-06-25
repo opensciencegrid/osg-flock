@@ -52,11 +52,11 @@ tracepath -m 1 google.com
 tp_error_code=$?
 
 if [ $tp_error_code -eq 0 ]; then
-  advertise "HasTraceRoute" true "C"
-  gconfig_add "HasTraceRoute" true
+  advertise "HasTracePath" true "C"
+  gconfig_add "HasTracePath" true
 else
-  advertise "HasTraceRoute" true "C"
-  gconfig_add "HasTraceRoute" true
+  advertise "HasTracePath" true "C"
+  gconfig_add "HasTracePath" true
 fi
 
 traceroute -m 1 google.com
