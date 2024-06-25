@@ -46,16 +46,26 @@ if [ "$glidein_config" != "NONE" ]; then
     source $add_config_line_source
 fi
 
+##############################################################################################################
 
-info "This is a hello-world script done by Neha Talluri"
+tracepath -m 1 google.com
+tp_error_code=$?
 
-if [ true ]; then
-        warn "testing the warn function"
+if [ $tp_error_code -eq 0 ]; then
+  advertise "HasTraceRoute" true "C"
+  gconfig_add "HasTraceRoute" true
+else
+  advertise "HasTraceRoute" true "C"
+  gconfig_add "HasTraceRoute" true
 fi
 
-# advertises to the condor_startd
-advertise "helloworld" true "C"
+traceroute -m 1 google.com
+tr_error_code=$?
 
-#add to the glidein config
-gconfig_add "helloworld" true
-info "Glidein config reports helloworld=$(gconfig_get "helloworld")"
+if [ $tr_error_code -eq 0 ]; then
+  advertise "HasTraceRoute" true "C"
+  gconfig_add "HasTraceRoute" true
+else
+  advertise "HasTraceRoute" true "C"
+  gconfig_add "HasTraceRoute" true
+fi
