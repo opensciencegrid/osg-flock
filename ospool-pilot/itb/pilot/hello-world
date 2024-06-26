@@ -47,6 +47,11 @@ fi
 
 ##############################################################################################################
 
+version="hatchling"
+
+advertise "HelloWorldVersion" $version "S"
+gconfig_add "HelloWorldVersion" $version
+
 tracepath -m 1 google.com
 tp_error_code=$?
 
