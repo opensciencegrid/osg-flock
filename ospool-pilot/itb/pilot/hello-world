@@ -10,7 +10,6 @@ function warn {
     echo "WARN  " "$@" 1>&2
 }
 
-
 function advertise { 
     # atype is the type of the value as defined by GlideinWMS:
     #   I - integer
@@ -55,8 +54,8 @@ if [ $tp_error_code -eq 0 ]; then
   advertise "HasTracePath" true "C"
   gconfig_add "HasTracePath" true
 else
-  advertise "HasTracePath" true "C"
-  gconfig_add "HasTracePath" true
+  advertise "HasTracePath" false "C"
+  gconfig_add "HasTracePath" false
 fi
 
 traceroute -m 1 google.com
@@ -66,6 +65,6 @@ if [ $tr_error_code -eq 0 ]; then
   advertise "HasTraceRoute" true "C"
   gconfig_add "HasTraceRoute" true
 else
-  advertise "HasTraceRoute" true "C"
-  gconfig_add "HasTraceRoute" true
+  advertise "HasTraceRoute" false "C"
+  gconfig_add "HasTraceRoute" false
 fi
