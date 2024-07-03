@@ -58,6 +58,9 @@ tp_error_code=$?
 if [ $tp_error_code -eq 0 ]; then
   advertise "HasTracePath" true "C"
   gconfig_add "HasTracePath" true
+  tp_output=$(tracepath -4bm 20 osg-kansas-city-stashcache.nrp.internet2.edu)
+  advertise "TracePathOutput" "$tp_output" "S"
+  gconfig_add "TracePathOutput" "$tp_output"
 else
   advertise "HasTracePath" false "C"
   gconfig_add "HasTracePath" false
@@ -72,4 +75,15 @@ if [ $tr_error_code -eq 0 ]; then
 else
   advertise "HasTraceRoute" false "C"
   gconfig_add "HasTraceRoute" false
+fi
+
+public_ip=$(curl https://ifconfig.osgdev.chtc.io/q/forwarded)
+pub_ip_error_code=$?
+
+if [ $pub_ip_error_code -eq 0 ]; then
+  advertise "PublicIP" "$public_ip" "S"
+  gconfig_add "PublicIP" "$public_ip"
+else
+  advertise "PublicIP" false "C"
+  gconfig_add "PublicIP" false
 fi
