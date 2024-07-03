@@ -47,7 +47,7 @@ fi
 
 ##############################################################################################################
 
-version="hatchling"
+version="chick.0"
 
 advertise "HelloWorldVersion" $version "S"
 gconfig_add "HelloWorldVersion" $version
