@@ -58,7 +58,7 @@ tp_error_code=$?
 if [ $tp_error_code -eq 0 ]; then
   advertise "HasTracePath" true "C"
   gconfig_add "HasTracePath" true
-  tp_output=$(tracepath -4bm 20 osg-kansas-city-stashcache.nrp.internet2.edu)
+  tp_output=$(tracepath -4bm 20 osg-kansas-city-stashcache.nrp.internet2.edu) #TODO: do I need to format this?
   advertise "TracePathOutput" "$tp_output" "S"
   gconfig_add "TracePathOutput" "$tp_output"
 else
@@ -86,4 +86,18 @@ if [ $pub_ip_error_code -eq 0 ]; then
 else
   advertise "PublicIP" false "C"
   gconfig_add "PublicIP" false
+fi
+
+ping -c 1 google.com
+ping_error_code=$?
+
+if [ $ping_error_code -eq 0 ]; then
+  advertise "HasPing" true "C"
+  gconfig_add "HasPing" true
+  ping_output=$(ping -c 10 osg-kansas-city-stashcache.nrp.internet2.edu) #TODO: should I only return latency, or all of the information
+  advertise "PingOutput" "$ping_output" "S"
+  gconfig_add "PingOutput" "$ping_output"
+else
+  advertise "HasPing" false "C"
+  gconfig_add "HasPing" false
 fi
