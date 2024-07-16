@@ -64,6 +64,8 @@ if [ $tp_error_code -eq 0 ]; then
 else
   advertise "HasTracePath" false "C"
   gconfig_add "HasTracePath" false
+  advertise "TracePathOutput" "Unknown" "S"
+  gconfig_add "TracePathOutput" "Unknown"
 fi
 
 traceroute -m 1 google.com
@@ -100,4 +102,6 @@ if [ $ping_error_code -eq 0 ]; then
 else
   advertise "HasPing" false "C"
   gconfig_add "HasPing" false
+  advertise "PingOutput" "Unknown" "S"
+  gconfig_add "PingOutput" "Unknown"
 fi
