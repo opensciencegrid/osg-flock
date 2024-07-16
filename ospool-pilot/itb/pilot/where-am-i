@@ -86,8 +86,8 @@ if [ $pub_ip_error_code -eq 0 ]; then
   advertise "PublicIP" "$public_ip" "S"
   gconfig_add "PublicIP" "$public_ip"
 else
-  advertise "PublicIP" false "C"
-  gconfig_add "PublicIP" false
+  advertise "PublicIP" "Unknown" "S"
+  gconfig_add "PublicIP" "Unknown"
 fi
 
 ping -c 1 google.com
