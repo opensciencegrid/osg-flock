@@ -47,20 +47,20 @@ fi
 
 ##############################################################################################################
 
-version="chick.0"
+version="chick.1"
 
-advertise "HelloWorldVersion" $version "S"
-gconfig_add "HelloWorldVersion" $version
+advertise "WhereAmIVersion" "${version}" "S"
+gconfig_add "WhereAmIVersion" "${version}"
 
 tracepath -m 1 google.com
 tp_error_code=$?
 
-if [ $tp_error_code -eq 0 ]; then
+if [ ${tp_error_code} -eq 0 ]; then
   advertise "HasTracePath" true "C"
   gconfig_add "HasTracePath" true
-  tp_output=$(tracepath -4bm 20 osg-kansas-city-stashcache.nrp.internet2.edu) #TODO: do I need to format this?
-  advertise "TracePathOutput" "$tp_output" "S"
-  gconfig_add "TracePathOutput" "$tp_output"
+  tp_output="$(tracepath -4bm 20 osg-kansas-city-stashcache.nrp.internet2.edu | awk '{printf $0 "XbrX"}')"
+  advertise "TracePathOutput" "${tp_output}" "S"
+  gconfig_add "TracePathOutput" "${tp_output}"
 else
   advertise "HasTracePath" false "C"
   gconfig_add "HasTracePath" false
@@ -71,7 +71,7 @@ fi
 traceroute -m 1 google.com
 tr_error_code=$?
 
-if [ $tr_error_code -eq 0 ]; then
+if [ ${tr_error_code} -eq 0 ]; then
   advertise "HasTraceRoute" true "C"
   gconfig_add "HasTraceRoute" true
 else
@@ -79,12 +79,12 @@ else
   gconfig_add "HasTraceRoute" false
 fi
 
-public_ip=$(curl https://ifconfig.osgdev.chtc.io/q/forwarded)
+public_ip="$(curl https://ifconfig.osgdev.chtc.io/q/forwarded)"
 pub_ip_error_code=$?
 
-if [ $pub_ip_error_code -eq 0 ]; then
-  advertise "PublicIP" "$public_ip" "S"
-  gconfig_add "PublicIP" "$public_ip"
+if [ ${pub_ip_error_code} -eq 0 ]; then
+  advertise "PublicIP" "${public_ip}" "S"
+  gconfig_add "PublicIP" "${public_ip}"
 else
   advertise "PublicIP" "Unknown" "S"
   gconfig_add "PublicIP" "Unknown"
@@ -93,12 +93,12 @@ fi
 ping -c 1 google.com
 ping_error_code=$?
 
-if [ $ping_error_code -eq 0 ]; then
+if [ ${ping_error_code} -eq 0 ]; then
   advertise "HasPing" true "C"
   gconfig_add "HasPing" true
-  ping_output=$(ping -c 10 osg-kansas-city-stashcache.nrp.internet2.edu) #TODO: should I only return latency, or all of the information
-  advertise "PingOutput" "$ping_output" "S"
-  gconfig_add "PingOutput" "$ping_output"
+  ping_output="$(ping -c 10 osg-kansas-city-stashcache.nrp.internet2.edu | awk '{printf $0 "XbrX"}')"
+  advertise "PingOutput" "${ping_output}" "S"
+  gconfig_add "PingOutput" "${ping_output}"
 else
   advertise "HasPing" false "C"
   gconfig_add "HasPing" false
