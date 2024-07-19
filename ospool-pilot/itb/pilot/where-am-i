@@ -47,7 +47,7 @@ fi
 
 ##############################################################################################################
 
-version="chick.1"
+version="chick.2"
 
 advertise "WhereAmIVersion" "${version}" "S"
 gconfig_add "WhereAmIVersion" "${version}"
@@ -79,15 +79,26 @@ else
   gconfig_add "HasTraceRoute" false
 fi
 
-public_ip="$(curl https://ifconfig.osgdev.chtc.io/q/forwarded)"
-pub_ip_error_code=$?
+public_ipv4="$(curl -4 https://ifconfig.osgdev.chtc.io/q)"
+pub_ipv4_error_code=$?
 
-if [ ${pub_ip_error_code} -eq 0 ]; then
-  advertise "PublicIP" "${public_ip}" "S"
-  gconfig_add "PublicIP" "${public_ip}"
+if [ ${pub_ipv4_error_code} -eq 0 ]; then
+  advertise "PublicIPV4" "${public_ipv4}" "S"
+  gconfig_add "PublicIPV4" "${public_ipv4}"
 else
-  advertise "PublicIP" "Unknown" "S"
-  gconfig_add "PublicIP" "Unknown"
+  advertise "PublicIPV4" "Unknown" "S"
+  gconfig_add "PublicIPV4" "Unknown"
+fi
+
+public_ipv6="$(curl -6 https://ifconfig.osgdev.chtc.io/q)"
+pub_ipv6_error_code=$?
+
+if [ ${pub_ipv6_error_code} -eq 0 ]; then
+  advertise "PublicIPV6" "${public_ipv6}" "S"
+  gconfig_add "PublicIPV6" "${public_ipv6}"
+else
+  advertise "PublicIPV6" "Unknown" "S"
+  gconfig_add "PublicIPV6" "Unknown"
 fi
 
 ping -c 1 google.com
@@ -96,7 +107,7 @@ ping_error_code=$?
 if [ ${ping_error_code} -eq 0 ]; then
   advertise "HasPing" true "C"
   gconfig_add "HasPing" true
-  ping_output="$(ping -c 10 osg-kansas-city-stashcache.nrp.internet2.edu | awk '{printf $0 "XbrX"}')"
+  ping_output="$(ping -c 10 -p 8443 osg-kansas-city-stashcache.nrp.internet2.edu | awk '{printf $0 "XbrX"}')"
   advertise "PingOutput" "${ping_output}" "S"
   gconfig_add "PingOutput" "${ping_output}"
 else
