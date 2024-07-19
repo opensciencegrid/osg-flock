@@ -321,7 +321,7 @@
       </group>
 
       <!-- see OSPOOL-45 -->
-      <group name="main-canary" comment="Alternate main group for A/B testing" enabled="True">
+      <group name="main-canary" comment="Alternate main group for A/B testing" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
