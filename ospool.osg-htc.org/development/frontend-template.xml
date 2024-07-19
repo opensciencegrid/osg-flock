@@ -159,7 +159,7 @@
             </file>
          </files>
       </group>
-      <group name="itb-canary" enabled="True">
+      <group name="itb-canary" enabled="False">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="86400"/>
