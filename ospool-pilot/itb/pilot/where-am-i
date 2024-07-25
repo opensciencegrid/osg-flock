@@ -47,7 +47,7 @@ fi
 
 ##############################################################################################################
 
-version="chick.2"
+version="chick.3"
 
 advertise "WhereAmIVersion" "${version}" "S"
 gconfig_add "WhereAmIVersion" "${version}"
@@ -115,4 +115,31 @@ else
   gconfig_add "HasPing" false
   advertise "PingOutput" "Unknown" "S"
   gconfig_add "PingOutput" "Unknown"
+fi
+
+ifconfig -s
+ifconfig_exists=$?
+if [ ${ifconfig_exists} -eq 0 ]; then
+  network_interfaces="$(ifconfig | awk -F: '/^[a-z]/ {printf "%s ", $1} END {print ""}')"
+  advertise "NetworkInterfaces" "${network_interfaces}" "S"
+  gconfig_add "NetworkInterfaces" "${network_interfaces}"
+else
+  advertise "NetworkInterfaces" "Unknown" "S"
+  gconfig_add "NetworkInterfaces" "Unknown"
+fi
+
+hostname -s
+hostname_exists=$?
+if [ ${hostname_exists} -eq 0 ]; then
+  hostnames="$(hostname -A)"
+  advertise "Hostnames" "${hostnames}" "S"
+  gconfig_add "Hostnames" "${hostnames}"
+  hostname_ips="$(hostname -I)"
+  advertise "HostnamesIPs" "Unknown" "S"
+  gconfig_add "HostnamesIPs" "Unknown"
+else
+  advertise "Hostnames" "Unknown" "S"
+  gconfig_add "Hostnames" "Unknown"
+  advertise "HostnamesIPs" "Unknown" "S"
+  gconfig_add "HostnamesIPs" "Unknown"
 fi
