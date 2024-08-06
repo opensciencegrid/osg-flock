@@ -45,6 +45,18 @@ if [ "$glidein_config" != "NONE" ]; then
     source $add_config_line_source
 fi
 
+if command -v python3 &>/dev/null; then
+  PYTHON="python3"
+else
+  PYTHON="python"
+fi
+
+group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+cp -ns $client_dir/tcpping.py $group_dir/ 2>/dev/null && echo "Linking tcpping.py from $(ls $client_dir/tcpping.py | tr '\n' ' ')" 1>&2
+
+TCPPING="${PYTHON} ${group_dir}/tcpping.py"
+
 ##############################################################################################################
 
 version="chick.4"
@@ -104,13 +116,13 @@ else
   gconfig_add "PublicIPV6" "Unknown"
 fi
 
-python3 ospool-pilot/itb/lib/tcpping.py -n 1 google.com
+${TCPPING} -n 1 google.com
 tcpping_error_code=$?
 
 if [ ${tcpping_error_code} -eq 0 ]; then
   advertise "HasTCPPing" true "C"
   gconfig_add "HasTCPPing" true
-  tcpping_output="$(python3 ospool-pilot/itb/lib/tcpping.py -n 15 osg-kansas-city-stashcache.nrp.internet2.edu 8443 | awk '{printf $0 "XbrX"}')"
+  tcpping_output="$(${TCPPING} -n 15 osg-kansas-city-stashcache.nrp.internet2.edu 8443 | awk '{printf $0 "XbrX"}')"
   advertise "TCPPingOutput" "${tcpping_output}" "S"
   gconfig_add "TCPPingOutput" "${tcpping_output}"
 else
