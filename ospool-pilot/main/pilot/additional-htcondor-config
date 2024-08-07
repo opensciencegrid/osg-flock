@@ -418,7 +418,6 @@ for envvar in \
      http_proxy \
      https_proxy \
      FTP_PROXY \
-     X509_USER_PROXY \
 ; do
 
 if [ ! -z ${!envvar+x} ]; then
