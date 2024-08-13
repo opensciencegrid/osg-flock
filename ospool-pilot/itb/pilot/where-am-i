@@ -71,7 +71,7 @@ TCPPING="${PYTHON} ${group_dir}/tcpping.py"
 
 ##############################################################################################################
 
-version="chick.5"
+version="chick.6"
 
 advertise "WhereAmIVersion" "${version}" "S"
 gconfig_add "WhereAmIVersion" "${version}"
@@ -128,7 +128,7 @@ else
   gconfig_add "PublicIPV6" "Unknown"
 fi
 
-${TCPPING} -n 1 google.com
+${TCPPING} -n 1 google.com 443
 tcpping_error_code=$?
 
 if [ ${tcpping_error_code} -eq 0 ]; then
