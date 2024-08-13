@@ -45,6 +45,18 @@ if [ "$glidein_config" != "NONE" ]; then
     source $add_config_line_source
 fi
 
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
 if command -v python3 &>/dev/null; then
   PYTHON="python3"
 else
@@ -54,8 +66,6 @@ fi
 group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
 client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
 cp -ns $client_dir/tcpping.py $group_dir/ 2>/dev/null && echo "Linking tcpping.py from $(ls $client_dir/tcpping.py | tr '\n' ' ')" 1>&2
-if [ -e " ${group_dir}/tcpping.py" ]; then
-    source "${group_dir}/tcpping.py"
 
 TCPPING="${PYTHON} ${group_dir}/tcpping.py"
 
