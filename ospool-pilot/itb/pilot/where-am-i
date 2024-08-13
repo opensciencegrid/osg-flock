@@ -54,12 +54,14 @@ fi
 group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
 client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
 cp -ns $client_dir/tcpping.py $group_dir/ 2>/dev/null && echo "Linking tcpping.py from $(ls $client_dir/tcpping.py | tr '\n' ' ')" 1>&2
+if [ -e " ${group_dir}/tcpping.py" ]; then
+    source "${group_dir}/tcpping.py"
 
 TCPPING="${PYTHON} ${group_dir}/tcpping.py"
 
 ##############################################################################################################
 
-version="chick.4"
+version="chick.5"
 
 advertise "WhereAmIVersion" "${version}" "S"
 gconfig_add "WhereAmIVersion" "${version}"
