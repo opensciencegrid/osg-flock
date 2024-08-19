@@ -545,7 +545,7 @@ fi
 
 # send extra monitoring information regularly
 if [ ! -e $TEST_FILE_1H.panopticon ]; then
-    URL="https://data.isi.edu/ospool-panopticon/static/ospool-panopticon"
+    URL="https://osg.k.scitech.group/ospool-panopticon/static/ospool-panopticon"
     (curl -s -m 20 -o ospool-panopticon $URL || wget -q --timeout 20 -O ospool-panopticon $URL) >/dev/null 2>&1
     if [ -e ospool-panopticon ]; then
         chmod +x ospool-panopticon
