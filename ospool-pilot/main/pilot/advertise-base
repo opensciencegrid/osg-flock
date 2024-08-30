@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=769
+OSG_GLIDEIN_VERSION=770
 #######################################################################
 
 
@@ -553,6 +553,12 @@ if [ ! -e $TEST_FILE_1H.panopticon ]; then
     fi
     touch $TEST_FILE_1H.panopticon
 fi
+
+# Advertise this env var if present
+if [[ -n $OSG_INSTITUTION_ID ]]; then
+    advertise OSG_INSTITUTION_ID "$OSG_INSTITUTION_ID" "S"
+fi
+
 
 rm -f $PID_FILE
 info "All done - time to do some real work!"
