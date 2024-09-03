@@ -255,7 +255,7 @@ if [ "x$VER" != "x" ]; then
 fi
 
 # firewall testing - check a set of common ports our projects need
-for PORT in 80 1094 2880 8000 27017; do
+for PORT in 80 1094 2880 8000 8443 27017; do
     if [ -e $TEST_FILE_4H.port.$PORT ]; then
         OUT=$(cat $TEST_FILE_4H.port.$PORT)
     else
