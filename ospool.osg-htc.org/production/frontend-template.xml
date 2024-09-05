@@ -65,7 +65,6 @@
          <collectors>
             <collector DN="/CN=gfactory-1.osg-htc.org" factory_identity="gfactory@gfactory-1.osg-htc.org" my_identity="feosgospool@gfactory-1.osg-htc.org" node="gfactory-1.osg-htc.org"/>
             <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgospool@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
-            <collector DN="/DC=ch/DC=cern/OU=computers/CN=vocms0207.cern.ch" factory_identity="gfactory@vocms0207.cern.ch" my_identity="feosgospool@vocms0207.cern.ch" node="vocms0207.cern.ch"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity, on CHTC, only count jobs which wants glideins"
@@ -253,7 +252,7 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="50" reserve="10"/>
+            <idle_glideins_per_entry max="100" reserve="10"/>
             <idle_vms_per_entry curb="9000" max="10000"/>
             <idle_vms_total curb="19000" max="20000"/>
             <processing_workers matchmakers="5"/>
