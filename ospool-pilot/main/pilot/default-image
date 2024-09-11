@@ -37,8 +37,12 @@ function determine_default_container_image {
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
 
     # if we are given GPUs, pick up GPU specific images
-    # 10000 is a magic number from HTCondor indicating no GPUs
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -a "x$CUDA_VISIBLE_DEVICES" != "x10000" ]; then
+    # make sure CUDA_VISIBLE_DEVICES is set to something sane - we
+    # have seen values like "na", -1 and x10000
+    if [ -n "$CUDA_VISIBLE_DEVICES" ] && \
+       [ "$CUDA_VISIBLE_DEVICES" -eq "$CUDA_VISIBLE_DEVICES" ] 2>/dev/null && \
+       [ "$CUDA_VISIBLE_DEVICES" -gt 0 ] && \
+       [ "$CUDA_VISIBLE_DEVICES" -lt 50 ] ; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
     fi
 
