@@ -220,11 +220,6 @@ advertise OSGVO_OS_VERSION "$OS_VERSION" "S"
 advertise OSGVO_OS_STRING "$OS_NAME $OS_VERSION" "S"
 advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 
-# cpu info
-CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
-advertise OSG_CPU_MODEL "$CPU_MODEL" "S"
-advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
-
 # some cpu flags HTCondor is not yet advertising
 for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`; do
     if (echo "$FLAG" | egrep "avx512|cx16|f16c") >/dev/null 2>&1; then
