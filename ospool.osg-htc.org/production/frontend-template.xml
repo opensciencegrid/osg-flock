@@ -105,8 +105,8 @@
       <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/usr/bin:/bin:/usr/local/software/Singularity/singularity-3.7.0/bin:/usr/local/software/Singularity/singularity-3.5.3/bin:/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin"/>
       <!-- no restrictions, it prevents some images like cvmfsexec on Stampede2 -->
       <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
-      <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="5%__htc/centos:7 10%__htc/rocky:8 75%__htc/rocky:9 5%__htc/debian:12 5%__htc/ubuntu:22.04"/>
-      <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__htc/rocky:8-cuda-11.0.3"/>
+      <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="10%__htc/rocky:8 80%__htc/rocky:9 5%__htc/debian:12 5%__htc/ubuntu:22.04"/>
+      <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU" glidein_publish="False" job_publish="False" parameter="True" type="string" value="100%__htc/rocky:9-cuda-12.6.0"/>
       <attr name="OSG_DEFAULT_CVMFS_DATA" glidein_publish="False" job_publish="False" parameter="True" type="string" value="/cvmfs/stash.osgstorage.org"/>
       <attr name="STARTD_JOB_ATTRS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="ProjectName"/>
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
