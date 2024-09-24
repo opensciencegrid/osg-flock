@@ -391,6 +391,77 @@
          </files>
       </group>
 
+      <!-- ==================== ePIC ==================== -->
+
+      <group name="epic" comment="ePIC unique resources" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="10" reserve="1"/>
+            <idle_vms_per_entry curb="30" max="40"/>
+            <idle_vms_total curb="300" max="400"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="5000" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="9000" max="10000"/>
+         </config>
+         <match match_expr='True'
+                start_expr='(TARGET.projectName =?= "ePIC") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+         <factory query_expr='(FactoryType =?= "production") &amp;&amp; stringListMember("EPICVO", GLIDEIN_Supported_VOs)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(projectName =?= "ePIC") &amp;&amp; (TARGET.ITB_Sites =!= True)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                  <schedd DN="/CN=ap23.uc.osg-htc.org" fullname="ap23.uc.osg-htc.org"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="7200"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="OSG_SINGULARITY_BINARY" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/cvmfs/oasis.opensciencegrid.org/mis/singularity/current/bin/singularity"/>
+            <attr name="GLIDEIN_SINGULARITY_BINARY_OVERRIDE" glidein_publish="True" job_publish="True" parameter="True" type="string" value="/cvmfs/oasis.opensciencegrid.org/mis/singularity/current/bin/singularity:/usr/local/bin:/usr/bin"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+      </group>
+
       <!-- ==================== SPT ==================== -->
       
       <group name="spt-osgvo" comment="SPT dedicated resources, but under OSG VO" enabled="True">
