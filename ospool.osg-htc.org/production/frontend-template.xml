@@ -64,7 +64,6 @@
          </match_attrs>
          <collectors>
             <collector DN="/CN=gfactory-1.osg-htc.org" factory_identity="gfactory@gfactory-1.osg-htc.org" my_identity="feosgospool@gfactory-1.osg-htc.org" node="gfactory-1.osg-htc.org"/>
-            <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=gfactory-2.opensciencegrid.org" factory_identity="gfactory@gfactory-2.opensciencegrid.org" my_identity="feosgospool@gfactory-2.opensciencegrid.org" node="gfactory-2.opensciencegrid.org"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity, on CHTC, only count jobs which wants glideins"
