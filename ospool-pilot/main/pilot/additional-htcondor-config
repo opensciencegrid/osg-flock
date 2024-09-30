@@ -336,7 +336,11 @@ if [[ $DOWNLOAD_PELICAN_VERSION && $DOWNLOAD_PELICAN_VERSION != condor ]]; then
     # If this variable is set, and not set to "condor", download that
     # version of Pelican and ignore the version from the HTCondor tarball.
 
-    url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_$(arch).tar.gz
+    pelican_arch=$(arch)
+    if [[ $pelican_arch == aarch64 ]]; then
+        pelican_arch=arm64
+    fi
+    url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_${pelican_arch}.tar.gz
     # Pelican >= v7.9.0 tarballs will have the binary in a subdirectory of the
     # tarball; < 7.9.0 have it at the top level.
     _out=$(download_and_extract_pelican "$url" 2>&1); ret=$?
