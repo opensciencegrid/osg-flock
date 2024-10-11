@@ -38,11 +38,11 @@ function determine_default_container_image {
 
     # if we are given GPUs, pick up GPU specific images
     # make sure CUDA_VISIBLE_DEVICES is set to something sane - we
-    # have seen values like "na", -1 and x10000
+    # have seen values like "na", -1 and 10000
     if [ -n "$CUDA_VISIBLE_DEVICES" ] && \
-       [ "$CUDA_VISIBLE_DEVICES" -eq "$CUDA_VISIBLE_DEVICES" ] 2>/dev/null && \
-       [ "$CUDA_VISIBLE_DEVICES" -gt 0 ] && \
-       [ "$CUDA_VISIBLE_DEVICES" -lt 50 ] ; then
+       [ "$CUDA_VISIBLE_DEVICES" != "na" ] && \
+       [ "$CUDA_VISIBLE_DEVICES" != "-1" ] && \
+       [ "$CUDA_VISIBLE_DEVICES" != "10000" ] ; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
     fi
 
