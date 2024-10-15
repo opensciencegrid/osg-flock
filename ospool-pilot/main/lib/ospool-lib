@@ -153,8 +153,14 @@ function check_singularity_sif_support {
 
     # Grab an alpine image from somewhere; ok to download each time since
     # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/oasis.opensciencegrid.org/osg/projects/OSG-Staff/images/library__alpine__latest.sif"
-    local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    local arch=$(uname -m)
+    local cvmfs_alpine="/cvmfs/oasis.opensciencegrid.org/osg/projects/OSG-Staff/images/$arch/library__alpine__latest.sif"
+    # temporary seperation until we decide on longterm multi-arch hosting
+    if [ "X$arch" = "Xx86_64" ]; then
+        local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    else
+        local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
+    fi
     local sylabs_alpine="library://alpine:3"
     local work_dir=$(get_glidein_config_value GLIDEIN_WORK_DIR)
     local image_dir="$work_dir/../images"
@@ -219,7 +225,13 @@ function check_singularity_registry_support {
     # unpack it into a temporary sandbox first, nonzero otherwise.
     # This also tests building a SIF from a registry image
     #
-    local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    local arch=$(uname -m)
+    # temporary seperation until we decide on longterm multi-arch hosting
+    if [ "X$arch" = "Xx86_64" ]; then
+        local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    else
+        local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
+    fi
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
 

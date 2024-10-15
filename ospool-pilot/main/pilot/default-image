@@ -46,6 +46,8 @@ function determine_default_container_image {
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
     fi
 
+    arch=$(uname -m)
+
     SELECTED_IMAGE=""
     if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
         # new style - weighted random selection
@@ -70,6 +72,11 @@ function determine_default_container_image {
         else
             SELECTED_IMAGE="htc/rocky:9"
         fi
+    fi
+
+    # temp for arm until we get the image repos/syncing in place
+    if [ "X$arch" = "Xaarch64" ]; then
+        SELECTED_IMAGE="htc/arm:test"
     fi
 
     # Should we use CVMFS or pull images directly?
@@ -100,6 +107,12 @@ function determine_default_container_image {
     # the images dir is required here, as we want to keep a copy of the image for this test
     if check_singularity_sif_support; then
         singularity_can_use_sif=1
+    fi
+
+    # temp for arm until we get the image repos/syncing in place
+    if [ "X$arch" = "Xaarch64" ]; then
+        # have to pull, cvmfs sync is not yet ready
+        pull_images=1
     fi
 
     if [[ $pull_images -ge 0 ]]; then
@@ -135,8 +148,8 @@ function determine_default_container_image {
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
         WEEK=$(date +'%V')
-        OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/sif/$IMAGE_NAME.sif
-        HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/sif/$IMAGE_NAME.sif
+        OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/$arch/$IMAGE_NAME.sif
+        HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/$arch/$IMAGE_NAME.sif
         (osdf_download $IMAGE_PATH $OSDF_URL \
             || http_download $IMAGE_PATH $HTTP_URL \
             || singularity pull --force $IMAGE_PATH docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_PATH.log 2>&1
