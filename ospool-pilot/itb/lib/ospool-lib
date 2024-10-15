@@ -53,7 +53,7 @@ function check_singularity_overunderlay {
         return 0
     fi
 
-    output=$(timeout 60s $singularity_path run -B $PWD:/doesnotexist $default_image /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path exec -B $PWD:/doesnotexist $default_image /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
@@ -204,7 +204,7 @@ function check_singularity_sif_support {
         return 1
     fi
 
-    output=$(timeout 60s $singularity_path run $image_dir/gwms-alpine.sif /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path exec $image_dir/gwms-alpine.sif /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
@@ -240,7 +240,7 @@ function check_singularity_registry_support {
         return 1
     fi
 
-    output=$(timeout 60s $singularity_path run --disable-cache $static_registry_alpine /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path exec --disable-cache $static_registry_alpine /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
