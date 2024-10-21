@@ -1,6 +1,6 @@
 Name:      ospool-ap
 Version:   1.9
-Release:   3%{?dist}
+Release:   4%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
@@ -71,7 +71,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.9-3
+* Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.9-4
 - Initial release as ospool-ap
 
 * Tue Feb 21 2023 Mats Rynge <rynge@isi.edu> - 1.9-1
