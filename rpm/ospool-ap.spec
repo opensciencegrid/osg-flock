@@ -1,16 +1,19 @@
-Name:      osg-flock
+Name:      ospool-ap
 Version:   1.9
 Release:   3%{?dist}
 Summary:   OSG configurations for a flocking host
 
 License:   Apache 2.0
-URL:       https://opensciencegrid.org/docs/submit/osg-flock
+URL:       https://opensciencegrid.org/docs/submit/ospool-ap
 
 BuildArch: noarch
 
 Requires(post): gratia-probe-condor-ap
 BuildRequires: condor
 Requires: condor
+
+Obsoletes: osg-flock <= %{version}
+Provides: osg-flock = %{version}
 
 Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
 
@@ -68,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.9-3
+- Initial release as ospool-ap
+
 * Tue Feb 21 2023 Mats Rynge <rynge@isi.edu> - 1.9-1
 - Add OSPool attribute to the job ad from the EP config (SOFTWARE-4803)
 
