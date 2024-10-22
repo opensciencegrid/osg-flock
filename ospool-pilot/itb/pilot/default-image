@@ -76,7 +76,7 @@ function determine_default_container_image {
 
     # temp for arm until we get the image repos/syncing in place
     if [ "X$arch" = "Xaarch64" ]; then
-        SELECTED_IMAGE="htc/arm:test"
+        SELECTED_IMAGE="htc/rocky:9"
     fi
 
     # Should we use CVMFS or pull images directly?
