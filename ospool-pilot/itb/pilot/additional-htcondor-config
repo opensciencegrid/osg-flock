@@ -465,7 +465,9 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     set_condor_knob "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
     # Run all jobs in singularity if we have it
-    set_condor_knob "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+    # special case - allow some OSG staff to bypass Singularity for
+    # debugging and building images
+    set_condor_knob "SINGULARITY_JOB" "(HAS_SINGULARITY?:false) && (IgnoreSingularity =!= True)"
 
     # Condor PID namespace autodetection is broken (TODO add ticket); hard-disable it if we were asked to.
     # I could consolidate these if statements but I'm curious where it's set...

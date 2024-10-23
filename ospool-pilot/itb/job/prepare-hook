@@ -386,17 +386,6 @@ info_dbg "Location of singularity: $GWMS_SINGULARITY_PATH"
 setup_classad_variables
 GLIDEIN_DEBUG_OUTPUT=1
 
-# special case - allow some OSG staff to bypass Singularity for
-# debugging and building images
-export IGNORE_SINGULARITY=$(get_prop_bool "$_CONDOR_JOB_AD" "IgnoreSingularity" 0)
-export OWNER=$(get_prop_str "$_CONDOR_JOB_AD" "Owner" "NA")
-if [[ "x$IGNORE_SINGULARITY" == "x1"  &&  "x$OWNER" == "xrynge@ap20.uc.osg-htc.org" ]]; then
-    echo "SingularityImage="
-    msg="Ignoring Singularity - continuing job without a container"
-    info_dbg "$msg"
-    exit_hook 0 "$msg"
-fi
-
 # Check if singularity is disabled or enabled
 # This script could run when singularity is optional and not wanted
 # So should not fail but exec w/o running Singularity
