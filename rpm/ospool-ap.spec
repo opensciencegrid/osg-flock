@@ -1,16 +1,19 @@
-Name:      osg-flock
-Version:   1.9
+Name:      ospool-ap
+Version:   1.10
 Release:   2%{?dist}
-Summary:   OSG configurations for a flocking host
+Summary:   OSPool Access Point configurations
 
 License:   Apache 2.0
-URL:       https://opensciencegrid.org/docs/submit/osg-flock
+URL:       https://opensciencegrid.org/docs/submit/ospool-ap
 
 BuildArch: noarch
 
 Requires(post): gratia-probe-condor-ap
 BuildRequires: condor
 Requires: condor
+
+Obsoletes: osg-flock <= %{version}
+Provides: osg-flock = %{version}
 
 Source0: %{name}-%{version}%{?gitrev:-%{gitrev}}.tar.gz
 
@@ -68,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.10-2
+- Initial release as ospool-ap
+
 * Thu Jun 20 2024 Mats Rynge <rynge@isi.edu> - 1.10-1
 - Add extra attributes for transfer ads (OSPOOL-123)
 
