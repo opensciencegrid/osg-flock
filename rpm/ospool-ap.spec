@@ -1,7 +1,7 @@
 Name:      ospool-ap
 Version:   1.9
 Release:   4%{?dist}
-Summary:   OSG configurations for a flocking host
+Summary:   OSPool Access Point configurations
 
 License:   Apache 2.0
 URL:       https://opensciencegrid.org/docs/submit/ospool-ap
