@@ -22,18 +22,32 @@ from pprint import pprint
 # targetting itb or production environment.
 core_schedds = [
         'amundsen.grid.uchicago.edu',
-        'login-el7.xenon.ci-connect.net',
-        'login.snowmass21.io',
-        'login04.osgconnect.net',
-        'login05.osgconnect.net',
-        'scott.grid.uchicago.edu'
+        'ap1.facility.path-cc.io',
+        'ap20.uc.osg-htc.org',
+        'ap21.uc.osg-htc.org',
+        'ap22.uc.osg-htc.org',
+        'ap23.uc.osg-htc.org',
+        'ap40.uw.osg-htc.org',
+        'huxley-osgsub-001.sdmz.amnh.org',
+        'osg-eic.jlab.org',
+        'scosg2201.jlab.org',
+        'scosg2202.jlab.org',
+        'scott.grid.uchicago.edu',
+        'sub-2.icecube.wisc.edu',
+        'submit-1.chtc.wisc.edu',
+        'submit2.chtc.wisc.edu',
+        'submit3.chtc.wisc.edu',
         ]
 
 def load_data():
     '''
     Load data from topology database
     '''
-    url = "https://topology.opensciencegrid.org/rgsummary/xml?service=on&service_109=on"
+    url = "https://my.opensciencegrid.org/rgsummary/xml?" \
+          "gridtype=on&gridtype_1=on&" \
+          "disable=on&disable_value=0&" \
+          "active=on&active_value=1&" \
+          "service=on&service_109=on"
     response = requests.get(url)
 
     if response.status_code != requests.codes.ok:
@@ -49,25 +63,12 @@ def load_data():
         for res in rgroup:
             if res.tag == 'Resources':
                 for r in res:
-                    submit_host = False
                     hostname = None
                     dn = None
-                    active = False
-                    disable = True
                     service_tags = []
                     for tag in r:
                         if tag.tag == 'FQDN':
                             hostname = tag.text
-                        if tag.tag == 'Active':
-                            active = str2bool(tag.text)
-                        if tag.tag == 'Disable':
-                            disable = str2bool(tag.text)
-                        if tag.tag == 'Services':
-                            for serv in tag:
-                                for stag in serv:
-                                    # 109 means submit host
-                                    if stag.tag == 'ID' and stag.text == '109':
-                                        submit_host = True
                         if tag.tag == 'Tags':
                             for stag in tag:
                                 service_tags.append(stag.text)
@@ -75,10 +76,9 @@ def load_data():
                     try:
                         addr = socket.gethostbyname(hostname)
                     except:
-                        disable = True
+                        continue
                     # we now have all the info needed for this host
-                    #print("{} {} {} {}".format(hostname, submit_host, active, disable))
-                    if submit_host and active and not disable and 'OSPool' in service_tags:
+                    if 'OSPool' in service_tags:
                         data[hostname] = {}
                         # dn is still required for gwms, even if it is not actually used
                         if dn:
@@ -170,18 +170,11 @@ def main():
 
     if args.target_env == "development":
         core_schedds = [
-            'login04.osgconnect.net',
-            'login05.osgconnect.net'
-            ]
-    else:
-        # production
-        core_schedds = [
-            'amundsen.grid.uchicago.edu',
-            'login-el7.xenon.ci-connect.net',
-            'login.snowmass21.io',
-            'login04.osgconnect.net',
-            'login05.osgconnect.net',
-            'scott.grid.uchicago.edu'
+            'ap20.uc.osg-htc.org',
+            'ap21.uc.osg-htc.org',
+            'ap22.uc.osg-htc.org',
+            'ap23.uc.osg-htc.org',
+            'ap40.uw.osg-htc.org',
             ]
 
     if args.gwms_frontend_config:

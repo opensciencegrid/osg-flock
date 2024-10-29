@@ -1,0 +1,172 @@
+#!/bin/bash
+
+glidein_config="$1"
+
+function info {
+    echo "INFO  " "$@" 1>&2
+}
+
+function warn {
+    echo "WARN  " "$@" 1>&2
+}
+
+function advertise { 
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line_safe "$key" "$value"
+        add_condor_vars_line "$key" "$atype" "-" "+" "Y" "Y" "-"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
+    else
+        echo "$key = $value"
+    fi
+}
+
+function get_glidein_config_value {
+    # extracts a config attribute value from 
+    # $1 is the attribute key
+    CF=$glidein_config
+    if [ "$glidein_config" = "NONE" ]; then
+        CF="$PWD/glidein_config"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
+if [ "$glidein_config" != "NONE" ]; then
+    ###########################################################
+    # import advertise and add_condor_vars_line functions
+    if [ "x$add_config_line_source" = "x" ]; then
+        export add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
+        export condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
+    fi
+
+    add_config_line_source=$PWD/add_config_line.source
+
+    info "Sourcing $add_config_line_source"
+    source $add_config_line_source
+fi
+
+if command -v python3 &>/dev/null; then
+  PYTHON="python3"
+else
+  PYTHON="python"
+fi
+
+group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+cp -ns $client_dir/tcpping.py $group_dir/ 2>/dev/null && echo "Linking tcpping.py from $(ls $client_dir/tcpping.py | tr '\n' ' ')" 1>&2
+
+TCPPING="${PYTHON} ${group_dir}/tcpping.py"
+
+##############################################################################################################
+
+version="chick.6"
+
+advertise "WhereAmIVersion" "${version}" "S"
+gconfig_add "WhereAmIVersion" "${version}"
+
+advertise "WhereAmIToCache" "osg-kansas-city-stashcache.nrp.internet2.edu" "S"
+gconfig_add "WhereAmIToCache" "osg-kansas-city-stashcache.nrp.internet2.edu"
+
+tracepath -m 1 google.com
+tp_error_code=$?
+
+if [ ${tp_error_code} -eq 0 ]; then
+  advertise "HasTracePath" true "C"
+  gconfig_add "HasTracePath" true
+  tp_output="$(tracepath -4bm 20 osg-kansas-city-stashcache.nrp.internet2.edu | awk '{printf $0 "XbrX"}')"
+  advertise "TracePathOutput" "${tp_output}" "S"
+  gconfig_add "TracePathOutput" "${tp_output}"
+else
+  advertise "HasTracePath" false "C"
+  gconfig_add "HasTracePath" false
+  advertise "TracePathOutput" "Unknown" "S"
+  gconfig_add "TracePathOutput" "Unknown"
+fi
+
+traceroute -m 1 google.com
+tr_error_code=$?
+
+if [ ${tr_error_code} -eq 0 ]; then
+  advertise "HasTraceRoute" true "C"
+  gconfig_add "HasTraceRoute" true
+else
+  advertise "HasTraceRoute" false "C"
+  gconfig_add "HasTraceRoute" false
+fi
+
+public_ipv4="$(curl -4 https://ifconfig.osgdev.chtc.io/q)"
+pub_ipv4_error_code=$?
+
+if [ ${pub_ipv4_error_code} -eq 0 ]; then
+  advertise "PublicIPV4" "${public_ipv4}" "S"
+  gconfig_add "PublicIPV4" "${public_ipv4}"
+else
+  advertise "PublicIPV4" "Unknown" "S"
+  gconfig_add "PublicIPV4" "Unknown"
+fi
+
+public_ipv6="$(curl -6 https://ifconfig.osgdev.chtc.io/q)"
+pub_ipv6_error_code=$?
+
+if [ ${pub_ipv6_error_code} -eq 0 ]; then
+  advertise "PublicIPV6" "${public_ipv6}" "S"
+  gconfig_add "PublicIPV6" "${public_ipv6}"
+else
+  advertise "PublicIPV6" "Unknown" "S"
+  gconfig_add "PublicIPV6" "Unknown"
+fi
+
+${TCPPING} -n 1 google.com 443
+tcpping_error_code=$?
+
+if [ ${tcpping_error_code} -eq 0 ]; then
+  advertise "HasTCPPing" true "C"
+  gconfig_add "HasTCPPing" true
+  tcpping_output="$(${TCPPING} -n 15 osg-kansas-city-stashcache.nrp.internet2.edu 8443 | awk '{printf $0 "XbrX"}')"
+  advertise "TCPPingOutput" "${tcpping_output}" "S"
+  gconfig_add "TCPPingOutput" "${tcpping_output}"
+else
+  advertise "HasTCPPing" false "C"
+  gconfig_add "HasTCPPing" false
+  advertise "TCPPingOutput" "Unknown" "S"
+  gconfig_add "TCPPingOutput" "Unknown"
+fi
+
+ifconfig -s
+ifconfig_exists=$?
+if [ ${ifconfig_exists} -eq 0 ]; then
+  network_interfaces="$(ifconfig | awk -F: '/^[a-z]/ {printf "%s ", $1} END {print ""}')"
+  advertise "NetworkInterfaces" "${network_interfaces}" "S"
+  gconfig_add "NetworkInterfaces" "${network_interfaces}"
+else
+  advertise "NetworkInterfaces" "Unknown" "S"
+  gconfig_add "NetworkInterfaces" "Unknown"
+fi
+
+hostname -s
+hostname_exists=$?
+if [ ${hostname_exists} -eq 0 ]; then
+  hostnames="$(hostname -A)"
+  advertise "Hostnames" "${hostnames}" "S"
+  gconfig_add "Hostnames" "${hostnames}"
+  hostname_ips="$(hostname -I)"
+  advertise "HostnamesIPs" "Unknown" "S"
+  gconfig_add "HostnamesIPs" "Unknown"
+else
+  advertise "Hostnames" "Unknown" "S"
+  gconfig_add "Hostnames" "Unknown"
+  advertise "HostnamesIPs" "Unknown" "S"
+  gconfig_add "HostnamesIPs" "Unknown"
+fi

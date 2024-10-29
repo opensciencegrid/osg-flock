@@ -3,11 +3,32 @@
 glidein_config="$1"
 
 function info {
-    echo "INFO  " $@ 1>&2
+    echo "INFO  " "$@" 1>&2
 }
 
 function warn {
-    echo "WARN  " $@ 1>&2
+    echo "WARN  " "$@" 1>&2
+}
+
+function advertise {
+    # atype is the type of the value as defined by GlideinWMS:
+    #   I - integer
+    #   S - quoted string
+    #   C - unquoted string (i.e. Condor keyword or expression)
+    key="$1"
+    value="$2"
+    atype="$3"
+
+    if [ "$glidein_config" != "NONE" ]; then
+        add_config_line_safe "$key" "$value"
+        add_condor_vars_line "$key" "$atype" "-" "+" "Y" "Y" "-"
+    fi
+
+    if [ "$atype" = "S" ]; then
+        echo "$key = \"$value\""
+    else
+        echo "$key = $value"
+    fi
 }
 
 
@@ -17,44 +38,23 @@ function warn {
 add_config_line_source=`grep '^ADD_CONFIG_LINE_SOURCE ' $glidein_config | awk '{print $2}'`
 source $add_config_line_source
 
-# Patch over add_config_line() with a safer version
-# This will be fixed in gWMS 3.9.6
-add_config_line() {
-    # Ignore the call if the exact config line is already in there
-    if ! grep -q "^${*}$" "${glidein_config}"; then
-        # Use temporary files to make sure multiple add_config_line() calls don't clobber
-        # the glidein_config.
-        local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
-        local tmp_config1="${glidein_config}.$r.1"
-        local tmp_config2="${glidein_config}.$r.2"
+if ! command -v gconfig_get &>/dev/null; then
+    warn "Outdated $add_config_line_source - missing gconfig_get()"
+    # Add it ourselves -- adapted from
+    # https://github.com/glideinWMS/glideinwms/blob/a700e2edcfbe272d1a939675ec6bc33aa3667f34/creation/web_base/add_config_line.source
+    gconfig_get () {
+        # Leave the extra space in the grep, to parse correctly strings w/ the same beginning
+        tac "$glidein_config" | grep -m1 "^$1 " | cut -d ' ' -f 2-
+    }
+fi
 
-        # Copy the glidein config so it doesn't get modified while we grep out the old value
-        if ! cp -p "${glidein_config}" "${tmp_config1}"; then
-            warn "Error writing ${tmp_config1}"
-            rm -f "${tmp_config1}"
-            exit 1
-        fi
-        grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
-        rm -f "${tmp_config1}"
-        if [ ! -f "${tmp_config2}" ]; then
-            warn "Error creating ${tmp_config2}"
-            exit 1
-        fi
-        # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
-        echo "$@" >> "${tmp_config2}"
+if [[ $GLIDEIN_Site ]]; then
+    glidein_site=$GLIDEIN_Site
+else
+    glidein_site=$(gconfig_get "GLIDEIN_Site")
+fi
 
-        # Replace glidein config atomically
-        if ! mv -f "${tmp_config2}" "${glidein_config}"; then
-            warn "Error updating ${glidein_config} from ${tmp_config2}"
-            rm -f "${tmp_config2}"
-            exit 1
-        fi
-    fi
-}
-# End add_config_line() patch
-
-
-set_unexported_condor_config_attribute () {
+set_condor_knob () {
     # Sets the value of a config knob in the condor config;
     # does not export it as a startd attribute, nor does it export it to the job environment
     # Reference: https://glideinwms.fnal.gov/doc.prd/factory/custom_vars.html
@@ -74,6 +74,13 @@ set_unexported_condor_config_attribute () {
 
 condor_vars_file=`grep -i "^CONDOR_VARS_FILE " $glidein_config | awk '{print $2}'`
 
+# DEBUG will be advertised in the slot ad is nonempty; use add_to_debug() to add to it
+DEBUG=""
+add_to_debug () {
+    [[ $DEBUG ]] && DEBUG="${DEBUG}; "
+    DEBUG="${DEBUG}$(printf "%q " "$@")"
+}
+
 ###########################################################
 # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
 if [[ ! $CVMFS_BASE ]]; then
@@ -92,6 +99,12 @@ add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
 add_config_line HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
 add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 
+# On GPU resources, allow CPU-only jobs to run, but reserve resources for GPU jobs
+# Consider the 3 slot types: Static, Partitionable, Dynamic
+# Make sure we can still match the dynamic slot after it has been created
+add_config_line RoomForCPUOnlyJobs "(GPUs is Undefined) || (GPUs == 0) || ((SlotType == \"Partitionable\") && (CPUs > 8 * GPUs) && (Memory > 32000 * GPUs) && (Disk > 5000000 * GPUs))"
+add_condor_vars_line RoomForCPUOnlyJobs "C" "-" "+" "N" "Y" "-"
+
 # out of disk space (https://opensciencegrid.atlassian.net/browse/OSPOOL-4)
 # note: Unlike DISK, RESERVED_DISK is in megabytes.
 # As of July 2022, the HTCondor manual incorrectly states this is in kilobytes.
@@ -109,12 +122,18 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     allocated_cpus=$(grep -i "^GLIDEIN_CPUS " "$glidein_config" | cut -d ' ' -f 2-)
     total_cpus=$(cat /proc/cpuinfo | egrep "^processor" | wc -l)
     if [[ $allocated_cpus -gt 0 && $total_cpus -gt 0 ]]; then
-        #disk_free=$(df -kP . 2>/dev/null | awk '{if (NR==2) print $4}')
+        # the bash [ and [[ operators don't accept floating point so we must
+        # use integer math
         allocated_disk=$((100 * $allocated_cpus / $total_cpus))
-        if [[ $allocated_cpus -lt 32 ]]; then
-            add_config_line GLIDEIN_DISK "$allocated_disk%"
-            add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
+        if [ "x$allocated_disk" = "x" ]; then
+            allocated_disk=1
         fi
+        # small slots on large machines, make sure we get at least 1%
+        if [[ $allocated_disk -lt 1 ]]; then
+            allocated_disk=1
+        fi
+        add_config_line GLIDEIN_DISK "$allocated_disk%"
+        add_condor_vars_line GLIDEIN_DISK "C" "-" "+" "N" "N" "-"
     fi
 fi  # ! $IS_CONTAINER_PILOT
 
@@ -122,22 +141,24 @@ fi  # ! $IS_CONTAINER_PILOT
 # Hold jobs if they exceed allocated disk (OSPOOL-26)
 
 # Helper macros
-set_unexported_condor_config_attribute  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
-set_unexported_condor_config_attribute  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
+set_condor_knob  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
+set_condor_knob  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
 
 # Actual knobs. The following is the equivalent of
 # use POLICY : WANT_HOLD_IF(disk_exceeded, $(HOLD_SUBCODE_disk_exceeded:104), $(hold_reason_disk_exceeded))
 # since metaknobs are not supported.
-set_unexported_condor_config_attribute  PREEMPT  '$(disk_exceeded) || $(PREEMPT:false)'
-set_unexported_condor_config_attribute  MAXJOBRETIREMENTTIME  'ifthenelse($(disk_exceeded),-1,$(MAXJOBRETIREMENTTIME:0))'
+set_condor_knob  PREEMPT  '$(disk_exceeded) || $(PREEMPT:false)'
+set_condor_knob  MAXJOBRETIREMENTTIME  'ifthenelse($(disk_exceeded),-1,$(MAXJOBRETIREMENTTIME:0))'
 
-set_unexported_condor_config_attribute  WANT_SUSPEND  '$(disk_exceeded) =!= true && $(WANT_SUSPEND:false)'
+set_condor_knob  WANT_SUSPEND  '$(disk_exceeded) =!= true && $(WANT_SUSPEND:false)'
 
-set_unexported_condor_config_attribute  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
-set_unexported_condor_config_attribute  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
-set_unexported_condor_config_attribute  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
+set_condor_knob  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
+set_condor_knob  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
+set_condor_knob  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
 
 # End OSPOOL-26
+
+set_condor_knob STARTD_JOB_ATTRS '$(STARTD_JOB_ATTRS) ProjectName'
 
 
 ###########################################################
@@ -157,19 +178,25 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 #add_config_line STARTER_DEBUG "D_SECURITY:2"
 #add_condor_vars_line STARTER_DEBUG "C" "-" "+" "N" "N" "-"
 
-###########################################################
-# stashcp 
-if [[ ! $IS_CONTAINER_PILOT ]]; then
-    # The container pilot has its own test for stashcp and
-    # stash_plugin.  I'm not sure which one I like better,
-    # and don't want to spend the time merging them since
-    # they're both likely to change once the plugin is
-    # 'bundled' with HTCondor itself. -mat 2022-12-07
-    STASHCP=$PWD/client/stashcp
+
+## Enable this to have the Pelican-based Stash/OSDF plugin and stashcp fall back
+## to the pre-7.5.0 behavior of using Topology instead of the director.
+## (STASH_USE_TOPOLOGY is blank or non-blank)
+#export STASH_USE_TOPOLOGY=1
+#add_config_line STASH_USE_TOPOLOGY "$STASH_USE_TOPOLOGY"
+#add_condor_vars_line STASH_USE_TOPOLOGY "C" "-" "+" "N" "Y" "+"
+
+OSDF_FAIL_REASON=""
+OSDF_PLUGIN_VERSION=""
+osdf_plugin_is_ok () {
+    # Performs tests on the Stash/OSDF plugin passed as an argument.
+    # Sets $OSDF_FAIL_REASON for a human-readable failure reason, or "" on success.
+    # Sets $OSDF_PLUGIN_VERSION to the version of the plugin, or "" on failure.
+
+    local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
+    OSDF_PLUGIN="$1"
     STASHCP_DEBUG="-d"
-    STASHCP_TEST_FILE="/osgconnect/public/dweitzel/stashcp/test.file"
-    STASH_PLUGIN=$PWD/client/stash_plugin
-    chmod 755 $STASHCP $STASH_PLUGIN
+    STASHCP_TEST_FILE="osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt"
 
     TIMEOUT=$(which timeout 2>/dev/null)
     if [ "x$TIMEOUT" != "x" ]; then
@@ -189,26 +216,186 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     fi
 
     # also run a simple test (TODO: make this IGWN-specific)
-    info "Testing $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-    if $TIME $TIMEOUT $STASHCP $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file >> stashcp-test.log 2>&1; then
+    rm -f stashcp-test.file
+    info "Testing $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
+    # temporary extra test until /ospool/uc-shared/public is fully up
+    if ($TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file) >> stashcp-test.log 2>&1; then
         if [ -f stashcp-test.time ]; then
             info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
         else
             info "Succeeded!"
         fi
-        add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$STASH_PLUGIN"
-        add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+
+        OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^(Pelican)?PluginVersion / { print $3; exit }' | tr -d '"' 2>>stashcp-test.log)
+        if [[ $OSDF_PLUGIN_VERSION ]]; then
+            OSDF_FAIL_REASON=""
+        else
+            # So close!
+            OSDF_FAIL_REASON="Failure getting plugin version!"
+        fi
     else
         if [ "$?" -eq "124" ]; then
-            warn "Failed (timed out after 120s)! stashcp output:"
+            OSDF_FAIL_REASON="Failed (timed out after 120s)!"
         elif [ -f stashcp-test.time ]; then
-            warn "Failed (in $(tail -1 stashcp-test.time)s)! stashcp output:"
+            OSDF_FAIL_REASON="Failed (in $(tail -1 stashcp-test.time)s)!"
         else
-            warn "Failed! stashcp output:"
+            OSDF_FAIL_REASON="Failed for other reason!"
         fi
-        while read line; do warn "$line"; done < stashcp-test.log
     fi
-fi  # ! $IS_CONTAINER_PILOT
+
+    if [[ $OSDF_FAIL_REASON ]]; then
+        warn "$OSDF_FAIL_REASON stashcp output:"
+        while read line; do warn "$line"; done < stashcp-test.log
+        OSDF_PLUGIN_VERSION=""
+        return 1
+    fi
+}
+
+download_and_extract_pelican () {
+    # Download and extract a downloaded Pelican tarball from the given URL and
+    # rename the binary to stash_plugin so we can install it as a condor FT
+    # plugin.
+    local url="$1"
+
+    mkdir -p pelican-tmp/ &&
+    curl -LSso pelican-tmp/pelican.tar.gz "$url" &&
+    tar -C pelican-tmp/ -xzf pelican-tmp/pelican.tar.gz &&
+    (mv -f pelican-tmp/pelican-*/pelican ./stash_plugin || mv -f pelican-tmp/pelican ./stash_plugin) &&
+    chmod +x stash_plugin
+}
+
+
+# In a factory pilot, at the time this script is invoked, the Condor
+# installation will be in a directory like
+#       main/condor/condor-10.3.1-1-x86_64_CentOS7-stripped/usr
+# but by the time Condor starts up, it will have been moved to
+#       main/condor
+if [[ $IS_CONTAINER_PILOT ]]; then
+    CONDOR_DIR=/usr
+    REAL_CONDOR_DIR=/usr
+    CONDOR_LIBEXEC=/usr/libexec/condor
+    REAL_CONDOR_LIBEXEC=/usr/libexec/condor
+else
+    CONDOR_DIR=$(gconfig_get CONDOR_DIR)
+    # shellcheck disable=SC2086
+    REAL_CONDOR_DIR=$(echo $CONDOR_DIR/condor-*/usr)
+    # ^^ the "echo" is needed to expand the glob
+    CONDOR_LIBEXEC=$CONDOR_DIR/libexec
+    REAL_CONDOR_LIBEXEC=$REAL_CONDOR_DIR/libexec/condor
+fi
+
+# Get and parse condor version so we can add version-specific knobs.
+# If we were to have full control over the condor config, we could use an
+# `if` construct, but in a factory pilot we need to put everything into the
+# glidein config, which doesn't support that syntax.
+condor_version_raw=$("$REAL_CONDOR_DIR/bin/condor_version" | head -n 1)
+if [[ $condor_version_raw =~ CondorVersion:\ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+    # zero-pad the version numbers so we can sort it as a string
+    condor_version=$(printf "%02d.%02d.%02d" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}")
+else
+    warn "Unable to figure out condor_version"
+    condor_version="00.00.00"
+fi
+
+# Set knobs to log FT plugin output to the StarterLog (OSPOOL-114); these knobs
+# were causing holds without HoldReasonCodes before 23.5.1 (see ticket).
+# Using `>` because bash doesn't have `>=`.
+if [[ $condor_version > "23.05.00" ]]; then
+    # set_condor_knob REDIRECT_FILETRANSFER_PLUGIN_STDERR_TO_STDOUT 'TRUE'
+    # set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_FAILURE 'D_ALWAYS'
+    # ^^ apparently these two are already the default
+    set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
+fi
+
+
+# Allow downloading Pelican by setting DOWNLOAD_PELICAN_VERSION in the
+# environment.  If set to an X.Y.Z string with a matching vX.Y.Z tag in GitHub,
+# it will download the Pelican binary from the release artifacts of that tag.
+#
+# If set to "condor", it will use what's in the Condor tarball.  (This can be
+# used to override a non-Condor default.)
+DEFAULT_DOWNLOAD_PELICAN_VERSION=7.10.9
+
+if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
+    DOWNLOAD_PELICAN_VERSION=$(gconfig_get DOWNLOAD_PELICAN_VERSION)
+    if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
+        DOWNLOAD_PELICAN_VERSION=$DEFAULT_DOWNLOAD_PELICAN_VERSION
+    fi
+fi
+
+
+###########################################################
+# Test and add the stash/osdf plugin
+# It comes with condor, or we might be asked to download it.
+
+# Find the Stash/OSDF plugin; set OSDF_PLUGIN to its current location, and
+# set REAL_OSDF_PLUGIN to where it will be after glideinWMS has rearranged
+# the Condor install in the pilot.
+# The plugin will be tested later.
+if [[ $DOWNLOAD_PELICAN_VERSION && $DOWNLOAD_PELICAN_VERSION != condor ]]; then
+    # If this variable is set, and not set to "condor", download that
+    # version of Pelican and ignore the version from the HTCondor tarball.
+
+    pelican_arch=$(arch)
+    if [[ $pelican_arch == aarch64 ]]; then
+        pelican_arch=arm64
+    fi
+    url=https://github.com/PelicanPlatform/pelican/releases/download/v${DOWNLOAD_PELICAN_VERSION}/pelican_Linux_${pelican_arch}.tar.gz
+    # Pelican >= v7.9.0 tarballs will have the binary in a subdirectory of the
+    # tarball; < 7.9.0 have it at the top level.
+    _out=$(download_and_extract_pelican "$url" 2>&1); ret=$?
+    if [[ $ret != 0 || ! -f stash_plugin || ! -x stash_plugin ]]; then
+        OSDF_FAIL_REASON="Couldn't download and install requested Pelican version ($DOWNLOAD_PELICAN_VERSION)"
+        add_to_debug "Pelican install output: $_out"
+    else
+        OSDF_PLUGIN=$(pwd -P)/stash_plugin
+        REAL_OSDF_PLUGIN=$(pwd -P)/stash_plugin
+        advertise "DOWNLOAD_PELICAN_VERSION" "$DOWNLOAD_PELICAN_VERSION" "S"
+    fi
+    rm -rf "pelican-tmp/" &>/dev/null
+else
+    # Not asked to download a specific Pelican version, or specifically
+    # asked to use what's in the HTCondor tarball.
+    # Find the stash/osdf plugin in the HTCondor installation.
+    if [[ -x $REAL_CONDOR_LIBEXEC/osdf_plugin ]]; then
+        # forward compat
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/osdf_plugin
+    elif [[ -x $REAL_CONDOR_LIBEXEC/stash_plugin ]]; then
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
+        REAL_OSDF_PLUGIN=$REAL_CONDOR_LIBEXEC/stash_plugin
+    else
+        OSDF_FAIL_REASON="Stash/OSDF plugin not found in pilot's condor install"
+    fi
+fi
+
+# Test the stash/osdf plugin we found.
+if [[ $OSDF_PLUGIN ]]; then
+    # add_to_debug "Stash/OSDF plugin found at" "$REAL_OSDF_PLUGIN"
+    if (echo "$glidein_site" | grep -E "UW-IT|Maine-ACG") >/dev/null 2>&1; then
+        OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
+    else
+        if osdf_plugin_is_ok "$REAL_OSDF_PLUGIN"; then
+            # osdf_plugin_is_ok sets $OSDF_FAIL_REASON and $OSDF_PLUGIN_VERSION
+            add_config_line FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$OSDF_PLUGIN"
+            add_condor_vars_line FILETRANSFER_PLUGINS "C" "-" "+" "N" "N" "-"
+            set_condor_knob STASH_PLUGIN "$OSDF_PLUGIN"
+            set_condor_knob OSDF_PLUGIN "$OSDF_PLUGIN"
+            advertise "STASH_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"
+            advertise "OSDF_PLUGIN_VERSION" "$OSDF_PLUGIN_VERSION" "S"  # forward compat
+        fi
+    fi
+fi
+
+if [[ $OSDF_FAIL_REASON ]]; then
+    advertise "OSDF_FAIL_REASON" "$OSDF_FAIL_REASON" "S"
+    # Turn off the condor config's STASH_PLUGIN and OSDF_PLUGIN in case they're set
+    set_condor_knob STASH_PLUGIN "/bin/false"
+    set_condor_knob OSDF_PLUGIN "/bin/false"
+fi
+
+
+
 
 ##################################################################
 # Generate a minimal `STARTER_JOB_ENVIRONMENT`, mostly composed of
@@ -224,7 +411,6 @@ fi  # ! $IS_CONTAINER_PILOT
 #   LANG
 info "Calculating default job environment variables."
 
-glidein_site=`grep -i "^GLIDEIN_Site " $glidein_config | awk '{print $2}'`
 if [[ -z $OSG_SITE_NAME ]]; then
     OSG_SITE_NAME=$glidein_site
 fi
@@ -236,7 +422,6 @@ for envvar in \
      http_proxy \
      https_proxy \
      FTP_PROXY \
-     X509_USER_PROXY \
 ; do
 
 if [ ! -z ${!envvar+x} ]; then
@@ -268,32 +453,41 @@ for mntpoint in $GLIDEIN_SINGULARITY_BINDPATH "${CVMFS_BASE}:/cvmfs:ro" /etc/Ope
 done
 IFS=$OLDIFS
 unset OLDIFS
-set_unexported_condor_config_attribute "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
+set_condor_knob "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
 if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     # Glideinwms used /srv as the scratch directory, we should do the same
-    set_unexported_condor_config_attribute "SINGULARITY_TARGET_DIR" '/srv'
-    set_unexported_condor_config_attribute "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
+    set_condor_knob "SINGULARITY_TARGET_DIR" '/srv'
+    set_condor_knob "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
     # Have Condor handle using a "default" image
-    set_unexported_condor_config_attribute "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+    set_condor_knob "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
     # Run all jobs in singularity if we have it
-    set_unexported_condor_config_attribute "SINGULARITY_JOB" "(HAS_SINGULARITY?:false)"
+    # special case - allow some OSG staff to bypass Singularity for
+    # debugging and building images
+    set_condor_knob "SINGULARITY_JOB" "(HAS_SINGULARITY?:false) && (IgnoreSingularity =!= True)"
 
     # Condor PID namespace autodetection is broken (TODO add ticket); hard-disable it if we were asked to.
     # I could consolidate these if statements but I'm curious where it's set...
     if [[ $SINGULARITY_DISABLE_PID_NAMESPACES == 1 ]]; then
         info "SINGULARITY_DISABLE_PID_NAMESPACES is set in the environment; disabling PID namespaces"
-        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+        set_condor_knob "SINGULARITY_USE_PID_NAMESPACES" "false"
     elif [[ $(gconfig_get "SINGULARITY_DISABLE_PID_NAMESPACES") == 1 ]]; then
         info "SINGULARITY_DISABLE_PID_NAMESPACES is set in glidein config; disabling PID namespaces"
-        set_unexported_condor_config_attribute "SINGULARITY_USE_PID_NAMESPACES" "false"
+        set_condor_knob "SINGULARITY_USE_PID_NAMESPACES" "false"
     else
         info "Leaving SINGULARITY_DISABLE_PID_NAMESPACES at default"
     fi
+
+    add_config_line "OSG_USING_JOB_HOOK" "true"
+else
+    add_config_line "OSG_USING_JOB_HOOK" "false"
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
+
+# Not a knob -- I am advertising it so I can see it in condor_status
+add_condor_vars_line "OSG_USING_JOB_HOOK" "C" "-" "+" "Y" "Y" "-"
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
@@ -301,6 +495,9 @@ fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 # image.
 if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     glidein_group_dir=`grep -i "^GLIDECLIENT_GROUP_WORK_DIR " $glidein_config | awk '{print $2}'`
+    glidein_client_dir=`grep -i "^GLIDECLIENT_WORK_DIR " $glidein_config | awk '{print $2}'`
+    cp -ns $glidein_client_dir/*prepare-hook* $glidein_group_dir/ 2>/dev/null && \
+        info "Linking hook(s) from $(ls $glidein_client_dir/*prepare-hook* | tr '\n' ' ')"
     for search_path in $glidein_group_dir/{prepare-hook,itb-prepare-hook,itb-prepare-hook-lib}; do
         if [[ -e $search_path ]]; then
             hook_path=$search_path
@@ -312,8 +509,9 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
         add_config_line "HAS_SINGULARITY" "false"
         add_config_line "SINGULARITY_COMMENT" "Disabled due to missing job hook"
         add_condor_vars_line "SINGULARITY_COMMENT" "S" "-" "+" "Y" "Y" "-"
+        add_config_line "OSG_USING_JOB_HOOK" "false"
     else
-        # TODO: these can all be replaced with set_unexported_condor_config_attribute
+        # TODO: these can all be replaced with set_condor_knob
         add_config_line "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
         add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
         add_config_line "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
@@ -328,6 +526,10 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
     add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
+
+
+# Miscellaneous debugging if any
+[[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 
 ###########################################################
 

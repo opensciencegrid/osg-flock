@@ -37,9 +37,16 @@ function determine_default_container_image {
     OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
 
     # if we are given GPUs, pick up GPU specific images
-    if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
+    # make sure CUDA_VISIBLE_DEVICES is set to something sane - we
+    # have seen values like "na", -1 and 10000
+    if [ -n "$CUDA_VISIBLE_DEVICES" ] && \
+       [ "$CUDA_VISIBLE_DEVICES" != "na" ] && \
+       [ "$CUDA_VISIBLE_DEVICES" != "-1" ] && \
+       [ "$CUDA_VISIBLE_DEVICES" != "10000" ] ; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
     fi
+
+    arch=$(uname -m)
 
     SELECTED_IMAGE=""
     if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
@@ -58,13 +65,18 @@ function determine_default_container_image {
         done
     fi
 
-    # if everything else fails, use EL7
+    # if everything else fails, use EL8/EL9
     if [ "x$SELECTED_IMAGE" = "x" ]; then
-        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -o "x$NVIDIA_VISIBLE_DEVICES" != "x" ]; then
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7-cuda10:latest"
+        if [ "x$CUDA_VISIBLE_DEVICES" != "x" -a "x$CUDA_VISIBLE_DEVICES" != "x10000" ]; then
+            SELECTED_IMAGE="htc/rocky:8-cuda-11.0.3"
         else
-            SELECTED_IMAGE="opensciencegrid/osgvo-el7:latest"
+            SELECTED_IMAGE="htc/rocky:9"
         fi
+    fi
+
+    # temp for arm until we get the image repos/syncing in place
+    if [ "X$arch" = "Xaarch64" ]; then
+        SELECTED_IMAGE="htc/rocky:9"
     fi
 
     # Should we use CVMFS or pull images directly?
@@ -97,11 +109,18 @@ function determine_default_container_image {
         singularity_can_use_sif=1
     fi
 
+    # temp for arm until we get the image repos/syncing in place
+    if [ "X$arch" = "Xaarch64" ]; then
+        # have to pull, cvmfs sync is not yet ready
+        pull_images=1
+    fi
+
     if [[ $pull_images -ge 0 ]]; then
         # decision already made
         :
     elif (uname -r | egrep '^3\.') >/dev/null 2>&1; then
         # do not allow .sif images on 3.x kernels (OSPOOL-18)
+        info "Not allowing non-CVMFS images because of the kernel version"
         pull_images=0
     elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Syracuse") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
@@ -128,10 +147,11 @@ function determine_default_container_image {
         # pull the image into a Singularity SIF file
         IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
         IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-        URL=http://stash.osgconnect.net/public/rynge/infrastructure/images/sif/$IMAGE_NAME.sif
         WEEK=$(date +'%V')
-        (stash_download $IMAGE_PATH stash:///osgconnect/public/rynge/infrastructure/images/$WEEK/sif/$IMAGE_NAME.sif \
-            || http_download $IMAGE_PATH $URL \
+        OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/$arch/$IMAGE_NAME.sif
+        HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/$arch/$IMAGE_NAME.sif
+        (osdf_download $IMAGE_PATH $OSDF_URL \
+            || http_download $IMAGE_PATH $HTTP_URL \
             || singularity pull --force $IMAGE_PATH docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_PATH.log 2>&1
         if [ $? = 0 ]; then
             advertise ALLOW_NONCVMFS_IMAGES "True" "C"
@@ -165,46 +185,12 @@ if [ "$glidein_config" != "NONE" ]; then
     add_config_line_source=$PWD/add_config_line.source
 
     source $add_config_line_source
-
-    # XXX Patch over add_config_line() with a safer version
-    # This will be fixed in gWMS 3.9.6
-    add_config_line() {
-        # Ignore the call if the exact config line is already in there
-        if ! grep -q "^${*}$" "${glidein_config}"; then
-            # Use temporary files to make sure multiple add_config_line() calls don't clobber
-            # the glidein_config.
-            local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
-            local tmp_config1="${glidein_config}.$r.1"
-            local tmp_config2="${glidein_config}.$r.2"
-
-            # Copy the glidein config so it doesn't get modified while we grep out the old value
-            if ! cp -p "${glidein_config}" "${tmp_config1}"; then
-                warn "Error writing ${tmp_config1}"
-                rm -f "${tmp_config1}"
-                exit 1
-            fi
-            grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
-            rm -f "${tmp_config1}"
-            if [ ! -f "${tmp_config2}" ]; then
-                warn "Error creating ${tmp_config2}"
-                exit 1
-            fi
-            # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
-            echo "$@" >> "${tmp_config2}"
-
-            # Replace glidein config atomically
-            if ! mv -f "${tmp_config2}" "${glidein_config}"; then
-                warn "Error updating ${glidein_config} from ${tmp_config2}"
-                rm -f "${tmp_config2}"
-                exit 1
-            fi
-        fi
-    }
-    # XXX End add_config_line() patch
 fi
 
 # source our helpers
 group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+cp -ns $client_dir/*ospool-lib $group_dir/ 2>/dev/null && echo "Linking helper(s) from $(ls $client_dir/*ospool-lib | tr '\n' ' ')" 1>&2
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib"
 else

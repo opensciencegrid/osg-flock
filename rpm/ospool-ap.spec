@@ -1,6 +1,6 @@
 Name:      ospool-ap
-Version:   1.9
-Release:   4%{?dist}
+Version:   1.10
+Release:   2%{?dist}
 Summary:   OSPool Access Point configurations
 
 License:   Apache 2.0
@@ -71,8 +71,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
-* Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.9-4
+* Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.10-2
 - Initial release as ospool-ap
+
+* Thu Jun 20 2024 Mats Rynge <rynge@isi.edu> - 1.10-1
+- Add extra attributes for transfer ads (OSPOOL-123)
 
 * Tue Feb 21 2023 Mats Rynge <rynge@isi.edu> - 1.9-1
 - Add OSPool attribute to the job ad from the EP config (SOFTWARE-4803)

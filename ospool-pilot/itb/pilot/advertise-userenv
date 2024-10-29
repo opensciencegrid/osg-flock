@@ -153,42 +153,6 @@ if [ "$glidein_config" != "NONE" ]; then
 
     info "Sourcing $add_config_line_source"
     source $add_config_line_source
-
-    # XXX Patch over add_config_line() with a safer version
-    # This will be fixed in gWMS 3.9.6
-    add_config_line() {
-        # Ignore the call if the exact config line is already in there
-        if ! grep -q "^${*}$" "${glidein_config}"; then
-            # Use temporary files to make sure multiple add_config_line() calls don't clobber
-            # the glidein_config.
-            local r="$(head -c16 /dev/urandom | base64 -w0 - | tr / _)"
-            local tmp_config1="${glidein_config}.$r.1"
-            local tmp_config2="${glidein_config}.$r.2"
-
-            # Copy the glidein config so it doesn't get modified while we grep out the old value
-            if ! cp -p "${glidein_config}" "${tmp_config1}"; then
-                warn "Error writing ${tmp_config1}"
-                rm -f "${tmp_config1}"
-                exit 1
-            fi
-            grep -v "^$1 " "${tmp_config1}" > "${tmp_config2}"
-            rm -f "${tmp_config1}"
-            if [ ! -f "${tmp_config2}" ]; then
-                warn "Error creating ${tmp_config2}"
-                exit 1
-            fi
-            # NOTE that parameters are flattened if not quoted, if there are blanks they are separated by single space
-            echo "$@" >> "${tmp_config2}"
-
-            # Replace glidein config atomically
-            if ! mv -f "${tmp_config2}" "${glidein_config}"; then
-                warn "Error updating ${glidein_config} from ${tmp_config2}"
-                rm -f "${tmp_config2}"
-                exit 1
-            fi
-        fi
-    }
-    # XXX End add_config_line() patch
 fi
 
 # timeout - need this early as we use it in some commands later
@@ -256,11 +220,6 @@ advertise OSGVO_OS_VERSION "$OS_VERSION" "S"
 advertise OSGVO_OS_STRING "$OS_NAME $OS_VERSION" "S"
 advertise OSGVO_OS_KERNEL "$OS_KERNEL" "S"
 
-# cpu info
-CPU_MODEL=`cat /proc/cpuinfo | grep -i "^model name" | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`
-advertise OSG_CPU_MODEL "$CPU_MODEL" "S"
-advertise OSGVO_CPU_MODEL "$CPU_MODEL" "S"
-
 # some cpu flags HTCondor is not yet advertising
 for FLAG in `cat /proc/cpuinfo | egrep -i ^flags | head -n 1 | sed -r 's/[a-zA-Z \t]+:[ ]*//'`; do
     if (echo "$FLAG" | egrep "avx512|cx16|f16c") >/dev/null 2>&1; then
@@ -270,12 +229,12 @@ done
 
 # if we are in Singularity, override HTCondor's OsSys* vars with the
 # default container details
-if [ "x$SINGULARITY_COMMAND" != "x" ]; then
+if [ "x$APPTAINER_COMMAND" != "x" -o "x$SINGULARITY_COMMAND" != "x" ]; then
     # RHEL is CentOS in HTCondor
     if [ "x$OS_NAME" = "xRHEL" ]; then
         OS_NAME="CentOS"
     fi
-    advertise OpSysLongName "Singularity Container - $OS_NAME $OS_VERSION" "S"
+    advertise OpSysLongName "Apptainer Container - $OS_NAME $OS_VERSION" "S"
     advertise OpSysAndVer "${OS_NAME}${OS_VERSION}" "S"
     advertise OpSysName "$OS_NAME" "S"
     advertise OpSysShortName "$OS_NAME" "S"
@@ -295,6 +254,30 @@ if [ "x$ULIMIT_STACK_SIZE" != "x" ]; then
 fi
 
 ##################
+# is the uid mapped to a user? some software is sensitive to this
+
+WHOAMI=$(whoami 2>/dev/null)
+MYUNAME=$(id -u -n 2>/dev/null)
+MAPPED_USER="True"
+if [ "x$WHOAMI" = "x" -o "x$MYUNAME" = "x" ]; then
+    MAPPED_USER="False"
+fi
+advertise MappedUser "$MAPPED_USER" "C"
+
+##################
+# Check to see if /home is "minimal". Some sites mounts all of
+# /home inside the container, some only mount the current user
+# (/home/$USERNAME). The minimal case is important when using
+# containers which have software installed under /home
+
+HOME_COUNT=$(ls /home/ 2>/dev/null | wc -l)
+MINIMAL_HOME="False"
+if [[ $HOME_COUNT -le 1 ]]; then
+    MINIMAL_HOME="True"
+fi
+advertise MinimalHome "$MINIMAL_HOME" "C"
+
+##################
 # stash
 if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
     # ok, we can access stash, but is it ro or rw?
@@ -306,41 +289,19 @@ if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
 fi
 
 # advertise the version of stashcp found in $PATH
-if STASHCP_VERSION=$(stashcp --version)
-then
-    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | head -n1 | grep -o "[0-9][0-9.]\+")
-    advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
+if STASHCP_VERSION=$(stashcp --version 2>&1); then
+    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | grep '^Version:' | grep -o "[0-9][0-9.]\+")
+    if [[ $STASHCP_VERSION ]]; then
+        advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
+    else
+        # malformed version; assume it's broken
+        advertise STASHCP_VERSION UNDEFINED "C"
+        advertise STASHCP_VERIFIED "False" "C"
+    fi
 else
     # version check failed; we don't actually have a working stashcp
     advertise STASHCP_VERSION UNDEFINED "C"
     advertise STASHCP_VERIFIED "False" "C"
-fi
-
-##################
-# cms software
-
-info "Checking for CMS software..."
-OSGVO_CMSSW_Path=""
-if [ -r "$OSG_APP/cmssoft/cms/cmsset_default.sh" ]
-then
-    OSGVO_CMSSW_Path="$OSG_APP/cmssoft/cms/"
-elif [ -r $VO_CMS_SW_DIR/cmsset_default.sh ]
-then
-    OSGVO_CMSSW_Path="$VO_CMS_SW_DIR/"
-fi
-if [ "x$OSGVO_CMSSW_Path" != "x" ]
-then
-    advertise OSGVO_CMSSW_Path "$OSGVO_CMSSW_Path" "S"
-fi
-
-OSGVO_CMSSW_Revision=""
-if [ "x$OSGVO_CMSSW_Path" != "x" -a -r "$OSGVO_CMSSW_Path/etc/cms-common/revision" ]
-then
-    OSGVO_CMSSW_Revision=$(head -c 10 "$OSGVO_CMSSW_Path/etc/cms-common/revision")
-fi
-if [ "x$OSGVO_CMSSW_Revision" != "x" ]
-then
-    advertise OSGVO_CMSSW_Revision "$OSGVO_CMSSW_Revision - $OSGVO_CMSSW_Path/etc/cms-common/revision" "S"
 fi
 
 
@@ -507,6 +468,13 @@ if python --version >/dev/null 2>&1; then
     fi
     advertise HAS_PYTHON "True" "C"
 fi
+if python3 --version >/dev/null 2>&1; then
+    PYTHON3_VERSION=`python3 --version 2>&1 | sed 's/Python //'`
+    if [ "x$PYTHON3_VERSION" != "x" ]; then
+        advertise PYTHON3_VERSION "$PYTHON3_VERSION" "S"
+    fi
+    advertise HAS_PYTHON3 "True" "C"
+fi
 
 info "Checking for numpy/scipy availability..."
 cat >py.check <<EOF
@@ -519,6 +487,8 @@ EOF
 
 Has_Numpy_Scipy="False"
 if python py.check >/dev/null 2>&1; then
+    Has_Numpy_Scipy="True"
+elif python3 py.check >/dev/null 2>&1; then
     Has_Numpy_Scipy="True"
 fi
 advertise HAS_NUMPY "$Has_Numpy_Scipy" "C"

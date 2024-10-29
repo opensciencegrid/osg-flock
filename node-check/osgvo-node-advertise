@@ -29,7 +29,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=628
+OSG_GLIDEIN_VERSION=629
 #######################################################################
 
 
@@ -355,21 +355,24 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        atlas.cern.ch \
        cms.cern.ch \
        connect.opensciencegrid.org \
-       desdm.osgstorage.org \
        eic.opensciencegrid.org \
        gwosc.osgstorage.org \
        icecube.opensciencegrid.org \
        icecube.osgstorage.org \
+       ligo.storage.igwn.org \
        nexo.opensciencegrid.org \
        oasis.opensciencegrid.org \
        sft.cern.ch \
        singularity.opensciencegrid.org \
+       shared.storage.igwn.org \
+       software.igwn.org \
        snoplus.egi.eu \
        sphenix.opensciencegrid.org \
        spt.opensciencegrid.org \
        stash.osgstorage.org \
        unpacked.cern.ch \
        veritas.opensciencegrid.org \
+       virgo.storage.igwn.org \
        xenon.opensciencegrid.org \
        sw.lsst.eu \
     ; do
@@ -399,7 +402,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             if [ "x$REV_VAL" = "x" ]; then
                 REV_VAL=0
             fi
-    
+
             # add the error count
             NIOERR_ATTR="CVMFS_${FS_CONV}_NIOERR"
             NIOERR_VAL=`/usr/bin/attr -q -g nioerr /cvmfs/$FS/. 2>/dev/null`
@@ -408,8 +411,20 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
                 NIOERR_VAL=-1
             fi
     
-            # disable if the mount has had errors
-            if [ $NIOERR_VAL -gt 0 ]; then
+            # last ioerr
+            LAST_IOERR_ATTR="CVMFS_${FS_CONV}_LAST_IOERR"
+            LAST_IOERR_VAL=`/usr/bin/attr -q -g timestamp_last_ioerr /cvmfs/$FS/. 2>/dev/null`
+            # some site have old cvmfs or mount /cvmfs over NFS and attr will not work
+            if [ "x$LAST_IOERR_VAL" = "x" -o "x$LAST_IOERR_VAL" = "x0" ]; then
+                LAST_IOERR_VAL=-1
+            else
+                # convert ts to seconds since
+                NOW=$(date +'%s')
+                LAST_IOERR_VAL=$(($NOW - $LAST_IOERR_VAL))
+            fi
+
+            # disable if the mount has had recent errors
+            if [ $LAST_IOERR_VAL -ge 0 -a $LAST_IOERR_VAL -lt 14400 ]; then
                 RESULT="False"
             fi
     
@@ -424,7 +439,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             fi
             # stash.osgstorage.org needs extra checks
             if [ "x$FS" = "xstash.osgstorage.org" ]; then
-                if ! cat /cvmfs/stash.osgstorage.org/osgconnect/public/rynge/glidein-checks/testfile >/dev/null 2>&1; then
+                if ! cat /cvmfs/stash.osgstorage.org/ospool/uc-shared/public/OSG-Staff/validation/test.txt >/dev/null 2>&1; then
                     RESULT="False"
                 fi
             fi
@@ -448,6 +463,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
             advertise $FS_ATTR "$RESULT" "C"
             advertise $REV_ATTR "$REV_VAL" "I"
             advertise $NIOERR_ATTR "$NIOERR_VAL" "I"
+            advertise $LAST_IOERR_ATTR "$LAST_IOERR_VAL" "I"
     
             # remember failures - we want do not want to run on cvmfs if it comes and goes...
             if [ $RESULT = "False" ]; then
@@ -496,36 +512,6 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
         export OSG_SINGULARITY_IMAGE_DEFAULT=`cat osgvo.default-singularity-image`
         info "Using $OSG_SINGULARITY_IMAGE_DEFAULT as the default Singularity image"
     fi
-
-    # xcache - has to be outside due to the ping requirement
-    XCACHE_CLOSEST=""
-    XCACHE_CLOSEST_RTT="-1"
-    OSG_DEFAULT_CVMFS_DATA=`get_glidein_config_value OSG_DEFAULT_CVMFS_DATA`
-    info "Using $OSG_DEFAULT_CVMFS_DATA to check closest cache"
-    if [ -e $TEST_FILE_4H.xcache_closest ]; then
-        XCACHE_CLOSEST=`cat $TEST_FILE_4H.xcache_closest`
-        XCACHE_CLOSEST_RTT=`cat $TEST_FILE_4H.xcache_closest_rtt`
-    else
-        XCACHE_CLOSEST=`(attr -qg external_host $OSG_DEFAULT_CVMFS_DATA | sed -e 's/[^/]*\/\/\([^@]*@\)\?\([^:/]*\).*/\2/') 2>/dev/null`
-	info "Closest XCACHE found is: $XCACHE_CLOSEST"
-        # test first using the cached cvmfs values
-	info "Lenght of XCache found is ${#XCACHE_CLOSEST}"
-        if [ ${#XCACHE_CLOSEST} -le 4 ]; then
-            info "Looking for closest XCache using stashcp --closest"
-            XCACHE_CLOSEST=`(OSG_LOCATION=/cvmfs/oasis.opensciencegrid.org/mis/osg-wn-client/3.5/current/el7-x86_64/ PYTHONPATH=$OSG_LOCATION/usr/lib/python2.7/site-packages:$OSG_LOCATION/usr/lib64/python2.7/site-packages PATH=$OSG_LOCATION/usr/bin:$OSG_LOCATION/usr/sbin:$PATH $TIMEOUT_CMD stashcp -n xroot --closest | sed 's;root://;;') 2>/dev/null`
-        fi
-        if [ "X$XCACHE_CLOSEST" != "X" ]; then
-            echo "$XCACHE_CLOSEST" > $TEST_FILE_4H.xcache_closest
-            # also want the RTT
-            XCACHE_CLOSEST_RTT=`(ping -c 3 $XCACHE_CLOSEST | grep time | awk '{ print $8 }' | awk -F '=' '{ total += $2; count++ } END { print total/3 }') 2>/dev/null`
-            echo "$XCACHE_CLOSEST_RTT" >$TEST_FILE_4H.xcache_closest_rtt
-        else
-            echo "" > $TEST_FILE_4H.xcache_closest
-            echo "-1" > $TEST_FILE_4H.xcache_closest_rtt
-        fi
-    fi
-    advertise XCACHE_CLOSEST "$XCACHE_CLOSEST" "S"
-    advertise XCACHE_CLOSEST_RTT "$XCACHE_CLOSEST_RTT" "C"
 
 fi # OSG_SINGULARITY_REEXEC
 
@@ -871,34 +857,6 @@ if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
 fi
 
 ##################
-# cms software
-
-info "Checking for CMS software..."
-OSGVO_CMSSW_Path=""
-if [ -r "$OSG_APP/cmssoft/cms/cmsset_default.sh" ]
-then
-    OSGVO_CMSSW_Path="$OSG_APP/cmssoft/cms/"
-elif [ -r $VO_CMS_SW_DIR/cmsset_default.sh ]
-then
-    OSGVO_CMSSW_Path="$VO_CMS_SW_DIR/"
-fi
-if [ "x$OSGVO_CMSSW_Path" != "x" ]
-then
-    advertise OSGVO_CMSSW_Path "$OSGVO_CMSSW_Path" "S"
-fi
-
-OSGVO_CMSSW_Revision=""
-if [ "x$OSGVO_CMSSW_Path" != "x" -a -r "$OSGVO_CMSSW_Path/etc/cms-common/revision" ]
-then
-    OSGVO_CMSSW_Revision=$(head -c 10 "$OSGVO_CMSSW_Path/etc/cms-common/revision")
-fi
-if [ "x$OSGVO_CMSSW_Revision" != "x" ]
-then
-    advertise OSGVO_CMSSW_Revision "$OSGVO_CMSSW_Revision - $OSGVO_CMSSW_Path/etc/cms-common/revision" "S"
-fi
-
-
-##################
 # tcsh test
 
 info "Attempting to determine if tcsh is available and works..."
@@ -976,20 +934,34 @@ advertise HAS_SCP "$HAS_SCP" "C"
 ##################
 # stashcp
 
-# this is a one-shot test
-rm -f test.txt
-STASHCP_VERIFIED="False"
-if [ -e $TEST_FILE_1H.stashcp ]; then
-    STASHCP_VERIFIED=`cat $TEST_FILE_1H.stashcp`
-elif (. /cvmfs/oasis.opensciencegrid.org/osg/sw/module-init.sh && module load stashcache && $TIMEOUT_CMD stashcp --methods=http,xrootd /osgconnect/public/rynge/glidein-checks/testfile .) >/dev/null 2>&1; then
-    STASHCP_VERIFIED="True"
-    echo "True" > $TEST_FILE_1H.stashcp
+# advertise the version of stashcp found in $PATH
+if STASHCP_VERSION=$(stashcp --version)
+then
+    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | head -n1 | grep -o "[0-9][0-9.]\+")
+    # version check succeeded; now do a transfer test (if we haven't done one already)
+    rm -f test.txt
+    STASHCP_VERIFIED="False"
+    if [ -e $TEST_FILE_1H.stashcp ]; then
+        STASHCP_VERIFIED=$(cat $TEST_FILE_1H.stashcp)
+    elif ($TIMEOUT_CMD stashcp /ospool/uc-shared/public/OSG-Staff/validation/test.txt .) >/dev/null 2>&1; then
+        STASHCP_VERIFIED="True"
+        echo "True" > $TEST_FILE_1H.stashcp
+    else
+        echo "False" > $TEST_FILE_1H.stashcp
+    fi
+    rm -f test.txt
+    advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
+    if [[ $STASHCP_VERIFIED == "True" ]]; then
+        advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
+    else
+        # transfer test failed; unset STASHCP_VERSION too
+        advertise STASHCP_VERSION UNDEFINED "C"
+    fi
 else
-    echo "False" > $TEST_FILE_1H.stashcp
+    # version check failed; we don't actually have a working stashcp
+    advertise STASHCP_VERSION UNDEFINED "C"
+    advertise STASHCP_VERIFIED "False" "C"
 fi
-rm -f testfile
-advertise STASHCP_VERIFIED "$STASHCP_VERIFIED" "C"
-
 
 
 ##################

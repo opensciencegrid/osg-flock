@@ -53,7 +53,7 @@ function check_singularity_overunderlay {
         return 0
     fi
 
-    output=$(timeout 60s $singularity_path run -B $PWD:/doesnotexist $default_image /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path exec -B $PWD:/doesnotexist $default_image /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
@@ -81,7 +81,7 @@ function check_singularity_overrides {
     fi
 }
 
-function stash_download {
+function osdf_download {
     # Use stashcp to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
     local dest="$1"
     local src="$2"
@@ -153,8 +153,14 @@ function check_singularity_sif_support {
 
     # Grab an alpine image from somewhere; ok to download each time since
     # it's like 3 megs
-    local cvmfs_alpine="/cvmfs/stash.osgstorage.org/osgconnect/public/rynge/infrastructure/images/static/library__alpine__latest.sif"
-    local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    local arch=$(uname -m)
+    local cvmfs_alpine="/cvmfs/oasis.opensciencegrid.org/osg/projects/OSG-Staff/images/$arch/library__alpine__latest.sif"
+    # temporary seperation until we decide on longterm multi-arch hosting
+    if [ "X$arch" = "Xx86_64" ]; then
+        local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    else
+        local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
+    fi
     local sylabs_alpine="library://alpine:3"
     local work_dir=$(get_glidein_config_value GLIDEIN_WORK_DIR)
     local image_dir="$work_dir/../images"
@@ -170,6 +176,13 @@ function check_singularity_sif_support {
     if [[ $has_singularity = "" ]]; then
         has_singularity="True"
         singularity_path=singularity
+    fi
+
+    # if singularity is not in the path at this point (detection happens later),
+    # we have to assume SIF support
+    if ! ($singularity_path --version) >/dev/null 2>&1; then
+        info "Singularity missing in the path during SIF detection, assuming SIF download is ok"
+        return 0
     fi
 
     # singularity is a prereq
@@ -191,7 +204,7 @@ function check_singularity_sif_support {
         return 1
     fi
 
-    output=$(timeout 60s $singularity_path run $image_dir/gwms-alpine.sif /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path exec $image_dir/gwms-alpine.sif /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
@@ -212,7 +225,13 @@ function check_singularity_registry_support {
     # unpack it into a temporary sandbox first, nonzero otherwise.
     # This also tests building a SIF from a registry image
     #
-    local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    local arch=$(uname -m)
+    # temporary seperation until we decide on longterm multi-arch hosting
+    if [ "X$arch" = "Xx86_64" ]; then
+        local static_registry_alpine="docker://ospool-static-registry.osg.chtc.io/alpine:latest"
+    else
+        local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
+    fi
     local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
     local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
 
@@ -221,7 +240,7 @@ function check_singularity_registry_support {
         return 1
     fi
 
-    output=$(timeout 60s $singularity_path run --disable-cache $static_registry_alpine /bin/true 2>&1)
+    output=$(timeout 60s $singularity_path exec --disable-cache $static_registry_alpine /bin/true 2>&1)
     ret=$?
 
     if [[ $ret != 0 ]]; then
