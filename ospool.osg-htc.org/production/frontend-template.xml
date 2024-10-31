@@ -262,7 +262,7 @@
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE) &amp;&amp;
-                            ((SlotType == "Dynamic") || (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 6 * MY.TotalMemory / MY.TotalCpus)) || (My.Memory &gt; 100000))'>
+                            ((SlotType == "Dynamic") || (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 4 * MY.TotalMemory / MY.TotalCpus)) || (My.Memory &gt; 100000))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
                                  (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
@@ -693,8 +693,75 @@
          </match>
          <security>
             <credentials>
-                <!-- project_id: IceCube is allowed to use the allocation bbfw-delta-gpu -->
+               <!-- project_id: IceCube is allowed to use the allocation bbfw-delta-gpu -->
                <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="bbfw-delta-gpu,IceCube" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
+         </attrs>
+         <files>
+            <file absfname="/opt/osg-flock/wip-node-check/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/node-check/osgvo-additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/osgvo-default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-node-check/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/wip-job-wrappers/default_singularity_wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+         </files>
+     </group>
+
+      <group name="alloc-IceCube-DESY-GPU" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="True" type="DISABLE" wait="30"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="2" reserve="1"/>
+            <idle_vms_per_entry curb="950" max="1000"/>
+            <idle_vms_total curb="950" max="1000"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_total curb="950" max="1000"/>
+         </config>
+         <match
+             match_expr="True"
+             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Delta", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "DESY-ZN"'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(ProjectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("DESY-ZN", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs >= 1)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                  <schedd DN="/CN=sub-2.icecube.wisc.edu" fullname="sub-2.icecube.wisc.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <!-- project_id: IceCube is allowed to use the allocation -->
+               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="icecube-desy-gpu,IceCube" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
             </credentials>
          </security>
          <attrs>
