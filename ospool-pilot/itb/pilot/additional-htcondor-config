@@ -467,7 +467,7 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     # Run all jobs in singularity if we have it
     # special case - allow some OSG staff to bypass Singularity for
     # debugging and building images
-    set_condor_knob "SINGULARITY_JOB" "(HAS_SINGULARITY?:false) && !(container_bypass == True && stringListIMember(ProjectName, \"OSG-Staff,Caltech_2024_Reitze\"))"
+    set_condor_knob "SINGULARITY_JOB" "(HAS_SINGULARITY?:false) && !(container_bypass =?= True && stringListIMember(ProjectName, \"OSG-Staff,Caltech_2024_Reitze\"))"
 
     # Condor PID namespace autodetection is broken (TODO add ticket); hard-disable it if we were asked to.
     # I could consolidate these if statements but I'm curious where it's set...
