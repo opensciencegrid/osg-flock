@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Sometimes when glideins get preempted too quickly, a glide_* workdir
+# can be left behind. The script checks for such leftovers, and tries
+# to clean them up.
+
+cd ..
+
+echo "Checking for leftover glide_* directories in $PWD"
+
+for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +2); do
+
+    DIR=$(echo "$DIR" | sed -e 's;^[/.]*;;')
+    SIZE=$(du -s --si $DIR | awk '{print $1;}')
+    echo "  $DIR   $SIZE"
+
+    # do we need more checks?
+
+    # just information for now    
+    stat $DIR | sed 's/^/      /'
+    ls -l $DIR/ | sed 's/^/            /'
+
+done
+
