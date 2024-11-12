@@ -4,10 +4,16 @@
 # can be left behind. The script checks for such leftovers, and tries
 # to clean them up.
 
+MAX_CLEANUPS=10
+CLEAN_COUNT=0
+
 cd ..
+
+echo "Cleanup start:" $(date +'%s')
 
 echo "Checking for leftover glide_* directories in $PWD"
 
+# finding the candidates
 for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +2); do
 
     DIR=$(echo "$DIR" | sed -e 's;^[/.]*;;')
@@ -21,9 +27,15 @@ for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +2); do
     
     echo "  Cleanup candidate: $DIR   ($SIZE, $LASTMOD)"
 
-    # just information for now    
-    stat $DIR | sed 's/^/      /'
-    ls -l $DIR/ | sed 's/^/            /'
+    # for now, only do the cleanup on OSG_US_CHTC-Spark-CE1_pre
+    if [ "x$GLIDEIN_Entry_Name" = "xOSG_US_CHTC-Spark-CE1_pre" ]; then
+        if [[ $CLEAN_COUNT -lt $MAX_CLEANUPS ]]; then
+            echo "    Removing $DIR"
+            rm -rf $DIR
+            CLEAN_COUNT=$(($CLEAN_COUNT + 1))
+        fi
+    fi
 
 done
 
+echo "Cleanup end:" $(date +'%s')
