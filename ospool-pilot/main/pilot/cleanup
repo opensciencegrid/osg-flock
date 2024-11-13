@@ -4,8 +4,27 @@
 # can be left behind. The script checks for such leftovers, and tries
 # to clean them up.
 
+
+GLIDEIN_CONFIG="$1"
+export GLIDEIN_CONFIG
+
+function get_glidein_config_value {
+    # extracts a config attribute value from
+    # $1 is the attribute key
+    CF=$GLIDEIN_CONFIG
+    if [ "$GLIDEIN_CONFIG" = "NONE" ]; then
+        CF="$PWD/GLIDEIN_CONFIG"
+    fi
+    KEY="$1"
+    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    echo "$VALUE"
+}
+
+
 MAX_CLEANUPS=10
 CLEAN_COUNT=0
+
+GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
 
 cd ..
 
@@ -14,7 +33,7 @@ echo "Cleanup start:" $(date +'%s')
 echo "Checking for leftover glide_* directories in $PWD"
 
 # finding the candidates
-for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +2); do
+for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +6); do
 
     DIR=$(echo "$DIR" | sed -e 's;^[/.]*;;')
     SIZE=$(du -s --si $DIR | awk '{print $1;}')
