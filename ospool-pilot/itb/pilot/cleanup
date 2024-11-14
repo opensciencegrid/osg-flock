@@ -16,15 +16,16 @@ function get_glidein_config_value {
         CF="$PWD/GLIDEIN_CONFIG"
     fi
     KEY="$1"
-    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    VALUE=`(grep "^$KEY " $CF | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
 }
 
-
+# space separated
+TARGET_RESOURCES="CHTC-Spark-CE1 ISI"
 MAX_CLEANUPS=10
 CLEAN_COUNT=0
 
-GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+GLIDEIN_ResourceName=$(get_glidein_config_value GLIDEIN_ResourceName)
 
 cd ..
 
@@ -36,21 +37,21 @@ echo "Checking for leftover glide_* directories in $PWD"
 for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +6); do
 
     DIR=$(echo "$DIR" | sed -e 's;^[/.]*;;')
-    SIZE=$(du -s --si $DIR | awk '{print $1;}')
-    LASTMOD=$(stat --format='%y' $DIR)
+    SIZE=$(du -s --si "$DIR" | awk '{print $1;}')
+    LASTMOD=$(stat --format='%y' "$DIR")
 
     # double check that this is not an active glidein
-    if [[ $(find $DIR -maxdepth 1 -name osgvo.test-results.1h.panopticon -mmin -120 -print) ]]; then
+    if [[ $(find "$DIR" -maxdepth 1 -name osgvo.test-results.1h.panopticon -mmin -120 -print) ]]; then
         continue
     fi
     
     echo "  Cleanup candidate: $DIR   ($SIZE, $LASTMOD)"
 
-    # for now, only do the cleanup on OSG_US_CHTC-Spark-CE1_pre
-    if [ "x$GLIDEIN_Entry_Name" = "xOSG_US_CHTC-Spark-CE1_pre" ]; then
+    # for now, only do the cleanup on select sites
+    if [[ " $TARGET_RESOURCES " =~ " $GLIDEIN_ResourceName " ]]; then
         if [[ $CLEAN_COUNT -lt $MAX_CLEANUPS ]]; then
             echo "    Removing $DIR"
-            rm -rf $DIR
+            rm -rf "$DIR"
             CLEAN_COUNT=$(($CLEAN_COUNT + 1))
         fi
     fi
