@@ -314,7 +314,7 @@ fi
 #
 # If set to "condor", it will use what's in the Condor tarball.  (This can be
 # used to override a non-Condor default.)
-DEFAULT_DOWNLOAD_PELICAN_VERSION=7.11.3
+DEFAULT_DOWNLOAD_PELICAN_VERSION=7.11.4
 
 if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
     DOWNLOAD_PELICAN_VERSION=$(gconfig_get DOWNLOAD_PELICAN_VERSION)
