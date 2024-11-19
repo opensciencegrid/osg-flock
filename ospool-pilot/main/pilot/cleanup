@@ -50,7 +50,7 @@ for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +6); do
     # for now, only do the cleanup on select sites
     if [[ " $TARGET_RESOURCES " =~ " $GLIDEIN_ResourceName " ]]; then
         if [[ $CLEAN_COUNT -lt $MAX_CLEANUPS ]]; then
-            echo "    Removing $DIR"
+            echo "    Cleanup removing $DIR"
             rm -rf "$DIR"
             CLEAN_COUNT=$(($CLEAN_COUNT + 1))
         fi
