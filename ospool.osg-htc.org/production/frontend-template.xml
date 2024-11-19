@@ -667,11 +667,11 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="True" type="DISABLE" wait="30"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="2" reserve="1"/>
+            <idle_glideins_per_entry max="20" reserve="1"/>
             <idle_vms_per_entry curb="950" max="1000"/>
             <idle_vms_total curb="950" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="950" max="1000"/>
          </config>
          <match
@@ -734,11 +734,11 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="True" type="DISABLE" wait="30"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="2" reserve="1"/>
+            <idle_glideins_per_entry max="20" reserve="1"/>
             <idle_vms_per_entry curb="950" max="1000"/>
             <idle_vms_total curb="950" max="1000"/>
             <processing_workers matchmakers="3"/>
-            <running_glideins_per_entry max="20" min="0" relative_to_queue="5.0"/>
+            <running_glideins_per_entry max="1000" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="950" max="1000"/>
          </config>
          <match
