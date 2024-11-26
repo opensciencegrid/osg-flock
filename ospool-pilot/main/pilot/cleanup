@@ -31,32 +31,34 @@ pushd ..
 
 echo "Cleanup start:" $(date +'%s')
 
-echo "Checking for leftover glide_* directories in $PWD"
+echo "Cleanup script disabled. Doing nothing."
 
-# finding the candidates
-for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +6); do
+# echo "Checking for leftover glide_* directories in $PWD"
 
-    DIR=$(echo "$DIR" | sed -e 's;^[/.]*;;')
-    SIZE=$(du -s --si "$DIR" | awk '{print $1;}')
-    LASTMOD=$(stat --format='%y' "$DIR")
+# # finding the candidates
+# for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +6); do
 
-    # double check that this is not an active glidein
-    if [[ $(find "$DIR" -maxdepth 1 -name osgvo.test-results.1h.panopticon -mmin -120 -print) ]]; then
-        continue
-    fi
+#     DIR=$(echo "$DIR" | sed -e 's;^[/.]*;;')
+#     SIZE=$(du -s --si "$DIR" | awk '{print $1;}')
+#     LASTMOD=$(stat --format='%y' "$DIR")
+
+#     # double check that this is not an active glidein
+#     if [[ $(find "$DIR" -maxdepth 1 -name osgvo.test-results.1h.panopticon -mmin -120 -print) ]]; then
+#         continue
+#     fi
     
-    echo "  Cleanup candidate: $DIR   ($SIZE, $LASTMOD)"
+#     echo "  Cleanup candidate: $DIR   ($SIZE, $LASTMOD)"
 
-    # for now, only do the cleanup on select sites
-    if [[ " $TARGET_RESOURCES " =~ " $GLIDEIN_ResourceName " ]]; then
-        if [[ $CLEAN_COUNT -lt $MAX_CLEANUPS ]]; then
-            echo "    Cleanup removing $DIR"
-            rm -rf "$DIR"
-            CLEAN_COUNT=$(($CLEAN_COUNT + 1))
-        fi
-    fi
+#     # for now, only do the cleanup on select sites
+#     if [[ " $TARGET_RESOURCES " =~ " $GLIDEIN_ResourceName " ]]; then
+#         if [[ $CLEAN_COUNT -lt $MAX_CLEANUPS ]]; then
+#             echo "    Cleanup removing $DIR"
+#             rm -rf "$DIR"
+#             CLEAN_COUNT=$(($CLEAN_COUNT + 1))
+#         fi
+#     fi
 
-done
+# done
 
 popd
 
