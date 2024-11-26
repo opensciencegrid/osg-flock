@@ -13,10 +13,10 @@ function get_glidein_config_value {
     # $1 is the attribute key
     CF=$GLIDEIN_CONFIG
     if [ "$GLIDEIN_CONFIG" = "NONE" ]; then
-        CF="$PWD/GLIDEIN_CONFIG"
+        CF="$PWD/glidein_config"
     fi
     KEY="$1"
-    VALUE=`(grep "^$KEY " $CF | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    VALUE=`(grep "^$KEY " "$CF" | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
 }
 
@@ -27,7 +27,7 @@ CLEAN_COUNT=0
 
 GLIDEIN_ResourceName=$(get_glidein_config_value GLIDEIN_ResourceName)
 
-cd ..
+pushd ..
 
 echo "Cleanup start:" $(date +'%s')
 
@@ -57,5 +57,7 @@ for DIR in $(find . -maxdepth 1 -name glide_\* -user $USER -mtime +6); do
     fi
 
 done
+
+popd
 
 echo "Cleanup end:" $(date +'%s')
