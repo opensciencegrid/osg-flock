@@ -13,10 +13,10 @@ function get_glidein_config_value {
     # $1 is the attribute key
     CF=$GLIDEIN_CONFIG
     if [ "$GLIDEIN_CONFIG" = "NONE" ]; then
-        CF="$PWD/GLIDEIN_CONFIG"
+        CF="$PWD/glidein_config"
     fi
     KEY="$1"
-    VALUE=`(grep "^$KEY " $CF | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
+    VALUE=`(grep "^$KEY " "$CF" | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
     echo "$VALUE"
 }
 
