@@ -612,7 +612,9 @@
          </config>
          <match
              match_expr="True"
-             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
+                         ((TARGET.RequestGPUs?:0) > 0 || RoomForCPUOnlyJobs) &amp;&amp;
+                         (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "Purdue-Anvil"'>
                <match_attrs>
                </match_attrs>
@@ -682,7 +684,9 @@
          </config>
          <match
              match_expr="True"
-             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Delta", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Delta", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
+                         ((TARGET.RequestGPUs?:0) > 0 || RoomForCPUOnlyJobs) &amp;&amp;
+                         (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "NCSA-Delta"'>
                <match_attrs>
                </match_attrs>
@@ -752,7 +756,9 @@
          </config>
          <match
              match_expr="True"
-             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("DESY-ZN", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp; (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("DESY-ZN", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
+                         ((TARGET.RequestGPUs?:0) > 0 || RoomForCPUOnlyJobs) &amp;&amp;
+                         (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "DESY-ZN"'>
                <match_attrs>
                </match_attrs>
