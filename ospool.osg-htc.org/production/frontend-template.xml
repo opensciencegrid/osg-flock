@@ -765,7 +765,7 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr='(ProjectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("DESY-ZN", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs &gt;= 1)'>
+            <job query_expr='(ProjectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("DESY-ZN", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs &gt;= 1) &amp;&amp; (RequestCPUs == 1) &amp;&amp; (RequestMemory &lt; 5120)'>
                <match_attrs>
                </match_attrs>
                <schedds>
