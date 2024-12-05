@@ -385,6 +385,7 @@ for FS in \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
    public-uc.osgstorage.org \
+   rnog.opensciencegrid.org \
    sft.cern.ch \
    singularity.opensciencegrid.org \
    shared.storage.igwn.org \
