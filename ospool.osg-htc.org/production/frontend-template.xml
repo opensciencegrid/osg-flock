@@ -817,7 +817,7 @@
 
       <!-- ==================== XENON ==================== -->
 
-      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="False">
+      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
