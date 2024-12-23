@@ -490,6 +490,13 @@ fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 # Not a knob -- I am advertising it so I can see it in condor_status
 add_condor_vars_line "OSG_USING_JOB_HOOK" "C" "-" "+" "Y" "Y" "-"
 
+
+# Test: use condor-provided version of Apptainer
+if [[ $condor_version > "24.00.00" ]]; then
+    set_condor_knob 'SINGULARITY' '$(RELEASE_DIR)/libexec/apptainer'
+fi
+
+
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
 # the Singularity container outside of the glidein default
