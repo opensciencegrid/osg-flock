@@ -493,7 +493,8 @@ add_condor_vars_line "OSG_USING_JOB_HOOK" "C" "-" "+" "Y" "Y" "-"
 
 # Test: use condor-provided version of Apptainer
 if [[ $condor_version > "24.00.00" ]]; then
-    set_condor_knob 'SINGULARITY' '$(RELEASE_DIR)/libexec/apptainer'
+    set_condor_knob 'SINGULARITY' '$(LIBEXEC)/apptainer'
+    add_config_line 'SINGULARITY_PATH' '$(LIBEXEC)/apptainer'
 fi
 
 
