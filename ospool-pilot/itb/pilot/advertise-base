@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=792
+OSG_GLIDEIN_VERSION=793
 #######################################################################
 
 
@@ -255,6 +255,7 @@ if [ "x$VER" != "x" ]; then
 fi
 
 # firewall testing - check a set of common ports our projects need
+OUT_FW=""
 for PORT in 80 1094 2880 8000 8443 27017; do
     if [ -e $TEST_FILE_4H.port.$PORT ]; then
         OUT=$(cat $TEST_FILE_4H.port.$PORT)
@@ -266,7 +267,13 @@ for PORT in 80 1094 2880 8000 8443 27017; do
         echo $OUT >$TEST_FILE_4H.port.$PORT
     fi
     advertise PORT_$PORT "$OUT" "C"
+
+    if [ "x$OUT_FW" != "x" ]; then
+        OUT_FW="$OUT_FW || "
+    fi
+    OUT_FW="$OUT_FW (PORT_$PORT =!= True)"
 done
+advertise OUTBOUND_FIREWALL "$OUT_FW" "C"
 
 # verify http_proxy/OSG_SQUID_LOCATION
 PROXY_CHECKS=0
