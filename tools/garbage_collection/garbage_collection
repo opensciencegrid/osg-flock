@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+# prepare to update GWMS config/htcondor vars
+glidein_config=$1
+if [ "x$1" = "x" -o ! -e "$glidein_config"  ]; then
+    echo "GWMS config not found"
+    exit 0
+fi
+
+condor_vars=$(grep '^CONDOR_VARS_FILE ' $glidein_config | awk '{print $2}')
+if [ "x$condor_vars" = "x" ]; then
+    echo "GWMS condor vars not found"
+    exit 0
+fi
+
+ARCH=$(uname -m)
+if [ -e garbage_collection.$ARCH ]; then
+    ./garbage_collection.$ARCH $glidein_config $condor_vars
+else
+    echo "Unable to run garbage_collection due to unknown arch: $ARCH"
+    # do not exit non-zero here - it will make the glidein fail
+fi
+
