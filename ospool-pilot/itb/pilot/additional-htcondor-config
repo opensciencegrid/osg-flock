@@ -529,12 +529,6 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     fi
 fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
-# debugging prepare job hook
-if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
-    add_config_line "STARTER_DEBUG" "D_FULLDEBUG:2"
-    add_condor_vars_line "STARTER_DEBUG" "C" "-" "STARTER_DEBUG" "N" "N" "-"
-fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
-
 
 # Miscellaneous debugging if any
 [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
