@@ -318,9 +318,9 @@ fi
 # If set to "condor", it will use what's in the Condor tarball.  (This can be
 # used to override a non-Condor default.)
 if (( RANDOM % 2 == 0 )); then
-    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.12.2-rc.1
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.12.4
 else
-    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.13.0-rc.0
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.13.0-rc.2
 fi
 
 if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
