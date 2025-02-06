@@ -92,7 +92,7 @@
             <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
-                start_expr='( (TARGET.ITB_Sites =?= True) || (stringListMember(GLIDEIN_ResourceName, "CHTC-Spark-CE1,UWEC-BOSE-CE1,SU-ITS-CE3") &amp;&amp; JobStarts &lt; 5) ) &amp;&amp;
+                start_expr='( (TARGET.ITB_Sites =?= True) || (stringListMember(GLIDEIN_ResourceName, "CHTC-Spark-CE1,UWEC-BOSE-CE1,SU-ITS-CE3,PDX-Coeus-CE1") &amp;&amp; JobStarts &lt; 5) ) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
