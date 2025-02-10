@@ -25,7 +25,7 @@ function advertise {
     atype="$3"
 
     if [ "$glidein_config" != "NONE" ]; then
-        add_config_line_safe $key "$value"
+        gconfig_add_safe $key "$value"
         add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
     fi
 
@@ -40,9 +40,9 @@ function check_singularity_overunderlay {
     # some sites have broken singularity overlay/underlay
     # test this by trying to bind pwd to a nonexistent directory
     # in the container
-    local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
-    local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
-    local default_image=$(get_glidein_config_value SINGULARITY_IMAGES_DICT | sed 's/^default://')
+    local has_singularity=$(gconfig_get HAS_SINGULARITY)
+    local singularity_path=$(gconfig_get GWMS_SINGULARITY_PATH)
+    local default_image=$(gconfig_get SINGULARITY_IMAGES_DICT | sed 's/^default://')
 
     if [ "x$default_image" = "x" ]; then
         default_image="/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el8:latest/"
@@ -67,8 +67,8 @@ function check_singularity_overunderlay {
 }
 
 function check_singularity_overrides {
-    GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
-    GLIDEIN_Site=$(get_glidein_config_value GLIDEIN_Site)
+    GLIDEIN_Entry_Name=$(gconfig_get GLIDEIN_Entry_Name)
+    GLIDEIN_Site=$(gconfig_get GLIDEIN_Site)
     # AMNH-HEL - Singularity causes zombie process
     # (https://support.opensciencegrid.org/a/tickets/69708)
     if (echo "$GLIDEIN_Entry_Name" | egrep -i "AMNH-HEL") >/dev/null 2>&1; then
@@ -87,7 +87,7 @@ function osdf_download {
     local src="$2"
 
     local dest_sif="${dest%.sif}.sif"
-    local client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+    local client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
 
     if [ -e $client_dir/stashcp ]; then
         rm -rf "$dest" \
@@ -162,10 +162,10 @@ function check_singularity_sif_support {
         local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
     fi
     local sylabs_alpine="library://alpine:3"
-    local work_dir=$(get_glidein_config_value GLIDEIN_WORK_DIR)
+    local work_dir=$(gconfig_get GLIDEIN_WORK_DIR)
     local image_dir="$work_dir/../images"
-    local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
-    local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
+    local has_singularity=$(gconfig_get HAS_SINGULARITY)
+    local singularity_path=$(gconfig_get GWMS_SINGULARITY_PATH)
 
     # do not allow .sif images on 3.x kernels (OSPOOL-18)
     if (uname -r | egrep '^3\.') >/dev/null 2>&1; then
@@ -232,8 +232,8 @@ function check_singularity_registry_support {
     else
         local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
     fi
-    local has_singularity=$(get_glidein_config_value HAS_SINGULARITY)
-    local singularity_path=$(get_glidein_config_value GWMS_SINGULARITY_PATH)
+    local has_singularity=$(gconfig_get HAS_SINGULARITY)
+    local singularity_path=$(gconfig_get GWMS_SINGULARITY_PATH)
 
     # singularity is a prereq
     if [[ $has_singularity != "True" ]]; then

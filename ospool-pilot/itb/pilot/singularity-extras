@@ -21,17 +21,6 @@ function my_warn {
     export GLIDEIN_VALIDATION_WARNINGS="$@. $GLIDEIN_VALIDATION_WARNINGS"
 }
 
-function get_glidein_config_value {
-    # extracts a config attribute value from 
-    # $1 is the attribute key
-    CF=$glidein_config
-    if [ "$glidein_config" = "NONE" ]; then
-        CF="$PWD/glidein_config"
-    fi
-    KEY="$1"
-    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
-    echo "$VALUE"
-}
 
 info "Determining extra Singularity capabilities..."
 
@@ -48,8 +37,8 @@ if [ "$glidein_config" != "NONE" ]; then
 fi
 
 # source our helpers
-group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
-client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+group_dir=$(gconfig_get GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
 cp -ns $client_dir/*ospool-lib $group_dir/ 2>/dev/null && info "Linking helper(s) from $(ls $client_dir/*ospool-lib | tr '\n' ' ')"
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib"
