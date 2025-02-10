@@ -20,7 +20,7 @@ function advertise {
     atype="$3"
 
     if [ "$glidein_config" != "NONE" ]; then
-        add_config_line_safe "$key" "$value"
+        gconfig_add_safe "$key" "$value"
         add_condor_vars_line "$key" "$atype" "-" "+" "Y" "Y" "-"
     fi
 
@@ -31,17 +31,6 @@ function advertise {
     fi
 }
 
-function get_glidein_config_value {
-    # extracts a config attribute value from 
-    # $1 is the attribute key
-    CF=$glidein_config
-    if [ "$glidein_config" = "NONE" ]; then
-        CF="$PWD/glidein_config"
-    fi
-    KEY="$1"
-    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
-    echo "$VALUE"
-}
 
 if [ "$glidein_config" != "NONE" ]; then
     ###########################################################
@@ -63,8 +52,8 @@ else
   PYTHON="python"
 fi
 
-group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
-client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+group_dir=$(gconfig_get GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
 cp -ns $client_dir/tcpping.py $group_dir/ 2>/dev/null && echo "Linking tcpping.py from $(ls $client_dir/tcpping.py | tr '\n' ' ')" 1>&2
 
 TCPPING="${PYTHON} ${group_dir}/tcpping.py"
