@@ -30,7 +30,7 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 	currentUser, err := user.Current()
 	uid, err := strconv.Atoi(currentUser.Uid)
 	if err != nil {
-		fmt.Printf("Error determining my own uid: %v", err)
+		fmt.Printf("GC: Error determining my own uid: %v", err)
 		return candidates, time.Now().Sub(startTime).Seconds()
 	}
 
@@ -50,7 +50,7 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 		// glide_XXXX info
 		dirInfo, err := os.Stat(dir)
 		if err != nil {
-			fmt.Printf("Error stating %s: %v\n", dir, err)
+			fmt.Printf("GC: Error stating %s: %v\n", dir, err)
 			continue
 		}
 		dirStat := dirInfo.Sys().(*syscall.Stat_t)
@@ -71,7 +71,7 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 			}
 			continue
 		} else if err != nil {
-			fmt.Printf("Error stating %s: %v\n", leaseFile, err)
+			fmt.Printf("GC: Error stating %s: %v\n", leaseFile, err)
 			continue
 		}
 
@@ -99,7 +99,7 @@ func RenameWithBackoff(selectedDir, fullClaimPath string) error {
 	for try := 1; try <= maxErrors; try++ {
 		err := os.Rename(selectedDir, fullClaimPath)
 		if err != nil {
-			fmt.Printf("Unable to move directory %s: %v\n", selectedDir, err)
+			fmt.Printf("GC: Unable to move directory %s: %v\n", selectedDir, err)
 			switch {
 			case errors.Is(err, os.ErrNotExist):
 				// An error here likely means that we have a competing glidein
@@ -129,7 +129,7 @@ func diskStats() (uint64, uint64, string) {
 	var stat syscall.Statfs_t
 	err := syscall.Statfs(".", &stat)
 	if err != nil {
-		fmt.Printf("Unable to stat cwd")
+		fmt.Printf("GC: Unable to stat cwd")
 	}
 	freeGBytes := stat.Bavail * uint64(stat.Bsize) / 1024 / 1024 / 1024
 	totalGBytes := stat.Blocks * uint64(stat.Bsize) / 1024 / 1024 / 1024
@@ -201,7 +201,7 @@ func main() {
 	var reportError error
 
 	startTime := time.Now()
-	fmt.Printf("Starting garbage collection at %s\n", startTime.Format(time.RFC1123))
+	fmt.Printf("GC: Starting garbage collection at %s\n", startTime.Format(time.RFC1123))
 
 	// stats
 	candidatesCount := 0
@@ -243,7 +243,7 @@ func main() {
 		removalStart := time.Now()
 		err = os.RemoveAll(fullClaimPath)
 		if err != nil {
-			fmt.Printf("Unable to remove directory %s: %v\n", fullClaimPath, err)
+			fmt.Printf("GC: Unable to remove directory %s: %v\n", fullClaimPath, err)
 			reportError = err
 			break
 		}
@@ -260,16 +260,16 @@ func main() {
 	walltime := time.Now().Sub(startTime).Seconds()
 
 	if reportError != nil {
-		fmt.Printf("Fatal error: %s\n", reportError)
+		fmt.Printf("GC: Fatal error: %s\n", reportError)
 	}
-	fmt.Printf("Number of candidates: %d\n", candidatesCount)
-	fmt.Printf("Candidates list walltime: %.0f seconds\n", candidatesWalltime)
-	fmt.Printf("Directories removed: %d\n", removedCount)
-	fmt.Printf("Directory average removal walltime: %.0f seconds\n", removedAverage)
-	fmt.Printf("Glidein disk free: %d GB\n", freeGBytes)
-	fmt.Printf("Glidein disk total: %d GB\n", totalGBytes)
-	fmt.Printf("Glidein disk type: %s\n", diskType)
-	fmt.Printf("Garbage collection walltime: %.0f seconds\n", walltime)
+	fmt.Printf("GC: Number of candidates: %d\n", candidatesCount)
+	fmt.Printf("GC: Candidates list walltime: %.0f seconds\n", candidatesWalltime)
+	fmt.Printf("GC: Directories removed: %d\n", removedCount)
+	fmt.Printf("GC: Directory average removal walltime: %.0f seconds\n", removedAverage)
+	fmt.Printf("GC: Glidein disk free: %d GB\n", freeGBytes)
+	fmt.Printf("GC: Glidein disk total: %d GB\n", totalGBytes)
+	fmt.Printf("GC: Glidein disk type: %s\n", diskType)
+	fmt.Printf("GC: Garbage collection walltime: %.0f seconds\n", walltime)
 
 	// also advertise to the HTCondor CM
 	htcondor_advertise(os.Args[1], os.Args[2], reportError, candidatesCount,
