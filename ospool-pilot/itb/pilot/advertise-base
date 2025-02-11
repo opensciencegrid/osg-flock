@@ -200,6 +200,10 @@ if [ "x$TIMEOUT" != "x" ]; then
     TIMEOUT="$TIMEOUT -k 30s 30s"
 fi
 
+# the _GLIDE_LEASE_FILE is used to track active glidein
+# by the garbage_collection system
+touch _GLIDE_LEASE_FILE
+
 advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
 
 # OSPool - this attribute should _only_ be set to True if
