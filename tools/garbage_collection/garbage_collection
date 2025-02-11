@@ -2,6 +2,14 @@
 
 set -e
 
+# GC deployment plan - initial testing only on Spark and ISI
+if [ "x$GLIDEIN_ResourceName" = "xCHTC-Spark-CE1" -o "x$GLIDEIN_ResourceName" = "xISI" ]; then
+    echo "GC testing on resource $GLIDEIN_ResourceName"
+else
+    echo "GC testing disabled on resource $GLIDEIN_ResourceName"
+    exit 0
+fi
+
 # prepare to update GWMS config/htcondor vars
 glidein_config=$1
 if [ "x$1" = "x" -o ! -e "$glidein_config"  ]; then
