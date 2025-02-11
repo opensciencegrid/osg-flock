@@ -22,6 +22,9 @@ mkdir glide_5skx \
 mkdir glide_06ek \
     && touch -d "2 days ago" glide_06ek \
     && touch -d "10 minutes ago" glide_06ek/_GLIDE_LEASE_FILE
+mkdir some_other_dir \
+    && touch -d "15 days ago" some_other_dir \
+    && mkdir some_other_dir/do-not-visit-this-dir
 
 # my own dir
 mkdir glide_3jz4 \
@@ -42,7 +45,7 @@ cat condor_vars
 
 cd ..
 COUNT=$(ls | wc -l)
-if [ $COUNT -ne 3 ]; then
+if [ $COUNT -ne 4 ]; then
     echo "ERROR: Incorrect number of directories remaining"
     exit 1
 fi

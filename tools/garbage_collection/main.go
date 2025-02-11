@@ -34,53 +34,69 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 		return candidates, time.Now().Sub(startTime).Seconds()
 	}
 
-	// Use Glob to find matching glidein dirs
-	dirs, err := filepath.Glob("glide_*")
-	if err != nil {
-		return candidates, time.Now().Sub(startTime).Seconds()
-	}
+	err = filepath.WalkDir(".", func(path string, dir os.DirEntry, err error) error {
+		if err != nil {
+			fmt.Printf("GC: Error accessing path %s: %v\n", path, err)
+			return nil
+		}
 
-	// Filter dirs
-	for _, dir := range dirs {
+		if !dir.IsDir() {
+			return nil
+		}
 
-		if dir == excludeDir {
-			continue
+		// to get started
+		if dir.Name() == "." {
+			return nil
+		}
+
+		// our own glide_ dir
+		if dir.Name() == excludeDir {
+			return filepath.SkipDir
+		}
+
+		// Only consider directories that match the "glide_*" pattern
+		if !filepath.HasPrefix(dir.Name(), "glide_") {
+			return filepath.SkipDir
 		}
 
 		// glide_XXXX info
-		dirInfo, err := os.Stat(dir)
+		dirInfo, err := os.Stat(dir.Name())
 		if err != nil {
 			fmt.Printf("GC: Error stating %s: %v\n", dir, err)
-			continue
+			return filepath.SkipDir
 		}
 		dirStat := dirInfo.Sys().(*syscall.Stat_t)
 
 		// ignore other users' directories
 		if int(dirStat.Uid) != uid {
-			continue
+			return filepath.SkipDir
 		}
 
 		// lease file info
-		leaseFile := dir + "/_GLIDE_LEASE_FILE"
+		leaseFile := dir.Name() + "/_GLIDE_LEASE_FILE"
 		leaseInfo, err := os.Stat(leaseFile)
 		if err != nil && os.IsNotExist(err) {
 			// no lease file?
 			// dir older than 10 days
 			if now.Sub(dirInfo.ModTime()) > 10*24*time.Hour {
-				candidates = append(candidates, dir)
+				candidates = append(candidates, dir.Name())
 			}
-			continue
+			return filepath.SkipDir
 		} else if err != nil {
 			fmt.Printf("GC: Error stating %s: %v\n", leaseFile, err)
-			continue
+			return filepath.SkipDir
 		}
 
 		// lease file older than 1 hour
 		if now.Sub(leaseInfo.ModTime()) > time.Hour {
-			candidates = append(candidates, dir)
-			continue
+			candidates = append(candidates, dir.Name())
 		}
 
+		return filepath.SkipDir
+	})
+
+	if err != nil {
+		fmt.Printf("GC: Error walking directory: %v\n", err)
 	}
 
 	return candidates, time.Now().Sub(startTime).Seconds()
