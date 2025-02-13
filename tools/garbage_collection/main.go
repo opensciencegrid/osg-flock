@@ -55,7 +55,8 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 		}
 
 		// Only consider directories that match the "glide_*" pattern
-		if !filepath.HasPrefix(dir.Name(), "glide_") {
+		match, _ := filepath.Match("glide_*", dir.Name())
+		if !match {
 			return filepath.SkipDir
 		}
 
