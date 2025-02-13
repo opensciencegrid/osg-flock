@@ -147,6 +147,7 @@ func diskStats() (uint64, uint64, string) {
 	err := syscall.Statfs(".", &stat)
 	if err != nil {
 		fmt.Printf("GC: Unable to stat cwd")
+		return 0, 0, "n/a"
 	}
 	freeGBytes := stat.Bavail * uint64(stat.Bsize) / 1024 / 1024 / 1024
 	totalGBytes := stat.Blocks * uint64(stat.Bsize) / 1024 / 1024 / 1024
