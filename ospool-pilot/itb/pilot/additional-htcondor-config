@@ -86,7 +86,8 @@ gconfig_add IsBlackHole "IfThenElse(RecentJobDurationAvg is undefined, false, Re
 add_condor_vars_line IsBlackHole "C" "-" "+" "N" "Y" "-"
 
 # excessive load, probably due to swapping (https://opensciencegrid.atlassian.net/browse/OSPOOL-2)
-gconfig_add HasExcessiveLoad "LoadAvg > 2*DetectedCpus + 2"
+# include a workaround for when HTCondor detects only 1 cpu
+gconfig_add HasExcessiveLoad "DetectedCpus > 1 && LoadAvg > 2*DetectedCpus + 2"
 add_condor_vars_line HasExcessiveLoad "C" "-" "+" "N" "Y" "-"
 
 # On GPU resources, allow CPU-only jobs to run, but reserve resources for GPU jobs
