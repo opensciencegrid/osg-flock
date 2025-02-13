@@ -28,12 +28,13 @@ mkdir some_other_dir \
 
 # my own dir
 mkdir glide_3jz4 \
-    && cp ../garbage_collection* glide_3jz4/
+    && mkdir glide_3jz4/client_group_main \
+    && cp ../garbage_collection* glide_3jz4/client_group_main/
 
 # now run the test
 cd glide_3jz4
 echo "CONDOR_VARS_FILE $PWD/condor_vars" >glidein_config
-./garbage_collection $PWD/glidein_config
+client_group_main/garbage_collection $PWD/glidein_config
 
 echo
 echo "GWMS glidein_config:"
@@ -66,12 +67,13 @@ done
 
 # my own dir
 mkdir glide_3jz4 \
-    && cp ../garbage_collection* glide_3jz4/
+    && mkdir glide_3jz4/client_group_main \
+    && cp ../garbage_collection* glide_3jz4/client_group_main/
 
 # now run the test
 cd glide_3jz4
 echo "CONDOR_VARS_FILE $PWD/condor_vars" >glidein_config
-./garbage_collection $PWD/glidein_config
+client_group_main/garbage_collection $PWD/glidein_config
 
 echo
 echo "GWMS glidein_config:"

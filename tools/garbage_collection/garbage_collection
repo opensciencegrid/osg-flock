@@ -24,8 +24,9 @@ if [ "x$condor_vars" = "x" ]; then
 fi
 
 ARCH=$(uname -m)
-if [ -e garbage_collection.$ARCH ]; then
-    ./garbage_collection.$ARCH $glidein_config $condor_vars
+BIN=$(ls client_group_*/garbage_collection.$ARCH)
+if [ "x$BIN" != "x" ]; then
+    ./$BIN $glidein_config $condor_vars
 else
     echo "Unable to run garbage_collection due to unknown arch: $ARCH"
     # do not exit non-zero here - it will make the glidein fail
