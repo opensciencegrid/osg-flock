@@ -290,6 +290,7 @@ func main() {
 	fmt.Printf("GC: Garbage collection walltime: %.0f seconds\n", walltime)
 
 	// also advertise to the HTCondor CM
+	os.Chdir(myFullPath)
 	htcondor_advertise(os.Args[1], os.Args[2], reportError, candidatesCount,
 		candidatesWalltime, removedCount, removedAverage,
 		freeGBytes, totalGBytes, diskType, walltime)
