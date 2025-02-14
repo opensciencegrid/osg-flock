@@ -30,8 +30,8 @@ mkdir some_other_dir \
 
 # my own dir
 mkdir glide_3jz4 \
-    && mkdir glide_3jz4/client_group_main \
-    && cp ../garbage_collection* glide_3jz4/client_group_main/
+    && mkdir glide_3jz4/client \
+    && cp ../garbage_collection* glide_3jz4/client/
 
 # now run the test
 cd glide_3jz4
@@ -39,7 +39,7 @@ echo "GLIDEIN_WORKSPACE_ORIG $PWD" >glidein_config
 echo "CONDOR_VARS_FILE $PWD/condor_vars" >>glidein_config
 echo "GLIDEIN_Entry_Name OSG_US_ISI_osg" >>glidein_config
 cd $TOPDIR
-$TOPDIR/test/glide_3jz4/client_group_main/garbage_collection $TOPDIR/test/glide_3jz4/glidein_config
+$TOPDIR/test/glide_3jz4/client/garbage_collection $TOPDIR/test/glide_3jz4/glidein_config
 
 cd $TOPDIR/test/glide_3jz4/
 
@@ -75,8 +75,8 @@ done
 
 # my own dir
 mkdir glide_3jz4 \
-    && mkdir glide_3jz4/client_group_main \
-    && cp ../garbage_collection* glide_3jz4/client_group_main/
+    && mkdir glide_3jz4/client \
+    && cp ../garbage_collection* glide_3jz4/client/
 
 # now run the test
 cd glide_3jz4
@@ -84,7 +84,7 @@ echo "GLIDEIN_WORKSPACE_ORIG $PWD" >glidein_config
 echo "CONDOR_VARS_FILE $PWD/condor_vars" >>glidein_config
 echo "GLIDEIN_Entry_Name OSG_US_ISI_osg" >>glidein_config
 cd $TOPDIR
-$TOPDIR/test/glide_3jz4/client_group_main/garbage_collection $TOPDIR/test/glide_3jz4/glidein_config
+$TOPDIR/test/glide_3jz4/client/garbage_collection $TOPDIR/test/glide_3jz4/glidein_config
 
 cd $TOPDIR/test/glide_3jz4/
 
