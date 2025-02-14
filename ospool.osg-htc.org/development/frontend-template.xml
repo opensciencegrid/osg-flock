@@ -136,15 +136,6 @@
             <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection.aarch64" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection.x86_64" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -429,9 +420,15 @@
       <collector DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=flock.opensciencegrid.org" group="river" node="cm-2.ospool-itb.osg-htc.org:9618?sock=collector1-10" secondary="True"/>
    </collectors>
    <files>
-       <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/cleanup" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-         <untar_options cond_attr="TRUE"/>
-      </file>
+       <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection.aarch64" after_entry="True" after_group="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+          <untar_options cond_attr="TRUE"/>
+       </file>
+       <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection.x86_64" after_entry="True" after_group="False"  const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+          <untar_options cond_attr="TRUE"/>
+       </file>
+       <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+          <untar_options cond_attr="TRUE"/>
+       </file>
       <file absfname="/opt/osg-flock/node-check/osgvo-node-validation" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>

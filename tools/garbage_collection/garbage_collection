@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # prepare to update GWMS config/htcondor vars
-glidein_config=$1
+glidein_config=$(readlink -f $1)
 if [ "x$1" = "x" -o ! -e "$glidein_config"  ]; then
     echo "GWMS config not found"
     exit 0
@@ -27,7 +27,7 @@ glide_dir=$(grep '^GLIDEIN_WORKSPACE_ORIG ' $glidein_config | awk '{print $2}')
 cd $glide_dir
 
 ARCH=$(uname -m)
-BIN=$(ls client_group_*/garbage_collection.$ARCH)
+BIN=$(ls client/garbage_collection.$ARCH)
 if [ "x$BIN" != "x" ]; then
     chmod 755 $BIN
     echo "Exec: ./$BIN $glidein_config $condor_vars"
