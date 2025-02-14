@@ -33,8 +33,12 @@ mkdir glide_3jz4 \
 
 # now run the test
 cd glide_3jz4
-echo "CONDOR_VARS_FILE $PWD/condor_vars" >glidein_config
-client_group_main/garbage_collection $PWD/glidein_config
+echo "GLIDEIN_WORKSPACE_ORIG $PWD" >glidein_config
+echo "CONDOR_VARS_FILE $PWD/condor_vars" >>glidein_config
+echo "GLIDEIN_Entry_Name OSG_US_ISI_osg" >>glidein_config
+cd client_group_main
+./garbage_collection $PWD/../glidein_config
+cd ..
 
 echo
 echo "GWMS glidein_config:"
@@ -72,8 +76,12 @@ mkdir glide_3jz4 \
 
 # now run the test
 cd glide_3jz4
-echo "CONDOR_VARS_FILE $PWD/condor_vars" >glidein_config
-client_group_main/garbage_collection $PWD/glidein_config
+echo "GLIDEIN_WORKSPACE_ORIG $PWD" >glidein_config
+echo "CONDOR_VARS_FILE $PWD/condor_vars" >>glidein_config
+echo "GLIDEIN_Entry_Name OSG_US_ISI_osg" >>glidein_config
+cd client_group_main
+./garbage_collection $PWD/../glidein_config
+cd ..
 
 echo
 echo "GWMS glidein_config:"
