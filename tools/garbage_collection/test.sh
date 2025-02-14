@@ -4,6 +4,8 @@
 
 set -e
 
+TOPDIR=$PWD
+
 # Test 1 - make sure the right number of directories get removed
 
 echo
@@ -36,9 +38,10 @@ cd glide_3jz4
 echo "GLIDEIN_WORKSPACE_ORIG $PWD" >glidein_config
 echo "CONDOR_VARS_FILE $PWD/condor_vars" >>glidein_config
 echo "GLIDEIN_Entry_Name OSG_US_ISI_osg" >>glidein_config
-cd client_group_main
-./garbage_collection $PWD/../glidein_config
-cd ..
+cd $TOPDIR
+$TOPDIR/test/glide_3jz4/client_group_main/garbage_collection $TOPDIR/test/glide_3jz4/glidein_config
+
+cd $TOPDIR/test/glide_3jz4/
 
 echo
 echo "GWMS glidein_config:"
@@ -54,9 +57,10 @@ if [ $COUNT -ne 4 ]; then
     echo "ERROR: Incorrect number of directories remaining"
     exit 1
 fi
-cd ..
 
 # Test 2 - 10 glide dirs we can't move
+
+cd $TOPDIR
 
 echo
 rm -rf test
@@ -79,9 +83,10 @@ cd glide_3jz4
 echo "GLIDEIN_WORKSPACE_ORIG $PWD" >glidein_config
 echo "CONDOR_VARS_FILE $PWD/condor_vars" >>glidein_config
 echo "GLIDEIN_Entry_Name OSG_US_ISI_osg" >>glidein_config
-cd client_group_main
-./garbage_collection $PWD/../glidein_config
-cd ..
+cd $TOPDIR
+$TOPDIR/test/glide_3jz4/client_group_main/garbage_collection $TOPDIR/test/glide_3jz4/glidein_config
+
+cd $TOPDIR/test/glide_3jz4/
 
 echo
 echo "GWMS glidein_config:"
@@ -91,7 +96,7 @@ echo
 echo "GWMS condor_vars:"
 cat condor_vars
 
-cd ../../
+cd $TOPDIR
 rm -rf test
 
 echo

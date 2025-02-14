@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # prepare to update GWMS config/htcondor vars
 glidein_config=$1
 if [ "x$1" = "x" -o ! -e "$glidein_config"  ]; then
@@ -32,6 +30,7 @@ ARCH=$(uname -m)
 BIN=$(ls client_group_*/garbage_collection.$ARCH)
 if [ "x$BIN" != "x" ]; then
     chmod 755 $BIN
+    echo "Exec: ./$BIN $glidein_config $condor_vars"
     ./$BIN $glidein_config $condor_vars
 else
     echo "Unable to run garbage_collection due to unknown arch: $ARCH"
