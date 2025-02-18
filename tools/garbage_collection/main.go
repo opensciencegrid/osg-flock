@@ -140,9 +140,52 @@ func RenameWithBackoff(selectedDir, fullClaimPath string) error {
 	return nil
 }
 
+// walk the dir, and fix directories which are not writable by us
+func fixPermissions(root string) error {
+	return filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("GC: error accessing %s: %w", path, err)
+		}
+
+		// only worry about dirs
+		if !d.IsDir() {
+			return nil
+		}
+
+		info, err := d.Info()
+		if err != nil {
+			return fmt.Errorf("GC: failed to stat %s: %w", path, err)
+		}
+
+		mode := info.Mode()
+		if mode&0700 == 0 { // Check if user rwx permission is missing
+			newMode := mode | 0700 // Add u+rwx permission
+			if err := os.Chmod(path, newMode); err != nil {
+				return fmt.Errorf("GC: failed to chmod %s: %w", path, err)
+			}
+			fmt.Printf("GC: Fixed permissions for: %s\n", path)
+		}
+
+		return nil
+	})
+}
+
+// Pull out some general disk stats on the current working dir
+func diskStatsBefore() uint64 {
+	var stat syscall.Statfs_t
+	err := syscall.Statfs(".", &stat)
+	if err != nil {
+		fmt.Printf("GC: Unable to stat cwd")
+		return 0
+	}
+	freeGBytes := stat.Bavail * uint64(stat.Bsize) / 1024 / 1024 / 1024
+
+	return freeGBytes
+}
+
 // Pull out some general disk stats on the current working
 // dir. Use stat (function and cli) for this data.
-func diskStats() (uint64, uint64, string) {
+func diskStatsAfter() (uint64, uint64, string) {
 	var stat syscall.Statfs_t
 	err := syscall.Statfs(".", &stat)
 	if err != nil {
@@ -168,7 +211,8 @@ func diskStats() (uint64, uint64, string) {
 func htcondor_advertise(glidein_config, condor_vars string, reportError error,
 	candidatesLastCount int, candidatesWalltime float64,
 	removedCount int, removedAverage float64,
-	freeGBytes uint64, totalGBytes uint64, diskType string, walltime float64) {
+	freeGBytesBefore uint64, freeGBytesAfter uint64, totalGBytes uint64,
+	diskType string, walltime float64) {
 
 	gconf, err := os.OpenFile(glidein_config, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
@@ -201,8 +245,11 @@ func htcondor_advertise(glidein_config, condor_vars string, reportError error,
 	io.WriteString(gconf, fmt.Sprintf("GCRemovedAvgWalltime %.0f\n", removedAverage))
 	io.WriteString(cvars, "GCRemovedAvgWalltime  C  -  +  N  Y  -\n")
 
-	io.WriteString(gconf, fmt.Sprintf("GCFreeGB %d\n", freeGBytes))
-	io.WriteString(cvars, "GCFreeGB  I  -  +  N  Y  -\n")
+	io.WriteString(gconf, fmt.Sprintf("GCFreeGBBefore %d\n", freeGBytesBefore))
+	io.WriteString(cvars, "GCFreeGBBefore  I  -  +  N  Y  -\n")
+
+	io.WriteString(gconf, fmt.Sprintf("GCFreeGBAfter %d\n", freeGBytesAfter))
+	io.WriteString(cvars, "GCFreeGBAfter  I  -  +  N  Y  -\n")
 
 	io.WriteString(gconf, fmt.Sprintf("GCTotalGB %d\n", totalGBytes))
 	io.WriteString(cvars, "GCTotalGB  I  -  +  N  Y  -\n")
@@ -237,6 +284,8 @@ func main() {
 	myGlideDir := filepath.Base(myFullPath)
 	os.Chdir("..")
 
+	freeGBytesBefore := diskStatsBefore()
+
 	candidates, candidatesWalltime := FindCandidates(myGlideDir)
 	candidatesCount = len(candidates)
 
@@ -261,9 +310,21 @@ func main() {
 		removalStart := time.Now()
 		err = os.RemoveAll(fullClaimPath)
 		if err != nil {
-			fmt.Printf("GC: Unable to remove directory %s: %v\n", fullClaimPath, err)
-			reportError = err
-			break
+			// one potential problem here is a sub directory which is not writable
+			// try fixing the permissions before giving up
+			if strings.Contains(err.Error(), "permission denied") {
+				fixPermissions(fullClaimPath)
+				err = os.RemoveAll(fullClaimPath)
+				if err != nil {
+					fmt.Printf("GC: Unable to remove directory %s: %v\n", fullClaimPath, err)
+					reportError = err
+					break
+				}
+			} else {
+				fmt.Printf("GC: Unable to remove directory %s: %v\n", fullClaimPath, err)
+				reportError = err
+				break
+			}
 		}
 		removedCount += 1
 		removedWalltime += time.Now().Sub(removalStart).Seconds()
@@ -274,7 +335,7 @@ func main() {
 		removedAverage = removedWalltime / float64(removedCount)
 	}
 
-	freeGBytes, totalGBytes, diskType := diskStats()
+	freeGBytesAfter, totalGBytes, diskType := diskStatsAfter()
 	walltime := time.Now().Sub(startTime).Seconds()
 
 	if reportError != nil {
@@ -284,7 +345,8 @@ func main() {
 	fmt.Printf("GC: Candidates list walltime: %.0f seconds\n", candidatesWalltime)
 	fmt.Printf("GC: Directories removed: %d\n", removedCount)
 	fmt.Printf("GC: Directory average removal walltime: %.0f seconds\n", removedAverage)
-	fmt.Printf("GC: Glidein disk free: %d GB\n", freeGBytes)
+	fmt.Printf("GC: Glidein disk free before: %d GB\n", freeGBytesBefore)
+	fmt.Printf("GC: Glidein disk free after: %d GB\n", freeGBytesAfter)
 	fmt.Printf("GC: Glidein disk total: %d GB\n", totalGBytes)
 	fmt.Printf("GC: Glidein disk type: %s\n", diskType)
 	fmt.Printf("GC: Garbage collection walltime: %.0f seconds\n", walltime)
@@ -293,7 +355,7 @@ func main() {
 	os.Chdir(myFullPath)
 	htcondor_advertise(os.Args[1], os.Args[2], reportError, candidatesCount,
 		candidatesWalltime, removedCount, removedAverage,
-		freeGBytes, totalGBytes, diskType, walltime)
+		freeGBytesBefore, freeGBytesAfter, totalGBytes, diskType, walltime)
 
 	os.Exit(0)
 }
