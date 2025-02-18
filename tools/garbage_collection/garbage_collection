@@ -15,7 +15,7 @@ fi
 
 # GC deployment plan - initial testing only on Spark and ISI
 entry=$(grep '^GLIDEIN_Entry_Name ' $glidein_config | awk '{print $2}')
-if [ "x$entry" = "xOSG_US_CHTC-Spark-CE1" -o "x$entry" = "xOSG_US_ISI_osg" ]; then
+if [ "x$entry" = "xOSG_US_CHTC-Spark-CE1" -o "x$entry" = "xOSG_US_CHTC-Spark-CE1_pre" -o "x$entry" = "xOSG_US_ISI_osg" ]; then
     echo "GC testing on resource $entry"
 else
     echo "GC testing disabled on resource $entry"
