@@ -17,16 +17,20 @@ cd test
 mkdir glide_Sk31 \
     && touch -d "2 days ago" glide_Sk31 
 mkdir glide_zjf1d \
-    && touch -d "15 days ago" glide_zjf1d 
+    && mkdir -p glide_zjf1d/bad-perm-dir \
+    && touch glide_zjf1d/bad-perm-dir/bad-perm-file \
+    && chmod 644 glide_zjf1d/bad-perm-dir/bad-perm-file \
+    && chmod 000 glide_zjf1d/bad-perm-dir \
+    && touch -d "15 days ago" glide_zjf1d
 mkdir glide_5skx \
-    && touch -d "2 days ago" glide_5skx \
-    && touch -d "1 days ago" glide_5skx/_GLIDE_LEASE_FILE
+    && touch -d "1 days ago" glide_5skx/_GLIDE_LEASE_FILE \
+    && touch -d "2 days ago" glide_5skx
 mkdir glide_06ek \
-    && touch -d "2 days ago" glide_06ek \
-    && touch -d "10 minutes ago" glide_06ek/_GLIDE_LEASE_FILE
+    && touch -d "10 minutes ago" glide_06ek/_GLIDE_LEASE_FILE \
+    && touch -d "2 days ago" glide_06ek
 mkdir some_other_dir \
-    && touch -d "15 days ago" some_other_dir \
-    && mkdir some_other_dir/do-not-visit-this-dir
+    && mkdir some_other_dir/do-not-visit-this-dir \
+    && touch -d "15 days ago" some_other_dir
 
 # my own dir
 mkdir glide_3jz4 \
