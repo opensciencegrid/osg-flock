@@ -158,12 +158,12 @@ func fixPermissions(root string) error {
 		}
 
 		mode := info.Mode()
-		if mode&0700 == 0 { // Check if user rwx permission is missing
+		if mode&0700 != 0700 { // Check if user rwx permission is missing
 			newMode := mode | 0700 // Add u+rwx permission
 			if err := os.Chmod(path, newMode); err != nil {
 				return fmt.Errorf("GC: failed to chmod %s: %w", path, err)
 			}
-			fmt.Printf("GC: Fixed permissions for: %s\n", path)
+			fmt.Printf("GC: Fixed permissions (%#o to %#o) for: %s\n", mode, newMode, path)
 		}
 
 		return nil
