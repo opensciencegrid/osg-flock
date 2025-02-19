@@ -20,8 +20,13 @@ mkdir glide_zjf1d \
     && mkdir -p glide_zjf1d/bad-perm-dir \
     && touch glide_zjf1d/bad-perm-dir/bad-perm-file \
     && chmod 644 glide_zjf1d/bad-perm-dir/bad-perm-file \
-    && chmod 000 glide_zjf1d/bad-perm-dir \
+    && chmod 550 glide_zjf1d/bad-perm-dir \
     && touch -d "15 days ago" glide_zjf1d
+mkdir glide_ak4qz0 \
+    && mkdir -p glide_ak4qz0/subdir \
+    && touch glide_ak4qz0/subdir/bad-perm-file \
+    && chmod 000 glide_ak4qz0/subdir/bad-perm-file \
+    && touch -d "15 days ago" glide_ak4qz0
 mkdir glide_5skx \
     && touch -d "1 days ago" glide_5skx/_GLIDE_LEASE_FILE \
     && touch -d "2 days ago" glide_5skx
