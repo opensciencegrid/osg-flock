@@ -14,17 +14,6 @@ export glidein_config
 export TMPDIR="$PWD/tmp"
 mkdir -p $TMPDIR
 
-function get_glidein_config_value {
-    # extracts a config attribute value from 
-    # $1 is the attribute key
-    CF=$glidein_config
-    if [ "$glidein_config" = "NONE" ]; then
-        CF="$PWD/glidein_config"
-    fi
-    KEY="$1"
-    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
-    echo "$VALUE"
-}
 
 function determine_default_container_image {
     # Selects a default image to use if a job does not specify
@@ -33,8 +22,8 @@ function determine_default_container_image {
     # Example:
     # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
 
-    OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION`
-    OSG_SINGULARITY_EL7_PERCENT=`get_glidein_config_value OSG_SINGULARITY_EL7_PERCENT`
+    OSG_DEFAULT_CONTAINER_DISTRIBUTION=$(gconfig_get OSG_DEFAULT_CONTAINER_DISTRIBUTION)
+    OSG_SINGULARITY_EL7_PERCENT=$(gconfig_get OSG_SINGULARITY_EL7_PERCENT)
 
     # if we are given GPUs, pick up GPU specific images
     # make sure CUDA_VISIBLE_DEVICES is set to something sane - we
@@ -43,7 +32,7 @@ function determine_default_container_image {
        [ "$CUDA_VISIBLE_DEVICES" != "na" ] && \
        [ "$CUDA_VISIBLE_DEVICES" != "-1" ] && \
        [ "$CUDA_VISIBLE_DEVICES" != "10000" ] ; then
-        OSG_DEFAULT_CONTAINER_DISTRIBUTION=`get_glidein_config_value OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU`
+        OSG_DEFAULT_CONTAINER_DISTRIBUTION=$(gconfig_get OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU)
     fi
 
     arch=$(uname -m)
@@ -83,14 +72,14 @@ function determine_default_container_image {
 
     # Set image storage location via $IMAGES_DIR in the environment
     # or IMAGES_DIR in the glidein config
-    [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$(get_glidein_config_value IMAGES_DIR)
+    [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$(gconfig_get IMAGES_DIR)
     [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$PWD
     mkdir -p "$IMAGES_DIR"
     (( disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}') ))
     disk_free_gb=$(($disk_free / 1024 / 1024))
     pull_images=-1
-    is_itb=$(get_glidein_config_value Is_ITB_Site)
-    entry_name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+    is_itb=$(gconfig_get Is_ITB_Site)
+    entry_name=$(gconfig_get GLIDEIN_Entry_Name)
     singularity_can_use_sif=0
     
     # Make an images subdir and symlink to it from the pilot dir
@@ -188,8 +177,8 @@ if [ "$glidein_config" != "NONE" ]; then
 fi
 
 # source our helpers
-group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
-client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+group_dir=$(gconfig_get GLIDECLIENT_GROUP_WORK_DIR)
+client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
 cp -ns $client_dir/*ospool-lib $group_dir/ 2>/dev/null && echo "Linking helper(s) from $(ls $client_dir/*ospool-lib | tr '\n' ' ')" 1>&2
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib"

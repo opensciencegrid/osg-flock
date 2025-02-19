@@ -134,27 +134,13 @@ fi
 export GWMS_DIR
 
 
-
-function get_glidein_config_value {
-    # extracts a config attribute value from
-    # $1 is the attribute key
-    CF=$glidein_config
-    if [ -e "$CF.saved" ]; then
-        CF=$CF.saved
-    fi
-    KEY="$1"
-    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
-    echo "$VALUE"
-}
-
-
 # OS Pool helpers
 # source our helpers
-group_dir=$(get_glidein_config_value GLIDECLIENT_GROUP_WORK_DIR)
+group_dir=$(gconfig_get GLIDECLIENT_GROUP_WORK_DIR)
 if [ ! -d "$group_dir" ]; then
     exit_hook_stop_pilot 303 "GLIDECLIENT_GROUP_WORK_DIR ($group_dir) is empty or not a directory"
 fi
-client_dir=$(get_glidein_config_value GLIDECLIENT_WORK_DIR)
+client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
 cp -ns $client_dir/*ospool-lib $group_dir/ 2>/dev/null && echo "Linking helper(s) from $(ls $client_dir/*ospool-lib | tr '\n' ' ')" 1>&2
 if [ -e "$group_dir/itb-ospool-lib" ]; then
     source "$group_dir/itb-ospool-lib" || {
@@ -423,7 +409,7 @@ fi
 
 export UNPACK_SIF
 
-OSG_DEFAULT_SINGULARITY_IMAGE="$(get_glidein_config_value OSG_DEFAULT_SINGULARITY_IMAGE)"
+OSG_DEFAULT_SINGULARITY_IMAGE="$(gconfig_get OSG_DEFAULT_SINGULARITY_IMAGE)"
 # Verify we have a default image and that it exists.
 # I am being very strict about this because
 # - OSG_DEFAULT_SINGULARITY_IMAGE should be defined in this glidein version

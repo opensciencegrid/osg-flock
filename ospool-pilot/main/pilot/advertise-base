@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=792
+OSG_GLIDEIN_VERSION=800
 #######################################################################
 
 
@@ -56,7 +56,7 @@ function advertise {
     atype="$3"
 
     if [ "$glidein_config" != "NONE" ]; then
-        add_config_line_safe $key "$value"
+        gconfig_add_safe $key "$value"
         add_condor_vars_line $key "$atype" "-" "+" "Y" "Y" "-"
     fi
 
@@ -66,19 +66,6 @@ function advertise {
         echo "$key = $value"
     fi
 }
-
-function get_glidein_config_value {
-    # extracts a config attribute value from 
-    # $1 is the attribute key
-    CF=$glidein_config
-    if [ "$glidein_config" = "NONE" ]; then
-        CF="$PWD/glidein_config"
-    fi
-    KEY="$1"
-    VALUE=`(cat $CF | grep "^$KEY " | tail -n 1 | sed "s/^$KEY //") 2>/dev/null`
-    echo "$VALUE"
-}
-
 
 
 ###########################################################
@@ -223,10 +210,10 @@ advertise OSG_GLIDEIN_VERSION $OSG_GLIDEIN_VERSION "I"
 # the EP is registering to the production OSPool CMs, and
 # it is a generally availalbe EP for fairshare (that is,
 # no project or other START restrictions)
-GLIDEIN_Collector=$(get_glidein_config_value GLIDEIN_Collector)
-GLIDECLIENT_Group=$(get_glidein_config_value GLIDECLIENT_Group)
-GLIDEIN_Start_Extra=$(get_glidein_config_value GLIDEIN_Start_Extra)
-OSG_PROJECT_NAME=$(get_glidein_config_value OSG_PROJECT_NAME)
+GLIDEIN_Collector=$(gconfig_get GLIDEIN_Collector)
+GLIDECLIENT_Group=$(gconfig_get GLIDECLIENT_Group)
+GLIDEIN_Start_Extra=$(gconfig_get GLIDEIN_Start_Extra)
+OSG_PROJECT_NAME=$(gconfig_get OSG_PROJECT_NAME)
 OSPool="False"
 if (echo "$GLIDEIN_Collector" | grep cm-1.ospool.osg-htc.org) >/dev/null 2>&1; then
     if (echo "$GLIDECLIENT_Group" | grep -E '^(gpu|main|main-canary)$') >/dev/null 2>&1; then
@@ -376,7 +363,7 @@ advertise MONITORING_DISK_USAGE $(du -s . | awk '{print $1;}') "I"
 
 ##################
 # cvmfs filesystem availability
-GLIDEIN_Entry_Name=$(get_glidein_config_value GLIDEIN_Entry_Name)
+GLIDEIN_Entry_Name=$(gconfig_get GLIDEIN_Entry_Name)
 info "Checking for CVMFS availability and attributes..."
 for FS in \
    ams.cern.ch \
