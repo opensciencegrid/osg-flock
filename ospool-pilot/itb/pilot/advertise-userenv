@@ -128,7 +128,7 @@ if [ "x$CVMFS_BASE" = "x" ]; then
 fi
 
 if [ "x$glidein_config" = "x" ]; then
-    glidein_config="NONE"
+    glidein_config="$PWD/glidein_config"
     info "No arguments provided - assuming HTCondor startd cron mode"
 else
     info "Arguments to the script: $@"

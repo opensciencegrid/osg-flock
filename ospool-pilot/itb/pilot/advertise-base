@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=800
+OSG_GLIDEIN_VERSION=801
 #######################################################################
 
 
@@ -168,7 +168,7 @@ if [ "x$CVMFS_BASE" = "x" ]; then
 fi
 
 if [ "x$glidein_config" = "x" ]; then
-    glidein_config="NONE"
+    glidein_config="$PWD/glidein_config"
     info "No arguments provided - assuming HTCondor startd cron mode"
 else
     info "Arguments to the script: $*"
