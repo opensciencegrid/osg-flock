@@ -16,7 +16,7 @@ fi
 # GC deployment plan - initial testing only on Spark and ISI
 entry=$(grep '^GLIDEIN_Entry_Name ' $glidein_config | awk '{print $2}')
 case $entry in
-    OSG_US_CHTC-Spark-CE1|entry_OSG_US_CHTC-Spark-CE1-gpu|OSG_US_CHTC-Spark-CE1_pre|OSG_US_ISI_osg|OSG_US_Lafayette-firebird-CE1|OSG_US_Swarthmore-firebird-CE1|OSG_US_TCNJ-ELSA-CE2|OSG_US_TCNJ-ELSA-CE2_gpu|OSG_US_MSU-DataMachine-CE1|OSG_US_PSU-LIGO|OSG_US_MI-HORUS-CE1_lm|OSG_US_MTState-Tempest-CE1|OSG_US_MTState-Tempest-CE1_legacy)
+    OSG_US_CHTC-Spark-CE1|entry_OSG_US_CHTC-Spark-CE1-gpu|OSG_US_CHTC-Spark-CE1_pre|OSG_US_ISI_osg|OSG_US_Lafayette-firebird-CE1|OSG_US_Swarthmore-firebird-CE1|OSG_US_TCNJ-ELSA-CE2|OSG_US_TCNJ-ELSA-CE2_gpu|OSG_US_MSU-DataMachine-CE1|OSG_US_PSU-LIGO|OSG_US_MI-HORUS-CE1_lm|OSG_US_MTState-Tempest-CE1|OSG_US_MTState-Tempest-CE1_legacy|OSG_US_Hawaii-Koa-CE1)
         echo "GC: testing on resource $entry"
         ;;
     *)
