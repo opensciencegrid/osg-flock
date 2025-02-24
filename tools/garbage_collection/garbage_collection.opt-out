@@ -1,0 +1,3 @@
+# A list of entries to skip the garbage collection for.
+# One full entry per line.
+OSG_US_ISI_osg

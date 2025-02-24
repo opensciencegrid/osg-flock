@@ -426,6 +426,9 @@
        <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection.x86_64" after_entry="True" after_group="False"  const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
           <untar_options cond_attr="TRUE"/>
        </file>
+       <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection.opt-out" after_entry="True" after_group="False"  const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+          <untar_options cond_attr="TRUE"/>
+       </file>
        <file absfname="/opt/osg-flock/tools/garbage_collection/garbage_collection" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
           <untar_options cond_attr="TRUE"/>
        </file>
