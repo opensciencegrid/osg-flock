@@ -28,6 +28,10 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 
 	now := time.Now()
 	currentUser, err := user.Current()
+	if err != nil {
+		fmt.Printf("GC: Error determining my own uid: %v", err)
+		return candidates, time.Now().Sub(startTime).Seconds()
+	}
 	uid, err := strconv.Atoi(currentUser.Uid)
 	if err != nil {
 		fmt.Printf("GC: Error determining my own uid: %v", err)
