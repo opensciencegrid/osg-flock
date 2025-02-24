@@ -13,30 +13,24 @@ if [ "x$condor_vars" = "x" ]; then
     exit 0
 fi
 
-# GC deployment plan - initial testing only on Spark and ISI
-entry=$(grep '^GLIDEIN_Entry_Name ' $glidein_config | awk '{print $2}')
-case $entry in
-    COVID19_US_AMNH-HEL-CE1* )        echo "GC: testing on resource $entry" ;;
-    OSG_US_*-firebird-CE1 )           echo "GC: testing on resource $entry" ;;
-    OSG_US_AMNH-Mendel_osg* )         echo "GC: testing on resource $entry" ;;
-    OSG_US_CHTC-Spark-CE1* )          echo "GC: testing on resource $entry" ;;
-    OSG_US_Hawaii-Koa-CE1 )           echo "GC: testing on resource $entry" ;;
-    OSG_US_ISI_osg )                  echo "GC: testing on resource $entry" ;;
-    OSG_US_MI-HORUS-CE1* )            echo "GC: testing on resource $entry" ;;
-    OSG_US_MSU-DataMachine-CE1 )      echo "GC: testing on resource $entry" ;;
-    OSG_US_MTState-Tempest-CE1* )     echo "GC: testing on resource $entry" ;;
-    OSG_US_PSU-LIGO )                 echo "GC: testing on resource $entry" ;;
-    OSG_US_TCNJ-ELSA-CE2* )           echo "GC: testing on resource $entry" ;;
-    OSG_US_UCMerced-Pinnacles-CE1 )   echo "GC: testing on resource $entry" ;;
-    *)
-        echo "GC: testing disabled on resource $entry"
-        exit 0
-        ;;
-esac
-
 # make sure we start the script in the top level glide_XXXXX dir
 glide_dir=$(grep '^GLIDEIN_WORKSPACE_ORIG ' $glidein_config | awk '{print $2}')
 cd $glide_dir
+
+# opt out
+entry=$(grep '^GLIDEIN_Entry_Name ' $glidein_config | awk '{print $2}')
+if [ "x$entry" = "x" ]; then
+    echo "GC: Unable to determine entry name"
+    exit 0
+fi
+if [ ! -e "client/garbage_collection.opt-out" ]; then
+    echo "GC: client/garbage_collection.opt-out does not exist"
+    exit 0
+fi
+if grep -x -F "$entry" client/garbage_collection.opt-out >/dev/null 2>&1; then
+    echo "GC: testing disabled on $entry"
+    exit 0
+fi
 
 ARCH=$(uname -m)
 BIN=$(ls client/garbage_collection.$ARCH)
