@@ -32,6 +32,12 @@ if grep -x -F "$entry" client/garbage_collection.opt-out >/dev/null 2>&1; then
     exit 0
 fi
 
+# some sites do not set USER (in containers maybe) - this is required to
+# figure out our uid
+if [ "x$USER" = "x" ]; then
+    export USER=$(whoami)
+fi
+
 ARCH=$(uname -m)
 BIN=$(ls client/garbage_collection.$ARCH)
 if [ "x$BIN" != "x" ]; then
