@@ -429,7 +429,7 @@ set_condor_knob "SINGULARITY_TARGET_DIR" '/srv'
 set_condor_knob "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
 # Have Condor handle using a "default" image
-set_condor_knob "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+set_condor_knob "SINGULARITY_IMAGE_EXPR" '((ContainerImage ?: SingularityImage) ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
 # Run all jobs in singularity if we have it
 # special case - allow some OSG staff to bypass Singularity for
