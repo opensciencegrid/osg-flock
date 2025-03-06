@@ -428,8 +428,14 @@ info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 set_condor_knob "SINGULARITY_TARGET_DIR" '/srv'
 set_condor_knob "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
-# Have Condor handle using a "default" image
-set_condor_knob "SINGULARITY_IMAGE_EXPR" '((ContainerImage ?: SingularityImage) ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+DEFAULT_CONTAINER_IMAGE=$(gconfig_get OSG_DEFAULT_SINGULARITY_IMAGE)
+if [[ $DEFAULT_CONTAINER_IMAGE ]]; then
+    set_condor_knob "USE_DEFAULT_CONTAINER" "true"
+    set_condor_knob "DEFAULT_CONTAINER_IMAGE" "$DEFAULT_CONTAINER_IMAGE"
+fi
+
+set_condor_knob "SINGULARITY_IMAGE_EXPR" '((ContainerImage ?: SingularityImage) ?: "")'
+# ^^ The `?: ""` is to work around a mishandling of the 'undefined' value
 
 # Run all jobs in singularity if we have it
 # special case - allow some OSG staff to bypass Singularity for
