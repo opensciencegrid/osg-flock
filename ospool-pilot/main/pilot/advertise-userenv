@@ -80,10 +80,6 @@ find . -maxdepth 1 -name $TEST_FILE_1H.\* -mmin +60 -exec rm {} \;
 find . -maxdepth 1 -name $TEST_FILE_4H.\* -mmin +240 -exec rm {} \;
 find . -maxdepth 1 -name adv-singularity-work.\* -mmin +240 -exec rm -rf {} \;
 
-info "This is a setup script for the OSPOOL-AP frontend."
-info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
-info "Running in directory $PWD"
-    
 if [ -e glidein_config ]; then
     # gwms 
     info "GWMS directory detected. Staying in $PWD"
@@ -266,106 +262,6 @@ if [[ $HOME_COUNT -le 1 ]]; then
 fi
 advertise MinimalHome "$MINIMAL_HOME" "C"
 
-##################
-# stash
-if (cat /stash/user/test.osgconnect.1M) >/dev/null 2>&1; then
-    # ok, we can access stash, but is it ro or rw?
-    if (mount | grep " /stash" | grep ro) >/dev/null 2>&1; then
-        advertise StashReadOnly "True" "C"
-    else
-        advertise StashReadWrite "True" "C"
-    fi
-fi
-
-# advertise the version of stashcp found in $PATH
-if STASHCP_VERSION=$(stashcp --version 2>&1); then
-    STASHCP_VERSION=$(echo "$STASHCP_VERSION" | grep '^Version:' | grep -o "[0-9][0-9.]\+")
-    if [[ $STASHCP_VERSION ]]; then
-        advertise STASHCP_VERSION "$STASHCP_VERSION" "S"
-    else
-        # malformed version; assume it's broken
-        advertise STASHCP_VERSION UNDEFINED "C"
-        advertise STASHCP_VERIFIED "False" "C"
-    fi
-else
-    # version check failed; we don't actually have a working stashcp
-    advertise STASHCP_VERSION UNDEFINED "C"
-    advertise STASHCP_VERIFIED "False" "C"
-fi
-
-
-# modules
-RESULT="False"
-find . -maxdepth 1 -name $TEST_FILE_1H.modules -mmin +8 -exec rm {} \;
-if [ -e $TEST_FILE_1H.modules ]; then
-    RESULT=`cat $TEST_FILE_1H.modules`
-else
-   # extra check to make sure we can read a file
-   if cat "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/README.txt >/dev/null 2>&1; then
-      if cat "$CVMFS_BASE"/connect.opensciencegrid.org/modules/spack/bin/spack >/dev/null 2>&1; then
-          if (. "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail) >/dev/null 2>&1; then
-              # also make sure module avail is not throwing a stack trace
-              if ! (. "$CVMFS_BASE"/oasis.opensciencegrid.org/osg/sw/module-init.sh && module avail 2>&1 | grep traceback) >/dev/null 2>&1; then
-                  RESULT="True"
-                  echo "True" > $TEST_FILE_1H.modules
-              else
-                  echo "False" > $TEST_FILE_1H.modules
-              fi
-          fi
-      fi
-   fi
-fi
-advertise HAS_MODULES "$RESULT && HAS_CVMFS_oasis_opensciencegrid_org && HAS_CVMFS_connect_opensciencegrid_org" "C"
-
-
-##################
-# Java - rely on HTCondor detection
-
-advertise HAS_JAVA "HasJava" "C"
-
-
-##################
-# basic tools
-
-for TOOL in \
-    scp \
-    rsync \
-    zip \
-    tcsh \
-    unzip \
-; do
-    if which $TOOL >/dev/null 2>&1; then
-        advertise HAS_$TOOL "True" "C"
-    else
-        advertise HAS_$TOOL "False" "C"
-    fi
-done
-
-##################
-# gfal
-
-# this is a one-shot test - this no longer works due to gwms delegating to 1024 bit
-# keys which are not accepted by EL8 hosts
-#GFAL_VERIFIED="False"
-#if [ -e $TEST_FILE_4H.gfal ]; then
-#    GFAL_VERIFIED=`cat $TEST_FILE_4H.gfal`
-#elif $TIMEOUT_CMD gfal-copy -t 10 -f gsiftp://workflow.isi.edu/dev/null file:///dev/null >/dev/null 2>&1; then
-#    GFAL_VERIFIED="True"
-#    echo "True" > $TEST_FILE_4H.gfal
-#else
-#    echo "False" > $TEST_FILE_4H.gfal
-#fi
-#advertise GFAL_VERIFIED "$GFAL_VERIFIED" "C"
-
-##################
-# guc
-
-GUC_PATH=`which globus-url-copy 2>/dev/null`
-if [ "X$GUC_PATH" = "X" ]; then
-    GUC_PATH="NA"
-fi
-advertise GUC_PATH "$GUC_PATH" "S"
-
 
 ##################
 # xrdcp
@@ -375,46 +271,6 @@ if xrdcp --version >/dev/null 2>&1; then
     HAS_XRDCP="True"
 fi
 advertise HAS_XRDCP "$HAS_XRDCP" "C"
-
-
-
-##################
-# some basic libs
-for LIB in \
-    /lib64/libgcc_s.so.1 \
-    /lib64/libglib-2.0.so.0 \
-    /usr/lib64/atlas/libatlas.so.3 \
-    /usr/lib64/atlas/liblapack.so.3 \
-    /usr/lib64/atlas/libptf77blas.so.3 \
-    /usr/lib64/libgfortran.so.3 \
-    /usr/lib64/libglib-2.0.so \
-    /usr/lib64/libgmp.so.3 \
-    /usr/lib64/libgslcblas.so.0 \
-    /usr/lib64/libgsl.so.0 \
-    /usr/lib64/libgsl.so.0 \
-    /usr/lib64/libgtk-x11-2.0.so.0 \
-    /usr/lib64/libicuuc.so.42 \
-    /usr/lib64/libstdc++.so.6 \
-    /usr/lib64/libtk8.5.so \
-    /usr/lib64/libxcb.so.1 \
-    /usr/lib64/libXdmcp.so.6 \
-    /usr/lib64/libXm.so.4 \
-    /usr/lib64/libXmu.so.6 \
-    /usr/lib64/libXpm.so.4 \
-    /usr/lib64/libXt.so.6 \
-; do
-    ATTR="HAS_FILE"`echo $LIB | sed 's/[\.\/\+\-]/_/g'`
-    HAS_LIB="False"
-    if [ -e $LIB ]; then
-        HAS_LIB="True"
-    fi
-    advertise $ATTR "$HAS_LIB" "C"
-done
-
-# need a better way to figure this one out
-if [ -e /usr/share/doc/glib2-2.28.8 ]; then
-    advertise HAS_GLIB2_228 "True" "C"
-fi
 
 
 ##################
@@ -431,6 +287,7 @@ if g++ --version >/dev/null 2>&1; then
     HAS_GPP="True"
 fi
 advertise HAS_GPP "$HAS_GPP" "C"
+
 
 ##################
 # R
@@ -484,40 +341,4 @@ advertise HAS_NUMPY "$Has_Numpy_Scipy" "C"
 rm -f py.check
 
 
-##################
-# matlab
-
-advertise MATLAB_COMPATIBLE "HAS_MODULES && HAS_FILE_usr_lib64_libXt_so_6" "C"
-
-
-##################
-# Blast
-
-info "Checking for blast availability..."
-
-APP_BASE=$OSG_APP/`whoami`/ncbi-blast-2.2.28+
-DATA_BASE=$OSG_DATA/`whoami`/blastdb
-
-HAS_BLAST="False"
-if [ -e "$APP_BASE/bin/blastp" -a -e "$DATA_BASE/nr.00.phr" ]; then
-
-    # let's do a specific test to make sure things work
-    export BLASTDB=$OSG_DATA/`whoami`/blastdb
-    export PATH=$APP_BASE/bin:$PATH
-    #echo ">test query" > test.fasta
-    #echo "ACGTCCGAGACGCGAGCAGCGAGCAGCAGAGCGACGAGCAGCGACGA" >> test.fasta
-    #if (blastp -db nr -query test.fasta) >/dev/null; then
-        HAS_BLAST="True"
-
-        # we also want to put the dirs in the environment
-        advertise BLAST_INSTALL_DIR "$APP_BASE" "S"
-
-        advertise BLAST_DB_DIR "$DATA_BASE" "S"
-    #fi
-fi
-advertise HAS_BLAST "$HAS_BLAST" "C"
-
-
-##################
-info "All done - time to do some real work!"
 
