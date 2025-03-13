@@ -132,12 +132,6 @@
             <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -151,6 +145,12 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -213,12 +213,6 @@
             <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -232,6 +226,12 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -293,12 +293,6 @@
             <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -312,6 +306,12 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>
@@ -376,12 +376,6 @@
             <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/tcpping.py" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/where-am-i" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -398,6 +392,12 @@
                <untar_options cond_attr="TRUE"/>
             </file>
             <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
+            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
          </files>

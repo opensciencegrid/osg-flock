@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=813
+OSG_GLIDEIN_VERSION=814
 #######################################################################
 
 
@@ -100,8 +100,6 @@ touch log/StarterLog
 export GLIDEIN_VALIDATION_EXPR="True"
 export GLIDEIN_VALIDATION_WARNINGS=""
 
-info "This is a setup script for the OSPool frontend."
-info "In case of problems, contact Mats Rynge (rynge@isi.edu)"
 info "Running in directory $PWD"
     
 if [ -e glidein_config ]; then
@@ -444,11 +442,6 @@ for FS in \
             RESULT="False"
         fi
        
-        # UUTAH is special case - broken NFS
-        if (echo "$GLIDEIN_Entry_Name" | egrep -i "UUTAH") >/dev/null 2>&1; then
-            RESULT="False"
-        fi
-        
         # disable singularity if the singularity cvmfs has errors
         if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWMS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
             if [ $RESULT = "False" ]; then
