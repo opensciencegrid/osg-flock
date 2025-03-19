@@ -139,6 +139,7 @@ function determine_default_container_image {
         WEEK=$(date +'%V')
         OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/$arch/$IMAGE_NAME.sif
         HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/$arch/$IMAGE_NAME.sif
+        info "Starting download of default image ($IMAGE_NAME)"
         (osdf_download $IMAGE_PATH $OSDF_URL \
             || http_download $IMAGE_PATH $HTTP_URL \
             || singularity pull --force $IMAGE_PATH docker://hub.opensciencegrid.org/$SELECTED_IMAGE) >$IMAGE_PATH.log 2>&1
