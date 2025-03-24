@@ -15,6 +15,64 @@ export TMPDIR="$PWD/tmp"
 mkdir -p $TMPDIR
 
 
+function pull_default_container_image {
+    local arch download_ok
+
+    arch=$(arch)
+    download_ok=false
+
+
+
+    #
+    # pull the image into a Singularity SIF file
+    # Attempt a download via OSDF first, then HTTP, then a pull from Harbor
+    #
+    IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
+    IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
+    WEEK=$(date +'%V')
+    OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/$arch/$IMAGE_NAME.sif
+    HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/$arch/$IMAGE_NAME.sif
+    HARBOR_URL=docker://hub.opensciencegrid.org/$SELECTED_IMAGE
+    download_ok=0
+    info "Starting download of default image ($IMAGE_NAME)"
+    info "Downloading via OSDF from $OSDF_URL"
+    if osdf_download "$IMAGE_PATH" "$OSDF_URL" &>"$IMAGE_PATH.log"; then
+        info "OSDF download successful"
+        download_ok=1
+        advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
+    else
+        my_warn "OSDF download failed"
+        info "Downloading via HTTP from $HTTP_URL"
+        if http_download "$IMAGE_PATH" "$HTTP_URL" &>"$IMAGE_PATH.log"; then
+            info "HTTP download successful"
+            download_ok=1
+            advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "HTTP" "S"
+        else
+            my_warn "HTTP download failed"
+            info "Downloading from Docker registry at $HARBOR_URL"
+            if singularity pull --force "$IMAGE_PATH" "$HARBOR_URL" &>"$IMAGE_PATH.log"; then
+                info "Registry download successful"
+                download_ok=1
+                advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "Registry" "S"
+            else
+                my_warn "Registry download failed"
+            fi
+        fi
+    fi
+
+    if [ $download_ok = 1 ]; then
+        advertise ALLOW_NONCVMFS_IMAGES "True" "C"
+        advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
+        advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_PATH" "S"
+        advertise REQUIRED_OS "default" "S"
+        advertise OSG_DEFAULT_SINGULARITY_IMAGE "$IMAGE_PATH" "S"
+        return 0
+    else
+        my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
+    fi
+}
+
+
 function determine_default_container_image {
     # Selects a default image to use if a job does not specify
     # an image to use. The new style to specify this is with an
@@ -133,53 +191,7 @@ function determine_default_container_image {
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
-        #
-        # pull the image into a Singularity SIF file
-        # Attempt a download via OSDF first, then HTTP, then a pull from Harbor
-        #
-        IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
-        IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-        WEEK=$(date +'%V')
-        OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/$arch/$IMAGE_NAME.sif
-        HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/$arch/$IMAGE_NAME.sif
-        HARBOR_URL=docker://hub.opensciencegrid.org/$SELECTED_IMAGE
-        download_ok=0
-        info "Starting download of default image ($IMAGE_NAME)"
-        info "Downloading via OSDF from $OSDF_URL"
-        if osdf_download "$IMAGE_PATH" "$OSDF_URL" &>"$IMAGE_PATH.log"; then
-            info "OSDF download successful"
-            download_ok=1
-            advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
-        else
-            my_warn "OSDF download failed"
-            info "Downloading via HTTP from $HTTP_URL"
-            if http_download "$IMAGE_PATH" "$HTTP_URL" &>"$IMAGE_PATH.log"; then
-                info "HTTP download successful"
-                download_ok=1
-                advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "HTTP" "S"
-            else
-                my_warn "HTTP download failed"
-                info "Downloading from Docker registry at $HARBOR_URL"
-                if singularity pull --force "$IMAGE_PATH" "$HARBOR_URL" &>"$IMAGE_PATH.log"; then
-                    info "Registry download successful"
-                    download_ok=1
-                    advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "Registry" "S"
-                else
-                    my_warn "Registry download failed"
-                fi
-            fi
-        fi
-
-        if [ $download_ok = 1 ]; then
-            advertise ALLOW_NONCVMFS_IMAGES "True" "C"
-            advertise GWMS_SINGULARITY_PULL_IMAGES "True" "C"
-            advertise SINGULARITY_IMAGES_DICT "default:$IMAGE_PATH" "S"
-            advertise REQUIRED_OS "default" "S"
-            advertise OSG_DEFAULT_SINGULARITY_IMAGE "$IMAGE_PATH" "S"
-            return 0
-        else
-            my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
-        fi
+        pull_default_container_image
     fi
 
     # prepend the base bath
