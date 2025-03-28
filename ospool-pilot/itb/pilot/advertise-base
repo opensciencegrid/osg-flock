@@ -247,7 +247,7 @@ for PORT in 80 1094 2880 8000 8443 27017; do
         OUT=$(cat $TEST_FILE_4H.port.$PORT)
     else
         OUT="False"
-        if curl --fail --silent --retry 0 --max-time 15 -o /dev/null http://ospool-network-test.osg.chtc.io:$PORT; then
+        if http_proxy="" curl --fail --silent --retry 0 --max-time 15 -o /dev/null http://ospool-network-test.osg.chtc.io:$PORT; then
             OUT="True"
         fi
         echo $OUT >$TEST_FILE_4H.port.$PORT
@@ -264,9 +264,11 @@ advertise OUTBOUND_FIREWALL "$OUTBOUND_FIREWALL" "C"
 # verify http_proxy/OSG_SQUID_LOCATION
 PROXY_CHECKS=0
 PROXY_LOCATION=""
+PROXY_BROKEN=""
 if [ -e $TEST_FILE_4H.http_proxy.checks ]; then
     PROXY_CHECKS=$(cat $TEST_FILE_4H.http_proxy.checks)
     PROXY_LOCATION=$(cat $TEST_FILE_4H.http_proxy.location)
+    PROXY_BROKEN=$(cat $TEST_FILE_4H.http_proxy.broken)
 else
     CURL=$(curl --version 2>/dev/null)
     for PROXY_CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
@@ -279,10 +281,13 @@ else
         if [ $? = 0 ]; then
             PROXY_LOCATION="$PROXY_CANDIDATE"
             break
+        else
+            PROXY_BROKEN="$PROXY_BROKEN $PROXY_CANDIDATE"
         fi
     done
     echo $PROXY_CHECKS >$TEST_FILE_4H.http_proxy.checks
     echo $PROXY_LOCATION >$TEST_FILE_4H.http_proxy.location
+    echo $PROXY_BROKEN >$TEST_FILE_4H.http_proxy.broken
 fi
 
 if [ "x$PROXY_LOCATION" = "x" -a $PROXY_CHECKS -gt 0 ]; then
@@ -291,6 +296,9 @@ if [ "x$PROXY_LOCATION" = "x" -a $PROXY_CHECKS -gt 0 ]; then
 fi
 if [ "x$PROXY_LOCATION" != "x" ]; then
     advertise "http_proxy" "$PROXY_LOCATION" "S"
+fi
+if [ "x$PROXY_BROKEN" != "x" ]; then
+    advertise "http_proxy_broken" "$PROXY_BROKEN" "S"
 fi
 
 # some images require unsquashfs
