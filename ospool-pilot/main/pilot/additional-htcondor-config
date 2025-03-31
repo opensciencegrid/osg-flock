@@ -419,7 +419,6 @@ unset OLDIFS
 set_condor_knob "SINGULARITY_BIND_EXPR" "\"${SINGULARITY_BIND_EXPR}\""
 info "SINGULARITY_BIND_EXPR is \"${SINGULARITY_BIND_EXPR}\""
 
-if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     # Glideinwms used /srv as the scratch directory, we should do the same
     set_condor_knob "SINGULARITY_TARGET_DIR" '/srv'
     set_condor_knob "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
@@ -444,19 +443,12 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
         info "Leaving SINGULARITY_DISABLE_PID_NAMESPACES at default"
     fi
 
-    gconfig_add "OSG_USING_JOB_HOOK" "true"
-else
-    gconfig_add "OSG_USING_JOB_HOOK" "false"
-fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
-
-# Not a knob -- I am advertising it so I can see it in condor_status
-add_condor_vars_line "OSG_USING_JOB_HOOK" "C" "-" "+" "Y" "Y" "-"
+    advertise "OSG_USING_JOB_HOOK" "true" "C"
 
 ###########################################################
 # Add prepare hook to do the OSPool-specific transform of
 # the Singularity container outside of the glidein default
 # image.
-if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     glidein_group_dir=$(gconfig_get GLIDECLIENT_GROUP_WORK_DIR)
     glidein_client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
     cp -ns $glidein_client_dir/*prepare-hook* $glidein_group_dir/ 2>/dev/null && \
@@ -470,19 +462,13 @@ if [[ ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK ]]; then
     if [[ ! -e $hook_path ]]; then  # should not happen
         warn "job hook not found"
         gconfig_add "HAS_SINGULARITY" "false"
-        gconfig_add "SINGULARITY_COMMENT" "Disabled due to missing job hook"
-        add_condor_vars_line "SINGULARITY_COMMENT" "S" "-" "+" "Y" "Y" "-"
-        gconfig_add "OSG_USING_JOB_HOOK" "false"
+        advertise "SINGULARITY_COMMENT" "Disabled due to missing job hook" "S"
+        advertise "OSG_USING_JOB_HOOK" "false" "C"
     else
-        # TODO: these can all be replaced with set_condor_knob
-        gconfig_add "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
-        add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB" "C" "-" "OSPOOL_HOOK_PREPARE_JOB" "N" "N" "-"
-        gconfig_add "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
-        add_condor_vars_line "STARTER_JOB_HOOK_KEYWORD" "C" "-" "STARTER_JOB_HOOK_KEYWORD" "N" "N" "-"
-        gconfig_add "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
-        add_condor_vars_line "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "C" "-" "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "N" "N" "-"
+        set_condor_knob "OSPOOL_HOOK_PREPARE_JOB" "$hook_path"
+        set_condor_knob "STARTER_JOB_HOOK_KEYWORD" "OSPOOL"
+        set_condor_knob "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
     fi
-fi  # ! $IS_CONTAINER_PILOT || $CONTAINER_PILOT_USE_JOB_HOOK
 
 
 # Miscellaneous debugging if any
