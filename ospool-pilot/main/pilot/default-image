@@ -69,6 +69,7 @@ function pull_default_container_image {
         return 0
     else
         my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
+        return 1
     fi
 }
 
@@ -191,7 +192,9 @@ function determine_default_container_image {
         pull_images=1
     fi
     if [ $pull_images = 1 ]; then
-        pull_default_container_image
+        if pull_default_container_image; then
+            return
+        fi
     fi
 
     # prepend the base bath
