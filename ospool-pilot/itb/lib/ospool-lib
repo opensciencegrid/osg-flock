@@ -82,19 +82,19 @@ function check_singularity_overrides {
 }
 
 function osdf_download {
-    # Use stashcp to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
+    # Use pelican to download a sif file; if the destination does not end in .sif, unpack the sif into the sandbox format
     local dest="$1"
     local src="$2"
 
     local dest_sif="${dest%.sif}.sif"
-    local client_dir=$(gconfig_get GLIDECLIENT_WORK_DIR)
+    local work_dir=$(gconfig_get GLIDEIN_WORK_DIR)
 
-    if [ -e $client_dir/stashcp ]; then
+    if [ -e $work_dir/condor/usr/bin/pelican ]; then
         rm -rf "$dest" \
-            && $client_dir/stashcp "$src" "$dest_sif"
+            && $work_dir/condor/usr/bin/pelican object get "$src" "$dest_sif"
         ret=$?
     else
-        warn "stashcp is not available"
+        warn "pelican is not available"
         return 255
     fi
 
