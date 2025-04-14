@@ -340,7 +340,9 @@ fi
 if [[ $OSDF_PLUGIN ]]; then
     # add_to_debug "Stash/OSDF plugin found at" "$OSDF_PLUGIN"
     # UA Little Rock ITS: https://support.opensciencegrid.org/a/tickets/78070
-    if (echo "$glidein_site" | grep -E "UA Little Rock ITS") >/dev/null 2>&1; then
+    # MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
+    # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
+    if (echo "$glidein_site" | grep -E "UA Little Rock ITS|MI-HORUS|MSU-DataMachine") >/dev/null 2>&1; then
         OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
     else
         if osdf_plugin_is_ok "$OSDF_PLUGIN"; then
