@@ -227,6 +227,13 @@ osdf_plugin_is_ok () {
             # So close!
             OSDF_FAIL_REASON="Failure getting plugin version!"
         fi
+
+        # 7.11.0 is the minimal version we want to use
+        if [ "x$OSDF_FAIL_REASON" = "x" ]; then
+            if ! (printf '%s\n%s\n' "7.11.0" "$OSDF_PLUGIN_VERSION" | sort --check=quiet --version-sort); then
+                OSDF_FAIL_REASON="Plugin is too old ($OSDF_PLUGIN_VERSION)."
+            fi
+        fi
     else
         if [ "$?" -eq "124" ]; then
             OSDF_FAIL_REASON="Failed (timed out after 120s)!"
