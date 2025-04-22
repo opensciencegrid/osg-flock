@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=823
+OSG_GLIDEIN_VERSION=824
 #######################################################################
 
 
@@ -513,8 +513,8 @@ fi
 
 # this is now handled in additional-htcondor-config - just advertise
 # some old attributes for backward compatibility
-advertise OSDF_VERIFIED "OSDF_PLUGIN_VERSION =!= UNDEFINED" "C"
-advertise STASHCP_VERIFIED "OSDF_PLUGIN_VERSION =!= UNDEFINED" "C"
+advertise OSDF_VERIFIED "PelicanPluginVersion =!= UNDEFINED" "C"
+advertise STASHCP_VERIFIED "PelicanPluginVersion =!= UNDEFINED" "C"
 
 ###########################################################
 # Project restriction
