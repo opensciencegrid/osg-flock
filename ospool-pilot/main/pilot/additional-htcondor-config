@@ -342,7 +342,8 @@ if [[ $OSDF_PLUGIN ]]; then
     # MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
     # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
     # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
-    if (echo "$glidein_site" | grep -E "UA Little Rock ITS|MI-HORUS|MSU-DataMachine|USD-Lawrence") >/dev/null 2>&1; then
+    # Lehigh - Hawk: observed failures on stageout due to 403 Forbidden.  Emailed 4/23/25; B. Lin is debugging. -- BB
+    if (echo "$glidein_site" | grep -E "UA Little Rock ITS|MI-HORUS|MSU-DataMachine|USD-Lawrence|Lehigh") >/dev/null 2>&1; then
         OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
     else
         if osdf_plugin_is_ok "$OSDF_PLUGIN"; then
