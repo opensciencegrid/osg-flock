@@ -354,6 +354,7 @@ if [ "x$OSG_SINGULARITY_REEXEC" = "x" ]; then
        ams.cern.ch \
        atlas.cern.ch \
        cms.cern.ch \
+       ara.opensciencegrid.org \
        connect.opensciencegrid.org \
        eic.opensciencegrid.org \
        gwosc.osgstorage.org \

@@ -374,6 +374,7 @@ for FS in \
    belle.cern.ch \
    clicdp.cern.ch \
    cms.cern.ch \
+   ara.opensciencegrid.org \
    connect.opensciencegrid.org \
    eic.opensciencegrid.org \
    gluex.osgstorage.org \
