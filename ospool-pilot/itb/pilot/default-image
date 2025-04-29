@@ -89,6 +89,7 @@ function determine_default_container_image {
     # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
 
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=$(gconfig_get OSG_DEFAULT_CONTAINER_DISTRIBUTION)
+    arch=$(arch)
 
     # if we are given GPUs, pick up GPU specific images
     # make sure CUDA_VISIBLE_DEVICES is set to something sane - we
@@ -124,6 +125,11 @@ function determine_default_container_image {
         else
             SELECTED_IMAGE="htc/rocky:9"
         fi
+    fi
+
+    # temp for arm until we get the image repos/syncing in place
+    if [ "X$arch" = "Xaarch64" ]; then
+        SELECTED_IMAGE="htc/rocky:9"
     fi
 
     # Should we use pull or use CVMFS? The default is pulling
