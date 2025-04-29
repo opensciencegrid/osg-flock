@@ -21,29 +21,36 @@ function pull_default_container_image {
     arch=$(arch)
     download_ok=false
 
-
-
     #
     # pull the image into a Singularity SIF file
-    # Attempt a download via OSDF first, then HTTP, then a pull from Harbor
+    # Attempt a download via Pelican first, then HTTP, then a pull from Harbor
     #
     IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
     IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-    WEEK=$(date +'%V')
-    OSDF_URL=osdf:///ospool/uc-shared/public/OSG-Staff/images/$WEEK/$arch/$IMAGE_NAME.sif
-    HTTP_URL=http://ospool-images.osgprod.tempest.chtc.io/$WEEK/$arch/$IMAGE_NAME.sif
+    HTTP_BASE=https://ospool-images.osgprod.tempest.chtc.io/v2
+    PELICAN_BASE=pelican://osg-htc.org/ospool/uc-shared/public/OSG-Staff/images/v2
     HARBOR_URL=docker://hub.opensciencegrid.org/$SELECTED_IMAGE
+
+    # first, we have to do a HTTP call to get the latest version of the selected image
+    LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 $HTTP_BASE/$arch/$IMAGE_NAME/latest.txt)
+    if [ "x$LATEST" = "x" ]; then
+        my_warn "Unable to determine the latest sif for $IMAGE_NAME"
+        return 1
+    fi
+
+    URL_PATH="$arch/$IMAGE_NAME/$LATEST"
+
     download_ok=0
     info "Starting download of default image ($IMAGE_NAME)"
-    info "Downloading via OSDF from $OSDF_URL"
-    if osdf_download "$IMAGE_PATH" "$OSDF_URL" &>"$IMAGE_PATH.log"; then
-        info "OSDF download successful"
+    info "Downloading via Pelican from $PELICAN_BASE/$URL_PATH"
+    if osdf_download "$IMAGE_PATH" "$PELICAN_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; then
+        info "Pelican download successful"
         download_ok=1
         advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
     else
-        my_warn "OSDF download failed"
-        info "Downloading via HTTP from $HTTP_URL"
-        if http_download "$IMAGE_PATH" "$HTTP_URL" &>"$IMAGE_PATH.log"; then
+        my_warn "Pelican download failed"
+        info "Downloading via HTTP from $HTTP_BASE/$URL_PATH"
+        if http_download "$IMAGE_PATH" "$HTTP_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; then
             info "HTTP download successful"
             download_ok=1
             advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "HTTP" "S"
@@ -68,7 +75,7 @@ function pull_default_container_image {
         advertise OSG_DEFAULT_SINGULARITY_IMAGE "$IMAGE_PATH" "S"
         return 0
     else
-        my_warn "Failed to pull $SELECTED_IMAGE; falling back to CVMFS"
+        my_warn "Failed to pull $SELECTED_IMAGE via https/pelican/registry"
         return 1
     fi
 }
@@ -82,7 +89,7 @@ function determine_default_container_image {
     # 70%__opensciencegrid/osgvo-el7:latest 20%__opensciencegrid/osgvo-el6:latest 8%__opensciencegrid/osgvo-ubuntu-18.04:latest 2%__opensciencegrid/osgvo-debian-10:latest 
 
     OSG_DEFAULT_CONTAINER_DISTRIBUTION=$(gconfig_get OSG_DEFAULT_CONTAINER_DISTRIBUTION)
-    OSG_SINGULARITY_EL7_PERCENT=$(gconfig_get OSG_SINGULARITY_EL7_PERCENT)
+    arch=$(arch)
 
     # if we are given GPUs, pick up GPU specific images
     # make sure CUDA_VISIBLE_DEVICES is set to something sane - we
@@ -93,8 +100,6 @@ function determine_default_container_image {
        [ "$CUDA_VISIBLE_DEVICES" != "10000" ] ; then
         OSG_DEFAULT_CONTAINER_DISTRIBUTION=$(gconfig_get OSG_DEFAULT_CONTAINER_DISTRIBUTION_GPU)
     fi
-
-    arch=$(uname -m)
 
     SELECTED_IMAGE=""
     if [ "x$OSG_DEFAULT_CONTAINER_DISTRIBUTION" != "x" ]; then
@@ -127,19 +132,15 @@ function determine_default_container_image {
         SELECTED_IMAGE="htc/rocky:9"
     fi
 
-    # Should we use CVMFS or pull images directly?
+    # Should we use pull or use CVMFS? The default is pulling
+    pull_images=1
 
     # Set image storage location via $IMAGES_DIR in the environment
     # or IMAGES_DIR in the glidein config
     [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$(gconfig_get IMAGES_DIR)
     [[ -n $IMAGES_DIR ]] || IMAGES_DIR=$PWD
     mkdir -p "$IMAGES_DIR"
-    (( disk_free=$(df -kP "$IMAGES_DIR" 2>/dev/null | awk '{if (NR==2) print $4}') ))
-    disk_free_gb=$(($disk_free / 1024 / 1024))
-    pull_images=-1
-    is_itb=$(gconfig_get Is_ITB_Site)
     entry_name=$(gconfig_get GLIDEIN_Entry_Name)
-    singularity_can_use_sif=0
     
     # Make an images subdir and symlink to it from the pilot dir
     # The subdir will contain the hostname so we can read the link to find out what host it's on
@@ -152,45 +153,21 @@ function determine_default_container_image {
     rm -f "$IMAGES_SUBDIR/.test"
     ln -snf "$IMAGES_SUBDIR" images
 
-    # the images dir is required here, as we want to keep a copy of the image for this test
-    if check_singularity_sif_support; then
-        singularity_can_use_sif=1
-    fi
-
-    # temp for arm until we get the image repos/syncing in place
-    if [ "X$arch" = "Xaarch64" ]; then
-        # have to pull, cvmfs sync is not yet ready
-        pull_images=1
-    fi
-
-    if [[ $pull_images -ge 0 ]]; then
-        # decision already made
-        :
-    elif (uname -r | egrep '^3\.') >/dev/null 2>&1; then
+    # a set of rules for disabling pulling
+    if (uname -r | egrep '^3\.') >/dev/null 2>&1; then
         # do not allow .sif images on 3.x kernels (OSPOOL-18)
         info "Not allowing non-CVMFS images because of the kernel version"
         pull_images=0
     elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Syracuse|Nebraska") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
-    elif [ $singularity_can_use_sif = 0 ]; then
+    elif !check_singularity_sif_support; then
         # Forbid running non-CVMFS images if they have to be unpacked first.
         # May change later if we find sites where this is "safe."
         info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
         pull_images=0
-    elif [[ $disk_free_gb -lt 10 ]]; then
-        info "Not allowing non-CVMFS images, as the site does not have enough free disk space on the images volume ($disk_free_gb GBs)"
-        pull_images=0
-    elif [ "x$ALLOW_NONCVMFS_IMAGES" != "x" ]; then
-        info "Allowing non-CVMFS images because \$ALLOW_NONCVMFS_IMAGES is set"
-        pull_images=1
-    elif (echo "x$entry_name" | egrep "Utah|Clemson|ELSA|ODU-Ubuntu|Stampede2|UTC-Epyc") >/dev/null 2>&1; then
-        info "Allowing non-CVMFS images because of the entry name: $entry_name"
-        pull_images=1
-    elif ! (ls /cvmfs/singularity.opensciencegrid.org/) >/dev/null 2>&1; then
-        info "Allowing non-CVMFS images because /cvmfs/singularity.opensciencegrid.org/ is not available"
-        pull_images=1
     fi
+
     if [ $pull_images = 1 ]; then
         if pull_default_container_image; then
             return
