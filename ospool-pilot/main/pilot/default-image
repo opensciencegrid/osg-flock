@@ -27,7 +27,7 @@ function pull_default_container_image {
     #
     IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
     IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-    HTTP_BASE=https://ospool-images.osgprod.tempest.chtc.io/v2
+    HTTP_BASE=http://ospool-images.osgprod.tempest.chtc.io/v2
     PELICAN_BASE=pelican://osg-htc.org/ospool/uc-shared/public/OSG-Staff/images/v2
     HARBOR_URL=docker://hub.opensciencegrid.org/$SELECTED_IMAGE
 
@@ -75,7 +75,7 @@ function pull_default_container_image {
         advertise OSG_DEFAULT_SINGULARITY_IMAGE "$IMAGE_PATH" "S"
         return 0
     else
-        my_warn "Failed to pull $SELECTED_IMAGE via https/pelican/registry"
+        my_warn "Failed to pull $SELECTED_IMAGE via http/pelican/registry"
         return 1
     fi
 }
@@ -161,7 +161,7 @@ function determine_default_container_image {
     elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Syracuse|Nebraska") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
-    elif !check_singularity_sif_support; then
+    elif ! check_singularity_sif_support; then
         # Forbid running non-CVMFS images if they have to be unpacked first.
         # May change later if we find sites where this is "safe."
         info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
