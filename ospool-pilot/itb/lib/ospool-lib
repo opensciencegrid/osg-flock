@@ -91,7 +91,7 @@ function osdf_download {
 
     # find a pelican client to use
     for PELICAN in $work_dir/condor/usr/bin/pelican /usr/bin/pelican $(which pelican 2>/dev/null); do
-        if [ -e $PELICAN ];
+        if [ -e $PELICAN ]; then
             break
         fi
     done
