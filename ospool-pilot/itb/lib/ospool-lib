@@ -89,9 +89,16 @@ function osdf_download {
     local dest_sif="${dest%.sif}.sif"
     local work_dir=$(gconfig_get GLIDEIN_WORK_DIR)
 
-    if [ -e $work_dir/condor/usr/bin/pelican ]; then
+    # find a pelican client to use
+    for PELICAN in $work_dir/condor/usr/bin/pelican /usr/bin/pelican $(which pelican 2>/dev/null); do
+        if [ -e $PELICAN ];
+            break
+        fi
+    done
+
+    if [ "x$PELICAN" != "x" -a -e $PELICAN ]; then
         rm -rf "$dest" \
-            && $work_dir/condor/usr/bin/pelican object get "$src" "$dest_sif"
+            && $PELICAN object get "$src" "$dest_sif"
         ret=$?
     else
         warn "pelican is not available"
