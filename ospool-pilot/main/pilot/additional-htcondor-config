@@ -285,7 +285,15 @@ set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
 #
 # If set to "condor", it will use what's in the Condor tarball.  (This can be
 # used to override a non-Condor default.)
-DEFAULT_DOWNLOAD_PELICAN_VERSION=condor
+# Handle itb and production differently
+GLIDECLIENT_Group=$(gconfig_get GLIDECLIENT_Group)
+if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
+    # ITB
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.16.1-rc.0
+else
+    # Production
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=condor
+fi
 
 if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
     DOWNLOAD_PELICAN_VERSION=$(gconfig_get DOWNLOAD_PELICAN_VERSION)
@@ -430,7 +438,7 @@ set_condor_knob "SINGULARITY_TARGET_DIR" '/srv'
 set_condor_knob "SINGULARITY_EXTRA_ARGUMENTS" '"--home $_CONDOR_SCRATCH_DIR:/srv"'
 
 # Have Condor handle using a "default" image
-set_condor_knob "SINGULARITY_IMAGE_EXPR" '(SingularityImage ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
+set_condor_knob "SINGULARITY_IMAGE_EXPR" '((ContainerImage ?: SingularityImage) ?: OSG_DEFAULT_SINGULARITY_IMAGE)'
 
 # Run all jobs in singularity if we have it
 # special case - allow some OSG staff to bypass Singularity for
