@@ -268,11 +268,63 @@ download_and_extract_pelican () {
 #       main/condor/
 if [[ $IS_CONTAINER_PILOT ]]; then
     CONDOR_DIR=/usr
+    REAL_CONDOR_DIR=/usr
     CONDOR_LIBEXEC=/usr/libexec/condor
 else
     CONDOR_DIR=$(gconfig_get CONDOR_DIR)
+    # shellcheck disable=SC2086
+    REAL_CONDOR_DIR=$(echo $CONDOR_DIR/condor-*/usr)
+    # ^^ the "echo" is needed to expand the glob
     CONDOR_LIBEXEC=$CONDOR_DIR/libexec
 fi
+
+
+condor_version_pattern='CondorVersion:\ ([0-9]+)\.([0-9]+)\.([0-9]+)'
+# Get and parse condor version so we can add version-specific knobs.
+# If we were to have full control over the condor config, we could use an
+# `if` construct, but in a factory pilot we need to put everything into the
+# glidein config, which doesn't support that syntax.
+pilot_condor_version_raw=$("$REAL_CONDOR_DIR/bin/condor_version" | head -n 1)
+if [[ $pilot_condor_version_raw =~ $condor_version_pattern ]]; then
+    # zero-pad the version numbers so we can sort it as a string
+    pilot_condor_version=$(printf "%02d.%02d.%02d" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}")
+else
+    warn "Unable to figure out condor_version"
+    pilot_condor_version="00.00.00"
+fi
+
+
+#
+# CGroup management for Condor-in-Condor (OSPOOL-150)
+#
+# The feature requires:
+# 1. Condor 24.8.0 on the pilot
+# 2. Condor 24.8.0 on the host (host batch system must be Condor)
+# 3. cgroups v2
+#
+host_condor_version=00.00.00
+if [[ -f $_CONDOR_MACHINE_AD ]]; then
+    host_condor_version_raw=$(\
+        awk -F' = ' '/^CondorVersion / { print $2; exit }' "$_CONDOR_MACHINE_AD" 2>/dev/null \
+        | tr -d '"')
+    if [[ $host_condor_version_raw =~ $condor_version_pattern ]]; then
+        # zero-pad the version numbers so we can sort it as a string
+        host_condor_version=$(printf "%02d.%02d.%02d" "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}")
+    fi
+fi
+
+
+# Using > because >= doesn't exist in bash
+if [[ $pilot_condor_version > "24.07.99" ]] && \
+    [[ $host_condor_version > "24.07.99" ]] && \
+    [[ $(stat -fc %T /sys/fs/cgroup/ 2>/dev/null) == "cgroup2fs" ]]
+then
+    if [[ $glidein_site =~ CHTC ]]; then
+        set_condor_knob CREATE_CGROUP_WITHOUT_ROOT 'true'
+    fi
+fi
+
+
 
 # set_condor_knob REDIRECT_FILETRANSFER_PLUGIN_STDERR_TO_STDOUT 'TRUE'
 # set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_FAILURE 'D_ALWAYS'
