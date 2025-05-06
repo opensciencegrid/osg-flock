@@ -355,7 +355,7 @@ prepare_scratch_dir() {
 output_new_classad_attrs () {
     # Print classad attrs for condor to launch the job using container universe.
     if [[ $GWMS_SINGULARITY_IMAGE ]]; then
-        echo "SingularityImage=\"$GWMS_SINGULARITY_IMAGE\""
+        echo "ContainerImage=\"$GWMS_SINGULARITY_IMAGE\""
     fi
 }
 
@@ -421,6 +421,11 @@ elif [[ ! -e $OSG_DEFAULT_SINGULARITY_IMAGE ]]; then
 fi
 
 # TODO: Should downloading and building the Singularity image be in the pre-transfer hook (HOOK_PREPARE_JOB_BEFORE_TRANSFER) ?
+
+# singularity_lib.sh only looks at the SingularityImage attrib; look at ContainerImage too
+# TODO: Upstream the following to GWMS
+GWMS_SINGULARITY_IMAGE=$(get_prop_str "$_CONDOR_JOB_AD" "ContainerImage" "$(get_prop_str "$_CONDOR_JOB_AD" "SingularityImage" "")")
+
 if [[ $GWMS_SINGULARITY_IMAGE ]]; then
     # TODO: Should we add a sanity check here? Maybe run file(1) or at least [[ -s $GWMS_SINGULARITY_IMAGE ]] ?
     if [[ ! -e $GWMS_SINGULARITY_IMAGE ]]; then

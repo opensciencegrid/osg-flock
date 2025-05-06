@@ -285,12 +285,15 @@ set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
 #
 # If set to "condor", it will use what's in the Condor tarball.  (This can be
 # used to override a non-Condor default.)
-# if (( RANDOM % 2 == 0 )); then
-#     DEFAULT_DOWNLOAD_PELICAN_VERSION=7.12.4
-# else
-#     DEFAULT_DOWNLOAD_PELICAN_VERSION=7.13.0-rc.2
-# fi
-DEFAULT_DOWNLOAD_PELICAN_VERSION=7.16.1-rc.0
+# Handle itb and production differently
+GLIDECLIENT_Group=$(gconfig_get GLIDECLIENT_Group)
+if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
+    # ITB
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.16.1-rc.0
+else
+    # Production
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=condor
+fi
 
 if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
     DOWNLOAD_PELICAN_VERSION=$(gconfig_get DOWNLOAD_PELICAN_VERSION)
@@ -347,7 +350,8 @@ if [[ $OSDF_PLUGIN ]]; then
     # MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
     # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
     # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
-    if (echo "$glidein_site" | grep -E "UA Little Rock ITS|MI-HORUS|MSU-DataMachine|USD-Lawrence") >/dev/null 2>&1; then
+    # Lehigh - Hawk: observed failures on stageout due to 403 Forbidden.  Emailed 4/23/25; B. Lin is debugging. -- BB
+    if (echo "$glidein_site" | grep -E "UA Little Rock ITS|MI-HORUS|MSU-DataMachine|USD-Lawrence|Lehigh") >/dev/null 2>&1; then
         OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
     else
         if osdf_plugin_is_ok "$OSDF_PLUGIN"; then
