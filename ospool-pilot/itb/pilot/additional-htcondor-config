@@ -321,7 +321,12 @@ if [[ $pilot_condor_version > "24.07.99" ]] && \
 then
     if [[ $glidein_site =~ CHTC ]]; then
         set_condor_knob CREATE_CGROUP_WITHOUT_ROOT 'true'
+        advertise HAS_UNPRIVILEGED_CGROUPS true C
+    else
+        advertise HAS_UNPRIVILEGED_CGROUPS false C
     fi
+else
+    advertise HAS_UNPRIVILEGED_CGROUPS false C
 fi
 
 
