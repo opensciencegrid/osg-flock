@@ -400,17 +400,25 @@ else
     fi
 fi
 
-# Test the stash/osdf plugin we found.
+# Check if the site is excluded, and if not, test the plugin
 if [[ $OSDF_PLUGIN ]]; then
-    # add_to_debug "Stash/OSDF plugin found at" "$OSDF_PLUGIN"
-    # UA Little Rock ITS: https://support.opensciencegrid.org/a/tickets/78070
-    # MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
-    # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
-    # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
-    # Lehigh - Hawk: observed failures on stageout due to 403 Forbidden.  Emailed 4/23/25; B. Lin is debugging. -- BB
-    if (echo "$glidein_site" | grep -E "UA Little Rock ITS|MI-HORUS|MSU-DataMachine|USD-Lawrence|Lehigh") >/dev/null 2>&1; then
-        OSDF_FAIL_REASON="Stash/OSDF plugin explicitly disabled at site $glidein_site"
-    else
+
+    # Check if the site is in pelican-exceptions.csv - the file will be placed
+    # in some gwms group specific directory, so search for it
+    PCSV=$(find . -name pelican-exceptions.csv 2>/dev/null | head -n1)
+    if [[ $PCSV != "" ]]; then
+        info "Found exceptions file in $PCSV"
+        while IFS=, read -r site reason; do
+            [[ $site =~ ^# ]] && continue  # Skip comments
+            if [[ "$glidein_site" == "$site" ]]; then
+                OSDF_FAIL_REASON="Site $site exception: $reason"
+                break
+            fi
+        done < $PCSV
+    fi
+
+    # If the site is not in the exceptions list, test the plugin
+    if [[ ! $OSDF_FAIL_REASON ]]; then
         if osdf_plugin_is_ok "$OSDF_PLUGIN"; then
             # osdf_plugin_is_ok sets $OSDF_FAIL_REASON
             gconfig_add FILETRANSFER_PLUGINS "\$(FILETRANSFER_PLUGINS),$OSDF_PLUGIN"
