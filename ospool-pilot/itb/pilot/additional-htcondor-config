@@ -411,7 +411,7 @@ if [[ $OSDF_PLUGIN ]]; then
         while IFS=, read -r site reason; do
             [[ $site =~ ^# ]] && continue  # Skip comments
             if [[ "$glidein_site" == "$site" ]]; then
-                OSDF_FAIL_REASON="Site $site exception: $reason"
+                OSDF_FAIL_REASON="OSDF suspended at $site: $reason"
                 break
             fi
         done < $PCSV
