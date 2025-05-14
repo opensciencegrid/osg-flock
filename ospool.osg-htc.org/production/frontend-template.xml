@@ -149,6 +149,9 @@
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -216,6 +219,9 @@
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -288,6 +294,9 @@
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -358,6 +367,9 @@
             <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -426,6 +438,9 @@
             <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -492,6 +507,9 @@
             <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -564,6 +582,9 @@
             <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -638,6 +659,9 @@
             <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -710,6 +734,9 @@
             <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -782,6 +809,9 @@
             <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
@@ -857,6 +887,9 @@
             <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
          </attrs>
          <files>
+            <file absfname="/opt/osg-flock/ospool-pilot/main/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+               <untar_options cond_attr="TRUE"/>
+            </file>
             <file absfname="/opt/osg-flock/ospool-pilot/main/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
                <untar_options cond_attr="TRUE"/>
             </file>
