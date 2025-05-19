@@ -253,12 +253,12 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="100" reserve="10"/>
-            <idle_vms_per_entry curb="9000" max="10000"/>
+            <idle_glideins_per_entry max="30" reserve="10"/>
+            <idle_vms_per_entry curb="250" max="300"/>
             <idle_vms_total curb="19000" max="20000"/>
             <processing_workers matchmakers="5"/>
             <running_glideins_per_entry max="80000" min="0" relative_to_queue="20"/>
-            <running_glideins_total curb="95000" max="100000"/>
+            <running_glideins_total curb="45500" max="46000"/>
          </config>
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
