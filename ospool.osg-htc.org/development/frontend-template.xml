@@ -92,7 +92,6 @@
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -178,7 +177,6 @@
                             ((TARGET.RequestGPUs?:0) &gt; 0 || RoomForCPUOnlyJobs)'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; 
                                  stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -258,7 +256,6 @@
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
@@ -338,7 +335,6 @@
                             ((DESIRED_Sites =?= undefined) || stringListMember(GLIDEIN_Site, DESIRED_Sites, ","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp;
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
