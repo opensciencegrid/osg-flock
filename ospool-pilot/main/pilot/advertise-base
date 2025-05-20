@@ -274,9 +274,11 @@ else
     for PROXY_CANDIDATE in $http_proxy $OSG_SQUID_LOCATION; do
         PROXY_CHECKS=$(($PROXY_CHECKS + 1))
         if [ "x$CURL" != "x" ]; then
-            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://cm-1.ospool.osg-htc.org/overview/
+            env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://cm-1.ospool.osg-htc.org/overview/ || \
+                env http_proxy=$PROXY_CANDIDATE curl -s -m 10 -o /dev/null http://cm-2.ospool.osg-htc.org/overview/
         else
-            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://cm-1.ospool.osg-htc.org/overview/
+            env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://cm-1.ospool.osg-htc.org/overview/ || \
+                env http_proxy=$PROXY_CANDIDATE wget -q --timeout 10 -O /dev/null http://cm-2.ospool.osg-htc.org/overview/
         fi
         if [ $? = 0 ]; then
             PROXY_LOCATION="$PROXY_CANDIDATE"
