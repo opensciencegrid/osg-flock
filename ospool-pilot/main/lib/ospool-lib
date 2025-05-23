@@ -179,18 +179,6 @@ function check_singularity_sif_support {
         return 1
     fi
 
-    # allow this to run before gwms has determined which singularity to use
-    if [[ $has_singularity = "" ]]; then
-        has_singularity="True"
-        # if we are under glideinwms, use the HTCondor included apptainer
-        if [ -e $work_dir/condor/usr/libexec/apptainer ]; then
-            singularity_path=$work_dir/condor/usr/libexec/apptainer
-        else
-            # probably in a container, use the system one
-            singularity_path=singularity
-        fi
-    fi
-
     # if singularity is not in the path at this point (detection happens later),
     # we have to assume SIF support
     if ! ($singularity_path --version) >/dev/null 2>&1; then
