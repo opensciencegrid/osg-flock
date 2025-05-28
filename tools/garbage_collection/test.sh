@@ -27,6 +27,10 @@ mkdir glide_ak4qz0 \
     && touch glide_ak4qz0/subdir/bad-perm-file \
     && chmod 000 glide_ak4qz0/subdir/bad-perm-file \
     && touch -d "15 days ago" glide_ak4qz0
+mkdir osgvo-pilot-Z7sBXw \
+    && mkdir -p osgvo-pilot-Z7sBXw/subdir \
+    && touch osgvo-pilot-Z7sBXw/subdir/some-file \
+    && touch -d "15 days ago" osgvo-pilot-Z7sBXw
 mkdir glide_5skx \
     && touch -d "1 days ago" glide_5skx/_GLIDE_LEASE_FILE \
     && touch -d "2 days ago" glide_5skx

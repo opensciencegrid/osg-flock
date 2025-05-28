@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// find the glide_XXXX entries in the cwd, matching:
+// find the glide_XXXX/osgvo-pilot-XXXXXX entries in the cwd, matching:
 //   - ownership of the current user
 //   - containing a _GLIDE_LEASE_FILE with mtime greater than 60 minutes
 //   - or if no such file exist, a ctime of more than 10 days
@@ -53,14 +53,15 @@ func FindCandidates(excludeDir string) ([]string, float64) {
 			return nil
 		}
 
-		// our own glide_ dir
+		// our own glide_/osgvo-pilot- dir
 		if dir.Name() == excludeDir {
 			return filepath.SkipDir
 		}
 
-		// Only consider directories that match the "glide_*" pattern
-		match, _ := filepath.Match("glide_*", dir.Name())
-		if !match {
+		// Only consider directories that match the "glide_*" or "osgvo-pilot-*" pattern
+		match1, _ := filepath.Match("glide_*", dir.Name())
+		match2, _ := filepath.Match("osgvo-pilot-*", dir.Name())
+		if !(match1 || match2) {
 			return filepath.SkipDir
 		}
 
