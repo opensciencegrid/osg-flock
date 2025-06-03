@@ -94,6 +94,7 @@
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
+                                 !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
                   <match_attr name="GLIDEIN_Site" type="string"/>
