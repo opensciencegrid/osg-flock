@@ -269,7 +269,6 @@
                             ((SlotType == "Dynamic") || (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 4 * MY.TotalMemory / MY.TotalCpus)) || (My.Memory &gt; 100000))'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
-                                 (GLIDEIN_SupportedAuthenticationMethod == "grid_proxy") &amp;&amp;
                                  (GLIDEIN_REQUIRE_VOMS =!= "True")'>
                <match_attrs>
                </match_attrs>
