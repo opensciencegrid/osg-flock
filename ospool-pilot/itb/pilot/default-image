@@ -162,11 +162,6 @@ function determine_default_container_image {
     elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Syracuse|Nebraska") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
-    elif ! check_singularity_sif_support; then
-        # Forbid running non-CVMFS images if they have to be unpacked first.
-        # May change later if we find sites where this is "safe."
-        info "Not allowing non-CVMFS images, as Singularity cannot directly run SIF files"
-        pull_images=0
     fi
 
     if [ $pull_images = 1 ]; then
