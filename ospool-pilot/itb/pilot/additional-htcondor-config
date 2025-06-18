@@ -346,7 +346,7 @@ set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
 GLIDECLIENT_Group=$(gconfig_get GLIDECLIENT_Group)
 if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
     # ITB
-    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.17.0-rc.1
+    DEFAULT_DOWNLOAD_PELICAN_VERSION=7.17.0-rc.2
 else
     # Production
     DEFAULT_DOWNLOAD_PELICAN_VERSION=condor
