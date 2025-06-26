@@ -197,11 +197,12 @@ function check_singularity_sif_support {
              timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$static_registry_alpine" ||
              timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$sylabs_alpine" ||
              my_warn "All sources failed - could not create gwms-alpine.sif"
-        ) &> $image_dir/gwms-alpine.sif.log; ret=$?
+        ) &> $image_dir/gwms-alpine.sif.log
     fi
 
     # did the download fail
     if [ ! -e $image_dir/gwms-alpine.sif ]; then
+        cat "$image_dir/gwms-alpine.sif.log" >&2
         return 1
     fi
 
