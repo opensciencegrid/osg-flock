@@ -4,5 +4,3 @@ MI-HORUS,debugging
 MSU-DataMachine,debugging
 # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
 USD-Lawrence,debugging
-# Lehigh - Hawk: observed failures on stageout due to 403 Forbidden.  Emailed 4/23/25; B. Lin is debugging. -- BB
-Lehigh - Hawk,debugging
