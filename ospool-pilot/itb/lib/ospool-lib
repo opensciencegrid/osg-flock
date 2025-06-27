@@ -168,7 +168,6 @@ function check_singularity_sif_support {
     else
         local static_registry_alpine="docker://hub.opensciencegrid.org/htc/minimal:0"
     fi
-    local sylabs_alpine="library://alpine:3"
     local work_dir=$(gconfig_get GLIDEIN_WORK_DIR)
     local image_dir="$work_dir/../images"
     local has_singularity=$(gconfig_get HAS_SINGULARITY)
@@ -195,7 +194,6 @@ function check_singularity_sif_support {
     if [ ! -e $image_dir/gwms-alpine.sif.log ]; then
         (cp "$cvmfs_alpine" $image_dir/gwms-alpine.sif ||
              timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$static_registry_alpine" ||
-             timeout 60s $singularity_path pull --force $image_dir/gwms-alpine.sif "$sylabs_alpine" ||
              my_warn "All sources failed - could not create gwms-alpine.sif"
         ) &> $image_dir/gwms-alpine.sif.log
     fi
