@@ -348,9 +348,9 @@ GLIDECLIENT_Group=$(gconfig_get GLIDECLIENT_Group)
 if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
     # ITB
     if (( RANDOM % 2 == 0 )); then
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.17.3-rc.2
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.17.3-rc.3
     else
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.18.0-rc.1
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.18.0-rc.2
     fi
 else
     # Production
