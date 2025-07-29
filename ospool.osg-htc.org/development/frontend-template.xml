@@ -48,7 +48,7 @@
    </match>
    <monitor base_dir="/var/lib/gwms-frontend/web-area/monitor" flot_dir="/usr/share/javascriptrrd/flot" javascriptRRD_dir="/usr/share/javascriptrrd/js" jquery_dir="/usr/share/javascriptrrd/flot"/>
    <monitor_footer display_txt="" href_link=""/>
-   <security security_name="OSG_OSPool" idtoken_lifetime="720">
+   <security idtoken_lifetime="720" security_name="OSG_OSPool" sym_key="aes_256_cbc" proxy_selection_plugin="CredentialsBasic">
       <credentials>
           <!-- do not put any global credentials - we have some specific entries below which require one and only one credential -->
       </credentials>
@@ -113,7 +113,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
            </credentials>
          </security>
          <attrs>
@@ -198,7 +198,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
            </credentials>
          </security>
          <attrs>
@@ -277,7 +277,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
            </credentials>
          </security>
          <attrs>
@@ -356,7 +356,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
            </credentials>
          </security>
          <attrs>
