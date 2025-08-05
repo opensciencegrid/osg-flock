@@ -43,6 +43,7 @@
          <match_attrs>
          </match_attrs>
          <schedds>
+            <schedd DN="ALL" fullname="ALL" />
          </schedds>
       </job>
    </match>
@@ -107,7 +108,6 @@
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
                </schedds>
             </job>
          </match>
@@ -192,7 +192,6 @@
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
                </schedds>
             </job>
          </match>
@@ -271,7 +270,6 @@
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
                </schedds>
             </job>
          </match>
@@ -350,7 +348,6 @@
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
                </schedds>
             </job>
          </match>
