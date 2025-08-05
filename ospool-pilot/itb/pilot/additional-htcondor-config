@@ -347,10 +347,11 @@ set_condor_knob LOG_FILETRANSFER_PLUGIN_STDOUT_ON_SUCCESS 'D_ALWAYS'
 GLIDECLIENT_Group=$(gconfig_get GLIDECLIENT_Group)
 if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
     # ITB
+    # Have these two be different to test two versions in parallel
     if (( RANDOM % 2 == 0 )); then
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.17.3-rc.3
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.18.1-rc.0
     else
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.18.0-rc.3
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.18.1-rc.0
     fi
 else
     # Production
