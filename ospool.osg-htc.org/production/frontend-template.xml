@@ -642,6 +642,7 @@
                <match_attrs>
                </match_attrs>
                <schedds>
+                  <schedd DN="/CN=grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
                   <schedd DN="/CN=sub-2.icecube.wisc.edu" fullname="sub-2.icecube.wisc.edu"/>
                </schedds>
             </job>
@@ -717,6 +718,7 @@
                <match_attrs>
                </match_attrs>
                <schedds>
+                  <schedd DN="/CN=grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
                   <schedd DN="/CN=sub-2.icecube.wisc.edu" fullname="sub-2.icecube.wisc.edu"/>
                </schedds>
             </job>
@@ -792,6 +794,7 @@
                <match_attrs>
                </match_attrs>
                <schedds>
+                  <schedd DN="/CN=grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
                   <schedd DN="/CN=sub-2.icecube.wisc.edu" fullname="sub-2.icecube.wisc.edu"/>
                </schedds>
             </job>
