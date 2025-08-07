@@ -352,11 +352,17 @@ if [[ $OSDF_PLUGIN ]]; then
     PCSV=$(find . -name pelican-exceptions.csv 2>/dev/null | head -n1)
     if [[ $PCSV != "" ]]; then
         info "Found exceptions file in $PCSV"
-        while IFS=, read -r site reason; do
+        while IFS=, read -r site block_percent reason; do
             [[ $site =~ ^# ]] && continue  # Skip comments
             if [[ "$glidein_site" == "$site" ]]; then
-                OSDF_FAIL_REASON="OSDF suspended at $site: $reason"
-                break
+                # roll is a random number between 1 and 100 - compare this
+                # with the provided block percentage (for example, if we roll
+                # a 73 on a site with 90%, that will result in a block)
+                roll=$(($RANDOM % 100 + 1))
+                if [ $roll -le $block_percent ]; then
+                    OSDF_FAIL_REASON="OSDF suspended at $site ($block_percent%): $reason"
+                    break
+                fi
             fi
         done < $PCSV
     fi
