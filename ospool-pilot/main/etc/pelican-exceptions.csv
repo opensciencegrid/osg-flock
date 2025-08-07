@@ -1,6 +1,16 @@
+# Format of this file is CSV with the fields:
+#    Site (GLIDEIN_Site)
+#    Percent block (integer, 1..100)
+#    Message (will be provided in classad if site is block)
+
 # MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
-MI-HORUS,debugging
+MI-HORUS,100,debugging
+
 # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
-MSU-DataMachine,debugging
+MSU-DataMachine,100,debugging
+
 # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
-USD-Lawrence,debugging
+USD-Lawrence,100,debugging
+
+# ISI: Mats 8/6/25 - Testing
+ISI,50,testing
