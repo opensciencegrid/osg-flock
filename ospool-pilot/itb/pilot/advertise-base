@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=854
+OSG_GLIDEIN_VERSION=855
 #######################################################################
 
 
@@ -292,10 +292,6 @@ else
     echo $PROXY_BROKEN >$TEST_FILE_4H.http_proxy.broken
 fi
 
-if [ "x$PROXY_LOCATION" = "x" -a $PROXY_CHECKS -gt 0 ]; then
-    # checks peformed, but failed - limit what file transfers we can do
-    advertise HasFileTransferPluginMethods "data,ftp,file" "S"
-fi
 if [ "x$PROXY_LOCATION" != "x" ]; then
     advertise "http_proxy" "$PROXY_LOCATION" "S"
 fi
