@@ -15,3 +15,9 @@ USD-Lawrence,100,debugging
 
 # ISI: Mats 8/6/25 - Testing
 ISI,50,testing
+
+# Utah: Mats/Tim/Brian Haymore 8/19/25 - discussion on Slack
+Utah-Granite,50,limiting due to campus bandwidth usage
+Utah-Kingspeak,50,limiting due to campus bandwidth usage
+Utah-Lonepeak,50,limiting due to campus bandwidth usage
+Utah-Notchpeak,50,limiting due to campus bandwidth usage
