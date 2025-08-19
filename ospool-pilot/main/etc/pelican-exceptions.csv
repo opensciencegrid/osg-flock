@@ -7,7 +7,8 @@
 MI-HORUS,100,debugging
 
 # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
-MSU-DataMachine,100,debugging
+# Resuming OSDF: https://support.opensciencegrid.org/a/tickets/80839
+MSU-DataMachine,90,scaling up OSDF capacity
 
 # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
 USD-Lawrence,100,debugging
