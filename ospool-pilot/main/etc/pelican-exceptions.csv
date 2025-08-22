@@ -8,7 +8,7 @@ MI-HORUS,100,debugging
 
 # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
 # Resuming OSDF: https://support.opensciencegrid.org/a/tickets/80839
-MSU-DataMachine,90,scaling up OSDF capacity
+MSU-DataMachine,75,scaling up OSDF capacity
 
 # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
 USD-Lawrence,100,debugging
@@ -24,4 +24,3 @@ Utah-Notchpeak,50,limiting due to campus bandwidth usage
 
 # JS2: Mats/Tim 8/21/25 - OSDF failures
 Pervasive Technology Institute,50,limiting due to OSDF failures
-
