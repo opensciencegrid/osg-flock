@@ -265,8 +265,7 @@
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                             (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
-                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE) &amp;&amp;
-                            ((SlotType == "Dynamic") || (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 8 * MY.TotalMemory / MY.TotalCpus)) || (My.Memory &gt; 100000))'>
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp; 
                                  !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
