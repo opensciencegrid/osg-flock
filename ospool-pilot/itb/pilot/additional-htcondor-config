@@ -320,12 +320,8 @@ if [[ $pilot_condor_version > "24.07.99" ]] && \
     [[ $host_condor_version > "24.07.99" ]] && \
     [[ $(stat -fc %T /sys/fs/cgroup/ 2>/dev/null) == "cgroup2fs" ]]
 then
-    if [[ $glidein_site =~ CHTC ]]; then
-        set_condor_knob CREATE_CGROUP_WITHOUT_ROOT 'true'
-        advertise HAS_UNPRIVILEGED_CGROUPS true C
-    else
-        advertise HAS_UNPRIVILEGED_CGROUPS false C
-    fi
+    set_condor_knob CREATE_CGROUP_WITHOUT_ROOT 'true'
+    advertise HAS_UNPRIVILEGED_CGROUPS true C
 else
     advertise HAS_UNPRIVILEGED_CGROUPS false C
 fi
