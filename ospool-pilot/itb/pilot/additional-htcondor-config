@@ -345,9 +345,9 @@ if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
     # ITB
     # Have these two be different to test two versions in parallel
     if (( RANDOM % 2 == 0 )); then
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.19.3-rc.1
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.19.3
     else
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.19.3-rc.1
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.19.3
     fi
 else
     # Production
