@@ -16,23 +16,18 @@
          <process_log backup_count="1" compression="" extension="dbg" max_days="7.0" max_mbytes="100.0" min_days="1.0" msg_types="DEBUG"/>
       </process_logs>
    </log_retention>
-   <match match_expr="True" start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
-                                        (isUndefined(IsBlackHole) || IsBlackHole == False) &amp;&amp;
-                                        (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
-                                        (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
-                                        (
-                                         (SlotType =?= "Dynamic") ||  
-                                         (
-                                           (TARGET.RequestMemory &lt; (TARGET.RequestCPUs * 8 * MY.TotalMemory / MY.TotalCpus)) &amp;&amp;
-                                           (TARGET.RequestDisk &lt; (TARGET.RequestCPUs * 8 * MY.TotalDisk / MY.TotalCpus))
-                                         )
-                                        ) &amp;&amp;
-                                        (ifThenElse(JobDurationCategory =!= undefined &amp;&amp; JobDurationCategory == "Long", 
-                                                    GLIDEIN_ToDie - CurrentTime &gt;= 72000, 
-                                                    GLIDEIN_Max_Walltime =?= undefined || GLIDEIN_Max_Walltime &lt; 43200 || GLIDEIN_ToDie - CurrentTime &gt;= 36000))
-                                        '>
+   <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+          start_expr='(isUndefined(MY.OSG_NODE_VALIDATED) || MY.OSG_NODE_VALIDATED) &amp;&amp;
+                      (isUndefined(HasExcessiveLoad) || HasExcessiveLoad == False) &amp;&amp;
+                      (isUndefined(TARGET.ProjectName) != True &amp;&amp; TARGET.ProjectName != "") &amp;&amp;
+                      (ifThenElse(JobDurationCategory =!= undefined &amp;&amp; JobDurationCategory == "Long",
+                            GLIDEIN_ToDie - CurrentTime &gt;= 72000,
+                            GLIDEIN_Max_Walltime =?= undefined || GLIDEIN_Max_Walltime &lt; 43200 || GLIDEIN_ToDie - CurrentTime &gt;= 36000)) &amp;&amp;
+                      ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))
+                     '>
       <factory query_expr="True">
          <match_attrs>
+            <match_attr name="GLIDEIN_Site" type="string"/>
          </match_attrs>
          <collectors>
             <collector DN="/CN=gfactory-itb-1.osg-htc.org" factory_identity="gfactory@gfactory-itb-1.osg-htc.org" my_identity="feosgospool@gfactory-itb-1.osg-htc.org" node="gfactory-itb-1.osg-htc.org"/>
@@ -60,7 +55,6 @@
       <attr name="CONTINUE_IF_NO_PROXY" glidein_publish="True" job_publish="False" parameter="True" type="string" value="True"/>
       <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
       <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25.x"/>
-      <!-- attr name="TRUST_DOMAIN" glidein_publish="False" job_publish="False" parameter="True" type="string" value="flock.opensciencegrid.org"/ -->
       <attr name="GLIDECLIENT_Rank" glidein_publish="False" job_publish="False" parameter="True" type="string" value="1"/>
       <attr name="GLIDEIN_CLAIM_WORKLIFE" glidein_publish="False" job_publish="False" parameter="True" type="int" value="3600"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="False"/>
@@ -77,6 +71,18 @@
       <attr name="USE_MATCH_AUTH" glidein_publish="False" job_publish="False" parameter="True" type="string" value="True"/>
       <attr name="SYSLOG_HOST" parameter="False" type="expr" value="syslog.osgdev.chtc.io"/>
       <attr name="STARTER_NESTED_SCRATCH" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+      <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
+      <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25.x"/>
+      <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
+      <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
+      <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
+      <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
+      <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
+      <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
+      <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
+      <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
+      <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
+      <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
    </attrs>
    <groups>
       <group name="itb" enabled="True">
@@ -90,7 +96,7 @@
             <running_glideins_per_entry max="1" min="0" relative_to_queue="3.0"/>
             <running_glideins_total curb="10" max="20"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+         <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
@@ -98,7 +104,6 @@
                                  !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
@@ -118,50 +123,8 @@
            </credentials>
          </security>
          <attrs>
-            <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25.x"/>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
-            <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
-            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
-            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
-            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv-simple" type="run" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
          </files>
       </group>
       <group name="itb-gpu" enabled="True">
@@ -175,7 +138,7 @@
             <running_glideins_per_entry max="1" min="0" relative_to_queue="5.0"/>
             <running_glideins_total curb="10" max="20"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+         <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,",")) &amp;&amp;
                             ((TARGET.RequestGPUs?:0) &gt; 0 || RoomForCPUOnlyJobs)'>
@@ -183,7 +146,6 @@
                                  stringListMember("OSGVOGPU", GLIDEIN_Supported_VOs) &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
@@ -203,45 +165,8 @@
            </credentials>
          </security>
          <attrs>
-            <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25.x"/>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
-            <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
-            <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
-            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
-            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
-            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
          </files>
       </group>
       <group name="itb-glideman" enabled="True">
@@ -255,14 +180,13 @@
             <running_glideins_per_entry max="1" min="0" relative_to_queue="2.0"/>
             <running_glideins_total curb="10" max="20"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites","").split(",")) or (job.get("DESIRED_Sites","nosite")=="nosite"))'
+         <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =?= True) &amp;&amp; (TARGET.Want_Glideman =?= True) &amp;&amp;
                             ((DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,DESIRED_Sites,","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp; 
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
@@ -282,45 +206,8 @@
            </credentials>
          </security>
          <attrs>
-            <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25.x"/>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
-            <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
-            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
-            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
-            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-            <attr name="Is_Glideman_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
          </files>
       </group>
       <group name="itb-glidein-devel" enabled="True">
@@ -334,14 +221,13 @@
             <running_glideins_per_entry max="1" min="0" relative_to_queue="3.0"/>
             <running_glideins_total curb="25" max="50"/>
          </config>
-         <match match_expr='((glidein["attrs"]["GLIDEIN_Site"] in job.get("DESIRED_Sites", "").split(",")) or (job.get("DESIRED_Sites", "nosite") == "nosite"))'
+         <match match_expr='True'
                 start_expr='(TARGET.WantGlideinDevel =?= True) &amp;&amp;
                             ((DESIRED_Sites =?= undefined) || stringListMember(GLIDEIN_Site, DESIRED_Sites, ","))'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("OSGVO", GLIDEIN_Supported_VOs) &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
-                  <match_attr name="GLIDEIN_Site" type="string"/>
                </match_attrs>
                <collectors>
                </collectors>
@@ -361,53 +247,55 @@
            </credentials>
          </security>
          <attrs>
-            <attr name="CONDOR_OS" glidein_publish="False" job_publish="False" parameter="True" type="string" value="auto"/>
-            <attr name="CONDOR_VERSION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="25.x"/>
-            <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
-            <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="False" type="string" value="userjob"/>
-            <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="true"/>
-            <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
-            <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-            <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/lizard"/>
-            <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
-            <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
-            <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
-            <attr name="Is_ITB_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
-            <attr name="IsGlideinDevel_Site" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
          </attrs>
          <files>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/tcpping.py" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/where-am-i" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
-               <untar_options cond_attr="TRUE"/>
-            </file>
-            <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
-               <untar_options cond_attr="TRUE"/>
-            </file>
          </files>
       </group>
+
+      <!-- IceCube -->
+      <group name="itb-icecube" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="86400"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="10" max="20"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="3.0"/>
+            <running_glideins_total curb="10" max="20"/>
+         </config>
+         <match match_expr='True'
+                start_expr='TARGET.Group =?= "IceCube" &amp;&amp; (TARGET.is_itb ?: false) =?= false'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
+                                 stringListMember("IceCube", GLIDEIN_Supported_VOs) &amp;&amp; 
+                                 !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
+                                 (GLIDEIN_Site =!= UNDEFINED)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="(ITB_Sites =?= True) &amp;&amp; Want_Glideman =!= True">
+               <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
+               </match_attrs>
+               <schedds>
+                  {{{schedd_blob}}}
+                  <schedd DN="grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
+           </credentials>
+         </security>
+         <attrs>
+         </attrs>
+         <files>
+         </files>
+      </group>
+
    </groups>
    <ccbs>
       <ccb DN="/DC=org/DC=incommon/C=US/ST=Wisconsin/L=Madison/O=University of Wisconsin-Madison/OU=OCIS/CN=ospool.opensciencegrid.org" group="ccb1" node="ccb-1.ospool-itb.osg-htc.org:9618?sock=collector1-10"/>
@@ -447,6 +335,36 @@
          <untar_options cond_attr="TRUE"/>
       </file>
       <file absfname="/opt/osg-flock/node-check/eic-data-attributes" after_entry="True" after_group="False" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/etc/pelican-exceptions.csv" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/lib/ospool-lib" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-base" after_entry="True" const="True" executable="True" period="180" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv-simple" type="run" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/advertise-userenv" type="run:singularity" after_entry="True" const="True" executable="True" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/singularity-extras" after_entry="True" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/job/simple-job-wrapper.sh" after_entry="True" const="True" executable="False" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="True">
+         <untar_options cond_attr="TRUE"/>
+      </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/job/prepare-hook" after_entry="False" const="True" executable="False" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
       <!--
