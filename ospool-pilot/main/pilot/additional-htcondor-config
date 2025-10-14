@@ -72,6 +72,16 @@ add_to_debug () {
 }
 
 ###########################################################
+# write custom configs to condor_config.d/...
+config_d_dir=$(gconfig_get GLIDEIN_WORK_DIR)/../condor_config.d
+
+# memory/disk/... policies
+cat >"$config_d_dir/50-resource-policy.conf" <<EOF
+use policy:Hold_If_Memory_Exceeded
+use policy:Hold_If_Disk_Exceeded
+EOF
+
+###########################################################
 # CVMFS_BASE defaults to /cvmfs but can be overridden in case of for example cvmfsexec
 if [[ ! $CVMFS_BASE ]]; then
     CVMFS_BASE="/cvmfs"
@@ -132,26 +142,6 @@ if [[ ! $IS_CONTAINER_PILOT ]]; then
     fi
 fi  # ! $IS_CONTAINER_PILOT
 
-
-# Hold jobs if they exceed allocated disk (OSPOOL-26)
-
-# Helper macros
-set_condor_knob  disk_exceeded  '(JobUniverse != 13 && DiskUsage =!= UNDEFINED && DiskUsage > Disk)'
-set_condor_knob  hold_reason_disk_exceeded  'disk usage exceeded request_disk'
-
-# Actual knobs. The following is the equivalent of
-# use POLICY : WANT_HOLD_IF(disk_exceeded, $(HOLD_SUBCODE_disk_exceeded:104), $(hold_reason_disk_exceeded))
-# since metaknobs are not supported.
-set_condor_knob  PREEMPT  '$(disk_exceeded) || $(PREEMPT:false)'
-set_condor_knob  MAXJOBRETIREMENTTIME  'ifthenelse($(disk_exceeded),-1,$(MAXJOBRETIREMENTTIME:0))'
-
-set_condor_knob  WANT_SUSPEND  '$(disk_exceeded) =!= true && $(WANT_SUSPEND:false)'
-
-set_condor_knob  WANT_HOLD  '(JobUniverse != 1 && $(disk_exceeded)) || $(WANT_HOLD:false)'
-set_condor_knob  WANT_HOLD_SUBCODE  'ifThenElse($(disk_exceeded), 104 , $(WANT_HOLD_SUBCODE:UNDEFINED))'
-set_condor_knob  WANT_HOLD_REASON  'ifThenElse($(disk_exceeded), "$(hold_reason_disk_exceeded)", $(WANT_HOLD_REASON:UNDEFINED))'
-
-# End OSPOOL-26
 
 set_condor_knob STARTD_JOB_ATTRS '$(STARTD_JOB_ATTRS) ProjectName'
 
