@@ -265,9 +265,10 @@
             <running_glideins_total curb="10" max="20"/>
          </config>
          <match match_expr='True'
-                start_expr='TARGET.Group =?= "IceCube" &amp;&amp; (TARGET.is_itb ?: false) =?= false'>
+                start_expr='TARGET.ProjectName == "IceCube" &amp;&amp; (TARGET.RequestGPUs ?: 0) =?= 0 &amp;&amp; (TARGET.is_itb ?: false) =?= true'>
             <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
                                  stringListMember("IceCube", GLIDEIN_Supported_VOs) &amp;&amp; 
+                                 GLIDEIN_ResourceName =!= "GLOW" &amp;&amp;
                                  !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
                                  (GLIDEIN_Site =!= UNDEFINED)'>
                <match_attrs>
@@ -275,7 +276,50 @@
                <collectors>
                </collectors>
             </factory>
-            <job query_expr="(ITB_Sites =?= True) &amp;&amp; Want_Glideman =!= True">
+            <job query_expr='ProjectName =?= "IceCube" &amp;&amp; (RequestGPUs ?: 0) =?= 0 &amp;&amp; (OriginalTime ?: 0) &lt;= 20 * 60 * 60 &amp;&amp; (is_itb ?: false) =?= true'>
+               <match_attrs>
+                  <match_attr name="DESIRED_Sites" type="string"/>
+               </match_attrs>
+               <schedds>
+                  {{{schedd_blob}}}
+                  <schedd DN="grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
+           </credentials>
+         </security>
+         <attrs>
+         </attrs>
+         <files>
+         </files>
+      </group>
+      <group name="itb-icecube-gpu" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="86400"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="10" max="20"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="3.0"/>
+            <running_glideins_total curb="10" max="20"/>
+         </config>
+         <match match_expr='True'
+                start_expr='TARGET.ProjectName == "IceCube" &amp;&amp; (TARGET.RequestGPUs ?: 0) &gt;= 1 &amp;&amp; (TARGET.is_itb ?: false) =?= true'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp;
+                                 stringListMember("IceCubeGPU", GLIDEIN_Supported_VOs) &amp;&amp; 
+                                 GLIDEIN_ResourceName =!= "GLOW" &amp;&amp;
+                                 !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
+                                 (GLIDEIN_Site =!= UNDEFINED)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='ProjectName =?= "IceCube" &amp;&amp; (RequestGPUs ?: 0) &gt;= 1 &amp;&amp; (OriginalTime ?: 0) &lt;= 20 * 60 * 60 &amp;&amp; (is_itb ?: false) =?= true'>
                <match_attrs>
                   <match_attr name="DESIRED_Sites" type="string"/>
                </match_attrs>
