@@ -26,4 +26,8 @@ Utah-Notchpeak,50,limiting due to campus bandwidth usage
 Pervasive Technology Institute,50,limiting due to OSDF failures
 
 # George Washington University Viper: Tim C., 13 Oct 2025 - consistent OSDF transfer input failures
-GWU-Viper,50,limited due to transfer failures
+# https://support.opensciencegrid.org/a/tickets/81275
+GWU-Viper,75,limited due to transfer failures
+
+# Georgia State University ACIDS: Tim C., 17 Oct 2025 - consistent OSDF transfer input failures
+GSU-ACIDS,75,limited due to transfer failures
