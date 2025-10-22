@@ -402,6 +402,92 @@
 
       <!-- ==================== ICECUBE ==================== -->
 
+      <group name="icecube" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="10" max="20"/>
+            <processing_workers matchmakers="5"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="3"/>
+            <running_glideins_total curb="10" max="20"/>
+         </config>
+         <match match_expr='True'
+                start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                            (TARGET.RequestGPUs ?: 0) =?= 0  &amp;&amp;
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 stringListMember("IceCube", GLIDEIN_Supported_VOs) &amp;&amp;
+                                 GLIDEIN_ResourceName =!= "GLOW" &amp;&amp;
+                                 !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='ProjectName =?= "IceCube" &amp;&amp; (RequestGPUs ?: 0) =?= 0 &amp;&amp; (OriginalTime ?: 0) &lt;= 20 * 60 * 60 &amp;&amp; (is_itb ?: False) =?= False'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                  <schedd DN="grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout_icecube.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+            </credentials>
+         </security>
+         <attrs>
+         </attrs>
+         <files>
+         </files>
+      </group>
+
+      <group name="icecube-gpu" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="10" max="20"/>
+            <processing_workers matchmakers="5"/>
+            <running_glideins_per_entry max="1" min="0" relative_to_queue="3"/>
+            <running_glideins_total curb="10" max="20"/>
+         </config>
+         <match match_expr='True'
+                start_expr='(is_itb ?: False) =?= False &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                            (TARGET.RequestGPUs ?: 0) &gt;= 1  &amp;&amp;
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 stringListMember("IceCubeGPU", GLIDEIN_Supported_VOs) &amp;&amp;
+                                 GLIDEIN_ResourceName =!= "GLOW" &amp;&amp;
+                                 !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod)'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='ProjectName =?= "IceCube" &amp;&amp; (RequestGPUs ?: 0) &gt;= 1 &amp;&amp; (OriginalTime ?: 0) &lt;= 20 * 60 * 60 &amp;&amp; (is_itb ?: False) =?= False'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                  <schedd DN="grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout_icecube.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+            </credentials>
+         </security>
+         <attrs>
+         </attrs>
+         <files>
+         </files>
+      </group>
+
       <group name="alloc-IceCube-Anvil-GPU" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="True" type="DISABLE" wait="30"/>
