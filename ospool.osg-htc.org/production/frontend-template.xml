@@ -406,17 +406,18 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="1" reserve="1"/>
-            <idle_vms_per_entry curb="1" max="1"/>
-            <idle_vms_total curb="10" max="20"/>
+            <idle_glideins_per_entry max="5" reserve="1"/>
+            <idle_vms_per_entry curb="4" max="5"/>
+            <idle_vms_total curb="180" max="200"/>
             <processing_workers matchmakers="5"/>
-            <running_glideins_per_entry max="1" min="0" relative_to_queue="3"/>
-            <running_glideins_total curb="10" max="20"/>
+            <running_glideins_per_entry max="200" min="0" relative_to_queue="3"/>
+            <running_glideins_total curb="180" max="200"/>
          </config>
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                             (TARGET.RequestGPUs ?: 0) =?= 0  &amp;&amp;
-                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE) &amp;&amp;
+                            (regexp("grid-submitter", User) == True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  stringListMember("IceCube", GLIDEIN_Supported_VOs) &amp;&amp;
                                  GLIDEIN_ResourceName =!= "GLOW" &amp;&amp;
@@ -449,17 +450,18 @@
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
-            <idle_glideins_per_entry max="1" reserve="1"/>
-            <idle_vms_per_entry curb="1" max="1"/>
-            <idle_vms_total curb="10" max="20"/>
+            <idle_glideins_per_entry max="5" reserve="1"/>
+            <idle_vms_per_entry curb="4" max="5"/>
+            <idle_vms_total curb="180" max="200"/>
             <processing_workers matchmakers="5"/>
-            <running_glideins_per_entry max="1" min="0" relative_to_queue="3"/>
-            <running_glideins_total curb="10" max="20"/>
+            <running_glideins_per_entry max="200" min="0" relative_to_queue="3"/>
+            <running_glideins_total curb="180" max="200"/>
          </config>
          <match match_expr='True'
                 start_expr='(is_itb ?: False) =?= False &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
                             (TARGET.RequestGPUs ?: 0) &gt;= 1  &amp;&amp;
-                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE) &amp;&amp;
+                            (regexp("grid-submitter", User) == True)'>
             <factory query_expr='FactoryType == "production" &amp;&amp;
                                  stringListMember("IceCubeGPU", GLIDEIN_Supported_VOs) &amp;&amp;
                                  GLIDEIN_ResourceName =!= "GLOW" &amp;&amp;
