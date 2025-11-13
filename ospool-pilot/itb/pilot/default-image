@@ -128,9 +128,18 @@ function determine_default_container_image {
         fi
     fi
 
-    # temp for arm until we get the image repos/syncing in place
+    # special arch considerations
     if [ "X$arch" = "Xaarch64" ]; then
+        # temp for arm until we get the image repos/syncing in place
         SELECTED_IMAGE="htc/rocky:9"
+    else
+        # x86_64
+        # need v3 or above for el10
+        if [ $(microarch_version)  -lt 3 ]; then
+            if [ "x$SELECTED_IMAGE" = "xhtc/almalinux:10" ]; then
+                SELECTED_IMAGE="htc/rocky:9"
+            fi
+        fi
     fi
 
     # Should we use pull or use CVMFS? The default is pulling
