@@ -4,7 +4,8 @@
 #    Message (will be provided in classad if site is block)
 
 # MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
-MI-HORUS,100,debugging
+# Resuming OSDF: negotiated via Slack, last message 13 Nov 2025 (Shawn and Mats)
+MI-HORUS,95,resuming OSDF transfers slowly
 
 # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
 # Resuming OSDF: https://support.opensciencegrid.org/a/tickets/80839
