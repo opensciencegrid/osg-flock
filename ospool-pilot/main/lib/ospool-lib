@@ -256,3 +256,32 @@ function check_singularity_registry_support {
     fi
 }
 
+function microarch_version {
+    # use only /proc/cpuinfo to determine microarchitecture
+    # returns an int 1-4 indicating the level
+    # v1: all x86-64 CPUs
+    # v2: look for sse4_2, popcnt, cx16
+    # v3: must also have avx2, fma, bmi1, bmi2, movbe
+    # v4: must also have all of the above plus avx512f, avx512dq, avx512cd, avx512bw, avx512vl
+
+    flags=$(grep -m1 '^flags' /proc/cpuinfo)
+
+    if echo "$flags" | grep -qw avx512f && \
+       echo "$flags" | grep -qw avx512dq && \
+       echo "$flags" | grep -qw avx512cd && \
+       echo "$flags" | grep -qw avx512bw && \
+       echo "$flags" | grep -qw avx512vl; then
+        echo "4"
+    elif echo "$flags" | grep -qw avx2 && \
+         echo "$flags" | grep -qw bmi2 && \
+         echo "$flags" | grep -qw fma; then
+        echo "3"
+    elif echo "$flags" | grep -qw sse4_2 && \
+         echo "$flags" | grep -qw popcnt && \
+         echo "$flags" | grep -qw cx16; then
+         echo "2"
+    else
+        echo "1"
+    fi
+}
+

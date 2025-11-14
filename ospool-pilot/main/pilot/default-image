@@ -134,8 +134,8 @@ function determine_default_container_image {
         SELECTED_IMAGE="htc/rocky:9"
     else
         # x86_64
-        # v2 can't run el10 images (v3 and above has to have avx2)
-        if ! (grep -E -m1 '^flags.*avx2' /proc/cpuinfo) >/dev/null 2>&1; then
+        # need v3 or above for el10
+        if [ $(microarch_version)  -lt 3 ]; then
             if [ "x$SELECTED_IMAGE" = "xhtc/almalinux:10" ]; then
                 SELECTED_IMAGE="htc/rocky:9"
             fi

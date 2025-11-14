@@ -184,11 +184,10 @@ function download_or_build_singularity_image () {
         singularity_srcs=""
 
         if [[ $singularity_image = /cvmfs/singularity.opensciencegrid.org/* ]]; then
-            # transform /cvmfs to a set or URLS to to try
-            base_name=$(echo $singularity_image | sed 's;/cvmfs/singularity.opensciencegrid.org/;;' | sed 's;/*/$;;')
-            image_name=$(echo "$base_name" | sed 's;[:/];__;g')
-            week=$(date +'%V')
-            singularity_srcs="osdf:///ospool/uc-shared/public/OSG-Staff/images/$week/sif/$image_name.sif http://ospool-images.osgprod.tempest.chtc.io/$week/sif/$image_name.sif docker://hub.opensciencegrid.org/$base_name"
+            # does not look like the specified CVMFS images is available - pass it
+            # through and let HTCondor fail the right way
+            echo "$singularity_image"
+            return 0
         elif [[ -e "$singularity_image" ]]; then
             # the image is not on cvmfs, but has already been downloaded - short circuit here
             echo "$singularity_image"
