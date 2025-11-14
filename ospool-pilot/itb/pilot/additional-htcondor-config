@@ -305,6 +305,15 @@ if [[ -f $_CONDOR_MACHINE_AD ]]; then
     fi
 fi
 
+if [[ $(stat -fc %T /sys/fs/cgroup/ 2>/dev/null) == "cgroup2fs" ]]; then
+    has_cgroups_v2=true
+else
+    has_cgroups_v2=false
+fi
+
+advertise debug_pilot_condor_version "$pilot_condor_version" S
+advertise debug_host_condor_version "$host_condor_version" S
+advertise debug_has_cgroups_v2 "$has_cgroups_v2" C
 
 # Using > because >= doesn't exist in bash
 if [[ $pilot_condor_version > "24.07.99" ]] && \
