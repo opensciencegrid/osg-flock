@@ -32,3 +32,6 @@ GWU-Viper,90,limited due to transfer failures
 
 # Georgia State University ACIDS: Tim C., 17 Oct 2025 - consistent OSDF transfer input failures
 GSU-ACIDS,75,limited due to transfer failures
+
+# Purdue Anvil: Tim C. (at Brian B.’s suggestion), 18 Nov 2025 - Purdue having NAT issues
+Purdue-Anvil,100,blocked due to NAT issues
