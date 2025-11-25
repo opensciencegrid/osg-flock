@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=846
+OSG_GLIDEIN_VERSION=847
 #######################################################################
 
 
@@ -457,8 +457,8 @@ for FS in \
             fi
         fi
         
-        # UUTAH is special case - broken NFS
-        if (echo "$GLIDEIN_Entry_Name" | egrep -i "Utah") >/dev/null 2>&1; then
+        # Sites with unstable CVMFS: UUTAH, NMSU-Discovery, Clemson
+        if (echo "$GLIDEIN_Entry_Name" | egrep -i "Utah|NMSU-Discovery|Clemson") >/dev/null 2>&1; then
             RESULT="False"
         fi
 
