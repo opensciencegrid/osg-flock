@@ -55,7 +55,7 @@
                                   GLIDEIN_ToDie - CurrentTime &gt;= 144000,
                                   GLIDEIN_Max_Walltime =?= undefined || GLIDEIN_Max_Walltime &lt; 43200 || GLIDEIN_ToDie - CurrentTime &gt;= 36000))
                       '>
-      <factory query_expr='GLIDEIN_ResourceName =!= "Nebraska"'>
+      <factory query_expr='True'>
          <match_attrs>
             <match_attr name="GLIDEIN_MaxMemMBs" type="int"/>
             <match_attr name="GLIDEIN_Site" type="string"/>

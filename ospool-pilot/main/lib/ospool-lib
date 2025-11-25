@@ -178,6 +178,12 @@ function check_singularity_sif_support {
         return 1
     fi
 
+    # do not allow sif images at Nebraska - the container-in-container is not working
+    GLIDEIN_Site=$(gconfig_get GLIDEIN_Site)
+    if (echo "$GLIDEIN_Site" | egrep -i "Nebraska") >/dev/null 2>&1; then
+        return 1
+    fi
+
     # if singularity is not in the path at this point (detection happens later),
     # we have to assume SIF support
     if ! ($singularity_path --version) >/dev/null 2>&1; then
