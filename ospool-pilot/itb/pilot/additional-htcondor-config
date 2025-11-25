@@ -174,13 +174,13 @@ add_condor_vars_line CCB_HEARTBEAT_INTERVAL "C" "-" "+" "N" "N" "-"
 
 OSDF_FAIL_REASON=""
 osdf_plugin_is_ok () {
-    # Performs tests on the Stash/OSDF plugin passed as an argument.
+    # Performs tests on the OSDF plugin passed as an argument.
     # Sets $OSDF_FAIL_REASON for a human-readable failure reason, or "" on success.
 
-    local OSDF_PLUGIN STASHCP_DEBUG STASHCP_TEST_FILE TIME TIMEOUT
+    local OSDF_PLUGIN OSDF_DEBUG OSDF_TEST_FILE TIME TIMEOUT
     OSDF_PLUGIN="$1"
-    STASHCP_DEBUG="-d"
-    STASHCP_TEST_FILE="osdf:///ospool/uc-shared/public/OSG-Staff/validation/test.txt"
+    OSDF_DEBUG="-d"
+    OSDF_TEST_FILE="osdf:///pelicanplatform/test/hello-world.txt"
 
     TIMEOUT=$(which timeout 2>/dev/null)
     if [ "x$TIMEOUT" != "x" ]; then
@@ -194,23 +194,22 @@ osdf_plugin_is_ok () {
         # Without --quiet, newer versions of TIME(1)
         # will prepend an extra line to the output
         # if the process exits with a non-zero exit code.
-        # Therefore, we use $(tail -1 stashcp-test.time)
-        # below to get the runtime of stashcp.
-        TIME="$TIME --output=stashcp-test.time --format=%e"
+        # Therefore, we use $(tail -1 osdf-test.time)
+        # below to get the runtime of osdf.
+        TIME="$TIME --output=osdf-test.time --format=%e"
     fi
 
     # also run a simple test (TODO: make this IGWN-specific)
-    rm -f stashcp-test.file
-    info "Testing $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE..."
-    # temporary extra test until /ospool/uc-shared/public is fully up
-    if ($TIME $TIMEOUT $OSDF_PLUGIN $STASHCP_DEBUG $STASHCP_TEST_FILE stashcp-test.file) >> stashcp-test.log 2>&1; then
-        if [ -f stashcp-test.time ]; then
-            info "Succeeded (in $(tail -1 stashcp-test.time)s)!"
+    rm -f osdf-test.file
+    info "Testing $OSDF_PLUGIN $OSDF_DEBUG $OSDF_TEST_FILE..."
+    if ($TIME $TIMEOUT $OSDF_PLUGIN $OSDF_DEBUG $OSDF_TEST_FILE osdf-test.file) >> osdf-test.log 2>&1; then
+        if [ -f osdf-test.time ]; then
+            info "Succeeded (in $(tail -1 osdf-test.time)s)!"
         else
             info "Succeeded!"
         fi
 
-        OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^(Pelican)?PluginVersion / { print $3; exit }' | tr -d '"' 2>>stashcp-test.log)
+        OSDF_PLUGIN_VERSION=$("$OSDF_PLUGIN" -classad | awk '/^(Pelican)?PluginVersion / { print $3; exit }' | tr -d '"' 2>>osdf-test.log)
         if [[ $OSDF_PLUGIN_VERSION ]]; then
             OSDF_FAIL_REASON=""
         else
@@ -227,16 +226,16 @@ osdf_plugin_is_ok () {
     else
         if [ "$?" -eq "124" ]; then
             OSDF_FAIL_REASON="Failed (timed out after 120s)!"
-        elif [ -f stashcp-test.time ]; then
-            OSDF_FAIL_REASON="Failed (in $(tail -1 stashcp-test.time)s)!"
+        elif [ -f osdf-test.time ]; then
+            OSDF_FAIL_REASON="Failed (in $(tail -1 osdf-test.time)s)!"
         else
             OSDF_FAIL_REASON="Failed for other reason!"
         fi
     fi
 
     if [[ $OSDF_FAIL_REASON ]]; then
-        warn "$OSDF_FAIL_REASON stashcp output:"
-        while read line; do warn "$line"; done < stashcp-test.log
+        warn "$OSDF_FAIL_REASON osdf output:"
+        while read line; do warn "$line"; done < osdf-test.log
         return 1
     fi
 }
