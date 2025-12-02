@@ -28,13 +28,14 @@ core_schedds = [
         'ap22.uc.osg-htc.org',
         'ap23.uc.osg-htc.org',
         'ap40.uw.osg-htc.org',
+        'ap41.uw.osg-htc.org',
+        'ap43.uw.osg-htc.org',
         'grid-submitter.icecube.wisc.edu',
         'huxley-osgsub-001.sdmz.amnh.org',
         'osg-eic.jlab.org',
         'scosg2201.jlab.org',
         'scosg2202.jlab.org',
         'scott.grid.uchicago.edu',
-        'sub-2.icecube.wisc.edu',
         ]
 
 def load_data():
@@ -173,6 +174,8 @@ def main():
             'ap22.uc.osg-htc.org',
             'ap23.uc.osg-htc.org',
             'ap40.uw.osg-htc.org',
+            'ap41.uw.osg-htc.org',
+            'ap43.uw.osg-htc.org',
             ]
 
     if args.gwms_frontend_config:
