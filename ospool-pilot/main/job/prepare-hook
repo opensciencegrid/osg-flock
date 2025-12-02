@@ -183,9 +183,11 @@ function download_or_build_singularity_image () {
         # transform it to our expected image and name and try to download
         singularity_srcs=""
 
-        if [[ $singularity_image = /cvmfs/singularity.opensciencegrid.org/* ]]; then
+        if [[ $singularity_image = /cvmfs/* ]]; then
             # does not look like the specified CVMFS images is available - pass it
-            # through and let HTCondor fail the right way
+            # through and let HTCondor fail the right way, but stop the glidein from
+            # accepting new jobs (assuming CVMFS has broken)
+            exit_hook_stop_pilot 307 "The specified image does not exist under /cvmfs"
             echo "$singularity_image"
             return 0
         elif [[ -e "$singularity_image" ]]; then
