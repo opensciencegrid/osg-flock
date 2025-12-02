@@ -187,7 +187,7 @@ function download_or_build_singularity_image () {
             # does not look like the specified CVMFS images is available - pass it
             # through and let HTCondor fail the right way, but stop the glidein from
             # accepting new jobs (assuming CVMFS has broken)
-            touch ../../../stop-glidein.stamp
+            exit_hook_stop_pilot 307 "The specified image does not exist under /cvmfs"
             echo "$singularity_image"
             return 0
         elif [[ -e "$singularity_image" ]]; then
