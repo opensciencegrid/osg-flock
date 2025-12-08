@@ -169,9 +169,6 @@ def main():
 
     if args.target_env == "development":
         core_schedds = [
-            'ap20.uc.osg-htc.org',
-            'ap21.uc.osg-htc.org',
-            'ap22.uc.osg-htc.org',
             'ap23.uc.osg-htc.org',
             'ap40.uw.osg-htc.org',
             'ap41.uw.osg-htc.org',
