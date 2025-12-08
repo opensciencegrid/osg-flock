@@ -263,7 +263,9 @@
                <match_attrs>
                </match_attrs>
                <schedds>
-                  <schedd DN="/CN=ap23.uc.osg-htc.org" fullname="ap23.uc.osg-htc.org"/>
+                  <schedd DN="/CN=ap43.uw.osg-htc.org" fullname="ap43.uw.osg-htc.org"/>
+                  <schedd DN="/CN=osg-eic.jlab.org" fullname="osg-eic.jlab.org"/>
+                  <schedd DN="/CN=osgsub01.sdcc.bnl.gov" fullname="osgsub01.sdcc.bnl.gov"/>
                </schedds>
             </job>
          </match>
