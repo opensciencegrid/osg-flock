@@ -346,7 +346,7 @@ if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
     if (( RANDOM % 2 == 0 )); then
         DEFAULT_DOWNLOAD_PELICAN_VERSION=7.22.0-rc.1
     else
-        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.22.0-rc.1
+        DEFAULT_DOWNLOAD_PELICAN_VERSION=7.21.2-rc.1
     fi
 else
     # Production
