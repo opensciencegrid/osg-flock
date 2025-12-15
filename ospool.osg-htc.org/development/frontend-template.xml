@@ -400,6 +400,9 @@
       <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/additional-htcondor-config" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
+      <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/pelican-setup" after_entry="True" const="True" executable="True" period="0" prefix="GLIDEIN_PS_" untar="False" wrapper="False">
+         <untar_options cond_attr="TRUE"/>
+      </file>
       <file absfname="/opt/osg-flock/ospool-pilot/itb/pilot/default-image" after_entry="False" const="True" executable="True" period="0" prefix="NOPREFIX" untar="False" wrapper="False">
          <untar_options cond_attr="TRUE"/>
       </file>
