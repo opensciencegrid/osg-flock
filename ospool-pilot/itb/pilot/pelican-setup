@@ -197,6 +197,9 @@ if [[ ! $DOWNLOAD_PELICAN_VERSION ]]; then
 fi
 
 
+advertise "Ran_Pelican_Setup" 1 C
+
+
 ###########################################################
 # Test and add the stash/osdf plugin
 # It comes with condor, or we might be asked to download it.
