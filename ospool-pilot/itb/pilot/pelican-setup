@@ -63,6 +63,11 @@ set_condor_knob () {
 }
 
 
+# used indirectly in `add_condor_vars_line`
+# shellcheck disable=SC2034
+condor_vars_file=$(gconfig_get CONDOR_VARS_FILE)
+
+
 # In a factory pilot, at the time this script is invoked, the Condor
 # installation will be in a directory like
 #       main/condor/
