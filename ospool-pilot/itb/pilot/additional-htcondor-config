@@ -352,9 +352,6 @@ fi
 # Miscellaneous debugging if any
 [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 
-# TEMPORARY: Turn off nested scratch so I can get starter output
-set_condor_knob "STARTER_NESTED_SCRATCH" false
-
 ###########################################################
 
 echo "All done (osgvo-additional-htcondor-config)"
