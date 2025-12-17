@@ -31,7 +31,6 @@
          </match_attrs>
          <collectors>
             <collector DN="/CN=gfactory-itb-1.osg-htc.org" factory_identity="gfactory@gfactory-itb-1.osg-htc.org" my_identity="feosgospool@gfactory-itb-1.osg-htc.org" node="gfactory-itb-1.osg-htc.org"/>
-            <collector DN="/CN=gfactory-2.osg-htc.org" factory_identity="gfactory@gfactory-2.osg-gfactory-prod.chtc.io" my_identity="feosgospool@gfactory-2.osg-htc.org" node="gfactory-2.osg-gfactory-prod.chtc.io"/>
          </collectors>
       </factory>
       <job comment="Define job constraint and schedds globally for simplicity, on CHTC, only count jobs which wants glideins"
