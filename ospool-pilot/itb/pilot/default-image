@@ -43,14 +43,14 @@ function pull_default_container_image {
 
     download_ok=0
     info "Starting download of default image ($IMAGE_NAME)"
-    info "Downloading via Pelican from $PELICAN_BASE/$URL_PATH"
+    info "Using Pelican to download $PELICAN_BASE/$URL_PATH"
     if osdf_download "$IMAGE_PATH" "$PELICAN_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; then
         info "Pelican download successful"
         download_ok=1
         advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
     else
         my_warn "Pelican download failed"
-        info "Downloading via HTTP from $HTTP_BASE/$URL_PATH"
+        info "Using HTTP to download $HTTP_BASE/$URL_PATH"
         if http_download "$IMAGE_PATH" "$HTTP_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; then
             info "HTTP download successful"
             download_ok=1
