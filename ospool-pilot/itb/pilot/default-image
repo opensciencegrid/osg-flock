@@ -27,8 +27,10 @@ function pull_default_container_image {
     #
     IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
     IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-    HTTP_BASE=http://ospool-images.osgprod.tempest.chtc.io/v2
-    PELICAN_BASE=pelican://osg-htc.org/ospool/uc-shared/public/OSG-Staff/images/v2
+    # HTTP_BASE=http://ospool-images.osgprod.tempest.chtc.io/v2
+    HTTP_BASE=https://ospool-images-web.nrp-nautilus.io/v2
+    # PELICAN_BASE=pelican://osg-htc.org/ospool/uc-shared/public/OSG-Staff/images/v2
+    PELICAN_BASE=pelican://osg-htc.org/ospool/images/v2
     HARBOR_URL=docker://hub.opensciencegrid.org/$SELECTED_IMAGE
 
     # first, we have to do a HTTP call to get the latest version of the selected image
