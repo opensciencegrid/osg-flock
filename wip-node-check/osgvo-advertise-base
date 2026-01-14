@@ -358,12 +358,10 @@ for FS in \
    icecube.osgstorage.org \
    larsoft-ib.opensciencegrid.org \
    larsoft.opensciencegrid.org \
-   ligo.storage.igwn.org \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
    sft.cern.ch \
    singularity.opensciencegrid.org \
-   shared.storage.igwn.org \
    snoplus.egi.eu \
    software.igwn.org \
    sphenix.opensciencegrid.org \
@@ -372,7 +370,6 @@ for FS in \
    sw.lsst.eu \
    unpacked.cern.ch \
    veritas.opensciencegrid.org \
-   virgo.storage.igwn.org \
    xenon.opensciencegrid.org \
 ; do
     FS_CONV=`echo "$FS" | sed 's/[\.-]/_/g'`
