@@ -186,8 +186,8 @@ if (echo "$GLIDECLIENT_Group" | grep itb) >/dev/null 2>&1; then
     rand=$(( RANDOM % 3 ))  # use the same random number
     case $rand in
         0) DEFAULT_DOWNLOAD_PELICAN_VERSION=7.22.0      ;; # known good
-        1) DEFAULT_DOWNLOAD_PELICAN_VERSION=7.23.0-rc.0 ;; # testing 1
-        *) DEFAULT_DOWNLOAD_PELICAN_VERSION=7.23.0-rc.0 ;; # testing 2
+        1) DEFAULT_DOWNLOAD_PELICAN_VERSION=7.23.0-rc.2 ;; # testing 1
+        *) DEFAULT_DOWNLOAD_PELICAN_VERSION=7.22.1-rc.2 ;; # testing 2
     esac
 else
     # Production
