@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=897
+OSG_GLIDEIN_VERSION=898
 #######################################################################
 
 
@@ -404,10 +404,6 @@ for FS in \
     
     if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
         advertise $FS_ATTR "False" "C"
-        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWMS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
-            advertise HAS_SINGULARITY "False" "C"
-            advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"
-        fi
         continue
     fi
 
