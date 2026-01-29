@@ -8,7 +8,8 @@
 
 # global enviroment - make sure apptainer/singularity do not
 # fill up $HOME
-TARGET_TMP=$(gconfig_get TMP_DIR)
+TARGET_TMP=$(gconfig_get TMP_DIR 2>/dev/null)
+TARGET_TMP=${TARGET_TMP-"$PWD"}
 if [ "x$TARGET_TMP" != "x" ]; then
     export APPTAINER_CACHEDIR=${APPTAINER_CACHEDIR-"$TARGET_TMP/apptainer/cache"}
     export APPTAINER_TMPDIR=${APPTAINER_CACHEDIR-"$TARGET_TMP/apptainer/tmp"}
