@@ -1,6 +1,6 @@
 Name:      ospool-ap
 Version:   1.10
-Release:   2%{?dist}
+Release:   3%{?dist}
 Summary:   OSPool Access Point configurations
 
 License:   Apache 2.0
@@ -71,6 +71,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Feb 2 2026 Matt Westphall <westphall@wisc.edu> - 1.10-3
+- Move GLIDEIN_Site from ospool-ap to gratia probe (SOFTWARE-6257)
+
 * Mon Oct 21 2024 Matt Westphall <westphall@wisc.edu> - 1.10-2
 - Initial release as ospool-ap
 
