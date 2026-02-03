@@ -8,7 +8,7 @@ URL:       https://opensciencegrid.org/docs/submit/ospool-ap
 
 BuildArch: noarch
 
-Requires(post): gratia-probe-condor-ap
+Requires(post): gratia-probe-condor-ap >= 2.9.1
 BuildRequires: condor
 Requires: condor
 
