@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=851
+OSG_GLIDEIN_VERSION=852
 #######################################################################
 
 
@@ -441,14 +441,6 @@ for FS in \
         # disable if the mount has had recent errors
         if [ $LAST_IOERR_VAL -ge 0 -a $LAST_IOERR_VAL -lt 14400 ]; then
             RESULT="False"
-        fi
-        
-        # disable singularity if the singularity cvmfs has errors
-        if [ "x$FS" = "xsingularity.opensciencegrid.org" -a "x$GWMS_SINGULARITY_CACHED_IMAGES" = "x" ]; then
-            if [ $RESULT = "False" ]; then
-                advertise HAS_SINGULARITY "False" "C"
-                advertise SINGULARITY_COMMENT "Disabled due to CVMFS availability/errors" "S"
-            fi
         fi
         
         # Sites with unstable CVMFS: UUTAH, NMSU-Discovery, Clemson
