@@ -14,9 +14,6 @@ MSU-DataMachine,50,scaling up OSDF capacity
 # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
 USD-Lawrence,100,debugging
 
-# ISI: Mats 8/6/25 - Testing
-ISI,50,testing
-
 # Utah: Mats/Tim/Brian Haymore 8/19/25 - discussion on Slack
 Utah-Granite,50,limiting due to campus bandwidth usage
 Utah-Kingspeak,50,limiting due to campus bandwidth usage
@@ -24,7 +21,7 @@ Utah-Lonepeak,50,limiting due to campus bandwidth usage
 Utah-Notchpeak,50,limiting due to campus bandwidth usage
 
 # JS2: Mats/Tim 8/21/25 - OSDF failures
-Pervasive Technology Institute,50,limiting due to OSDF failures
+Pervasive Technology Institute,10,limiting due to OSDF failures
 
 # George Washington University Viper: Tim C., 13 Oct 2025 - consistent OSDF transfer input failures
 # https://support.opensciencegrid.org/a/tickets/81275
@@ -34,4 +31,4 @@ GWU-Viper,90,limited due to transfer failures
 GSU-ACIDS,75,limited due to transfer failures
 
 # Purdue Anvil: Tim C. (at Brian B.’s suggestion), 18 Nov 2025 - Purdue having NAT issues
-Purdue-Anvil,100,blocked due to NAT issues
+Purdue-Anvil,90,blocked due to NAT issues
