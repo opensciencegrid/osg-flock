@@ -341,4 +341,11 @@ advertise HAS_NUMPY "$Has_Numpy_Scipy" "C"
 rm -f py.check
 
 
+################################################################
+# common datasets
+# OSPOOL-154 proof of concept
+
+if [ -e /alphafold ]; then
+    advertise HasAlphafold3 "True" "C"
+fi
 
