@@ -345,7 +345,7 @@ rm -f py.check
 # common datasets
 # OSPOOL-154 proof of concept
 
-if [ -e /alphafold ]; then
+if [ -e /alphafold3 ]; then
     advertise HasAlphafold3 "True" "C"
 fi
 
