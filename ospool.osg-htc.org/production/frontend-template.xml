@@ -98,7 +98,7 @@
       <attr name="GLIDEIN_CLAIM_WORKLIFE_DYNAMIC" glidein_publish="False" job_publish="False" parameter="True" type="int" value="10800"/>
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="True"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="36000"/>
-      <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/alphafold"/>
+      <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/alphafold3,/mnt/alphafold"/>
       <!-- apptainer search order: system install, HTCondor, module, cvmfs -->
       <attr name="SINGULARITY_BIN" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PATH"/>
       <!-- no restrictions, it prevents some images like cvmfsexec on Stampede2 -->
