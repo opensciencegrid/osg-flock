@@ -344,8 +344,17 @@ rm -f py.check
 ################################################################
 # common datasets
 # OSPOOL-154 proof of concept
+SharedDatasets=""
 
-if [ -e /alphafold3 ]; then
-    advertise HasAlphafold3 "True" "C"
-fi
+# alphafold3
+for DIR in /alphafold3 /data/alphafold3 /mnt/alphafold /mnt/alphafold3 ; do
+    if ls $DIR/*.fasta >/dev/null 2>&1; then
+        advertise HasAlphafold3 "True" "C"
+        SharedDatasets="$SharedDatasets;AF3=$DIR"
+        break
+    fi
+done
+
+SharedDatasets=$(echo $SharedDatasets | sed 's/^;//')
+advertise SharedDatasets "$SharedDatasets" "S"
 
