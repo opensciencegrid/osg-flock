@@ -356,5 +356,7 @@ for DIR in /alphafold3 /data/alphafold3 /mnt/alphafold /mnt/alphafold3 ; do
 done
 
 SharedDatasets=$(echo $SharedDatasets | sed 's/^;//')
-advertise SharedDatasets "$SharedDatasets" "S"
+if [ "x$SharedDatasets" != "x" ]; then
+    advertise SharedDatasets "$SharedDatasets" "S"
+fi
 
