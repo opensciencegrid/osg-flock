@@ -32,3 +32,6 @@ GSU-ACIDS,75,limited due to transfer failures
 
 # Purdue Anvil: Tim C. (at Brian B.’s suggestion), 18 Nov 2025 - Purdue having NAT issues
 Purdue-Anvil,90,blocked due to NAT issues
+
+# Villanova Augie: Tim C. added on 19 Feb 2026 per https://support.opensciencegrid.org/a/tickets/81533
+VU-AUGIE,100,site networking issues
