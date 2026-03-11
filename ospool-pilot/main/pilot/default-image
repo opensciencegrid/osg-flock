@@ -34,7 +34,7 @@ function pull_default_container_image {
     HARBOR_URL=docker://hub.opensciencegrid.org/$SELECTED_IMAGE
 
     # first, we have to do a HTTP call to get the latest version of the selected image
-    LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail-with-body $HTTP_BASE/$arch/$IMAGE_NAME/latest.txt); ret=$?
+    LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $HTTP_BASE/$arch/$IMAGE_NAME/latest.txt); ret=$?
     if [[ $ret != 0 || ! $LATEST ]]; then
         my_warn "Unable to determine the latest sif for $IMAGE_NAME"
         my_warn "curl returned $ret; output: $LATEST"
