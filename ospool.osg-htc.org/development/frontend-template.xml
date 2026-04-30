@@ -1,9 +1,9 @@
 <frontend advertise_delay="5" advertise_with_multiple="True" advertise_with_tcp="True" downtimes_file="frontenddowntime" frontend_monitor_index_page="False" frontend_name="OSPool-ITB" frontend_versioning="False" group_parallel_workers="2" loop_delay="60" restart_attempts="3" restart_interval="1800">
    <config ignore_down_entries="False">
       <idle_vms_total curb="90" max="100"/>
-      <idle_vms_total_global curb="90" max="100"/>
+      <idle_vms_total_global curb="0" max="0"/>
       <running_glideins_total curb="90" max="100"/>
-      <running_glideins_total_global curb="90" max="100"/>
+      <running_glideins_total_global curb="0" max="0"/>
    </config>
    <high_availability check_interval="300" enabled="False">
       <ha_frontends>
@@ -335,6 +335,53 @@
            </credentials>
          </security>
          <attrs>
+         </attrs>
+         <files>
+         </files>
+      </group>
+
+      <group name="alloc-IceCube-Anvil-GPU" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="True" type="DISABLE" wait="30"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="1" reserve="1"/>
+            <idle_vms_per_entry curb="1" max="1"/>
+            <idle_vms_total curb="1" max="1"/>
+            <processing_workers matchmakers="3"/>
+            <running_glideins_per_entry max="1" min="1" relative_to_queue="5.0"/>
+            <running_glideins_total curb="1" max="1"/>
+         </config>
+         <match
+             match_expr="True"
+             start_expr='(TARGET.ProjectName == "IceCube") &amp;&amp; (isString(TARGET.Desired_Allocations) &amp;&amp; stringListIMember("Anvil", TARGET.Desired_Allocations, ",")) &amp;&amp; (TARGET.is_itb ?: false) =?= true &amp;&amp;
+                         ((TARGET.RequestGPUs?:0) &gt; 0 || RoomForCPUOnlyJobs) &amp;&amp;
+                         (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
+            <factory query_expr='FactoryType == "OSG-ITB" &amp;&amp; stringListMember("OSGVOAllocationGPU", GLIDEIN_Supported_VOs) &amp;&amp; GLIDEIN_Site == "Purdue-Anvil"'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr='(ProjectName=?="IceCube") &amp;&amp;(isString(Desired_Allocations) &amp;&amp; stringListIMember("Anvil", Desired_Allocations, ",")) &amp;&amp; (RequestGPUs &gt;= 1)'>
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                  <schedd DN="/CN=grid-submitter.icecube.wisc.edu" fullname="grid-submitter.icecube.wisc.edu"/>
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <!-- project_id: IceCube is allowed to use the allocation phy150040-gpu -->
+            <parameters>
+               <parameter name="project_id" value="phy150040-gpu,IceCube" type="string"/>
+            </parameters>
+            <credentials>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
+            </credentials>
+         </security>
+         <attrs>
+            <attr name="User_Allocated_Resource" glidein_publish="True" job_publish="False" parameter="True" type="expr" value="True"/>
+            <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
          </attrs>
          <files>
          </files>
