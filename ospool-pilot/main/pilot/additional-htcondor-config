@@ -481,6 +481,38 @@ else
     set_condor_knob "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
 fi
 
+###########################################################
+# CVE-2026-31431 check - this is a temporary location
+# until it gets implemented inside HTCondor
+
+cat >copy.fail_vulnerable.py <<EOF
+#!/usr/bin/env python3
+
+import socket
+import sys
+
+if not hasattr(socket, "AF_ALG"):
+    print("CVE-2026-31431 OK: AF_ALG not supported on this platform")
+    sys.exit(0)
+
+try:
+    with socket.socket(socket.AF_ALG, socket.SOCK_SEQPACKET, 0) as s:
+        s.bind(("aead", "gcm(aes)"))
+    print("CVE-2026-31431 VULNERABLE: algif_aead is reachable")
+    sys.exit(1)
+except FileNotFoundError:
+    print("CVE-2026-31431 OK: AEAD algorithm not available (module blocked)")
+
+except OSError as e:
+    print(f"CVE-2026-31431 OK: {e}")
+EOF
+chmod 700 copy.fail_vulnerable.py
+if ! ./copy.fail_vulnerable.py; then
+    advertise "copy_fail_vulnerable" "true" "C"
+fi
+rm -f copy.fail_vulnerable.py
+
+###########################################################
 
 # Miscellaneous debugging if any
 [[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
