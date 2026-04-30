@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+# This script contains a set of tests for validating a node before
+# the glidein starts up. If any of these tests fail, the script will
+# exit non-zero, indicating a fatal error to glideinWMS.
+
+import socket
+import sys
+
+
+def check_cve_2026_31431():
+    # CVE-2026-31431 / https://copy.fail/ - do not start on nodes where algif_aead is reachable
+    if not hasattr(socket, "AF_ALG"):
+        print("CVE-2026-31431 OK: AF_ALG not supported on this platform")
+        return
+
+    try:
+        with socket.socket(socket.AF_ALG, socket.SOCK_SEQPACKET, 0) as s:
+            s.bind(("aead", "gcm(aes)"))
+        print("CVE-2026-31431 VULNERABLE: algif_aead is reachable")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("CVE-2026-31431 OK: AEAD algorithm not available (module blocked)")
+    except OSError as e:
+        print(f"CVE-2026-31431 OK: {e}")
+
+
+check_cve_2026_31431()
+sys.exit(0)
