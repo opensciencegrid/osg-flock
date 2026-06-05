@@ -381,6 +381,7 @@ for FS in \
    icecube.osgstorage.org \
    larsoft-ib.opensciencegrid.org \
    larsoft.opensciencegrid.org \
+   muoncollider.cern.ch \
    nexo.opensciencegrid.org \
    oasis.opensciencegrid.org \
    public-uc.osgstorage.org \
