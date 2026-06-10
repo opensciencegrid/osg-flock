@@ -82,7 +82,7 @@
    </match>
    <monitor base_dir="/var/lib/gwms-frontend/web-area/monitor" flot_dir="/usr/share/javascriptrrd/flot" javascriptRRD_dir="/usr/share/javascriptrrd/js" jquery_dir="/usr/share/javascriptrrd/flot"/>
    <monitor_footer display_txt="" href_link=""/>
-   <security security_name="OSG_OSPool" idtoken_lifetime="720">
+   <security idtoken_lifetime="720" security_name="OSG_OSPool" sym_key="aes_256_cbc" proxy_selection_plugin="CredentialsBasic">
       <credentials>
           <!-- do not put any global credentials - we have some specific entries below which require one and only one credential -->
       </credentials>
@@ -144,7 +144,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -183,7 +183,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -227,7 +227,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -310,7 +310,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -348,7 +348,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -390,8 +390,11 @@
          </match>
          <security>
             <credentials>
-                <!-- project_id: OSG-Staff is allowed to use the allocation ddm160003 -->
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="ddm160003,OSG-Staff" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
+               <!-- project_id: OSG-Staff is allowed to use the allocation ddm160003 -->
+               <parameters>
+                   <parameter name="project_id" value="ddm160003,OSG-Staff" type="string"/>
+               </parameters>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -439,7 +442,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout_icecube.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -483,7 +486,7 @@
          </match>
          <security>
             <credentials>
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout_icecube.py" security_class="frontend" trust_domain="grid" type="scitoken"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -526,7 +529,10 @@
          <security>
             <credentials>
                 <!-- project_id: IceCube is allowed to use the allocation phy150040-gpu -->
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="phy150040-gpu,IceCube" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
+               <parameters>
+                   <parameter name="project_id" value="phy150040-gpu,IceCube" type="string"/>
+               </parameters>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -571,7 +577,10 @@
          <security>
             <credentials>
                <!-- project_id: IceCube is allowed to use the allocation bbfw-delta-gpu -->
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="bbfw-delta-gpu,IceCube" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
+               <parameters>
+                   <parameter name="project_id" value="bbfw-delta-gpu,IceCube" type="string"/>
+               </parameters>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
@@ -616,7 +625,10 @@
          <security>
             <credentials>
                <!-- project_id: IceCube is allowed to use the allocation -->
-               <credential generator="scitokens_callout" absfname="/etc/gwms-frontend/plugin.d/scitokens_callout.py" project_id="icecube-desy-gpu,IceCube" security_class="frontend" trust_domain="grid" type="scitoken+project_id"/>
+               <parameters>
+                   <parameter name="project_id" value="icecube-desy-gpu,IceCube" type="string"/>
+               </parameters>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/icecube.key.pem', 'key_id': 'dad0', 'issuer': 'https://chtc.cs.wisc.edu/icecube', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
