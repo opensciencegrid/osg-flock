@@ -389,11 +389,11 @@
             </job>
          </match>
          <security>
+            <!-- project_id: OSG-Staff is allowed to use the allocation ddm160003 -->
+            <parameters>
+                <parameter name="project_id" value="ddm160003,OSG-Staff" type="string"/>
+            </parameters>
             <credentials>
-               <!-- project_id: OSG-Staff is allowed to use the allocation ddm160003 -->
-               <parameters>
-                   <parameter name="project_id" value="ddm160003,OSG-Staff" type="string"/>
-               </parameters>
                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
@@ -527,11 +527,11 @@
             </job>
          </match>
          <security>
+             <!-- project_id: IceCube is allowed to use the allocation phy150040-gpu -->
+            <parameters>
+                <parameter name="project_id" value="phy150040-gpu,IceCube" type="string"/>
+            </parameters>
             <credentials>
-                <!-- project_id: IceCube is allowed to use the allocation phy150040-gpu -->
-               <parameters>
-                   <parameter name="project_id" value="phy150040-gpu,IceCube" type="string"/>
-               </parameters>
                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
@@ -575,11 +575,11 @@
             </job>
          </match>
          <security>
+            <!-- project_id: IceCube is allowed to use the allocation bbfw-delta-gpu -->
+            <parameters>
+                <parameter name="project_id" value="bbfw-delta-gpu,IceCube" type="string"/>
+            </parameters>
             <credentials>
-               <!-- project_id: IceCube is allowed to use the allocation bbfw-delta-gpu -->
-               <parameters>
-                   <parameter name="project_id" value="bbfw-delta-gpu,IceCube" type="string"/>
-               </parameters>
                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
@@ -623,11 +623,11 @@
             </job>
          </match>
          <security>
+            <!-- project_id: IceCube is allowed to use the allocation -->
+            <parameters>
+                <parameter name="project_id" value="icecube-desy-gpu,IceCube" type="string"/>
+            </parameters>
             <credentials>
-               <!-- project_id: IceCube is allowed to use the allocation -->
-               <parameters>
-                   <parameter name="project_id" value="icecube-desy-gpu,IceCube" type="string"/>
-               </parameters>
                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
