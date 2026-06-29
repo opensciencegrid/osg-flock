@@ -495,7 +495,7 @@ fi
 
 # some sites are not mapping our uid to a username
 UID_MAPPED="False"
-if uid -u -n >/dev/null 2>&1; then
+if id -u -n >/dev/null 2>&1; then
     UID_MAPPED="True"
 fi
 advertise UID_MAPPED "$UID_MAPPED" "C"
