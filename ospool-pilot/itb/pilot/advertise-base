@@ -31,7 +31,7 @@
 # OSG_GLIDEIN_VERSION is an ever-increasing version of the glideins.
 # This can be used by negotiators or users, for example to match
 # against a glidein newer than some base with new features.
-OSG_GLIDEIN_VERSION=916
+OSG_GLIDEIN_VERSION=917
 #######################################################################
 
 
@@ -492,6 +492,13 @@ SHM_AVAILABLE=`(df /dev/shm --output=size --block-size=1k | tail -n 1) 2>/dev/nu
 if [ "x$SHM_AVAILABLE" != "x" ]; then
     advertise SHM_AVAILABLE "$SHM_AVAILABLE" "I"
 fi
+
+# some sites are not mapping our uid to a username
+UID_MAPPED="False"
+if id -u -n >/dev/null 2>&1; then
+    UID_MAPPED="True"
+fi
+advertise UID_MAPPED "$UID_MAPPED" "C"
 
 
 ##################
