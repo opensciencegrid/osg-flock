@@ -347,7 +347,7 @@ rm -f py.check
 SharedDatasets=""
 
 # alphafold3
-for DIR in /alphafold3 /data/alphafold3 /mnt/alphafold /mnt/alphafold3 /mnt/alphafold/alphafold3_7a4a2f ; do
+for DIR in /alphafold3 /data/alphafold3 /mnt/alphafold /mnt/alphafold3 /mnt/alphafold/alphafold3_7a4a2f /scitech/nas/scratch-90-days/alphafold3 ; do
     if ls $DIR/*.fasta >/dev/null 2>&1; then
         advertise HasAlphafold3 "True" "C"
         SharedDatasets="$SharedDatasets;AF3=$DIR"
