@@ -509,6 +509,28 @@ advertise UID_MAPPED "$UID_MAPPED" "C"
 advertise OSDF_VERIFIED "PelicanPluginVersion =!= UNDEFINED" "C"
 advertise STASHCP_VERIFIED "PelicanPluginVersion =!= UNDEFINED" "C"
 
+
+################################################################
+# common datasets
+# OSPOOL-154 proof of concept
+# This should really be done in advertise-userenv, but gwms does
+# not bindmount correctly in the cron jobs.
+SharedDatasets=""
+
+# alphafold3
+for DIR in /alphafold3 /data/alphafold3 /mnt/alphafold /mnt/alphafold3 /mnt/alphafold/alphafold3_7a4a2f /scitech/nas/scratch-90-days/alphafold3 ; do
+    if ls $DIR/*.fasta >/dev/null 2>&1; then
+        advertise HasAlphafold3 "True" "C"
+        SharedDatasets="$SharedDatasets;AF3=$DIR"
+        break
+    fi
+done
+
+SharedDatasets=$(echo $SharedDatasets | sed 's/^;//')
+if [ "x$SharedDatasets" != "x" ]; then
+    advertise SharedDatasets "$SharedDatasets" "S"
+fi
+
 ###########################################################
 # Project restriction
 if [[ -n $OSG_PROJECT_NAME ]]; then
