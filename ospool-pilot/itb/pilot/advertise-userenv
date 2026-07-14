@@ -341,22 +341,4 @@ advertise HAS_NUMPY "$Has_Numpy_Scipy" "C"
 rm -f py.check
 
 
-################################################################
-# common datasets
-# OSPOOL-154 proof of concept
-SharedDatasets=""
-
-# alphafold3
-for DIR in /alphafold3 /data/alphafold3 /mnt/alphafold /mnt/alphafold3 /mnt/alphafold/alphafold3_7a4a2f /scitech/nas/scratch-90-days/alphafold3 ; do
-    if ls $DIR/*.fasta >/dev/null 2>&1; then
-        advertise HasAlphafold3 "True" "C"
-        SharedDatasets="$SharedDatasets;AF3=$DIR"
-        break
-    fi
-done
-
-SharedDatasets=$(echo $SharedDatasets | sed 's/^;//')
-if [ "x$SharedDatasets" != "x" ]; then
-    advertise SharedDatasets "$SharedDatasets" "S"
-fi
 
