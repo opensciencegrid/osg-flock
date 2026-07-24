@@ -229,7 +229,7 @@
          </security>
          <attrs>
             <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
-            <attr name="STARTER_JOB_ENVIRONMENT" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PELICAN_CLIENT_PREFERREDCACHES=https://osdf-uw-cache.svc.osg-htc.org:8443"/>
+            <attr name="PELICAN_CLIENT_PREFERREDCACHES" glidein_publish="True" job_publish="True" parameter="False" type="string" value="https://osdf-uw-cache.svc.osg-htc.org:8443"/>
          </attrs>
          <files>
          </files>
