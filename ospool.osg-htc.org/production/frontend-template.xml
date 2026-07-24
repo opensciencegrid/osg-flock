@@ -217,7 +217,8 @@
                <match_attrs>
                </match_attrs>
                <schedds>
-                {{{schedd_blob}}}
+                  <schedd DN="/CN=ap40.uw.osg-htc.org" fullname="ap40.uw.osg-htc.org"/>
+                  <schedd DN="/CN=ap41.uw.osg-htc.org" fullname="ap41.uw.osg-htc.org"/>
                </schedds>
             </job>
          </match>
@@ -228,7 +229,7 @@
          </security>
          <attrs>
             <attr name="GLIDEIN_GPUS" glidein_publish="True" job_publish="True" parameter="True" type="int" value="1"/>
-            <attr name="STARTD_JOB_ENVIRONMENT" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PELICAN_CLIENT_PREFERREDCACHES=https://osdf-uw-cache.svc.osg-htc.org:8443"/>
+            <attr name="STARTER_JOB_ENVIRONMENT" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PELICAN_CLIENT_PREFERREDCACHES=https://osdf-uw-cache.svc.osg-htc.org:8443"/>
          </attrs>
          <files>
          </files>
