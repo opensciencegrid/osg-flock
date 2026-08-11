@@ -111,7 +111,7 @@ function osdf_download {
     if [ "x$PELICAN" != "x" -a -e $PELICAN ]; then
         # Make sure this commands timeouts/stops in case of slow transfers. 1 Mb/s to match the curl below.
         rm -rf "$dest" \
-            && PELICAN_CLIENT_MINIMUMDOWNLOADSPEED=1000000 timeout 300s $PELICAN object get "$src" "$dest_sif"
+            && PELICAN_CLIENT_MINIMUMDOWNLOADSPEED=1000000 timeout 240s $PELICAN object get "$src" "$dest_sif"
         ret=$?
     else
         warn "pelican is not available"
@@ -140,10 +140,10 @@ function http_download {
     local dest_sif="${dest%.sif}.sif"
 
     if command -v curl >/dev/null 2>&1; then
-        curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest_sif" "$src"
+        timeout 240s curl --silent --verbose --show-error --fail --location --connect-timeout 30 --speed-limit 1024 -o "$dest_sif" "$src"
         ret=$?
     elif command -v wget >/dev/null 2>&1; then
-        wget -nv --timeout=30 --tries=1 -O "$dest_sif" "$src"
+        timeout 240s wget -nv --timeout=30 --tries=1 -O "$dest_sif" "$src"
         ret=$?
     else
         warn "Neither curl nor wget are available"
