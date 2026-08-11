@@ -46,12 +46,19 @@ function pull_default_container_image {
     download_ok=0
     info "Starting download of default image ($IMAGE_NAME)"
     info "Using Pelican to download $PELICAN_BASE/$URL_PATH"
-    if osdf_download "$IMAGE_PATH" "$PELICAN_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; then
+    osdf_download "$IMAGE_PATH" "$PELICAN_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; ret=$?
+    if [[ $ret = 0 ]]; then
         info "Pelican download successful"
         download_ok=1
         advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
+    elif [[ $ret = 124 ]]; then
+        # the transfer timed out / was too slow - the other download methods
+        # are unlikely to do any better, so give up and let the caller fall
+        # back to a CVMFS image
+        my_warn "Pelican download timed out (exit $ret) - skipping the HTTP and registry fallbacks"
+        return 1
     else
-        my_warn "Pelican download failed"
+        my_warn "Pelican download failed (exit $ret)"
         info "Using HTTP to download $HTTP_BASE/$URL_PATH"
         if http_download "$IMAGE_PATH" "$HTTP_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; then
             info "HTTP download successful"
@@ -124,7 +131,7 @@ function determine_default_container_image {
     # if everything else fails, use EL8/EL9
     if [ "x$SELECTED_IMAGE" = "x" ]; then
         if [ "x$CUDA_VISIBLE_DEVICES" != "x" -a "x$CUDA_VISIBLE_DEVICES" != "x10000" ]; then
-            SELECTED_IMAGE="htc/rocky:8-cuda-11.0.3"
+            SELECTED_IMAGE="htc/rocky:9-cuda-12.6.0"
         else
             SELECTED_IMAGE="htc/rocky:9"
         fi

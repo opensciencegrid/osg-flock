@@ -111,7 +111,7 @@ function osdf_download {
     if [ "x$PELICAN" != "x" -a -e $PELICAN ]; then
         # Make sure this commands timeouts/stops in case of slow transfers. 1 Mb/s to match the curl below.
         rm -rf "$dest" \
-            && PELICAN_CLIENT_MINIMUMDOWNLOADSPEED=1000000 timeout 180s $PELICAN object get "$src" "$dest_sif"
+            && PELICAN_CLIENT_MINIMUMDOWNLOADSPEED=1000000 timeout 300s $PELICAN object get "$src" "$dest_sif"
         ret=$?
     else
         warn "pelican is not available"
