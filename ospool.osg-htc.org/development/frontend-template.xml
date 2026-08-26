@@ -75,6 +75,7 @@
       <attr name="GLIDECLIENT_OSG_VO" glidein_publish="True" job_publish="True" parameter="False" type="string" value="OSG"/>
       <attr name="GLIDEIN_DEBUG_OPTIONS" glidein_publish="True" job_publish="True" parameter="True" type="string" value="userjob,usertrace,cscripttrace"/>
       <attr name="GLIDEIN_DEBUG_OUTPUT" glidein_publish="True" job_publish="True" parameter="True" type="string" value="true"/>
+      <attr name="GLIDEIN_CUSTOM_SCRIPTS_TIMEOUT" glidein_publish="False" job_publish="False" parameter="True" type="int" value="1200"/>
       <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
       <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/alphafold3,/mnt/alphafold,/mnt/alphafold/alphafold3_7a4a2f,/scitech/nas/scratch-90-days/alphafold3"/>
