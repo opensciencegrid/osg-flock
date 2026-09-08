@@ -1,0 +1,99 @@
+#!/usr/bin/python3
+
+# This script is designed to adjust user priorities in the OSPool based on
+# the current state of user workloads. The HTCondor priority settings are
+# modified according to attributes such as the number of held jobs and the
+# ratio of goodput to badput.
+
+import os
+import re
+import sys
+
+import htcondor2 as htcondor
+import classad2 as classad
+from htcondor2 import AdTypes
+
+
+MIN_PRIORITY_FACTOR = 500
+MAX_PRIORITY_FACTOR = 20000
+HELD_JOB_PENALTY_MULTIPLIER = 5
+
+# -1 clears the ceiling
+CEILINGS = {
+    "group_opportunistic.BiomedInfo.shu-ting.cho@ap41.uw.osg-htc.org": 2000,
+    "group_opportunistic.NRAO_2022_Bhatnagar.srikrishna.sekhar@ap1.facility.path-cc.io", 400,
+    "group_opportunistic.OSG-Staff.mats.rynge@ap41.uw.osg-htc.org": 100,
+    "group_opportunistic.SBU_Jia.first_philosopher@ap41.uw.osg-htc.org": 300,
+    "group_opportunistic.SBU_Jia.jjia@ap41.uw.osg-htc.org": 300,
+    "group_opportunistic.SBU_Jia.souvikp42@ap41.uw.osg-htc.org": 300,
+}
+
+
+def ad_int(ad, key, default=0):
+    if key not in ad:
+        return default
+    try:
+        if int(ad[key]) == ad[key]:
+            return int(ad[key])
+    except:
+        return default
+    return default
+
+
+def step(n):
+    # round n to a nice 100
+    return int(round(n / 100) * 100)
+
+
+def main():
+    col = htcondor.Collector()
+
+    # find the right negotiator
+    neg_ad = None
+    for ad in col.query(AdTypes.Negotiator):
+        # the main negotiator of the pool starts with cm-1. or cm-2.
+        if re.search("^cm-[12]\.", ad["Name"]):
+            neg_ad = ad
+    if not neg_ad:
+        print("Unable to find the main negotiator")
+        sys.exit(1)
+    neg = htcondor.Negotiator(neg_ad)
+    print(f"Updating negotiator {neg_ad['Name']}")
+
+    # get the current prio ads so we can determine if we need
+    # an update or note
+    current_prios = neg.getPriorities()
+
+    for ad in col.query(AdTypes.Submitter):
+
+        # current factor
+        current_factor = 1000
+        for prio_ad in current_prios:
+            if prio_ad["Name"] == ad["Name"]:
+                current_factor = round(prio_ad["PriorityFactor"])
+
+        factor = 1000
+
+        # held jobs
+        held = ad_int(ad, "HeldJobs", 0) * HELD_JOB_PENALTY_MULTIPLIER
+        factor += held
+
+        # upper/lower limits on the adjustments
+        factor = min(factor, MAX_PRIORITY_FACTOR)
+        factor = max(factor, MIN_PRIORITY_FACTOR)
+        factor = step(factor)
+
+        if factor != current_factor:
+            print(f" {ad['Name']}  {current_factor} -> {factor}")
+            neg.setFactor(ad["Name"], factor)
+
+    # update ceilings
+    for user, value in CEILINGS.items():
+        print(f" Setting ceiling for {user} to {value}")
+        neg.setCeiling(user, value)
+
+
+if __name__ == "__main__":
+    main()
+
+
