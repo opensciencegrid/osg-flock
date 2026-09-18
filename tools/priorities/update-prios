@@ -19,13 +19,15 @@ MAX_PRIORITY_FACTOR = 20000
 HELD_JOB_PENALTY_MULTIPLIER = 5
 
 # -1 clears the ceiling
+# however, a bug is preventing this from working (https://opensciencegrid.atlassian.net/browse/HTCONDOR-3933)
+# so for now, use 10000 to "cancel" a ceiling
 CEILINGS = {
     "group_opportunistic.BiomedInfo.shu-ting.cho@ap41.uw.osg-htc.org": 2000,
     "group_opportunistic.NRAO_2022_Bhatnagar.srikrishna.sekhar@ap1.facility.path-cc.io": 250,
     "group_opportunistic.OSG-Staff.mats.rynge@ap41.uw.osg-htc.org": 100,
-    "group_opportunistic.SBU_Jia.first_philosopher@ap41.uw.osg-htc.org": -1,
-    "group_opportunistic.SBU_Jia.jjia@ap41.uw.osg-htc.org": -1,
-    "group_opportunistic.SBU_Jia.souvikp42@ap41.uw.osg-htc.org": -1,
+    "group_opportunistic.SBU_Jia.first_philosopher@ap41.uw.osg-htc.org": 10000,
+    "group_opportunistic.SBU_Jia.jjia@ap41.uw.osg-htc.org": 10000,
+    "group_opportunistic.SBU_Jia.souvikp42@ap41.uw.osg-htc.org": 10000,
 }
 
 
@@ -69,7 +71,7 @@ def main():
         # current factor
         current_factor = 1000
         for prio_ad in current_prios:
-            if prio_ad["Name"] == ad["Name"]:
+            if "Name" in prio_ad and prio_ad["Name"] == ad["Name"]:
                 current_factor = round(prio_ad["PriorityFactor"])
 
         factor = 1000
@@ -95,5 +97,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
