@@ -379,6 +379,7 @@ for FS in \
    gwosc.osgstorage.org \
    icecube.opensciencegrid.org \
    icecube.osgstorage.org \
+   jlab.opensciencegrid.org \
    larsoft-ib.opensciencegrid.org \
    larsoft.opensciencegrid.org \
    muoncollider.cern.ch \
