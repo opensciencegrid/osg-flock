@@ -3,16 +3,12 @@
 #    Percent block (integer, 1..100)
 #    Message (will be provided in classad if site is block)
 
-# MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
-# Resuming OSDF: negotiated via Slack, last message 13 Nov 2025 (Shawn and Mats)
-MI-HORUS,95,resuming OSDF transfers slowly
-
 # MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
 # Resuming OSDF: https://support.opensciencegrid.org/a/tickets/80839
 MSU-DataMachine,50,scaling up OSDF capacity
 
 # USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
-USD-Lawrence,100,debugging
+USD-Lawrence,98,debugging
 
 # Utah: Mats/Tim/Brian Haymore 8/19/25 - discussion on Slack
 Utah-Granite,50,limiting due to campus bandwidth usage
@@ -23,9 +19,6 @@ Utah-Notchpeak,50,limiting due to campus bandwidth usage
 # George Washington University Viper: Tim C., 13 Oct 2025 - consistent OSDF transfer input failures
 # https://support.opensciencegrid.org/a/tickets/81275
 GWU-Viper,90,limited due to transfer failures
-
-# Georgia State University ACIDS: Tim C., 17 Oct 2025 - consistent OSDF transfer input failures
-GSU-ACIDS,75,limited due to transfer failures
 
 # Purdue Anvil: Tim C. (at Brian B.’s suggestion), 18 Nov 2025 - Purdue having NAT issues
 Purdue-Anvil,90,blocked due to NAT issues
