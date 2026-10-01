@@ -59,8 +59,6 @@
       <attr name="GLIDEIN_Expose_Grid_Env" glidein_publish="True" job_publish="True" parameter="False" type="string" value="False"/>
       <attr name="GLIDEIN_CONTAINER_ENV" glidein_publish="True" job_publish="True" parameter="False" type="string" value="osgset"/>
       <attr name="GLIDEIN_Job_Max_Time" glidein_publish="True" job_publish="False" parameter="True" type="int" value="72000"/>
-      <!-- apptainer search order: system install, HTCondor, module, cvmfs -->
-      <attr name="SINGULARITY_BIN" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PATH"/>
       <!-- no restrictions, it prevents some images like cvmfsexec on Stampede2 -->
       <attr name="SINGULARITY_IMAGE_RESTRICTIONS" glidein_publish="True" job_publish="False" parameter="True" type="string" value="none"/>
       <attr name="OSG_DEFAULT_CONTAINER_DISTRIBUTION" glidein_publish="False" job_publish="False" parameter="True" type="string" value="20%__htc/rocky:8 20%__htc/rocky:9 20%__htc/almalinux:10 20%__htc/debian:13 20%__htc/ubuntu:24.04"/>
@@ -78,7 +76,7 @@
       <attr name="GLIDEIN_CUSTOM_SCRIPTS_TIMEOUT" glidein_publish="False" job_publish="False" parameter="True" type="int" value="1200"/>
       <attr name="GLIDEIN_Glexec_Use" glidein_publish="True" job_publish="True" parameter="True" type="string" value="NEVER"/>
       <attr name="GLIDEIN_Max_Idle" glidein_publish="True" job_publish="False" parameter="True" type="int" value="600"/>
-      <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/alphafold3,/mnt/alphafold,/mnt/alphafold/alphafold3_7a4a2f,/scitech/nas/scratch-90-days/alphafold3"/>
+      <attr name="GLIDEIN_SINGULARITY_BINDPATH" glidein_publish="True" job_publish="True" parameter="False" type="string" value="/ceph,/mnt/hadoop,/mnt/hdfs,/alphafold3,/mnt/alphafold,/mnt/alphafold/alphafold3_7a4a2f,/scitech/nas/scratch-90-days/alphafold3,/scratch/alphafold3/alphafold3_7a4a2f"/>
       <attr name="GLIDEIN_Singularity_Use" glidein_publish="True" job_publish="False" parameter="True" type="string" value="PREFERRED"/>
       <attr name="SEC_DEFAULT_AUTHENTICATION_METHODS" glidein_publish="True" job_publish="True" parameter="False" type="expr" value="IDTOKEN"/>
       <attr name="SLOTS_LAYOUT" glidein_publish="True" job_publish="True" parameter="False" type="string" value="partitionable"/>
