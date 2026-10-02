@@ -166,7 +166,7 @@ function determine_default_container_image {
     elif [ "x$OSG_DEFAULT_CONTAINER_CVMFS" = "x1" ]; then
         info "Prefering CVMFS images (OSG_DEFAULT_CONTAINER_CVMFS=1)"
         pull_images=0
-    elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|Nebraska") >/dev/null 2>&1; then
+    elif (echo "x$entry_name" | egrep "OSG_CHTC-canary2|FNAL|Nebraska") >/dev/null 2>&1; then
         info "Not allowing non-CVMFS images, as the site is on the deny list ($entry_name)"
         pull_images=0
     fi
