@@ -234,14 +234,17 @@ if [[ $DOWNLOAD_PELICAN_VERSION && $DOWNLOAD_PELICAN_VERSION != condor ]]; then
 else
     # Not asked to download a specific Pelican version, or specifically
     # asked to use what's in the HTCondor tarball.
-    # Find the stash/osdf plugin in the HTCondor installation.
-    if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
-        # forward compat
-        OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
+    # Find the pelican/stash/osdf plugin in the HTCondor installation.
+    if [[ -x $CONDOR_LIBEXEC/pelican_plugin ]]; then
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/pelican_plugin
     elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
+        # backward compat
         OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
+    if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
+        # backward compat
+        OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
     else
-        OSDF_FAIL_REASON="Stash/OSDF plugin not found in pilot's condor install"
+        OSDF_FAIL_REASON="Pelican/Stash/OSDF plugin not found in pilot's condor install"
     fi
 fi
 
