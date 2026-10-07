@@ -292,7 +292,7 @@ function check_singularity_cvmfs_support {
     # unable to use it (for example, apparmor policies)
 
     local work_dir=$(gconfig_get GLIDEIN_WORK_DIR)
-    local image_dir="/cvmfs/singularity.opensciencegrid.org/htc/rocky:9-TESTING"
+    local image_dir="/cvmfs/singularity.opensciencegrid.org/htc/rocky:9"
     local has_singularity=$(gconfig_get HAS_SINGULARITY)
     local singularity_path=$(gconfig_get GWMS_SINGULARITY_PATH)
 

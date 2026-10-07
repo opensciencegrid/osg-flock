@@ -79,6 +79,7 @@ if check_singularity_cvmfs_support; then
 else
     advertise SINGULARITY_CAN_USE_CVMFS "False" "C"
     # also disable singularity.opensciencegrid.org
+    advertise HAS_CVMFS_singularity_opensciencegrid_org "False" "C"
     touch osgvo.cvmfs-disabled.singularity_opensciencegrid_org
 fi
 
