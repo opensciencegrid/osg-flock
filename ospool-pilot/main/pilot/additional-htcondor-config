@@ -321,7 +321,7 @@ else
     elif [[ -x $CONDOR_LIBEXEC/stash_plugin ]]; then
         # backward compat
         OSDF_PLUGIN=$CONDOR_LIBEXEC/stash_plugin
-    if [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
+    elif [[ -x $CONDOR_LIBEXEC/osdf_plugin ]]; then
         # backward compat
         OSDF_PLUGIN=$CONDOR_LIBEXEC/osdf_plugin
     else
