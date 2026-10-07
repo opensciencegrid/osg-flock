@@ -404,7 +404,7 @@ for FS in \
     FS_ATTR="HAS_CVMFS_$FS_CONV"
     RESULT="False"
     
-    if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS ]; then
+    if [ -e $TEST_FILE_4H.cvmfs-disabled.$FS -o -e osgvo.cvmfs-disabled.$FS ]; then
         advertise $FS_ATTR "False" "C"
         continue
     fi

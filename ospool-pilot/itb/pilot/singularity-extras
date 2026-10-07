@@ -73,6 +73,14 @@ else
     advertise SINGULARITY_CAN_USE_REGISTRY "False" "C"
 fi
 
+# also check for cvmfs support
+if check_singularity_cvmfs_support; then
+    advertise SINGULARITY_CAN_USE_CVMFS "True" "C"
+else
+    advertise SINGULARITY_CAN_USE_CVMFS "False" "C"
+    # also disable singularity.opensciencegrid.org
+    touch osgvo.cvmfs-disabled.singularity_opensciencegrid_org
+fi
 
 clause1='(SINGULARITY_CAN_USE_REGISTRY || !(substr(TARGET.SingularityImage, 0, 9) == "docker://"))'
 clause2='(SINGULARITY_CAN_USE_SIF || !(substr(TARGET.SingularityImage, -4) == ".sif"))'
