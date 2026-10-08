@@ -286,6 +286,41 @@ function check_singularity_registry_support {
     fi
 }
 
+function check_singularity_cvmfs_support {
+    # Return 0 if singularity can run an image from cvmfs. This is an extra
+    # test to catch sites with a mounted /cvmfs filesystem, but still
+    # unable to use it (for example, apparmor policies)
+
+    local work_dir=$(gconfig_get GLIDEIN_WORK_DIR)
+    local image_dir="/cvmfs/singularity.opensciencegrid.org/htc/rocky:9"
+    local has_singularity=$(gconfig_get HAS_SINGULARITY)
+    local singularity_path=$(gconfig_get GWMS_SINGULARITY_PATH)
+
+    # if singularity is not in the path at this point (detection happens later),
+    # we have to assume SIF support
+    if ! ($singularity_path --version) >/dev/null 2>&1; then
+        info "Singularity missing in the path during CVMFS detection, assuming CVMFS images are ok"
+        return 0
+    fi
+
+    # singularity is a prereq
+    if [[ $has_singularity != "True" ]]; then
+        return 1
+    fi
+
+    output=$(timeout 60s $singularity_path exec $image_dir /bin/true 2>&1)
+    ret=$?
+
+    if [[ $ret != 0 ]]; then
+        # DEBUGGING
+        info "Error testing for Singularity CVMFS support; output:"
+        info "$output"
+        return $ret
+    else
+        return 0
+    fi
+}
+
 function microarch_version {
     # use only /proc/cpuinfo to determine microarchitecture
     # returns an int 1-4 indicating the level
