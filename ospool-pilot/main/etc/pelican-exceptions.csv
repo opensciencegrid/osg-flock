@@ -11,10 +11,10 @@ MSU-DataMachine,50,scaling up OSDF capacity
 USD-Lawrence,98,debugging
 
 # Utah: Mats/Tim/Brian Haymore 8/19/25 - discussion on Slack
-Utah-Granite,50,limiting due to campus bandwidth usage
-Utah-Kingspeak,50,limiting due to campus bandwidth usage
-Utah-Lonepeak,50,limiting due to campus bandwidth usage
-Utah-Notchpeak,50,limiting due to campus bandwidth usage
+Utah-Granite,25,limiting due to campus bandwidth usage
+Utah-Kingspeak,25,limiting due to campus bandwidth usage
+Utah-Lonepeak,25,limiting due to campus bandwidth usage
+Utah-Notchpeak,25,limiting due to campus bandwidth usage
 
 # George Washington University Viper: Tim C., 13 Oct 2025 - consistent OSDF transfer input failures
 # https://support.opensciencegrid.org/a/tickets/81275
