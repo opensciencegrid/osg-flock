@@ -642,12 +642,12 @@
 
       <!-- ==================== XENON ==================== -->
 
-      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="False">
+      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
             <idle_glideins_per_entry max="10" reserve="1"/>
-            <idle_vms_per_entry curb="30" max="40"/>
+            <idle_vms_per_entry curb="2" max="2"/>
             <idle_vms_total curb="300" max="400"/>
             <processing_workers matchmakers="3"/>
             <running_glideins_per_entry max="5000" min="0" relative_to_queue="5.0"/>
@@ -675,7 +675,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="/etc/condor/certs/xenon-pilot.proxy" security_class="frontend" trust_domain="grid" type="grid_proxy"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'RSA', 'key_file': '/etc/condor/xenon.key.pem', 'key_id': 'fce6', 'issuer': 'https://osg-htc.org/xenon', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
