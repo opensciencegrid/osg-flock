@@ -675,7 +675,7 @@
          </match>
          <security>
             <credentials>
-               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'RSA', 'key_file': '/etc/condor/xenon.key.pem', 'key_id': 'fce6', 'issuer': 'https://osg-htc.org/xenon', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
+               <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'RS256', 'key_file': '/etc/condor/xenon.key.pem', 'key_id': 'fce6', 'issuer': 'https://osg-htc.org/xenon', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
             </credentials>
          </security>
          <attrs>
