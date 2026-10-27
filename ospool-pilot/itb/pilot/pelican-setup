@@ -68,14 +68,6 @@ set_condor_knob () {
 condor_vars_file=$(gconfig_get CONDOR_VARS_FILE)
 
 
-# DEBUG will be advertised in the slot ad is nonempty; use add_to_debug() to add to it
-DEBUG=""
-add_to_debug () {
-    [[ $DEBUG ]] && DEBUG="${DEBUG}; "
-    DEBUG="${DEBUG}$(printf "%q " "$@")"
-}
-
-
 # In a factory pilot, at the time this script is invoked, the Condor
 # installation will be in a directory like
 #       main/condor/
@@ -298,6 +290,4 @@ if [[ $OSDF_FAIL_REASON ]]; then
     set_condor_knob OSDF_PLUGIN "/bin/false"
 fi
 
-# Miscellaneous debugging if any
-[[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 

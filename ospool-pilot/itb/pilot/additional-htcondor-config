@@ -64,6 +64,13 @@ set_condor_knob () {
 
 condor_vars_file=$(gconfig_get CONDOR_VARS_FILE)
 
+# DEBUG will be advertised in the slot ad is nonempty; use add_to_debug() to add to it
+DEBUG=""
+add_to_debug () {
+    [[ $DEBUG ]] && DEBUG="${DEBUG}; "
+    DEBUG="${DEBUG}$(printf "%q " "$@")"
+}
+
 ###########################################################
 # write custom configs to condor_config.d/...
 config_d_dir=$(gconfig_get GLIDEIN_WORK_DIR)/../condor_config.d
@@ -341,6 +348,9 @@ else
     set_condor_knob "OSPOOL_HOOK_PREPARE_JOB_TIMEOUT" "900"
 fi
 
+
+# Miscellaneous debugging if any
+[[ $DEBUG ]] && advertise "DEBUG" "$DEBUG" "S"
 
 ###########################################################
 
