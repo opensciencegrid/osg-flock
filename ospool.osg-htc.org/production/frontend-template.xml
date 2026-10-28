@@ -203,7 +203,7 @@
             <idle_vms_total curb="9000" max="10000"/>
             <processing_workers matchmakers="5"/>
             <running_glideins_per_entry max="80000" min="0" relative_to_queue="20"/>
-            <running_glideins_total curb="40000" max="42000"/>
+            <running_glideins_total curb="95000" max="100000"/>
          </config>
          <match match_expr='True'
                 start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
