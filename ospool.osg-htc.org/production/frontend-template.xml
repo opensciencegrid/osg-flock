@@ -642,7 +642,7 @@
 
       <!-- ==================== XENON ==================== -->
 
-      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="False">
+      <group name="xenon" comment="Using a XENON credential to submit under that XENON1T VO instead of the OSG VO" enabled="True">
          <config ignore_down_entries="">
             <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
             <idle_glideins_lifetime max="864000"/>
@@ -657,7 +657,7 @@
                 start_expr='((XENON_DESIRED_Sites=?=undefined) || stringListMember(GLIDEIN_Site,XENON_DESIRED_Sites,",")) &amp;&amp;
                             (TARGET.projectName =?= "xenon") &amp;&amp; (TARGET.ITB_Sites =!= True) &amp;&amp;
                             (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE)'>
-            <factory query_expr='(FactoryType =?= "production" || FactoryType =?= "CERN-Prod") &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
+            <factory query_expr='(FactoryType =?= "production") &amp;&amp; stringListMember("XENON1T", GLIDEIN_Supported_VOs) &amp;&amp;
                                  !StringListMember(GLIDEIN_ResourceName, "WEIZMANN-LCG2")'>
                <match_attrs>
                </match_attrs>
