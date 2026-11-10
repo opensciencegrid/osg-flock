@@ -237,6 +237,50 @@
          </files>
       </group>
 
+      <group name="alphafold3" enabled="True">
+         <config ignore_down_entries="">
+            <glideins_removal margin="0" requests_tracking="False" type="NO" wait="0"/>
+            <idle_glideins_lifetime max="864000"/>
+            <idle_glideins_per_entry max="100" reserve="10"/>
+            <idle_vms_per_entry curb="20" max="25"/>
+            <idle_vms_total curb="9000" max="10000"/>
+            <processing_workers matchmakers="5"/>
+            <running_glideins_per_entry max="8000" min="1" relative_to_queue="20"/>
+            <running_glideins_total curb="9500" max="10000"/>
+         </config>
+         <match match_expr='True'
+                start_expr='(TARGET.ITB_Sites =!= True) &amp;&amp; (TARGET.ITB_Factory =!= True) &amp;&amp;
+                            (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp;
+                            (isUndefined(TARGET.SingularityImage) || SINGULARITY_START_CLAUSE) &amp;&amp;
+                            (TARGET.is_alphafold3 =?= True)'>
+            <factory query_expr='FactoryType == "production" &amp;&amp;
+                                 (stringListMember("OSGVO", GLIDEIN_Supported_VOs) || stringListMember("OSGVO_MULTICORE", GLIDEIN_Supported_VOs)) &amp;&amp;
+                                 !regexp("project_id", GLIDEIN_SupportedAuthenticationMethod) &amp;&amp;
+                                 (GLIDEIN_REQUIRE_VOMS =!= "True") &amp;&amp;
+                                 (stringListMember(GLIDEIN_ResourceName, "CHTC-Spark-CE1,ISI"))'>
+               <match_attrs>
+               </match_attrs>
+               <collectors>
+               </collectors>
+            </factory>
+            <job query_expr="isUndefined(RequiresWholeMachine) &amp;&amp; (ITB_Sites =!= True) &amp;&amp; (ITB_Factory =!= True) &amp;&amp; isUndefined(RequiresLongWalltime) &amp;&amp; isUndefined(RequiresBigMem) &amp;&amp; (isUndefined(RequestGPUs) || RequestGPUs == 0) &amp;&amp; (is_alphafold3 =?= True)">
+               <match_attrs>
+               </match_attrs>
+               <schedds>
+                {{{schedd_blob}}}
+               </schedds>
+            </job>
+         </match>
+         <security>
+            <credentials>
+                <credential absfname="SciTokenGenerator" purpose="request" security_class="frontend" trust_domain="grid" type="generator" context="{'algorithm': 'ES256', 'key_file': '/etc/condor/scitokens.pem', 'key_id': '6804', 'issuer': 'https://scitokens.org/osg-connect', 'scope': 'compute.read compute.modify compute.create compute.cancel', 'type': 'scitoken'}"/>
+            </credentials>
+         </security>
+         <attrs>
+         </attrs>
+         <files>
+         </files>
+      </group>
 
       <!-- ==================== ePIC ==================== -->
 
