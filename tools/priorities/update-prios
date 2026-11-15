@@ -80,6 +80,9 @@ def main():
         held = ad_int(ad, "HeldJobs", 0) * HELD_JOB_PENALTY_MULTIPLIER
         factor += held
 
+        if ad["Name"] == "group_opportunistic.xenon.ravindran@ap23.uc.osg-htc.org":
+            factor = 500
+
         # upper/lower limits on the adjustments
         factor = min(factor, MAX_PRIORITY_FACTOR)
         factor = max(factor, MIN_PRIORITY_FACTOR)
