@@ -79,6 +79,9 @@ config_d_dir=$(gconfig_get GLIDEIN_WORK_DIR)/../condor_config.d
 cat >"$config_d_dir/50-resource-policy.conf" <<EOF
 use policy:Hold_If_Memory_Exceeded
 use policy:Hold_If_Disk_Exceeded
+
+# remove after 2026-12-15 - HTCondor should have a fix by then
+DISK_EXCEEDED = (JobUniverse != 13 && !(MY.IsDataSlot ?: false) && DiskUsage =!= UNDEFINED && DiskUsage > Disk)
 EOF
 
 ###########################################################
