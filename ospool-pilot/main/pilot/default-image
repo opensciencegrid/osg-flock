@@ -27,40 +27,54 @@ function pull_default_container_image {
     #
     IMAGE_NAME=$(echo "$SELECTED_IMAGE" | sed 's;[:/];__;g')
     IMAGE_PATH=$PWD/images/$IMAGE_NAME.sif
-    # HTTP_BASE=http://ospool-images.osgprod.tempest.chtc.io/v2
-    HTTP_BASE=https://ospool-images-web.nrp-nautilus.io/v2
-    # PELICAN_BASE=pelican://osg-htc.org/ospool/uc-shared/public/OSG-Staff/images/v2
+    PELICAN_HTTP_BASE=https://ospool-images-web.nrp-nautilus.io/v2
     PELICAN_BASE=pelican://osg-htc.org/ospool/images/v2
-
-    # first, we have to do a HTTP call to get the latest version of the selected image
-    LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $HTTP_BASE/$arch/$IMAGE_NAME/latest.txt); ret=$?
-    if [[ $ret != 0 || ! $LATEST ]]; then
-        my_warn "Unable to determine the latest sif for $IMAGE_NAME"
-        my_warn "curl returned $ret; output: $LATEST"
-        return 1
-    fi
-
-    URL_PATH="$arch/$IMAGE_NAME/$LATEST"
+    HTTP_MIRRORS="https://ospool-images-web.nrp-nautilus.io/v2 https://data.isi.edu/osg/ospool-image-mirror/v2"
 
     download_ok=0
     info "Starting download of default image ($IMAGE_NAME)"
-    info "Using Pelican to download $PELICAN_BASE/$URL_PATH"
-    osdf_download "$IMAGE_PATH" "$PELICAN_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; ret=$?
-    if [[ $ret = 0 ]]; then
-        info "Pelican download successful"
-        download_ok=1
-        advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
+
+    # pelican
+    # first, we have to do a HTTP call to get the latest version of the selected image
+    info "Trying Pelican download from $PELICAN_BASE"
+    LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $PELICAN_HTTP_BASE/$arch/$IMAGE_NAME/latest.txt); ret=$?
+    if [[ $ret != 0 || ! $LATEST ]]; then
+        my_warn "Unable to determine the latest sif for $IMAGE_NAME"
+        my_warn "curl returned $ret; output: $LATEST"
     else
-        my_warn "Pelican download failed (exit $ret)"
-        info "Using HTTP to download $HTTP_BASE/$URL_PATH"
-        http_download "$IMAGE_PATH" "$HTTP_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; ret=$?
+        URL_PATH="$arch/$IMAGE_NAME/$LATEST"
+        osdf_download "$IMAGE_PATH" "$PELICAN_BASE/$URL_PATH" &>"$IMAGE_PATH.log"; ret=$?
         if [[ $ret = 0 ]]; then
-            info "HTTP download successful"
+            info "Pelican download successful"
             download_ok=1
-            advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "HTTP" "S"
+            advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "OSDF" "S"
         else
-            my_warn "HTTP download failed (exit $ret)"
+            my_warn "Pelican download failed (exit $ret)"
         fi
+    fi
+
+    # http mirrors
+    if [ $download_ok = 0 ]; then
+
+        # now try the http mirrors
+        for MIRROR in $HTTP_MIRRORS; do
+            info "Trying HTTP download from $MIRROR"
+            # mirrors might have slightly different "latest"
+            LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $MIRROR/$arch/$IMAGE_NAME/latest.txt); ret=$?
+            if [[ $ret != 0 || ! $LATEST ]]; then
+                continue
+            fi
+            URL_PATH="$arch/$IMAGE_NAME/$LATEST"
+            http_download "$IMAGE_PATH" "$MIRROR/$URL_PATH" &>"$IMAGE_PATH.log"; ret=$?
+            if [[ $ret = 0 ]]; then
+                info "HTTP download successful"
+                download_ok=1
+                advertise OSG_DEFAULT_SINGULARITY_IMAGE_SOURCE "HTTP" "S"
+                break
+            else
+                my_warn "HTTP download failed (exit $ret)"
+            fi
+        done
     fi
 
     if [ $download_ok = 1 ]; then
