@@ -109,7 +109,7 @@ function osdf_download {
     done
 
     if [ "x$PELICAN" != "x" -a -e $PELICAN ]; then
-        # Make sure this commands timeouts/stops in case of slow transfers.
+        # Make sure this commands timeouts/stops in case of slow transfers
         rm -rf "$dest" \
             && PELICAN_CLIENT_MINIMUMDOWNLOADSPEED=1000000 timeout 480s $PELICAN object get "$src" "$dest_sif"
         ret=$?
@@ -168,7 +168,7 @@ function download_minimal_sif_image {
     # downloads a small sif image and sticks it into the image dir
     local arch=$(uname -m)
     local cvmfs_image="/cvmfs/oasis.opensciencegrid.org/osg/projects/OSG-Staff/images/$arch/htc__minimal__0.sif"
-    local http_base="https://ospool-images-web.nrp-nautilus.io/v2"
+    local http_mirrors="https://ospool-images-web.nrp-nautilus.io/v2 https://data.isi.edu/osg/ospool-image-mirror/v2"
     local image_dir="$work_dir/../images"
 
     # only download once
@@ -184,20 +184,27 @@ function download_minimal_sif_image {
         fi
     fi
 
-    # http. first, we have to determine the latest version of the selected image
-    latest=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $http_base/$arch/htc__minimal__0/latest.txt); ret=$?
-    if [[ $ret != 0 || ! $latest ]]; then
-        my_warn "Unable to determine the latest sif for htc__minimal__0"
-        my_warn "curl returned $ret; output: $latest"
-        return 1
-    fi
+    # http mirrors
+    local mirror=""
+    for mirror in $http_mirrors; do
+        # first, we have to determine the latest version of the selected image
+        latest=$(curl -s -S --max-time 60 --retry 0 --fail $mirror/$arch/htc__minimal__0/latest.txt); ret=$?
+        if [[ $ret != 0 || ! $latest ]]; then
+            my_warn "Unable to determine the latest sif for htc__minimal__0 from $mirror"
+            my_warn "curl returned $ret; output: $latest"
+            continue
+        fi
 
-    if ! http_download $image_dir/htc__minimal__0.sif $http_base/$arch/htc__minimal__0/$latest &>"$image_dir/htc__minimal__0.sif.log"; then
-        cat "$image_dir/htc__minimal__0.sif.log" >&2
-        return 1
-    fi
+        if ! http_download $image_dir/htc__minimal__0.sif $mirror/$arch/htc__minimal__0/$latest &>"$image_dir/htc__minimal__0.sif.log"; then
+            cat "$image_dir/htc__minimal__0.sif.log" >&2
+            continue
+        fi
 
-    return 0
+        # success
+        return 0
+    done
+
+    return 1
 }
 
 
