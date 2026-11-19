@@ -37,7 +37,7 @@ function pull_default_container_image {
     # pelican
     # first, we have to do a HTTP call to get the latest version of the selected image
     info "Trying Pelican download from $PELICAN_BASE"
-    LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $PELICAN_HTTP_BASE/$arch/$IMAGE_NAME/latest.txt); ret=$?
+    LATEST=$(curl -s -S --max-time 60 --retry 0 --fail $PELICAN_HTTP_BASE/$arch/$IMAGE_NAME/latest.txt); ret=$?
     if [[ $ret != 0 || ! $LATEST ]]; then
         my_warn "Unable to determine the latest sif for $IMAGE_NAME"
         my_warn "curl returned $ret; output: $LATEST"
@@ -60,7 +60,7 @@ function pull_default_container_image {
         for MIRROR in $HTTP_MIRRORS; do
             info "Trying HTTP download from $MIRROR"
             # mirrors might have slightly different "latest"
-            LATEST=$(curl -s -S --insecure --max-time 60 --retry 0 --fail $MIRROR/$arch/$IMAGE_NAME/latest.txt); ret=$?
+            LATEST=$(curl -s -S --max-time 60 --retry 0 --fail $MIRROR/$arch/$IMAGE_NAME/latest.txt); ret=$?
             if [[ $ret != 0 || ! $LATEST ]]; then
                 continue
             fi
