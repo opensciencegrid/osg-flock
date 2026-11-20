@@ -13,3 +13,7 @@ USD-Lawrence,98,debugging
 # George Washington University Viper: Tim C., 13 Oct 2025 - consistent OSDF transfer input failures
 # https://support.opensciencegrid.org/a/tickets/81275
 GWU-Viper,90,limited due to transfer failures
+
+# LSU Health Sciences Center New Orleans Tigerfish: Tim C., 20 Nov 2026 - CA certs, >80% transfer failures
+# https://support.opensciencegrid.org/a/tickets/85806
+LSUHSC-Tigerfish,100,temporarily disable until CA certs updated
