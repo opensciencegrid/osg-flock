@@ -3,14 +3,20 @@
 #    Percent block (integer, 1..100)
 #    Message (will be provided in classad if site is block)
 
-# MI-HORUS: email 4/14/25 - temp disabled for OSDF debugging
-MI-HORUS,100,debugging
-
-# MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
-MSU-DataMachine,100,debugging
-
-# USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
-USD-Lawrence,100,debugging
-
 # ISI: Mats 8/6/25 - Testing
 ISI,50,testing
+
+# MSU-DataMachine: email 4/14/25 - temp disabled for OSDF debugging
+# Resuming OSDF: https://support.opensciencegrid.org/a/tickets/80839
+MSU-DataMachine,50,scaling up OSDF capacity
+
+# USD-Lawrence: email 4/15/25 - temp disabled for OSDF debugging
+USD-Lawrence,98,debugging
+
+# George Washington University Viper: Tim C., 13 Oct 2025 - consistent OSDF transfer input failures
+# https://support.opensciencegrid.org/a/tickets/81275
+GWU-Viper,90,limited due to transfer failures
+
+# LSU Health Sciences Center New Orleans Tigerfish: Tim C., 20 Nov 2026 - CA certs, >80% transfer failures
+# https://support.opensciencegrid.org/a/tickets/85806
+LSUHSC-Tigerfish,100,temporarily disable until CA certs updated
