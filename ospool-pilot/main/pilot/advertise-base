@@ -211,7 +211,7 @@ GLIDEIN_Start_Extra=$(gconfig_get GLIDEIN_Start_Extra)
 OSG_PROJECT_NAME=$(gconfig_get OSG_PROJECT_NAME)
 OSPool="False"
 if (echo "$GLIDEIN_Collector" | grep cm-1.ospool.osg-htc.org) >/dev/null 2>&1; then
-    if (echo "$GLIDECLIENT_Group" | grep -E '^(gpu|main|main-canary)$') >/dev/null 2>&1; then
+    if (echo "$GLIDECLIENT_Group" | grep -E '^(gpu|main|main-canary|alphafold3)$') >/dev/null 2>&1; then
         # gwms - use the group as determining factor
         OSPool="True"
     elif [ "x$GLIDECLIENT_Group" = "xmain-container" ]; then
